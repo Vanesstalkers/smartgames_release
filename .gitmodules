@@ -1,0 +1,3 @@
+[submodule "store"]
+	path = application/lib/store
+	url = https://github.com/Vanesstalkers/smartgames_lib_store.git
