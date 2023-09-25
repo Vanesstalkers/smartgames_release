@@ -8,11 +8,11 @@ async () => {
 
   if (application.worker.id === 'W1') {
     console.debug('Connect to mongo');
-    db.mongo.handlers.afterStart.push(async () => {
+    await db.mongo.handlers.afterStart(async () => {
       console.log('db.mongo.afterStart');
     });
   }
-  for (const fn of db.mongo.handlers.afterStart) {
-    if (typeof fn === 'function') await fn();
-  }
+
+  db.mongo.ready = true;
+  await db.mongo.handlers.afterStart();
 };

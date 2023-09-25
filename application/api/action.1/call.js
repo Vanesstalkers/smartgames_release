@@ -5,7 +5,9 @@
       const splittedPath = path.split('.');
       if (!splittedPath.includes('api')) throw new Error(`Method (path="${path}") not found`);
 
-      const method = lib.utils.getDeep(this, splittedPath);
+      let method = lib.utils.getDeep(domain, splittedPath);
+      if (!method) method = lib.utils.getDeep(lib, splittedPath);
+
       if (typeof method !== 'function') throw new Error(`Method (path="${path}") not found`);
       if (!Array.isArray(args)) args = [args || {}];
       const result = await method(context, ...args);
