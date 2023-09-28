@@ -4,9 +4,6 @@
 [submodule "chat"]
 	path = application/lib/chat
 	url = https://github.com/Vanesstalkers/smartgames_lib_chat.git
-[submodule "game"]
-	path = application/lib/game
-	url = https://github.com/Vanesstalkers/smartgames_lib_game.git
 [submodule "helper"]
 	path = application/lib/helper
 	url = https://github.com/Vanesstalkers/smartgames_lib_helper.git
