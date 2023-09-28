@@ -13,3 +13,6 @@
 [submodule "user"]
 	path = application/lib/user
 	url = https://github.com/Vanesstalkers/smartgames_lib_user.git
+[submodule "application/lib/lobby"]
+	path = application/lib/lobby
+	url = https://github.com/Vanesstalkers/smartgames_lib_lobby.git
