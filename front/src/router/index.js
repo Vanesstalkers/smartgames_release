@@ -1,33 +1,25 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Lobby from '~/domain/lobby/front/Lobby.vue';
 
 Vue.use(VueRouter);
 
-const routes = [
-  {
-    path: '/',
-    name: 'Lobby',
-    component: Lobby,
-  },
-  {
-    path: '/game/:id',
-    name: 'Game',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: function () {
-      return import('../views/Game.vue');
-    },
-    // beforeEnter: (to, from, next) => {
-    //   console.log("beforeEnter: (to, from, next) => {", {to});
-    //   next();
-    // }
-  },
-];
+const routes = [];
 
-const router = new VueRouter({
-  routes,
+//automatically load all files from "application" directory and register them
+const autoLoadedFiles = require.context(
+  '~', // Look for files in the "application" directory
+  true, // include subdirectories
+  /router\.mjs$/
+);
+autoLoadedFiles.keys().forEach((fileName) => {
+  const route = autoLoadedFiles(fileName).default;
+  // сейчас роуты из domain цепляются раньше, чем из lib, но при желании можно будет добавить проверку через route.source = fileName;
+  if (!routes.find(({ path }) => path === route.path)) {
+    // предотвращение ошибки "[vue-router] Duplicate named routes definition"
+    routes.push(route);
+  }
 });
+
+const router = new VueRouter({ routes });
 
 export default router;
