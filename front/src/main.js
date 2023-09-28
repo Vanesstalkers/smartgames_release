@@ -9,27 +9,78 @@ import { fab } from '@fortawesome/free-brands-svg-icons';
 import { Metacom } from '../lib/metacom.js';
 import { mergeDeep } from '../lib/utils.js';
 
+import { port as frontPort } from './../../application/config/front.json';
+
 library.add(fas, far, fab);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 Vue.config.productionTip = false;
 
 const init = async () => {
   if (!window.name) window.name = Date.now() + Math.random();
+  window.tokenName = 'smartgames.session.token';
+
+  const protocol = location.protocol === 'http:' ? 'ws' : 'wss';
+  // направление на конкретный port нужно для reconnect (см. initSession) + для отладки
+  const port = new URLSearchParams(location.search).get('port') || frontPort;
+
+  const serverHost =
+    process.env.NODE_ENV === 'development' || new URLSearchParams(document.location.search).get('dev')
+      ? `${location.hostname}:${port}`
+      : `${location.hostname}/api`;
+
+  const metacom = Metacom.create(`${protocol}://${serverHost}`);
+  const { api } = metacom;
+  window.metacom = metacom;
+  window.api = api;
+
+  await metacom.load('action');
 
   const state = {
-    serverOrigin: '',
-    viewLoaded: true,
-    currentUser: '',
-    currentLobby: '',
+    serverOrigin: `${location.protocol}//${serverHost}`,
     isMobile: false,
     isLandscape: true,
     isPortrait: false,
+    isFullscreen: false,
     guiScale: 1,
-    currentRoute: '',
-    store: {
-      user: {},
+    store: {},
+    emit: {
+      updateStore(data) {
+        mergeDeep({ target: state.store, source: data });
+      },
+      alert(data) {
+        prettyAlert(data);
+      },
+      logout() {
+        window.app.$set(window.app.$root.state, 'currentUser', '');
+        localStorage.removeItem(window.tokenName);
+        router.push({ path: `/` }).catch((err) => {
+          console.log(err);
+        });
+      },
     },
   };
+
+  api.action.on('emit', ({ eventName, data }) => {
+    const event = state.emit[eventName];
+    if (!event) return console.error(`event "${eventName}" not found`);
+    event(data);
+  });
+
+  window.addEventListener('message', async function (e) {
+    const { path, args, routeTo, emit } = e.data;
+    if (path && args) return await api.action.call({ path, args });
+    if (routeTo)
+      return router.push({ path: routeTo }).catch((err) => {
+        console.log(err);
+      });
+    if (emit) {
+      const { name: eventName, data } = emit;
+      const event = state.emit[eventName];
+      if (!event) return console.error(`event "${eventName}" not found`);
+      return await event(data);
+    }
+  });
+  window.iframeEvents = {};
 
   router.beforeEach((to, from, next) => {
     state.currentRoute = to.name;
@@ -46,11 +97,11 @@ const init = async () => {
         const { login, password, demo } = config || {};
         const { success: onSuccess, error: onError } = handlers;
 
-        const token = localStorage.getItem('smartgames.session.token');
+        const token = localStorage.getItem(window.tokenName);
         const session =
           (await api.action
             .public({
-              path: 'lib.user.api.initSession',
+              path: 'user.api.initSession',
               args: [
                 {
                   token,
@@ -61,8 +112,8 @@ const init = async () => {
                 },
               ],
             })
-            .catch((err) => {
-              if (typeof onError === 'function') onError(err);
+            .catch(async (err) => {
+              if (typeof onError === 'function') await onError(err);
             })) || {};
 
         const { token: sessionToken, userId, reconnect } = session;
@@ -73,10 +124,36 @@ const init = async () => {
           return;
         }
 
-        if (sessionToken && sessionToken !== token) localStorage.setItem('smartgames.session.token', sessionToken);
+        this.$set(this.$root.state, 'currentToken', sessionToken);
+        if (sessionToken && sessionToken !== token) localStorage.setItem(window.tokenName, sessionToken);
         if (userId) {
           this.$set(this.$root.state, 'currentUser', userId);
-          if (typeof onSuccess === 'function') onSuccess(session);
+          if (typeof onSuccess === 'function') await onSuccess(session);
+        }
+      },
+      async initSessionIframe() {
+        const searchParams = new URLSearchParams(document.location.search);
+        const userId = searchParams.get('userId');
+        const lobbyId = searchParams.get('lobbyId');
+        const token = searchParams.get('token');
+
+        await api.action.public({
+          path: 'user.api.initSession',
+          args: [
+            {
+              ...{ token, userId, lobbyId },
+              windowTabId: window.name,
+            },
+          ],
+        });
+
+        this.$set(this.$root.state, 'currentUser', userId);
+        this.$set(this.$root.state, 'currentLobby', lobbyId);
+        this.$set(this.$root.state, 'lobbyOrigin', searchParams.get('lobbyOrigin'));
+
+        if (window !== window.parent) {
+          const iframeCode = searchParams.get('iframeCode');
+          window.parent.postMessage({ emit: { name: 'iframeAlive', data: { iframeCode } } }, '*');
         }
       },
     },
@@ -89,45 +166,6 @@ const init = async () => {
     render: function (h) {
       return h(App);
     },
-  });
-
-  const protocol = location.protocol === 'http:' ? 'ws' : 'wss';
-  // направление на конкретный port нужно для reconnect (см. initSession) + для отладки
-  const port = new URLSearchParams(location.search).get('port') || 8800;
-
-  const serverHost =
-    process.env.NODE_ENV === 'development' ? `${location.hostname}:${port}` : `${location.hostname}/api`;
-  state.serverOrigin = `${location.protocol}//${serverHost}`;
-  const metacom = Metacom.create(`${protocol}://${serverHost}`);
-  const { api } = metacom;
-  window.metacom = metacom;
-  window.api = api;
-
-  await metacom.load('db', 'session', 'action');
-
-  api.db.on('smartUpdated', (data) => {
-    mergeDeep({ target: state.store, source: data });
-  });
-
-  api.session.on('joinGame', (data) => {
-    router.push({ path: `/game/${data.gameId}` }).catch((err) => {
-      console.log(err);
-    });
-  });
-  api.session.on('leaveGame', () => {
-    router.push({ path: `/` }).catch((err) => {
-      console.log(err);
-    });
-  });
-  api.session.on('logout', () => {
-    app.$set(app.$root.state, 'currentUser', '');
-    localStorage.removeItem('smartgames.session.token');
-    router.push({ path: `/` }).catch((err) => {
-      console.log(err);
-    });
-  });
-  api.session.on('error', (data) => {
-    prettyAlert(data);
   });
 
   window.app.$mount('#app');
@@ -149,6 +187,7 @@ const init = async () => {
     state.isLandscape = height < width;
     state.isPortrait = !state.isLandscape;
     state.guiScale = width < 1000 ? 1 : width < 1500 ? 2 : width < 2000 ? 3 : width < 3000 ? 4 : 5;
+    state.isFullscreen = document.fullscreenElement ? true : false;
   };
 
   // window.addEventListener('orientationchange', async () => {

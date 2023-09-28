@@ -15,7 +15,10 @@
       return await method(context, ...args);
     } catch (err) {
       console.log(err);
-      context.client.emit('session/error', { message: err.message, stack: err.stack });
+      context.client.emit('action/emit', {
+        eventName: 'alert',
+        data: { message: err.message, stack: err.stack },
+      });
       return err;
     }
   },

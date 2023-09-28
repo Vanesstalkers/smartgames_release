@@ -22,7 +22,6 @@
       });
 
     user.subscribe(`user-${userId}`); // user в лобби
-    // lib.store.broadcaster.publishAction(`user-${userId}`, 'addExternalSession', session.channelName());
     
     const sessionId = session.id();
     session.set({ lobbyId });
@@ -35,6 +34,7 @@
     // const { ip } = context.client;
     // // сессия impress (нужна для локального хранения context.session.state.gameId = '')
     // await api.auth.provider.createSession(token, sessionData, { ip });
+    // ! после включения для работы нужно добавить auth.1/dummy.js
 
     session.onClose = [];
     context.client.addListener('close', async () => {

@@ -18,7 +18,7 @@
       this.clearChanges();
     }
 
-    async joinGame({ gameId, playerId, viewerId, gameType, isSinglePlayer }) {
+    async joinGame({ deckType, gameId, playerId, viewerId, isSinglePlayer }) {
       const {
         helper: { getTutorial },
         utils: { structuredClone: clone },
@@ -27,12 +27,12 @@
       for (const session of this.sessions()) {
         session.set({ gameId, playerId, viewerId });
         await session.saveChanges();
-        session.send('session/joinGame', { gameId, playerId, viewerId });
+        session.emit('joinGame', { deckType, gameId, playerId, viewerId });
       }
 
       this.set({
         ...{ gameId, playerId, viewerId },
-        ...(!this.rankings?.[gameType] ? { rankings: { [gameType]: {} } } : {}),
+        ...(!this.rankings?.[deckType] ? { rankings: { [deckType]: {} } } : {}),
       });
 
       let { currentTutorial = {}, helper = null, helperLinks = {}, finishedTutorials = {} } = this;
@@ -76,7 +76,7 @@
         session.unsubscribe(`game-${gameId}`);
         session.set({ gameId: null, playerId: null, viewerId: null });
         await session.saveChanges();
-        session.send('session/leaveGame', {});
+        session.emit('leaveGame', {});
       }
     }
 

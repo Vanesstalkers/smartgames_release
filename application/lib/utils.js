@@ -118,7 +118,7 @@
               config,
               keyPath: [...keyPath, key],
             });
-            if (config.removeEmptyObject && Object.keys(source[key]).length && Object.keys(target[key]).length === 0) {
+            if (config.removeEmptyObject && Object.keys(target[key]).length === 0) {
               // изменений во вложенном объекте нет (удаляем, чтобы он не перетерся в БД)
               delete target[key];
             }
@@ -144,7 +144,7 @@
               config,
               keyPath: [...keyPath, key],
             });
-            if (config.removeEmptyObject && Object.keys(source[key]).length && Object.keys(target[key]).length === 0) {
+            if (config.removeEmptyObject && Object.keys(target[key]).length === 0) {
               // изменений во вложенном объекте нет (удаляем, чтобы он не перетерся в БД)
               delete target[key];
             }

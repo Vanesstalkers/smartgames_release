@@ -129,7 +129,7 @@
         result.push({ zone, status });
       }
 
-      // восстанавливаем состояние для ранее удаленного dice
+      // восстанавливаем состояние для ранее удаленного dice (ссылка на parent все еще на месте, т.к. она меняется только через updateParent/setParent)
       this.getParent().addItem(this);
     }
     game.enableChanges();

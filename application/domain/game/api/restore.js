@@ -1,4 +1,4 @@
-async (context, { gameId }) => {
+async (context, { deckType, gameId }) => {
   const { sessionId } = context.session.state;
   const session = lib.store('session').get(sessionId);
   const user = session.user();
@@ -9,7 +9,7 @@ async (context, { gameId }) => {
   for (const session of user.sessions()) {
     session.set({ gameId, playerId, viewerId });
     await session.saveChanges();
-    session.send('session/joinGame', { gameId });
+    session.emit('joinGame', { deckType, gameId });
   }
 
   return { status: 'ok' };

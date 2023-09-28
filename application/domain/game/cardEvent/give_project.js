@@ -3,10 +3,10 @@
     let diceFound = false;
     const deck = player.getObjectByCode('Deck[domino]');
     for (const dice of deck.getObjects({ className: 'Dice' })) {
-      dice.set({ activeEvent: { sourceId: this._id } });
+      dice.set({ activeEvent: { sourceId: this.id() } });
       diceFound = true;
     }
-    if (diceFound) game.set({ activeEvent: { sourceId: this._id } });
+    if (diceFound) game.set({ activeEvent: { sourceId: this.id() } });
   },
   handlers: {
     eventTrigger: function ({ game, player: activePlayer, target }) {
@@ -28,10 +28,10 @@
           dice.set({ activeEvent: null });
         }
 
-        game.set({ activeEvent: { targetDiceId: target._id } });
+        game.set({ activeEvent: { targetDiceId: target.id() } });
         for (const player of game.getObjects({ className: 'Player' })) {
           if (player === activePlayer) continue;
-          player.set({ activeEvent: { choiceEnabled: true, sourceId: this._id } });
+          player.set({ activeEvent: { choiceEnabled: true, sourceId: this.id() } });
         }
 
         if (game.isSinglePlayer()) {
@@ -62,7 +62,7 @@
     timerOverdue: function ({ game, player }) {
       if (!game.activeEvent?.targetDiceId) {
         const targetDice = player.getObjectByCode('Deck[domino]').getObjects({ className: 'Dice' })[0];
-        if (targetDice) game.set({ activeEvent: { targetDiceId: targetDice._id } });
+        if (targetDice) game.set({ activeEvent: { targetDiceId: targetDice.id() } });
         const deck = player.getObjectByCode('Deck[domino]');
         for (const dice of deck.getObjects({ className: 'Dice' })) {
           dice.set({ activeEvent: null });
