@@ -9,6 +9,7 @@ import { fab } from '@fortawesome/free-brands-svg-icons';
 import { Metacom } from '../lib/metacom.js';
 import { mergeDeep } from '../lib/utils.js';
 
+// взять config.server.balancer не могу, потому что там неимпортируемый формат
 import { port as frontPort } from './../../application/config/front.json';
 
 library.add(fas, far, fab);
@@ -34,6 +35,11 @@ const init = async () => {
   window.api = api;
 
   await metacom.load('action');
+
+  if (window !== window.parent) {
+    window.parent.postMessage({ emit: { name: 'iframeAlive' } }, '*');
+  }
+  window.iframeEvents = [];
 
   const state = {
     serverOrigin: `${location.protocol}//${serverHost}`,
@@ -80,7 +86,6 @@ const init = async () => {
       return await event(data);
     }
   });
-  window.iframeEvents = {};
 
   router.beforeEach((to, from, next) => {
     state.currentRoute = to.name;
