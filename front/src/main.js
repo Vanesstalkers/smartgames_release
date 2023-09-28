@@ -68,7 +68,7 @@ const init = async () => {
 
   window.addEventListener('message', async function (e) {
     const { path, args, routeTo, emit } = e.data;
-    if (path && args) return await api.action.call({ path, args });
+    if (path && args) return await api.action.call({ path, args }).catch((err) => prettyAlert(err));
     if (routeTo)
       return router.push({ path: routeTo }).catch((err) => {
         console.log(err);
@@ -80,7 +80,6 @@ const init = async () => {
       return await event(data);
     }
   });
-  window.iframeEvents = {};
 
   router.beforeEach((to, from, next) => {
     state.currentRoute = to.name;
@@ -152,8 +151,7 @@ const init = async () => {
         this.$set(this.$root.state, 'lobbyOrigin', searchParams.get('lobbyOrigin'));
 
         if (window !== window.parent) {
-          const iframeCode = searchParams.get('iframeCode');
-          window.parent.postMessage({ emit: { name: 'iframeAlive', data: { iframeCode } } }, '*');
+          window.parent.postMessage({ emit: { name: 'iframeAlive' } }, '*');
         }
       },
     },

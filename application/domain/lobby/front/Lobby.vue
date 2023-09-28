@@ -6,12 +6,21 @@
 import Lobby from '~/lib/lobby/front/Lobby.vue';
 export default {
   components: { Lobby },
+  computed: {
+    state() {
+      return this.$root.state || {};
+    },
+  },
   methods: {
     async customInitSession() {
       await this.$root.initSessionIframe();
     },
   },
-  created() {},
+  created() {
+    this.state.emit.logout = async () => {
+      window.parent.postMessage({ emit: { name: 'hideGameIframe' } }, '*');
+    };
+  },
   async beforeDestroy() {},
 };
 </script>
