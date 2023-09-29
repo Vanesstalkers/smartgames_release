@@ -1,1 +1,4 @@
-{ "port": 8800 }
+{
+  "TO_CHANGE": "server static files - same as config.server.balancer",
+  "port": 8800
+}

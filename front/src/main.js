@@ -10,7 +10,7 @@ import { Metacom } from '../lib/metacom.js';
 import { mergeDeep } from '../lib/utils.js';
 
 // взять config.server.balancer не могу, потому что там неимпортируемый формат
-import { port as frontPort } from './../../application/config/front.json';
+import serverFrontConfig from './../../application/config/front.json';
 
 library.add(fas, far, fab);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
@@ -22,7 +22,7 @@ const init = async () => {
 
   const protocol = location.protocol === 'http:' ? 'ws' : 'wss';
   // направление на конкретный port нужно для reconnect (см. initSession) + для отладки
-  const port = new URLSearchParams(location.search).get('port') || frontPort;
+  const port = new URLSearchParams(location.search).get('port') || serverFrontConfig.port;
 
   const serverHost =
     process.env.NODE_ENV === 'development' || new URLSearchParams(document.location.search).get('dev')
@@ -33,13 +33,9 @@ const init = async () => {
   const { api } = metacom;
   window.metacom = metacom;
   window.api = api;
+  window.iframeEvents = [];
 
   await metacom.load('action');
-
-  if (window !== window.parent) {
-    window.parent.postMessage({ emit: { name: 'iframeAlive' } }, '*');
-  }
-  window.iframeEvents = [];
 
   const state = {
     serverOrigin: `${location.protocol}//${serverHost}`,
@@ -74,7 +70,7 @@ const init = async () => {
 
   window.addEventListener('message', async function (e) {
     const { path, args, routeTo, emit } = e.data;
-    if (path && args) return await api.action.call({ path, args });
+    if (path && args) return await api.action.call({ path, args }).catch((err) => prettyAlert(err));
     if (routeTo)
       return router.push({ path: routeTo }).catch((err) => {
         console.log(err);
