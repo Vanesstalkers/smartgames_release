@@ -94,7 +94,6 @@
       planesToChoosee: 2, // блоков на выбор игроку для добавления на поле
       roundStartCardAddToPlayerHand: false,
       allowedAutoCardPlayRoundStart: false,
-      cardsToRemove: [],
       autoFinishAfterRoundsOverdue: 10,
 
       playerList: [
@@ -152,7 +151,6 @@
       planesToChoosee: 2, // блоков на выбор игроку для добавления на поле
       roundStartCardAddToPlayerHand: false,
       allowedAutoCardPlayRoundStart: false,
-      cardsToRemove: [],
       autoFinishAfterRoundsOverdue: 10,
 
       playerList: [

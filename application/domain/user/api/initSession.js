@@ -44,6 +44,10 @@
       user.unsubscribe(`user-${user.id()}`);
       user.unlinkSession(session);
 
+      // удаляем из store и broadcaster
+      session.remove();
+      if (!user.sessions().length) user.remove();
+
       console.log(`session disconnected (token=${session.token}, windowTabId=${windowTabId}`);
     });
 

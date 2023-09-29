@@ -9,7 +9,8 @@ import { fab } from '@fortawesome/free-brands-svg-icons';
 import { Metacom } from '../lib/metacom.js';
 import { mergeDeep } from '../lib/utils.js';
 
-import { port as frontPort } from './../../application/config/front.json';
+// взять config.server.balancer не могу, потому что там неимпортируемый формат
+import serverFrontConfig from './../../application/config/front.json';
 
 library.add(fas, far, fab);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
@@ -21,7 +22,7 @@ const init = async () => {
 
   const protocol = location.protocol === 'http:' ? 'ws' : 'wss';
   // направление на конкретный port нужно для reconnect (см. initSession) + для отладки
-  const port = new URLSearchParams(location.search).get('port') || frontPort;
+  const port = new URLSearchParams(location.search).get('port') || serverFrontConfig.port;
 
   const serverHost =
     process.env.NODE_ENV === 'development' || new URLSearchParams(document.location.search).get('dev')
@@ -32,6 +33,7 @@ const init = async () => {
   const { api } = metacom;
   window.metacom = metacom;
   window.api = api;
+  window.iframeEvents = [];
 
   await metacom.load('action');
 
@@ -151,7 +153,8 @@ const init = async () => {
         this.$set(this.$root.state, 'lobbyOrigin', searchParams.get('lobbyOrigin'));
 
         if (window !== window.parent) {
-          window.parent.postMessage({ emit: { name: 'iframeAlive' } }, '*');
+          const iframeCode = searchParams.get('iframeCode');
+          window.parent.postMessage({ emit: { name: 'iframeAlive', data: { iframeCode } } }, '*');
         }
       },
     },

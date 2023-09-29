@@ -93,9 +93,10 @@
       this.addDeck(item, { deckItemClass });
     }
     if (newGame) {
+      const cardsToRemove = this.settings.cardsToRemove || [];
       for (const [deckCode, json] of [
         ['Deck[domino]', configs.dices()],
-        ['Deck[card]', configs.cards().filter((card) => !this.settings.cardsToRemove.includes(card.name))],
+        ['Deck[card]', configs.cards().filter((card) => !cardsToRemove.includes(card.name))],
         ['Deck[plane]', configs.planes()],
       ]) {
         const deck = this.getObjectByCode(deckCode);
@@ -120,6 +121,22 @@
 
     this.clearChanges(); // игра запишется в БД в store.create
     return this;
+  }
+
+  endGame({ winningPlayer, canceledByUser } = {}) {
+    super.endGame({ winningPlayer, canceledByUser, customFinalize: true });
+
+    this.checkCrutches();
+    this.broadcastAction('gameFinished', {
+      gameId: this.id(),
+      gameType: this.deckType,
+      playerEndGameStatus: this.playerEndGameStatus,
+      fullPrice: this.getFullPrice(),
+      roundCount: this.round,
+      crutchCount: this.crutchCount(),
+    });
+
+    throw new lib.game.endGameException();
   }
 
   checkCrutches() {
