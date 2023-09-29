@@ -1,5 +1,5 @@
 () =>
-  class GameSession extends lib.user.session() {
+  class ReleaseGameSession extends lib.game.sessionClass() {
     getUserClass() {
       return domain.user.class();
     }
