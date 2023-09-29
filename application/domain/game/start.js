@@ -46,6 +46,7 @@ async () => {
             icon: ['fas', 'microchip'],
             active: true,
             url:
+              // url vue-фронта
               process.env.NODE_ENV === 'development'
                 ? /* 'http://192.168.1.37:TO_CHANGE' */ 'http://192.168.43.128:TO_CHANGE' /* 'http://localhost:TO_CHANGE' */
                 : 'https://smartgames.studio/TO_CHANGE',
