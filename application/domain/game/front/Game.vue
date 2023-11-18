@@ -21,7 +21,7 @@
     <template #gameinfo="{} = {}">
       <div class="wrapper">
         <div class="game-status-label">
-          Бюджет <span style="color: gold">{{ fullPrice }}k</span> {{ statusLabel }}
+          Бюджет <span style="color: gold">{{ fullPrice }}k</span> {{ game.statusLabel }}
         </div>
         <div v-for="deck in deckList" :key="deck._id" class="deck" :code="deck.code">
           <div v-if="deck._id && deck.code === 'Deck[domino]'" class="hat" v-on:click="takeDice">
@@ -188,18 +188,6 @@ export default {
       const configMod = { blitz: 0.5, standart: 0.75, hardcore: 1 }[gameConfig];
       return Math.floor(baseSum * timerMod * configMod);
     },
-    statusLabel() {
-      switch (this.game.status) {
-        case 'WAIT_FOR_PLAYERS':
-          return 'Ожидание игроков';
-        case 'PREPARE_START':
-          return 'Создание игрового поля';
-        case 'IN_PROCESS':
-          return `Раунд ${this.game.round}`;
-        case 'FINISHED':
-          return 'Игра закончена';
-      }
-    },
     deckList() {
       return Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id]) || [];
     },
@@ -259,6 +247,10 @@ export default {
 };
 </script>
 <style>
+#gamePlane {
+  transform-origin: left top !important;
+}
+
 .deck > .card-event {
   width: 60px;
   height: 90px;

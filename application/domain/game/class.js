@@ -53,6 +53,7 @@
     this.addTime = data.addTime;
     this.settings = data.settings;
     this.status = data.status || 'WAIT_FOR_PLAYERS';
+    this.statusLabel = data.statusLabel || 'Ожидание игроков';
     this.round = data.round || 0;
     if (data.activeEvent) this.activeEvent = data.activeEvent;
     if (data.cardEvents) this.cardEvents = data.cardEvents;
@@ -211,7 +212,7 @@
               }
             }
 
-            this.set({ status: 'PREPARE_START' });
+            this.set({ statusLabel: 'Подготовка к игре', status: 'PREPARE_START' });
             if (planesToBePlacedByPlayers > 0) {
               lib.timers.timerRestart(this);
             } else {

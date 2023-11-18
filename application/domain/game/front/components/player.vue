@@ -40,13 +40,12 @@
           </div>
         </div>
         <div v-if="(iam || gameState.viewerMode) && !hasPlaneInHand" class="hand-cards-list" ref="scrollbar">
-          <div v-for="deck in cardDecks" :key="deck._id" class="hand-cards" :style="{ width: handCarsWidth }">
+          <div v-for="deck in cardDecks" :key="deck._id" class="hand-cards" :style="{ width: handCardsWidth }">
             <card
               v-for="id in Object.keys(deck.itemMap)"
               :key="id"
               :cardId="id"
               :canPlay="iam"
-              :isSelected="id === gameCustom.selectedCard"
             />
           </div>
         </div>
@@ -136,7 +135,7 @@ export default {
     showDecks() {
       return this.sessionPlayerIsActive() && this.player.activeEvent?.showDecks;
     },
-    handCarsWidth() {
+    handCardsWidth() {
       const cardWidth = 130;
       const maxCardStack = 4;
       return state.isMobile

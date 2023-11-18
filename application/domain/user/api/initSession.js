@@ -22,7 +22,7 @@
       });
 
     user.subscribe(`user-${userId}`); // user в лобби
-    
+
     const sessionId = session.id();
     session.set({ lobbyId });
 
@@ -41,8 +41,10 @@
       if (session.onClose.length) for (const f of session.onClose) await f();
 
       const user = session.user();
-      user.unsubscribe(`user-${user.id()}`);
-      user.unlinkSession(session);
+      if (user) {
+        user.unsubscribe(`user-${user.id()}`);
+        user.unlinkSession(session);
+      }
 
       // удаляем из store и broadcaster
       session.remove();
