@@ -1,11 +1,9 @@
 (function ({ diceId }) {
-  if (this.activeEvent)
-    throw new Error(
-      this.activeEvent.errorMsg || 'Игрок не может совершить это действие, пока не завершит активное событие.'
-    );
-
   const player = this.getActivePlayer();
-  const dice = this.getObjectById(diceId);
+  if (this.triggerEventEnabled() || player.triggerEventEnabled())
+    throw new Error('Игрок не может совершить это действие, пока не завершит активное событие.');
+
+  const dice = this.get(diceId);
   const currentZone = dice.getParent();
   const availableZones = [];
 

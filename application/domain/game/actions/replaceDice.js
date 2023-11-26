@@ -1,15 +1,12 @@
 (function ({ diceId, zoneId }) {
-  if (this.activeEvent)
-    throw new Error(
-      this.activeEvent.errorMsg || 'Игрок не может совершить это действие, пока не завершит активное событие.'
-    );
-
   const player = this.getActivePlayer();
+  if (this.triggerEventEnabled() || player.triggerEventEnabled())
+    throw new Error('Игрок не может совершить это действие, пока не завершит активное событие.');
 
   if (!player.availableZones.includes(zoneId)) throw new Error('Данная зона запрещена для размещения');
 
-  const dice = this.getObjectById(diceId);
-  const zone = this.getObjectById(zoneId);
+  const dice = this.get(diceId);
+  const zone = this.get(zoneId);
 
   const diceIsInHand = dice.findParent({ directParent: player });
   if (!diceIsInHand) throw new Error('Костяшка должна находиться в руке.');
@@ -39,7 +36,7 @@
 
   const releaseInitiated = zone.checkForRelease();
   if (releaseInitiated) {
-    const playerCardDeck = player.getObjectByCode('Deck[card]');
+    const playerCardDeck = player.find('Deck[card]');
     this.run('smartMoveRandomCard', { target: playerCardDeck });
     lib.timers.timerRestart(this, { extraTime: this.settings.timerReleasePremium });
     this.logs(`Игрок {{player}} инициировал РЕЛИЗ, за что получает дополнительную карту-события в руку.`);
@@ -48,12 +45,12 @@
   const notReplacedDeletedDices = deletedDices.filter((dice) => !dice.getParent().getNotDeletedItem());
   // все удаленные dice заменены
   if (notReplacedDeletedDices.length === 0) {
-    const deck = this.getObjectByCode('Deck[domino]');
+    const deck = this.find('Deck[domino]');
     for (const dice of deletedDices) {
       dice.set({ deleted: null });
       dice.moveToTarget(deck); // возвращаем удаленные dice в deck
     }
   }
 
-  this.emitCardEvents('replaceDice');
+  this.toggleEventHandlers('DICE_REPLACED');
 });

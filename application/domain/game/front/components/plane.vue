@@ -2,9 +2,9 @@
   <div
     v-if="plane._id"
     :id="plane._id"
-    :class="['plane', activeEvent ? 'active-event' : '', ...plane.customClass, ...Object.values(customClass)]"
+    :class="['plane', selectable ? 'selectable' : '', ...plane.customClass, ...Object.values(customClass)]"
     :style="customStyle"
-    v-on:click.stop="(e) => (activeEvent ? choosePlane() : selectPlane(e))"
+    v-on:click.stop="(e) => (selectable ? choosePlane() : selectPlane(e))"
     :code="plane.code"
   >
     <div class="price">{{ plane.price }}k</div>
@@ -81,9 +81,9 @@ export default {
         this.customClass = { ...this.customClass, rotate: `rotate${rotateDegree}` };
       }
 
-      if (this.plane.customClass.includes('card-event-req_legal'))
+      if (this.plane.customClass.includes('card-event_req_legal'))
         style.backgroundImage = `url(${this.state.lobbyOrigin}/img/cards/release/req_legal.jpg), url(empty-card.jpg)`;
-      if (this.plane.customClass.includes('card-event-req_tax'))
+      if (this.plane.customClass.includes('card-event_req_tax'))
         style.backgroundImage = `url(${this.state.lobbyOrigin}/img/cards/release/req_tax.jpg), url(empty-card.jpg)`;
 
       return style;
@@ -97,8 +97,8 @@ export default {
     portIds() {
       return Object.keys(this.plane.portMap || {});
     },
-    activeEvent() {
-      return this.sessionPlayerIsActive() && this.plane.activeEvent;
+    selectable() {
+      return this.sessionPlayerIsActive() && this.plane.eventData.selectable;
     },
   },
   methods: {
@@ -161,10 +161,14 @@ export default {
     z-index: -1 !important;
     box-shadow: 0 0 10px 10px #f4e205 !important;
   }
+  &.selectable {
+    box-shadow: none !important;
+  }
+  &.selectable:after {
+    box-shadow: inset 0 0 0px 10px yellow;
+  }
 }
-.plane.active-event {
-  box-shadow: 0 0 20px 8px yellow !important;
-}
+
 .plane:not(.card-plane):after {
   content: '';
   z-index: -1;
@@ -233,9 +237,6 @@ export default {
   transform: scale(0.7);
   transform-origin: top right;
   margin: 25px 0px -75px 0px;
-}
-
-.plane.card-plane {
 }
 
 .plane > .price {

@@ -1,16 +1,7 @@
 (class Dice extends lib.game.GameObject {
   constructor(data, { parent }) {
     super(data, { col: 'dice', parent });
-    this.broadcastableFields([
-      '_id',
-      'code',
-      'sideList',
-      'deleted',
-      'visible',
-      'locked',
-      'placedAtRound',
-      'activeEvent',
-    ]);
+    this.broadcastableFields(['_id', 'code', 'sideList', 'deleted', 'visible', 'locked', 'placedAtRound', 'eventData']);
 
     this.set({
       deleted: data.deleted,
@@ -67,8 +58,7 @@
       if (!parent.access[player?._id] && !this.visible && !viewerMode) {
         fake = true;
         visibleId = this.fakeId[parent.id()];
-        preparedData = {};
-        if (data.activeEvent !== undefined) preparedData.activeEvent = data.activeEvent;
+        if (data.eventData !== undefined) preparedData.eventData = data.eventData;
       }
     }
     if (!fake) {
@@ -115,12 +105,12 @@
       const zoneList = [];
       zoneList.push(
         ...game.getObjects({ className: 'Plane', directParent: game }).reduce((arr, plane) => {
-          return arr.concat(plane.getObjects({ className: 'Zone' }));
+          return arr.concat(plane.select('Zone'));
         }, [])
       );
       zoneList.push(
         ...game.getObjects({ className: 'Bridge', directParent: game }).reduce((arr, bridge) => {
-          return arr.concat(bridge.getObjects({ className: 'Zone' }));
+          return arr.concat(bridge.select('Zone'));
         }, [])
       );
 

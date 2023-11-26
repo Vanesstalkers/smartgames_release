@@ -45,7 +45,7 @@
               v-for="id in Object.keys(deck.itemMap)"
               :key="id"
               :cardId="id"
-              :canPlay="iam"
+              :canPlay="iam && sessionPlayerIsActive()"
             />
           </div>
         </div>
@@ -133,7 +133,7 @@ export default {
       return this.planeInHandIds.length > 0;
     },
     showDecks() {
-      return this.sessionPlayerIsActive() && this.player.activeEvent?.showDecks;
+      return this.sessionPlayerIsActive() && this.player.eventData.showDecks;
     },
     handCardsWidth() {
       const cardWidth = 130;

@@ -29,4 +29,10 @@
     }
     return { visibleId, preparedData };
   }
+  triggerEventEnabled() {
+    return (
+      super.triggerEventEnabled() || //
+      this.eventData.activeEvents.find((event) => event.hasHandler('ADD_PLANE'))
+    );
+  }
 });

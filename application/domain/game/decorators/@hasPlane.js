@@ -4,10 +4,13 @@
     /**
      * @returns {(import('application/domain/game/types.js').objects.Plane)}
      */
-    addPlane(data, { preventEmitClassEvent = false } = {}) {
+    addPlane(data) {
       const plane = new domain.game.objects.Plane(data, { parent: this });
-      this.set({ planeMap: { [plane._id]: {} } });
-      if (!preventEmitClassEvent) this.emit('addPlane', {}, { softCall: true });
+      const planeId = plane.id();
+
+      this.set({ planeMap: { [planeId]: {} } });
+      
+      this.toggleEventHandlers('ADD_PLANE', { targetId: planeId });
       return plane;
     },
     removePlane(plane) {

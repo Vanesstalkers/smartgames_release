@@ -1,17 +1,18 @@
 (function ({ joinPlaneId }) {
   const availablePorts = [];
-  const joinPlane = this.getObjectById(joinPlaneId);
+  const joinPlane = this.get(joinPlaneId);
 
   this.disableChanges();
   {
-    for (const joinPort of joinPlane.getObjects({ className: 'Port' })) {
-      const realDirect = joinPort.getDirect();
-      for (const portDirect of Object.keys(joinPort.direct)) {
-        joinPort.updateDirect(portDirect);
-        const ports = this.run('getAvailablePortsToJoinPort', { joinPort });
+    const joinPorts = joinPlane.select('Port');
+    for (const port of joinPorts) {
+      const realDirect = port.getDirect();
+      for (const direct of Object.keys(port.direct)) {
+        port.updateDirect(direct);
+        const ports = this.run('getAvailablePortsToJoinPort', { joinPort: port });
         availablePorts.push(...ports);
       }
-      joinPort.updateDirect(realDirect);
+      port.updateDirect(realDirect);
     }
   }
   this.enableChanges();
@@ -19,5 +20,7 @@
   // заменить на clientCustomUpdates не получится, в частности, из-за сложной логики с card-plane (например, при авторозыгрыше "req_*"-карты в начале игры)
   this.set({ availablePorts });
 
-  if (availablePorts.length === 0) this.emit('noAvailablePorts', { joinPlane }, { softCall: true });
+  if (availablePorts.length === 0) {
+    this.toggleEventHandlers('NO_AVAILABLE_PORTS', { joinPlane });
+  }
 });

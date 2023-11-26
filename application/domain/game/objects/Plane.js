@@ -16,7 +16,7 @@
       'top',
       'rotation',
       'customClass',
-      'activeEvent',
+      'eventData',
     ]);
 
     this.set({
@@ -44,10 +44,10 @@
         for (const [sideCode, links] of Object.entries(sideList)) {
           for (const link of links) {
             const [linkZoneCode, linkSideCode] = link.split('.');
-            const zone = this.getObjectByCode(zoneCode);
-            const side = zone.getObjectByCode(sideCode);
-            const linkZone = this.getObjectByCode(linkZoneCode);
-            const linkSide = linkZone.getObjectByCode(linkSideCode);
+            const zone = this.find(zoneCode);
+            const side = zone.find(sideCode);
+            const linkZone = this.find(linkZoneCode);
+            const linkSide = linkZone.find(linkSideCode);
             side.addLink(linkSide);
             linkSide.addLink(side);
           }
@@ -63,8 +63,8 @@
       const filledLinks = {};
       for (const linkCode of Object.values(port.links)) {
         const [linkZoneCode, linkSideCode] = linkCode.split('.');
-        const linkZone = this.getObjectByCode(linkZoneCode);
-        const linkSide = linkZone.getObjectByCode(linkSideCode);
+        const linkZone = this.find(linkZoneCode);
+        const linkSide = linkZone.find(linkSideCode);
         filledLinks[linkSide._id] = linkCode;
       }
       this.addPort({ ...port, links: filledLinks });

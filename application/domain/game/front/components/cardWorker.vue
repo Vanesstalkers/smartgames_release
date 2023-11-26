@@ -6,7 +6,7 @@
       'card-worker',
       'card-worker-' + player.code,
       player.active ? 'active' : '',
-      choiceEnabled ? 'active-event' : '',
+      selectable ? 'selectable' : '',
       showEndRoundBtn || showLeaveBtn ? 'has-action' : '',
     ]"
     :style="customStyle"
@@ -81,16 +81,16 @@ export default {
     customStyle() {
       const style = {};
       const gender = this.userData.gender;
-      
+
       const defaultImage = `_default/${gender}_empty`;
       const avatarCode = this.userData.avatarCode || this.player.avatarsMap?.[gender] || defaultImage;
-      
+
       style.backgroundImage = `url(${this.state.lobbyOrigin}/img/workers/${avatarCode}.png)`;
-      
+
       return style;
     },
-    choiceEnabled() {
-      return this.sessionPlayerIsActive() && this.player.activeEvent?.choiceEnabled;
+    selectable() {
+      return this.sessionPlayerIsActive() && this.player.eventData.selectable;
     },
     dominoDeckCount() {
       return (
@@ -119,7 +119,13 @@ export default {
   },
   methods: {
     async controlAction() {
-      if (this.choiceEnabled) return; // выбор игрока в контексте события карты
+      if (this.selectable) {
+        await this.handleGameApi({
+          name: 'eventTrigger',
+          data: { eventData: { targetId: this.playerId } },
+        });
+        return;
+      }
       if (this.showEndRoundBtn) return await this.endRound();
       if (this.showLeaveBtn) return await this.leaveGame();
     },
@@ -208,8 +214,8 @@ export default {
   visibility: visible;
 }
 
-.card-worker.active-event .end-round-btn,
-.card-worker.active-event .end-round-timer {
+.card-worker.selectable .end-round-btn,
+.card-worker.selectable .end-round-timer {
   display: none;
 }
 

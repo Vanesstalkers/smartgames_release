@@ -35,7 +35,12 @@
           </div>
           <div v-if="deck._id && deck.code === 'Deck[card_active]'" class="deck-active">
             <!-- активная карта всегда первая - для верстки она должна стать последней -->
-            <card v-for="id in sortActiveCards(Object.keys(deck.itemMap))" :key="id" :cardId="id" :canPlay="true" />
+            <card
+              v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"
+              :key="_id"
+              :cardId="_id"
+              :canPlay="!played && sessionPlayerIsActive()"
+            />
           </div>
         </div>
       </div>
@@ -138,7 +143,7 @@ export default {
       // тут ловим обновление страницы
       this.hideZonesAvailability();
     },
-    'game.activeEvent': function () {
+    'game.eventListeners.TRIGGER': function () {
       this.gameCustom.pickedDiceId = '';
       this.hideZonesAvailability();
     },
@@ -216,12 +221,11 @@ export default {
     },
   },
   methods: {
-    sortActiveCards(arr) {
+    sortedActiveCards(arr) {
       return arr
         .map((id) => this.store.card?.[id] || {})
         .sort((a, b) => (a.played > b.played ? 1 : -1)) // сортируем по времени сыгрывания
-        .sort((a, b) => (a.played ? 0 : 1)) // переносим не сыгранные в конец
-        .map((card) => card._id);
+        .sort((a, b) => (a.played ? 0 : 1)); // переносим не сыгранные в конец
     },
     async takeDice() {
       // return;

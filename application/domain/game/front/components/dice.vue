@@ -2,16 +2,15 @@
   <div
     v-if="dice"
     :code="dice.code"
-    :_id="dice._id"
     :class="[
       'domino-dice',
       dice.deleted ? 'deleted' : '',
       locked ? 'locked' : '',
-      activeEvent ? 'active-event' : '',
+      selectable ? 'selectable' : '',
       hide ? 'hide' : '',
       isPicked ? 'picked' : '',
     ]"
-    v-on:click="(e) => (activeEvent ? chooseDice() : pickDice())"
+    v-on:click="(e) => (selectable ? chooseDice() : pickDice())"
   >
     <div v-if="!locked && !zone?.available && !this.gameState.viewerMode" class="controls">
       <div :class="['control rotate', dice.deleted ? 'hidden' : '']" v-on:click.stop="rotateDice">
@@ -34,10 +33,11 @@
       <div
         v-for="side in sideList"
         :key="side._id"
-        :id="side._id"
         :value="side.value"
-        :class="['el', side.activeEvent ? 'active-event' : '', side.eventData.fakeValue ? 'fake-value' : '']"
-        v-on:click="(e) => (side.activeEvent ? (e.stopPropagation(), openDiceSideValueSelect(side._id)) : null)"
+        :class="['el', side.eventData.selectable ? 'selectable' : '', side.eventData.fakeValue ? 'fake-value' : '']"
+        v-on:click="
+          (e) => (side.eventData.selectable ? (e.stopPropagation(), openDiceSideValueSelect(side._id)) : null)
+        "
       >
         <dice-side-value-select
           v-if="gameCustom.selectedDiceSideId === side._id"
@@ -89,8 +89,8 @@ export default {
     locked() {
       return this.dice.locked || this.actionsDisabled();
     },
-    activeEvent() {
-      return this.sessionPlayerIsActive() && this.dice.activeEvent;
+    selectable() {
+      return this.sessionPlayerIsActive() && this.dice.eventData.selectable;
     },
     hide() {
       return this.inHand && !this.iam && !this.dice.visible && !this.gameState.viewerMode;
@@ -215,8 +215,8 @@ export default {
   height: 33.333%;
 }
 
-.plane .domino-dice:hover:not(.active-event) > .controls,
-.bridge .domino-dice:hover:not(.active-event) > .controls {
+.plane .domino-dice:hover:not(.selectable) > .controls,
+.bridge .domino-dice:hover:not(.selectable) > .controls {
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -272,17 +272,17 @@ export default {
 .player.iam .hand-dices .domino-dice:not(.locked):hover > .el {
   box-shadow: inset 0 0 20px 8px lightgreen;
 }
-.domino-dice > .el.active-event:hover {
+.domino-dice > .el.selectable:hover {
   box-shadow: inset 0 0 20px 8px lightgreen !important;
 }
 
-.domino-dice.active-event {
+.domino-dice.selectable {
   box-shadow: none !important;
 }
-.domino-dice.active-event > .el {
+.domino-dice.selectable > .el {
   box-shadow: inset 0 0 20px 8px yellow;
 }
-.domino-dice.active-event:hover > .el {
+.domino-dice.selectable:hover > .el {
   opacity: 0.7;
 }
 

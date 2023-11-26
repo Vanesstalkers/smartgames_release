@@ -78,7 +78,7 @@
       }
       // обновляем expectedValues у всех соседей
       for (const linkCode of Object.values(side.links)) {
-        this.game().getObjectByCode(linkCode).updateExpectedValues();
+        this.game().find(linkCode).updateExpectedValues();
       }
     });
   }
@@ -87,7 +87,7 @@
     const zones = [];
     for (const side of this.sideList) {
       for (const linkCode of Object.values(side.links)) {
-        zones.push(game.getObjectByCode(linkCode).getParent());
+        zones.push(game.find(linkCode).getParent());
       }
     }
     return zones;
@@ -152,10 +152,12 @@
   }
   checkForRelease() {
     const parent = this.getParent();
-    if (parent.release) return false;
-    if (parent.getObjects({ className: 'Zone' }).find((zone) => !zone.getNotDeletedItem())) return false;
+
+    if (parent.release) return false; // РЕЛИЗ был активирован ранее
+    if (parent.select('Zone').find((zone) => !zone.getNotDeletedItem())) return false; // есть удаленные домино
+
     parent.set({ release: true });
-    this.game().checkStatus({ cause: 'FINAL_RELEASE' });
+    this.game().toggleEventHandlers('FINAL_RELEASE');
     return true;
   }
 });

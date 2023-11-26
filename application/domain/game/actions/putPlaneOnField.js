@@ -1,7 +1,7 @@
-(function ({ joinPortId, targetPortId, targetPortDirect, joinPortDirect }, { addPlaneConfig } = {}) {
-  const joinPort = this.getObjectById(joinPortId);
+(function ({ joinPortId, targetPortId, targetPortDirect, joinPortDirect }) {
+  const joinPort = this.get(joinPortId);
   const joinPlane = joinPort.getParent();
-  const targetPort = this.getObjectById(targetPortId);
+  const targetPort = this.get(targetPortId);
 
   let targetPortIsAvailable = false;
   this.disableChanges();
@@ -36,5 +36,5 @@
   // сделать через plane.moveToTarget нельзя, так как у game (в this) нет метода addItem
   const planeCurrentParent = joinPlane.getParent();
   planeCurrentParent.removeItem(joinPlane);
-  this.addPlane(joinPlane, addPlaneConfig);
+  this.addPlane(joinPlane);
 });
