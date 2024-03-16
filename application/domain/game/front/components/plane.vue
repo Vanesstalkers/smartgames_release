@@ -82,9 +82,9 @@ export default {
       }
 
       if (this.plane.customClass.includes('card-event_req_legal'))
-        style.backgroundImage = `url(${this.state.lobbyOrigin}/img/cards/release/req_legal.jpg), url(empty-card.jpg)`;
+        style.backgroundImage = `url(${this.state.serverOrigin}/img/cards/req_legal.jpg), url(empty-card.jpg)`;
       if (this.plane.customClass.includes('card-event_req_tax'))
-        style.backgroundImage = `url(${this.state.lobbyOrigin}/img/cards/release/req_tax.jpg), url(empty-card.jpg)`;
+        style.backgroundImage = `url(${this.state.serverOrigin}/img/cards/req_tax.jpg), url(empty-card.jpg)`;
 
       return style;
     },

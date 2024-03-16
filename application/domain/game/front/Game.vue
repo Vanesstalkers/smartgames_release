@@ -312,10 +312,6 @@ export default {
   right: 0px;
   display: flex;
 }
-#game.landscape-view .deck[code='Deck[card_active]'] {
-  top: 0px;
-  right: -135px;
-}
 
 .deck[code='Deck[card_active]'] .card-event {
   margin-top: -135px;

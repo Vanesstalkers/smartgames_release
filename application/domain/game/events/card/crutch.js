@@ -26,7 +26,7 @@
     },
     DEACTIVATE: function () {
       const { game, player } = this.eventContext();
-
+      player.removeEvent(this);
       for (const deck of player.select('Deck')) {
         if (deck.type !== 'domino') continue;
         for (const dice of deck.select('Dice')) {
@@ -74,9 +74,5 @@
 
       this.emit('RESET');
     },
-    // PLAYER_TIMER_END: function () {
-    //   const { game, player } = this.eventContext();
-    //   this.emit('TRIGGER', { target: player });
-    // },
   },
 });

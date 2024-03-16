@@ -39,16 +39,16 @@ async () => {
               };
             }
           }
-          
+
+          const url = 'https://smartgames.studio/release';
           lib.store.broadcaster.publishAction(channelName, 'gameServerConnected', {
             code: 'release',
             title: 'Релиз',
             icon: ['fas', 'microchip'],
             active: true,
-            url:
-              process.env.NODE_ENV === 'development'
-                ? /* 'http://192.168.1.37:8082' */ 'http://192.168.43.128:8082' /* 'http://localhost:8082' */
-                : 'https://smartgames.studio/release',
+            url: process.env.NODE_ENV === 'development' ? 'http://localhost:8082' : url,
+            serverUrl:
+              process.env.NODE_ENV === 'development' ? `http://localhost:${config.server.balancer}` : `${url}/api`,
             games,
           });
           return;
