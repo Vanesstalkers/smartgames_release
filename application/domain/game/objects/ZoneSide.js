@@ -19,7 +19,7 @@
   updateExpectedValues() {
     const expectedValues = lib.utils.keysToNull(this.expectedValues);
     for (const linkCode of Object.values(this.links)) {
-      const link = this.game().getObjectByCode(linkCode);
+      const link = this.game().find(linkCode);
       if (link.value != null)
         // "!= null" === "a !== null && a !== undefined"
         expectedValues[link.value] = true;

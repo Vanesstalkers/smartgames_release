@@ -1,5 +1,5 @@
 <template>
-  <game>
+  <game :gamePlaneScaleMin="0.3" :gamePlaneScaleMax="1">
     <template #gameplane="{ game = {}, gamePlaneScale } = {}">
       <plane v-for="id in Object.keys(game.planeMap)" :key="id" :planeId="id" :gamePlaneScale="gamePlaneScale" />
       <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
@@ -147,6 +147,9 @@ export default {
       this.gameCustom.pickedDiceId = '';
       this.hideZonesAvailability();
     },
+    // 'game.availablePorts': function (newValue, oldValue) {
+    //   if (newValue?.length > 0 || oldValue?.length > 0) this.updatePlaneScale();
+    // },
   },
   computed: {
     state() {

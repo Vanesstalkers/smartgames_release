@@ -17,10 +17,10 @@
       for (const [sideCode, links] of Object.entries(sideList)) {
         for (const link of links) {
           const [linkZoneCode, linkSideCode] = link.split('.');
-          const zone = bridge.getObjectByCode(zoneCode);
-          const side = zone.getObjectByCode(sideCode);
-          const linkZone = bridge.game().getObjectByCode(linkZoneCode);
-          const linkSide = linkZone.getObjectByCode(linkSideCode);
+          const zone = bridge.find(zoneCode);
+          const side = zone.find(sideCode);
+          const linkZone = bridge.game().find(linkZoneCode);
+          const linkSide = linkZone.find(linkSideCode);
           side.addLink(linkSide);
           linkSide.addLink(side);
           linkZone.updateValues();

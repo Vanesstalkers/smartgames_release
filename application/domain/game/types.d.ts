@@ -3,7 +3,8 @@ import { GameObject, GameObjectData, GameObjectConfig, objects as _objects } fro
 import { ObjectId } from 'mongodb';
 
 export default class Game extends _Game {
-  checkStatus(data: { cause: string }): void;
+  checkCrutches(): void;
+  crutchCount(): number;
 }
 
 interface PlaneData extends GameObjectData {

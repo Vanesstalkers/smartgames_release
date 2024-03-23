@@ -5,7 +5,7 @@
   for (const plane of this.getObjects({ className: 'Plane', directParent: this })) {
     if (plane === joinPlane) continue;
 
-    for (const port of plane.getObjects({ className: 'Port' })) {
+    for (const port of plane.select('Port')) {
       if (port.linkedBridge) continue; // port уже занят
 
       for (const portDirect of Object.keys(port.direct)) {

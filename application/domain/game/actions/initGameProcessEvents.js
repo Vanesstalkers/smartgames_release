@@ -1,15 +1,23 @@
 (function () {
   this.initEvent(
     {
-      init: function () {
-        const { game, player } = this.eventContext();
-        game.set({ status: 'IN_PROCESS' });
-        game.run('endRound', { forceActivePlayer: game.players()[0] });
-      },
       handlers: {
         PLAYER_TIMER_END: function () {
           const { game, player } = this.eventContext();
-          game.run('endRound', { timerOverdue: true });
+
+          game.logs({
+            msg: `Игрок {{player}} не успел завершить все действия за отведенное время, и раунд завершится автоматически.`,
+            userId: player.userId,
+          });
+
+          const timerOverdueCounter = (game.timerOverdueCounter || 0) + 1;
+          // если много ходов было завершено по таймауту, то скорее всего все игроки вышли и ее нужно завершать
+          if (timerOverdueCounter > game.settings.autoFinishAfterRoundsOverdue) {
+            game.run('endGame');
+          }
+          game.set({ timerOverdueCounter });
+
+          game.run('endRound');
           return { preventListenerRemove: true };
         },
         FINAL_RELEASE: function () {
@@ -22,10 +30,9 @@
             if (!finalRelease) continue;
             if (!releaseItem.release) finalRelease = false;
           }
-          if (finalRelease) return game.endGame({ winningPlayer: player });
+          if (finalRelease) return game.run('endGame', { winningPlayer: player });
           return { preventListenerRemove: true };
         },
-
         ADD_PLANE: function () {
           const { game, player } = this.eventContext();
 
@@ -46,7 +53,7 @@
           // !!! был баг с недостаточным количеством костяшек для закрытия всех зон
           const dominoInDeck = dominoDeck.select('Dice').length;
           const dominoInHand = player.select('Dice').length;
-          if (availableZoneCount > dominoInDeck + dominoInHand) return game.endGame();
+          if (availableZoneCount > dominoInDeck + dominoInHand) return game.run('endGame');
 
           return { preventListenerRemove: true };
         },
