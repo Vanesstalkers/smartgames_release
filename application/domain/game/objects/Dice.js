@@ -104,7 +104,7 @@
 
       const zoneList = [];
       zoneList.push(
-        ...game.getObjects({ className: 'Plane', directParent: game }).reduce((arr, plane) => {
+        ...game.decks.table.getAllItems().reduce((arr, plane) => {
           return arr.concat(plane.select('Zone'));
         }, [])
       );

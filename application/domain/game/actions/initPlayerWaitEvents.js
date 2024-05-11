@@ -24,8 +24,7 @@
               skipArray.push(plane.id());
               if (i === 0) {
                 // игровое поле пустое
-                gamePlaneDeck.removeItem(plane);
-                game.addPlane(plane);
+                plane.moveToTarget(game.decks.table);
               } else {
                 game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
                 if (game.availablePorts.length === 0) continue;
@@ -51,7 +50,7 @@
           game.run('initPrepareGameEvents');
 
           if (planesToBePlacedByPlayers > 0) {
-            lib.timers.timerRestart(game, { time: 10 });
+            lib.timers.timerRestart(game, { time: game.settings.timeToPlaceStartPlane });
             return { preventListenerRemove: true };
           }
 

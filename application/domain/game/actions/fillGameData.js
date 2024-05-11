@@ -12,13 +12,14 @@
   this.round = data.round || 0;
   if (data.cardEvents) this.cardEvents = data.cardEvents;
   this.availablePorts = data.availablePorts || [];
+  this.previewPlaneId = data.previewPlaneId;
 
   const {
-    objects: { Dice, Plane },
+    objects: { Dice, Plane, Table },
     configs,
   } = domain.game;
   const {
-    objects: { Card },
+    objects: { Deck, Card },
   } = lib.game;
 
   if (data.playerMap) {
@@ -36,12 +37,22 @@
     for (const _id of Object.keys(data.deckMap)) data.deckList.push(this.store.deck[_id]);
   } else {
     data.deckList = data.settings.deckList;
+
+    this.addDeck(
+      {
+        type: 'plane',
+        subtype: 'table',
+        access: this.playerMap,
+      },
+      { deckClass: Table, deckItemClass: Plane }
+    );
   }
   for (const item of data.deckList || []) {
+    const deckClass = item.subtype === 'table' ? Table : Deck;
     const deckItemClass = item.type === 'domino' ? Dice : item.type === 'plane' ? Plane : Card;
 
     if (item.access === 'all') item.access = this.playerMap;
-    this.addDeck(item, { deckItemClass });
+    this.addDeck(item, { deckClass, deckItemClass });
   }
   if (newGame) {
     const cardsToRemove = this.settings.cardsToRemove || [];
@@ -56,12 +67,6 @@
       for (const item of items) deck.addItem(item);
     }
   }
-
-  // восстановление игр после рестарта сервера еще не работает
-  // if (data.planeMap) {
-  //   const planeIds = Object.keys(data.planeMap);
-  //   for (const _id of planeIds) this.addPlane(this.store.plane[_id]);
-  // }
 
   if (data.bridgeMap) {
     data.bridgeList = [];

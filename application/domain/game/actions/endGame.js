@@ -1,6 +1,11 @@
 (function ({ winningPlayer, canceledByUser } = {}) {
   this.runSuper('endGame', { winningPlayer, canceledByUser, customFinalize: true });
 
+  // игра может завершиться после автодобавления новых plane, алгоритм которого навешивает соответствующие атрибуты
+  this.decks.table.updateAllItems({
+    eventData: { selectable: null, moveToHand: null },
+  });
+
   this.checkCrutches();
   this.broadcastAction('gameFinished', {
     gameId: this.id(),

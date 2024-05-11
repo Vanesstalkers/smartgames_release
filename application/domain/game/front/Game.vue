@@ -1,7 +1,7 @@
 <template>
-  <game :gamePlaneScaleMin="0.3" :gamePlaneScaleMax="1">
-    <template #gameplane="{ game = {}, gamePlaneScale } = {}">
-      <plane v-for="id in Object.keys(game.planeMap)" :key="id" :planeId="id" :gamePlaneScale="gamePlaneScale" />
+  <game :debug="false" :planeScaleMin="0.3" :planeScaleMax="1">
+    <template #gameplane="{ game = {} } = {}">
+      <plane v-for="id in Object.keys(tablePlanes.itemMap)" :key="id" :planeId="id" />
       <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
       <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
 
@@ -15,6 +15,15 @@
         :style="position.style"
         class="fake-plane"
         v-on:click="putPlaneOnField"
+        v-on:mouseover="previewPlaneOnField(position)"
+        v-on:mouseleave="hidePreviewPlaneOnField()"
+      />
+
+      <plane
+        v-if="gameCustom.selectedPlane._id && gameCustom.selectedPlane.style"
+        :planeId="gameCustom.selectedPlane._id"
+        :viewStyle="gameCustom.selectedPlane.style"
+        :class="['preview']"
       />
     </template>
 
@@ -133,6 +142,7 @@ export default {
       pickedDiceId: '',
       selectedDiceSideId: '',
       selectedCard: '',
+      selectedPlane: { _id: null, style: null },
     });
     provide('gameGlobals', gameGlobals);
 
@@ -147,9 +157,17 @@ export default {
       this.gameCustom.pickedDiceId = '';
       this.hideZonesAvailability();
     },
-    // 'game.availablePorts': function (newValue, oldValue) {
-    //   if (newValue?.length > 0 || oldValue?.length > 0) this.updatePlaneScale();
-    // },
+    'game.previewPlaneId': async function (joinPlaneId) {
+      if (joinPlaneId) {
+        this.gameCustom.selectedPlane._id = joinPlaneId;
+        await this.handleGameApi({ name: 'showPlanePortsAvailability', data: { joinPlaneId } });
+      }
+    },
+    'game.availablePorts': function () {
+      this.$nextTick(() => {
+        this.state.gamePlaneNeedUpdate = true;
+      });
+    },
   },
   computed: {
     state() {
@@ -189,15 +207,18 @@ export default {
 
     fullPrice() {
       const { gameTimer, gameConfig } = this.game;
-      const baseSum = Object.keys(this.game.planeMap)
+      const baseSum = Object.keys(this.tablePlanes.itemMap)
         .map((planeId) => this.store.plane?.[planeId] || {})
         .reduce((sum, plane) => sum + plane.price, 0);
-      const timerMod = 30 / gameTimer;
+      const timerMod = 30000 / gameTimer;
       const configMod = { blitz: 0.5, standart: 0.75, hardcore: 1 }[gameConfig];
       return Math.floor(baseSum * timerMod * configMod);
     },
     deckList() {
       return Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id]) || [];
+    },
+    tablePlanes() {
+      return this.deckList.find((deck) => deck.subtype === 'table') || {};
     },
     activeCards() {
       return this.deckList.find((deck) => deck.subtype === 'active') || {};
@@ -217,6 +238,7 @@ export default {
               top: position.top + 'px',
               width: position.right - position.left + 'px',
               height: position.bottom - position.top + 'px',
+              rotation: position.rotation,
             },
           };
         }
@@ -238,7 +260,30 @@ export default {
       // return;
       await this.handleGameApi({ name: 'takeCard', data: { count: 5 } });
     },
+    async previewPlaneOnField({ style: previewStyle }) {
+      const style = { ...previewStyle };
+      switch (style.rotation) {
+        case 1:
+          style.left = parseInt(style.left) + parseInt(style.width);
+          break;
+        case 2:
+          style.left = parseInt(style.left) + parseInt(style.width);
+          style.top = parseInt(style.top) + parseInt(style.height);
+          break;
+        case 3:
+          style.top = parseInt(style.top) + parseInt(style.height);
+          break;
+      }
+      delete style.width;
+      delete style.height;
+      this.gameCustom.selectedPlane.style = style;
+    },
+    async hidePreviewPlaneOnField() {
+      this.gameCustom.selectedPlane.style = null;
+    },
     async putPlaneOnField(event) {
+      this.gameCustom.selectedPlane._id = null;
+      this.gameCustom.selectedPlane.style = null;
       await this.handleGameApi({
         name: 'putPlaneOnField',
         data: {
@@ -345,6 +390,10 @@ export default {
 }
 .plane.card-event {
   display: block;
+  margin: 0px;
+}
+.plane.preview {
+  opacity: 0.5;
 }
 
 .fake-plane {
@@ -354,7 +403,8 @@ export default {
   opacity: 0.5;
 }
 .fake-plane:hover {
-  opacity: 0.8;
+  opacity: 0;
   z-index: 1;
+  cursor: pointer;
 }
 </style>

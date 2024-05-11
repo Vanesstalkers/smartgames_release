@@ -1,7 +1,7 @@
 () => ({
   init: function () {
     const { game, player } = this.eventContext();
-    for (const plane of game.getObjects({ className: 'Plane', directParent: game })) {
+    for (const plane of game.decks.table.getAllItems()) {
       if (plane.isCardPlane()) continue;
       plane.set({ eventData: { selectable: true } });
     }
@@ -10,9 +10,7 @@
     RESET: function () {
       const { game, player, source, sourceId } = this.eventContext();
 
-      for (const plane of game.getObjects({ className: 'Plane', directParent: game })) {
-        plane.set({ eventData: { selectable: null } });
-      }
+      game.decks.table.updateAllItems({ eventData: { selectable: null } });
 
       source.removeEvent(this);
       player.removeEvent(this);
@@ -32,7 +30,7 @@
     },
     END_ROUND: function () {
       const { game, player } = this.eventContext();
-      const planes = game.getObjects({ className: 'Plane', directParent: game });
+      const planes = game.decks.table.getAllItems();
       const target = planes.find((plane) => !plane.isCardPlane());
       this.emit('TRIGGER', { target });
     },

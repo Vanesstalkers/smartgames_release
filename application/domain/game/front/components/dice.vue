@@ -313,4 +313,10 @@ export default {
 .domino-dice > .el[value='6'] {
   background-position: -426px;
 }
+
+#game.debug {
+  .domino-dice {
+    opacity: 0.5;
+  }
+}
 </style>

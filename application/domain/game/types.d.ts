@@ -6,7 +6,6 @@ export default class Game extends _Game {
   checkCrutches(): void;
   crutchCount(): number;
 }
-
 interface PlaneData extends GameObjectData {
   width: number;
   height: number;
@@ -48,6 +47,7 @@ interface DiceSideData extends GameObjectData {
 
 export namespace objects {
   class Player extends _objects.Player {}
+  class Table extends objects.Deck {}
   class Plane extends GameObject {
     constructor(data: PlaneData, config: GameObjectConfig);
     getPosition(): { left: number; right: number; top: number; bottom: number };

@@ -286,6 +286,13 @@ export default {
   width: 100%;
   margin-bottom: 150px;
 }
+
+#game.debug {
+  .player.iam .hand-planes {
+    max-width: 1000px;
+  }
+}
+
 #game.mobile-view.portrait-view .player.iam .hand-planes {
   height: initial;
   margin-bottom: 0px;

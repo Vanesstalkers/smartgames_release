@@ -36,7 +36,7 @@ export default {
       const portEl = document.getElementById(this.port.code);
       for (const link of Object.keys(this.port.links)) {
         const linkEl = document.getElementById(link);
-        if (portEl.closest('.plane') && linkEl.closest('.plane')) {
+        if (portEl?.closest('.plane') && linkEl?.closest('.plane')) {
           const x1 = portEl.getAttribute('x');
           const y1 = portEl.getAttribute('y');
           const x2 = linkEl.getAttribute('x');
@@ -55,7 +55,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .port {
   position: absolute;
   height: 75px;
@@ -78,5 +78,11 @@ export default {
   background-repeat: no-repeat;
   display: block;
   opacity: 0.5;
+}
+
+#game.debug {
+  .port {
+    opacity: 0.2 !important;
+  }
 }
 </style>

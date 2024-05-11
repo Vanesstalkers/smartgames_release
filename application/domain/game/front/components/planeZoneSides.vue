@@ -45,7 +45,7 @@ export default {
         const sideEl = document.getElementById(side._id);
         for (const link of Object.keys(side.links)) {
           const linkEl = document.getElementById(link);
-          if (sideEl.closest('.plane') && linkEl.closest('.plane')) {
+          if (sideEl?.closest('.plane') && linkEl?.closest('.plane')) {
             const x1 = sideEl.getAttribute('x');
             const y1 = sideEl.getAttribute('y');
             const x2 = linkEl.getAttribute('x');
@@ -65,7 +65,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .sideList {
   position: relative;
   width: 100%;
@@ -91,5 +91,31 @@ export default {
 .vertical .sideList > .side1 {
   top: 75%;
   left: 50%;
+}
+
+#game.debug {
+  .sideList {
+    > .side0:after,
+    > .side1:after {
+      content: attr(expected);
+      color: white;
+      font-size: 24px;
+      position: absolute;
+    }
+    > .side0:after {
+      top: -70px;
+    }
+    > .side1:after {
+      top: 70px;
+    }
+  }
+  .zone:hover {
+    .sideList {
+      > .side0:after,
+      > .side1:after {
+        background: red;
+      }
+    }
+  }
 }
 </style>

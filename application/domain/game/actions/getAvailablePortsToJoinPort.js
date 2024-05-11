@@ -1,8 +1,9 @@
 (function ({ joinPort }) {
   const availablePorts = [];
-
   const joinPlane = joinPort.getParent();
-  for (const plane of this.getObjects({ className: 'Plane', directParent: this })) {
+  const originalPosition = lib.utils.structuredClone(joinPlane.getPosition());
+
+  for (const plane of this.decks.table.getAllItems()) {
     if (plane === joinPlane) continue;
 
     for (const port of plane.select('Port')) {
@@ -25,5 +26,9 @@
       }
     }
   }
+
+  // даже с disableChanges/enableChanges объект может быть отправлен на фронт через broadcastDataBeforeHandler (данные возьмутся из game.store)
+  joinPlane.set({ left: originalPosition.left, top: originalPosition.top, rotation: 0 });
+
   return availablePorts;
 });

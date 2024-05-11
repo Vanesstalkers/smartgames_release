@@ -86,6 +86,13 @@ export default {
     box-shadow: 0 0 10px 10px #f4e205;
   }
 }
+
+#game.debug {
+  .zone {
+    background: transparent;
+  }
+}
+
 .zone.vertical {
   height: 142px;
   width: 73px;

@@ -12,7 +12,20 @@
       left: data.left,
       top: data.top,
       rotation: data.rotation || 0,
+      linkedPlanesIds: data.linkedPlanesIds,
+      linkedPortsIds: data.linkedPortsIds,
       bridgeToCardPlane: data.bridgeToCardPlane,
     });
+  }
+
+  getLinkedPorts() {
+    const game = this.game();
+    const ports = this.linkedPortsIds.map((id) => game.get(id));
+    return ports;
+  }
+  getLinkedPlanes() {
+    const game = this.game();
+    const planes = this.linkedPlanesIds.map((id) => game.get(id));
+    return planes;
   }
 });

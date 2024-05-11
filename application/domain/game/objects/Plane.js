@@ -93,13 +93,15 @@
     return this.rotation;
   }
   getPosition() {
-    switch (this.getCurrentRotation()) {
+    const rotation = this.getCurrentRotation();
+    switch (rotation) {
       case 0:
         return {
           left: this.left,
           right: this.left + this.width,
           top: this.top,
           bottom: this.top + this.height,
+          rotation,
         };
       case 1:
         return {
@@ -107,6 +109,7 @@
           right: this.left,
           top: this.top,
           bottom: this.top + this.width,
+          rotation,
         };
       case 2:
         return {
@@ -114,6 +117,7 @@
           right: this.left,
           top: this.top - this.height,
           bottom: this.top,
+          rotation,
         };
       case 3:
         return {
@@ -121,6 +125,7 @@
           right: this.left + this.height,
           top: this.top - this.width,
           bottom: this.top,
+          rotation,
         };
     }
   }
@@ -130,9 +135,23 @@
     const moveResult = target.addItem(this);
     if (moveResult) {
       this.updateParent(target);
+      if (target.afterAddItem) target.afterAddItem(this);
     } else {
       currentParent.addItem(this); // восстанавливаем, если не получилось переместить
     }
     return moveResult;
+  }
+  getLinkedBridges() {
+    const game = this.game();
+    const ports = this.select('Port').filter(({ linkedBridge }) => linkedBridge);
+    const bridges = ports.map(({ linkedBridge }) => game.find(linkedBridge));
+    return bridges;
+  }
+  getLinkedPlanes() {
+    const game = this.game();
+    const bridges = this.getLinkedBridges();
+    const planesIds = bridges.map(({ linkedPlanesIds }) => linkedPlanesIds.find((id) => id !== this.id()));
+    const planes = planesIds.map((id) => game.get(id));
+    return planes;
   }
 });

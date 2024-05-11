@@ -22,7 +22,7 @@
         },
         FINAL_RELEASE: function () {
           const { game, player } = this.eventContext();
-          const planeList = game.getObjects({ className: 'Plane', directParent: game });
+          const planeList = game.decks.table.getAllItems();
           const bridgeList = game.getObjects({ className: 'Bridge', directParent: game });
 
           let finalRelease = true;
@@ -38,7 +38,7 @@
 
           if (!game.isSinglePlayer()) return { preventListenerRemove: true };
 
-          const planeList = game.getObjects({ className: 'Plane', directParent: game });
+          const planeList = game.decks.table.getAllItems();
           const bridgeList = game.getObjects({ className: 'Bridge', directParent: game });
           const dominoDeck = game.find('Deck[domino]');
 

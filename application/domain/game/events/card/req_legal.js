@@ -1,46 +1,45 @@
-() => ({
-  config: {
-    playOneTime: true,
-  },
-  init: function () {
+() => {
+  const event = domain.game.events.common.putPlaneFromHand();
+
+  event.config = { playOneTime: true };
+
+  event.init = function () {
     const { game, player } = this.eventContext();
     const deck = game.find('Deck[plane]');
-    const code = 'event_req_legal';
+    const playerHand = player.find('Deck[plane]');
 
-    deck.addItem({
+    const code = 'event_req_legal';
+    const plane = deck.addItem({
       _code: code,
       price: 50,
       release: true,
       ...{ cardPlane: true, width: 120, height: 180 },
       customClass: ['card-plane', 'card-event', `card-${code}`],
-      zoneLinks: {},
-      zoneList: [],
       portList: [{ _code: 1, left: 22.5, top: 105, direct: { bottom: true }, links: [], t: 'any', s: 'core' }],
     });
-    const plane = deck.find(`Plane[${code}]`);
-    game.run('showPlanePortsAvailability', { joinPlaneId: plane._id });
-    // player.set({ eventData: { waitForEvent: true } });
-  },
-  handlers: {
-    RESET: function () {
-      const { game, player, source, sourceId } = this.eventContext();
-      source.removeEvent(this);
-      player.removeEvent(this);
-      game.removeAllEventListeners({ sourceId });
-    },
-    ADD_PLANE: function () {
-      this.emit('RESET');
-    },
-    END_ROUND: function () {
-      const { game, player } = this.eventContext();
+    if (plane) {
+      plane.moveToTarget(playerHand);
+      game.set({ previewPlaneId: plane.id() });
+    }
+  };
 
-      if (!game.availablePorts.length) {
-        const plane = game.find('Plane[event_req_legal]');
-        game.run('showPlanePortsAvailability', { joinPlaneId: plane._id });
-      }
-      const availablePortConfig = game.availablePorts[0];
-      if (availablePortConfig) game.run('putPlaneOnField', availablePortConfig);
-      else this.emit('RESET');
-    },
-  },
-});
+  event.handlers['ADD_PLANE'] = function () {
+    const { game, player } = this.eventContext();
+    const playerPlaneDeck = player.find('Deck[plane]');
+    const planeList = playerPlaneDeck.select('Plane');
+
+    if (planeList.length == 0) {
+      this.emit('RESET');
+    } else {
+      this.emit('NO_AVAILABLE_PORTS');
+      return { preventListenerRemove: true };
+    }
+  };
+
+  event.handlers['END_ROUND'] = function () {
+    this.emit('CHECK_PLANES_IN_HANDS');
+    this.emit('RESET');
+  };
+
+  return event;
+};

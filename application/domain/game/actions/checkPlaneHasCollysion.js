@@ -10,7 +10,7 @@
     );
   }
 
-  for (const plane of this.getObjects({ className: 'Plane', directParent: this })) {
+  for (const plane of this.decks.table.getAllItems()) {
     if (plane === checkPlane) continue;
     if (noCrossing(planePosition, plane.getPosition())) continue;
 

@@ -1,8 +1,14 @@
 <template>
   <div
-    v-if="plane._id"
+    v-if="plane._id || this.planeId === 'fake'"
     :id="plane._id"
-    :class="['plane', selectable ? 'selectable' : '', ...plane.customClass, ...Object.values(customClass)]"
+    :class="[
+      'plane',
+      selectable ? 'selectable' : '',
+      plane.eventData.moveToHand ? 'move-to-hand' : '',
+      ...plane.customClass,
+      ...Object.values(customClass),
+    ]"
     :style="customStyle"
     v-on:click.stop="(e) => (selectable ? choosePlane() : selectPlane(e))"
     :code="plane.code"
@@ -54,7 +60,13 @@ export default {
   props: {
     planeId: String,
     inHand: Boolean,
-    gamePlaneScale: Number,
+    viewStyle: {
+      required: false,
+      type: Object,
+      default() {
+        return {};
+      },
+    },
   },
   setup() {
     return inject('gameGlobals');
@@ -67,15 +79,17 @@ export default {
       return this.getStore();
     },
     plane() {
-      return this.store.plane?.[this.planeId] || {};
+      return this.store.plane?.[this.planeId] || { eventData: {}, customClass: [] };
     },
     customStyle() {
-      const style = { ...this.plane, ...(this.inHand ? this.inHandStyle : {}) } || {};
-      if (style.left) style.left += 'px';
-      if (style.top) style.top += 'px';
-      if (style.width) style.width += 'px';
-      if (style.height) style.height += 'px';
-      if (style.rotation) {
+      const style = { ...this.plane, ...(this.inHand ? this.inHandStyle : {}), ...this.viewStyle } || {};
+      if (style.left) style.left = parseInt(style.left) + 'px';
+      if (style.top) style.top = parseInt(style.top) + 'px';
+      if (style.width) style.width = parseInt(style.width) + 'px';
+      if (style.height) style.height = parseInt(style.height) + 'px';
+
+      if (!this.inHand) {
+        // для style.rotation == 0 тоже нужно обновлять, иначе во view-режиме подтянется rotation из предыдущей позиции
         const rotateDegree = 90 * (style.rotation || 0);
         style.transform = `rotate(${rotateDegree}deg)`;
         this.customClass = { ...this.customClass, rotate: `rotate${rotateDegree}` };
@@ -105,10 +119,12 @@ export default {
     async selectPlane(event) {
       const $plane = event.target.closest('.plane');
       if ($plane.closest('.player.iam')) {
+        this.gameCustom.selectedPlane._id = this.planeId;
         await this.handleGameApi({ name: 'showPlanePortsAvailability', data: { joinPlaneId: this.planeId } });
       }
     },
     async choosePlane() {
+      this.gameCustom.selectedPlane._id = null;
       await this.handleGameApi({ name: 'eventTrigger', data: { eventData: { targetId: this.planeId } } });
     },
     customBG(pid) {
@@ -141,8 +157,13 @@ export default {
     setTimeout(() => {
       if (this.inHand) {
         this.customClass = { ...this.customClass, inHand: `in-hand` };
-      } else this.inHandStyle = {};
-      if (this.$parent.updatePlaneScale) this.$parent.updatePlaneScale();
+      } else {
+        this.inHandStyle = {};
+        if (!this.gameCustom.selectedPlane._id) {
+          // чтобы масштаба не сбрасывался при preview для размещения блока
+          this.state.gamePlaneNeedUpdate = true;
+        }
+      }
     }, 100);
   },
 };
@@ -161,11 +182,17 @@ export default {
     z-index: -1 !important;
     box-shadow: 0 0 10px 10px #f4e205 !important;
   }
-  &.selectable {
+  &.selectable:not(.card-plane) {
     box-shadow: none !important;
   }
   &.selectable:after {
     box-shadow: inset 0 0 0px 10px yellow;
+  }
+  &.selectable.move-to-hand:after {
+    box-shadow: inset 0 0 0px 10px orange;
+  }
+  &.selectable.card-plane.move-to-hand {
+    box-shadow: inset 0 0 20px 8px orange !important;
   }
 }
 
@@ -237,6 +264,16 @@ export default {
   transform: scale(0.7);
   transform-origin: top right;
   margin: 25px 0px -75px 0px;
+}
+
+.plane.in-hand.card-plane {
+  transform: scale(0.8);
+  transform-origin: center left;
+  margin: 125px -24px 0px 0px;
+
+  > .price {
+    font-size: 24px;
+  }
 }
 
 .plane > .price {

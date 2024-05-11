@@ -6,7 +6,7 @@
   let targetPortIsAvailable = false;
   this.disableChanges();
   {
-    let availablePorts = this.availablePorts; // возможно ранее уже был вызван showPlanePortsAvailability
+    let availablePorts = this.availablePorts; // возможно ранее уже был вызван showPlanePortsAvailability (ВАЖНО чтобы не было pop/unshift от availablePorts)
     if (!availablePorts?.length) {
       // вызов с клиента
       joinPort.updateDirect(joinPortDirect);
@@ -27,14 +27,11 @@
   this.enableChanges();
   if (!targetPortIsAvailable) throw new Error('Блок игрового поля не может быть добавлен к этой зоне интеграции');
 
-  this.set({ availablePorts: [] });
+  this.set({ availablePorts: [], previewPlaneId: null });
 
   joinPort.updateDirect(joinPortDirect);
   targetPort.updateDirect(targetPortDirect);
   this.run('createBridge', { joinPort, targetPort });
 
-  // сделать через plane.moveToTarget нельзя, так как у game (в this) нет метода addItem
-  const planeCurrentParent = joinPlane.getParent();
-  planeCurrentParent.removeItem(joinPlane);
-  this.addPlane(joinPlane);
+  joinPlane.moveToTarget(this.decks.table);
 });

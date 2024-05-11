@@ -27,7 +27,7 @@ const init = async () => {
   const serverHost =
     process.env.NODE_ENV === 'development' || new URLSearchParams(document.location.search).get('dev')
       ? `${location.hostname}:${port}`
-      : `${location.hostname}/api`;
+      : `${location.hostname + location.pathname}api/`;
 
   const metacom = Metacom.create(`${protocol}://${serverHost}`);
   const { api } = metacom;
@@ -43,6 +43,7 @@ const init = async () => {
     isLandscape: true,
     isPortrait: false,
     isFullscreen: false,
+    gamePlaneNeedUpdate: false,
     guiScale: 1,
     store: {},
     emit: {
