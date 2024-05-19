@@ -30,7 +30,8 @@
     <template #gameinfo="{} = {}">
       <div class="wrapper">
         <div class="game-status-label">
-          Бюджет <span style="color: gold">{{ fullPrice }}k</span> {{ game.statusLabel }}
+          Бюджет <span style="color: gold">{{ fullPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽</span>
+          {{ game.statusLabel }}
         </div>
         <div v-for="deck in deckList" :key="deck._id" class="deck" :code="deck.code">
           <div v-if="deck._id && deck.code === 'Deck[domino]'" class="hat" v-on:click="takeDice">

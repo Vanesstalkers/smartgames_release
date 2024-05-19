@@ -1,23 +1,11 @@
 async () => {
-  const gameTypes = domain.game.configs.games();
-  const filledGames = {};
-  for (const [gameType, typeData] of Object.entries(gameTypes)) {
-    const { items, itemsDefault = {}, ...typeInfo } = typeData;
-    filledGames[gameType] = typeInfo;
-    filledGames[gameType].items = {};
-    for (const [gameConfig, configData] of Object.entries(items)) {
-      filledGames[gameType].items[gameConfig] = Object.assign({}, itemsDefault, configData);
-    }
-  }
-  domain.game.configs.filledGames = filledGames;
-
   if (application.worker.id === 'W1') {
     db.redis.handlers.afterStart(async () => {
       async function connectToLobby() {
         const lobbyData = await db.redis.get('lobbyData', { json: true });
         if (lobbyData) {
           const { channelName } = lobbyData;
-          const gameTypes = domain.game.configs.filledGames;
+          const gameTypes = domain.game.configs.gamesFilled();
           const games = {};
 
           for (const [gameType, typeData] of Object.entries(gameTypes)) {
