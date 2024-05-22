@@ -1,6 +1,6 @@
 (class Game extends lib.game.class() {
   constructor() {
-    super();
+    super(...arguments);
     Object.assign(this, {
       ...lib.chat['@class'].decorate(),
       ...lib.game.decorators['@hasDeck'].decorate(),

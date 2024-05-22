@@ -56,7 +56,6 @@
   }
   if (newGame) {
     const cardsToRemove = this.settings.cardsToRemove || [];
-    const cards = configs.cards();
     for (const [deckCode, json] of [
       ['Deck[domino]', configs.dices()],
       ['Deck[card]', configs.cards().filter((card) => !cardsToRemove.includes(card.name))],
