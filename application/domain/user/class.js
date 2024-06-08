@@ -33,7 +33,7 @@
       let penaltySum = 0;
       if (endGameStatus === 'win') {
         penaltySum = 100 * crutchCount * 1000;
-        income = fullPrice - penaltySum;
+        income = fullPrice * 1000 - penaltySum;
         rankings[gameType].money = money + income;
         if (income < 0) income = 0; // в рейтинги отрицательный результата пишем
         rankings[gameType].penalty = penalty + penaltySum;

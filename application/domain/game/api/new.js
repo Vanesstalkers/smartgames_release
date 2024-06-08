@@ -1,4 +1,4 @@
-async (context, { deckType, gameType, gameConfig, gameTimer, creator }) => {
+async (context, { deckType, gameType, gameConfig, gameTimer, playerCount, creator }) => {
   const { sessionId, userId } = context.session.state;
   const session = lib.store('session').get(sessionId);
   const user = session.user();
@@ -6,7 +6,8 @@ async (context, { deckType, gameType, gameConfig, gameTimer, creator }) => {
 
   if (!lobbyId) throw new Error('lobby not found'); // этой ошибки быть не должно - оставил проверку для отладки
 
-  const game = await new domain.game.class().create({ deckType, gameType, gameConfig, gameTimer });
+  const gameClassGetter = gameType === 'corporate' ? domain.game.corporate.classSuper : domain.game.class;
+  const game = await new gameClassGetter().create({ deckType, gameType, gameConfig, gameTimer, playerCount });
   const gameId = game.id();
 
   for (const session of user.sessions()) {

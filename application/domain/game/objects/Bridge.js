@@ -5,7 +5,7 @@
 
   constructor(data, { parent }) {
     super(data, { col: 'bridge', parent });
-    this.broadcastableFields(['_id', 'zoneMap', 'width', 'height', 'left', 'top', 'rotation']);
+    this.broadcastableFields(['_id', 'code', 'zoneMap', 'width', 'height', 'left', 'top', 'rotation']);
 
     this.set({
       release: data.release || false,

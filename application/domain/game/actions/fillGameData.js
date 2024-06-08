@@ -1,4 +1,12 @@
 (function ({ data, newGame }) {
+  const {
+    objects: { Dice, Plane, Table },
+    configs,
+  } = domain.game;
+  const {
+    objects: { Deck, Card },
+  } = lib.game;
+
   if (data.store) this.store = data.store;
   this.logs(data.logs);
   this.deckType = data.deckType;
@@ -14,14 +22,6 @@
   this.availablePorts = data.availablePorts || [];
   this.previewPlaneId = data.previewPlaneId;
 
-  const {
-    objects: { Dice, Plane, Table },
-    configs,
-  } = domain.game;
-  const {
-    objects: { Deck, Card },
-  } = lib.game;
-
   if (data.playerMap) {
     data.playerList = [];
     for (const _id of Object.keys(data.playerMap)) data.playerList.push(this.store.player[_id]);
@@ -29,8 +29,6 @@
     data.playerList = data.settings.playerList;
   }
   for (const item of data.playerList || []) this.run('addPlayer', item);
-
-  if (newGame) this.run('initPlayerWaitEvents');
 
   if (data.deckMap) {
     data.deckList = [];

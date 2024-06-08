@@ -1,4 +1,8 @@
 (function () {
+
+  const player = this.players()[0];
+  if(!player) return;
+
   this.initEvent(
     {
       init: function () {
@@ -15,27 +19,9 @@
             settings: { planesAtStart, planesNeedToStart, planesToChoose },
           } = game;
           const players = game.players();
-
           const gamePlaneDeck = game.find('Deck[plane]');
-          const skipArray = [];
-          for (let i = 0; i < planesAtStart; i++) {
-            const plane = gamePlaneDeck.getRandomItem({ skipArray });
-            if (plane) {
-              skipArray.push(plane.id());
-              if (i === 0) {
-                // игровое поле пустое
-                plane.moveToTarget(game.decks.table);
-              } else {
-                game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
-                if (game.availablePorts.length === 0) continue;
 
-                const availablePortConfig = game.availablePorts[Math.floor(Math.random() * game.availablePorts.length)];
-                game.run('putPlaneOnField', availablePortConfig);
-              }
-            } else {
-              i = planesAtStart;
-            }
-          }
+          game.run('putStartPlanes');
 
           const planesToBePlacedByPlayers = planesNeedToStart - planesAtStart;
           for (let i = 0; i < planesToBePlacedByPlayers; i++) {
@@ -59,10 +45,7 @@
         },
       },
     },
-    {
-      defaultResetHandler: true,
-      player: this.players()[0],
-    }
+    { defaultResetHandler: true, player }
   );
 
   return { status: 'ok' };

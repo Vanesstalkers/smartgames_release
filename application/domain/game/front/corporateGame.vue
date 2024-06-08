@@ -1,31 +1,39 @@
 <template>
   <game :debug="false" :planeScaleMin="0.3" :planeScaleMax="1">
     <template #gameplane="{ gamePlaneControlStyle = {} } = {}">
-      <div :class="['gp-content']" :style="{ ...gamePlaneControlStyle }">
-        <plane v-for="id in Object.keys(tablePlanes.itemMap)" :key="id" :planeId="id" />
-        <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
-        <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
+      <div
+        v-for="game in games"
+        :key="game.gameId"
+        :gameId="game.gameId"
+        class="gp"
+        :style="{ ...gamePlaneStyle(game.gameId) }"
+      >
+        <div :class="['gp-content']" :style="{ ...(game.gameId === playerGameId() ? gamePlaneControlStyle : {}) }">
+          <plane v-for="id in Object.keys(game.table.itemMap || {})" :key="id" :planeId="id" />
+          <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
+          <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
 
-        <div
-          v-for="position in possibleAddPlanePositions"
-          :key="position.joinPortId + position.joinPortDirect + position.targetPortId + position.targetPortDirect"
-          :joinPortId="position.joinPortId"
-          :joinPortDirect="position.joinPortDirect"
-          :targetPortId="position.targetPortId"
-          :targetPortDirect="position.targetPortDirect"
-          :style="position.style"
-          class="fake-plane"
-          v-on:click="putPlaneOnField"
-          v-on:mouseover="previewPlaneOnField(position)"
-          v-on:mouseleave="hidePreviewPlaneOnField()"
-        />
+          <div
+            v-for="position in possibleAddPlanePositions"
+            :key="position.joinPortId + position.joinPortDirect + position.targetPortId + position.targetPortDirect"
+            :joinPortId="position.joinPortId"
+            :joinPortDirect="position.joinPortDirect"
+            :targetPortId="position.targetPortId"
+            :targetPortDirect="position.targetPortDirect"
+            :style="position.style"
+            class="fake-plane"
+            v-on:click="putPlaneOnField"
+            v-on:mouseover="previewPlaneOnField(position)"
+            v-on:mouseleave="hidePreviewPlaneOnField()"
+          />
 
-        <plane
-          v-if="gameCustom.selectedPlane._id && gameCustom.selectedPlane.style"
-          :planeId="gameCustom.selectedPlane._id"
-          :viewStyle="gameCustom.selectedPlane.style"
-          :class="['preview']"
-        />
+          <plane
+            v-if="gameCustom.selectedPlane._id && gameCustom.selectedPlane.style"
+            :planeId="gameCustom.selectedPlane._id"
+            :viewStyle="gameCustom.selectedPlane.style"
+            :class="['preview']"
+          />
+        </div>
       </div>
     </template>
 
@@ -35,17 +43,17 @@
           Бюджет <span style="color: gold">{{ fullPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽</span>
           {{ game.statusLabel }}
         </div>
-        <div v-for="deck in deckList" :key="deck._id" class="deck" :code="deck.code">
-          <div v-if="deck._id && deck.code === 'Deck[domino]'" class="hat" v-on:click="takeDice">
+        <div v-for="deck in deckList" :key="deck._id" class="deck" :code="deck.code.replace(game.code, '')">
+          <div v-if="deck._id && deck.code === `${game.code}Deck[domino]`" class="hat" v-on:click="takeDice">
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === 'Deck[card]'" class="card-event" v-on:click="takeCard">
+          <div v-if="deck._id && deck.code === `${game.code}Deck[card]`" class="card-event" v-on:click="takeCard">
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === 'Deck[card_drop]'" class="card-event">
+          <div v-if="deck._id && deck.code === `${game.code}Deck[card_drop]`" class="card-event">
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === 'Deck[card_active]'" class="deck-active">
+          <div v-if="deck._id && deck.code === `${game.code}Deck[card_active]`" class="deck-active">
             <!-- активная карта всегда первая - для верстки она должна стать последней -->
             <card
               v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"
@@ -104,6 +112,119 @@ export default {
     const gameGlobals = prepareGameGlobals();
 
     Object.assign(gameGlobals, releaseGameGlobals);
+    Object.assign(gameGlobals, {
+      getStore() {
+        const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
+        return game.store || {};
+      },
+      playerGameId() {
+        const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
+        return Object.entries(game.gamesMap || {}).find(([gameId, players]) => players[this.gameState.sessionPlayerId])?.[0];
+      },
+      getGame() {
+        const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
+        const gameId = this.playerGameId();
+        return game.store?.game[gameId] || {};
+      },
+      calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
+        const playerGameId = this.playerGameId();
+
+        const p = {};
+        const gamePlane = document.getElementById('gamePlane');
+        if (gamePlane instanceof HTMLElement) {
+          const gamePlaneRect = gamePlane.getBoundingClientRect();
+
+          const pp = {};
+          gamePlane.querySelectorAll('.gp').forEach((gp) => {
+            const gameId = gp.attributes.gameid.value;
+            const gp_rect = gp.getBoundingClientRect();
+
+            // !!! костыль
+            if (p.l == undefined || gp_rect.left < p.l) p.l = gp_rect.left;
+            if (p.r == undefined || gp_rect.left > p.r) p.r = gp_rect.left;
+
+            gp.querySelectorAll('.plane, .fake-plane').forEach((plane) => {
+              const rect = plane.getBoundingClientRect();
+
+              const offsetTop = rect.top - gamePlaneRect.top;
+              const offsetLeft = rect.left - gamePlaneRect.left;
+
+              if (gameId === playerGameId) {
+                if (pp.t == undefined || rect.top < pp.t) pp.t = rect.top;
+                if (pp.b == undefined || rect.bottom > pp.b) pp.b = rect.bottom;
+                if (pp.l == undefined || rect.left < pp.l) pp.l = rect.left;
+                if (pp.r == undefined || rect.right > pp.r) pp.r = rect.right;
+
+                const gp_offsetTop = rect.top - gp_rect.top;
+                const gp_offsetLeft = rect.left - gp_rect.left;
+
+                if (pp.ot == undefined || gp_offsetTop < pp.ot) pp.ot = gp_offsetTop;
+                if (pp.ol == undefined || gp_offsetLeft < pp.ol) pp.ol = gp_offsetLeft;
+              }
+
+              if (p.t == undefined || rect.top < p.t) p.t = rect.top;
+              if (p.b == undefined || rect.bottom > p.b) p.b = rect.bottom;
+              if (p.l == undefined || rect.left < p.l) p.l = rect.left;
+              if (p.r == undefined || rect.right > p.r) p.r = rect.right;
+
+              if (p.ot == undefined || offsetTop < p.ot) p.ot = offsetTop;
+              if (p.ol == undefined || offsetLeft < p.ol) p.ol = offsetLeft;
+            });
+          });
+
+          const gamePlaneTransformOrigin =
+            `${(pp.r - pp.l) / (gamePlaneScale * 2) + pp.ol / gamePlaneScale}px ` +
+            `${(pp.b - pp.t) / (gamePlaneScale * 2) + pp.ot / gamePlaneScale}px `;
+
+          return {
+            height: (p.b - p.t) / gamePlaneScale + 'px',
+            width: (p.r - p.l) / gamePlaneScale + 'px',
+            top: `calc(50% - ${(p.b - p.t) / 2 + p.ot * 1}px)`,
+            left: `calc(50% - ${(p.r - p.l) / 2 + p.ol * 1}px)`,
+            gamePlaneTransformOrigin,
+          };
+        }
+      },
+      getGamePlaneOffsets() {
+        const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
+        const deviceOffset = this.$root.state.isMobile ? (this.$root.state.isLandscape ? 200 : 0) : 700;
+
+        let offsetY = 0;
+        const gameCount = Object.values(game.store.game).filter(({ status }) => status !== 'WAIT_FOR_PLAYERS').length;
+        if (gameCount === 3) offsetY = -1000; // !!! костыль
+
+        const offsets = {
+          [this.gameState.gameId]: { x: 0 + deviceOffset, y: 0 + offsetY },
+        };
+
+        const gameIds = Object.keys(game.gamesMap);
+        for (let i = 0; i < gameIds.length; i++) {
+          switch (gameIds.length) {
+            case 2:
+              offsets[gameIds[i]] = {
+                x: [-2000, 2000][i] + deviceOffset,
+                y: 0 + offsetY,
+              };
+              break;
+            case 3:
+              offsets[gameIds[i]] = {
+                x: [-2000, 2000, 0][i] + deviceOffset,
+                y: [0, 0, 2000][i] + offsetY,
+              };
+              break;
+            case 4:
+            default: // !!!!
+              offsets[gameIds[i]] = {
+                x: [-2000, 2000, 0, 0][i] + deviceOffset,
+                y: [0, 0, 2000, -2000][i] + offsetY,
+              };
+              break;
+          }
+        }
+
+        return offsets;
+      },
+    });
 
     gameGlobals.gameCustom = reactive({
       pickedDiceId: '',
@@ -135,6 +256,9 @@ export default {
         this.state.gamePlaneNeedUpdate = true;
       });
     },
+    activeGamesCount: function () {
+      this.$children[0].$emit('resetPlanePosition'); // !!! костыль
+    },
   },
   computed: {
     state() {
@@ -148,6 +272,9 @@ export default {
     },
     gameDataLoaded() {
       return this.game.addTime;
+    },
+    activeGamesCount() {
+      return Object.values(this.store.game || {}).filter(({ status }) => status !== 'WAIT_FOR_PLAYERS').length;
     },
     showPlayerControls() {
       return this.game.status === 'IN_PROCESS';
@@ -178,11 +305,28 @@ export default {
         .map((planeId) => this.store.plane?.[planeId] || {})
         .reduce((sum, plane) => sum + plane.price, 0);
       const timerMod = 30000 / gameTimer;
-      const configMod = { blitz: 0.5, standart: 0.75, hardcore: 1 }[gameConfig];
-      return Math.floor(baseSum * 1000 * timerMod * configMod);
+      const configMod = { blitz: 0.5, standart: 0.75, hardcore: 1 }[gameConfig] || 1; // !!! + corporate
+      return Math.floor(baseSum * timerMod * configMod);
     },
     deckList() {
       return Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id]) || [];
+    },
+    tables() {
+      return Object.values(this.store.deck).filter((deck) => deck.subtype === 'table');
+    },
+    games() {
+      const games = [];
+      games.push([this.gameState.gameId, this.state.store.game?.[this.gameState.gameId] || {}]);
+      if (this.store.game) games.push(...Object.entries(this.store.game));
+      return games.map(([gameId, game]) => {
+        return {
+          gameId,
+          table: Object.keys(game.deckMap)
+            .map((deckId) => this.store.deck[deckId])
+            .find((deck) => deck.subtype === 'table'),
+          bridgeMap: game.bridgeMap,
+        };
+      });
     },
     tablePlanes() {
       return this.deckList.find((deck) => deck.subtype === 'table') || {};
@@ -213,6 +357,10 @@ export default {
     },
   },
   methods: {
+    gamePlaneStyle(gameId) {
+      const { x, y } = this.getGamePlaneOffsets()[gameId];
+      return { transform: `translate(${x}px, ${y}px)` };
+    },
     sortedActiveCards(arr) {
       return arr
         .map((id) => this.store.card?.[id] || {})
@@ -273,6 +421,16 @@ export default {
 #gamePlane .gp-content {
   position: absolute;
 }
+#gamePlane .gp-content:before {
+  content: '';
+  width: 100px;
+  height: 100px;
+  background: red;
+  z-index: 99999;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}
 
 .deck > .card-event {
   width: 60px;
@@ -291,7 +449,7 @@ export default {
   position: absolute;
   top: 35px;
   right: 100px;
-  background: url(assets/dominoes.png);
+  background: url(./assets/dominoes.png);
   background-size: cover;
   padding: 14px;
   cursor: default;

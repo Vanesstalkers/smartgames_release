@@ -75,10 +75,6 @@
     return this.cardPlane;
   }
 
-  getCodePrefix() {
-    return '';
-  }
-
   addPort(data) {
     const port = new domain.game.objects.Port(data, { parent: this });
     this.set({ portMap: { [port._id]: {} } });
