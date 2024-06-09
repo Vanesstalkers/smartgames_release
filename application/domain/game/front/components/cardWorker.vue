@@ -66,10 +66,13 @@ export default {
         clearTimeout(this.localTimerId);
         this.localTimer = Math.floor((player.timerEndTime - state.serverTimeDiff - Date.now()) / 1000);
         this.localTimerUpdateTime = player.timerUpdateTime;
-        this.localTimerId = setInterval(() => {
-          if (this.localTimer !== null) {
-            this.localTimer--;
-            if (this.localTimer < 0) this.localTimer = 0;
+
+        const self = this;
+        this.localTimerId = setTimeout(function tick() {
+          if (self.localTimer !== null) {
+            self.localTimer--;
+            if (self.localTimer < 0) self.localTimer = 0;
+            self.localTimerId = setTimeout(tick, 1000);
           }
         }, 1000);
       }
