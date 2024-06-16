@@ -28,6 +28,7 @@
             })
             .pop();
         }
+        this.putPlaneOnEmptyField = true;
         joinPlane.moveToTarget(game.decks.table);
       } else {
         for (const plane of game.decks.table.getAllItems()) {
@@ -84,6 +85,11 @@
 
         const joinPlaneId = plane.id();
         game.run('showPlanePortsAvailability', { joinPlaneId });
+        if(this.putPlaneOnEmptyField){
+          delete this.putPlaneOnEmptyField;
+          break;
+        }
+
         if (game.availablePorts.length) {
           usedPort = game.availablePorts[0];
           game.run('putPlaneOnField', usedPort); // нельзя делать через pop/unshift из-за проверки внутри putPlaneOnField

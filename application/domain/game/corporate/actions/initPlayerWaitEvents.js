@@ -1,7 +1,6 @@
 (function () {
-
   const player = this.players()[0];
-  if(!player) return;
+  if (!player) return;
 
   this.initEvent(
     {
@@ -12,12 +11,12 @@
       handlers: {
         PLAYER_JOIN: function () {
           const { game, player } = this.eventContext();
+          
+          if (game.restorationMode) return;
 
           if (game.getFreePlayerSlot()) return { preventListenerRemove: true };
 
-
           game.run('putStartPlanes');
-
         },
       },
     },

@@ -4,7 +4,7 @@
     :class="['player', ...customClass, iam ? 'iam' : '', player.active ? 'active' : '']"
   >
     <div class="inner-content">
-      <div class="player-hands">
+      <div class="player-hands" v-if="game.status != 'WAIT_FOR_PLAYERS'">
         <div v-if="hasPlaneInHand" class="hand-planes">
           <plane v-for="id in planeInHandIds" :key="id" :planeId="id" :inHand="true" />
         </div>
@@ -103,6 +103,9 @@ export default {
     },
     store() {
       return this.getStore();
+    },
+    game() {
+      return this.getGame();
     },
     player() {
       return this.store.player?.[this.playerId] || {};

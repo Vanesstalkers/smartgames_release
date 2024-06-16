@@ -1,4 +1,4 @@
-(function ({ data, newGame }) {
+(function (data) {
   const {
     objects: { Dice, Plane, Table },
     configs,
@@ -6,9 +6,11 @@
   const {
     objects: { Deck, Card },
   } = lib.game;
+  let newGame = false;
 
   if (data.store) this.store = data.store;
   this.logs(data.logs);
+  
   this.deckType = data.deckType;
   this.gameType = data.gameType;
   this.gameConfig = data.gameConfig;
@@ -18,7 +20,7 @@
   this.status = data.status;
   this.statusLabel = data.statusLabel;
   this.round = data.round || 0;
-  if (data.cardEvents) this.cardEvents = data.cardEvents;
+  this.cardEvents = data.cardEvents || {};
   this.availablePorts = data.availablePorts || [];
   this.previewPlaneId = data.previewPlaneId;
 
@@ -34,6 +36,7 @@
     data.deckList = [];
     for (const _id of Object.keys(data.deckMap)) data.deckList.push(this.store.deck[_id]);
   } else {
+    newGame = true;
     data.deckList = data.settings.deckList;
 
     this.addDeck(

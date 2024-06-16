@@ -51,8 +51,8 @@
           }
 
           // !!! был баг с недостаточным количеством костяшек для закрытия всех зон
-          const dominoInDeck = dominoDeck.select('Dice').length;
-          const dominoInHand = player.select('Dice').length;
+          const dominoInDeck = dominoDeck.itemsCount();
+          const dominoInHand = player.select({ className: 'Dice', directParent: false }).length;
           if (availableZoneCount > dominoInDeck + dominoInHand) return game.run('endGame');
 
           return { preventListenerRemove: true };

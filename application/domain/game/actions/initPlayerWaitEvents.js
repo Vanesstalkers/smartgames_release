@@ -1,7 +1,6 @@
 (function () {
-
-  const player = this.players()[0];
-  if(!player) return;
+  const player = this.getActivePlayer() || this.players()[0];
+  if (!player) return;
 
   this.initEvent(
     {
@@ -17,27 +16,33 @@
 
           const {
             settings: { planesAtStart, planesNeedToStart, planesToChoose },
+            restorationMode,
           } = game;
-          const players = game.players();
-          const gamePlaneDeck = game.find('Deck[plane]');
-
-          game.run('putStartPlanes');
-
           const planesToBePlacedByPlayers = planesNeedToStart - planesAtStart;
-          for (let i = 0; i < planesToBePlacedByPlayers; i++) {
-            const player = players[i % players.length];
-            const hand = player.find('Deck[plane]');
-            for (let j = 0; j < planesToChoose; j++) {
-              const plane = gamePlaneDeck.getRandomItem();
-              if (plane) plane.moveToTarget(hand);
+
+          if (!restorationMode) {
+            const players = game.players();
+            const gamePlaneDeck = game.find('Deck[plane]');
+
+            game.run('putStartPlanes');
+
+            for (let i = 0; i < planesToBePlacedByPlayers; i++) {
+              const player = players[i % players.length];
+              const hand = player.find('Deck[plane]');
+              for (let j = 0; j < planesToChoose; j++) {
+                const plane = gamePlaneDeck.getRandomItem();
+                if (plane) plane.moveToTarget(hand);
+              }
             }
           }
 
           game.run('initPrepareGameEvents');
 
-          if (planesToBePlacedByPlayers > 0) {
-            lib.timers.timerRestart(game, { time: game.settings.timeToPlaceStartPlane });
-            return { preventListenerRemove: true };
+          if (!restorationMode) {
+            if (planesToBePlacedByPlayers > 0) {
+              lib.timers.timerRestart(game, { time: game.settings.timeToPlaceStartPlane });
+              return { preventListenerRemove: true };
+            }
           }
 
           this.emit('RESET');
@@ -47,6 +52,4 @@
     },
     { defaultResetHandler: true, player }
   );
-
-  return { status: 'ok' };
 });

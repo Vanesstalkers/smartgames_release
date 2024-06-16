@@ -1,4 +1,4 @@
-async (context, { deckType, gameType, gameConfig, gameTimer, playerCount, creator }) => {
+async (context, { deckType, gameType, gameConfig, gameTimer, playerCount }) => {
   const { sessionId, userId } = context.session.state;
   const session = lib.store('session').get(sessionId);
   const user = session.user();
@@ -15,11 +15,16 @@ async (context, { deckType, gameType, gameConfig, gameTimer, playerCount, creato
     // (session.saveChanges будет выполнен в user.joinGame)
     session.set({ gameId });
   }
-  lib.store.broadcaster.publishAction(`game-${gameId}`, 'playerJoin', creator);
+
+  lib.store.broadcaster.publishAction(`game-${gameId}`, 'playerJoin', {
+    userId,
+    userName: user.name || user.login,
+    userAvatar: user.avatarCode,
+  });
 
   lib.store.broadcaster.publishAction(`lobby-${lobbyId}`, 'addGame', {
-    creator,
     gameId,
+    creator: { userId: user.id(), tgUsername: user.tgUsername },
     ...{ deckType, gameType, gameConfig, gameTimer, playerMap: game.playerMap },
   });
 

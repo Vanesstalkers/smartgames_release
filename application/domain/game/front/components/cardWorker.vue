@@ -16,10 +16,10 @@
     <div v-if="player.active && player.timerEndTime && game.status != 'WAIT_FOR_PLAYERS'" class="end-round-timer">
       {{ this.localTimer }}
     </div>
-    <div v-if="!iam" class="domino-dice">
+    <div v-if="!iam && game.status != 'WAIT_FOR_PLAYERS'" class="domino-dice">
       {{ dominoDeckCount }}
     </div>
-    <div v-if="!iam" class="card-event">
+    <div v-if="!iam && game.status != 'WAIT_FOR_PLAYERS'" class="card-event">
       {{ cardDeckCount }}
     </div>
     <div v-if="showLeaveBtn" class="action-btn leave-game-btn">Выйти из игры</div>
