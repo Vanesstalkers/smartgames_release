@@ -85,8 +85,14 @@ export default {
       const style = {};
       const gender = this.userData.gender;
 
-      const defaultImage = `_default/${gender}_empty`;
-      const avatarCode = this.userData.avatarCode || this.player.avatarsMap?.[gender] || defaultImage;
+      let avatarCode = `_default/${gender}_empty`;
+      if (this.player.ready && this.player.avatarsMap?.[gender]) {
+        avatarCode = this.player.avatarsMap[gender];
+      }
+      if (this.player.userId === this.state.currentUser && this.userData.avatarCode) {
+        avatarCode = this.userData.avatarCode;
+      }
+      if (this.player.avatarCode) avatarCode = this.player.avatarCode;
 
       style.backgroundImage = `url(${this.state.lobbyOrigin}/img/workers/${avatarCode}.png)`;
 
