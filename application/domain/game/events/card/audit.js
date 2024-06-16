@@ -27,7 +27,7 @@
       });
 
       const targetPlayerHand = targetPlayer.find('Deck[domino]');
-      for (const dice of targetPlayerHand.select('Dice')) {
+      for (const dice of targetPlayerHand.select({ className: 'Dice', directParent: false })) {
         dice.set({ visible: true });
         dice.markNew(); // у других игроков в хранилище нет данных об этом dice
       }

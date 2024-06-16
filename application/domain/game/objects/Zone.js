@@ -5,12 +5,8 @@
     super(data, { col: 'zone', parent });
     this.broadcastableFields(['_id', 'sideList', 'itemMap', 'left', 'top', 'vertical', 'double']);
 
-    this.set({
-      left: data.left || 0,
-      top: data.top || 0,
-      vertical: data.vertical,
-      double: data.double,
-    });
+    const { left = 0, top = 0, vertical, double } = data;
+    this.set({ left, top, vertical, double });
 
     if (data.sideList) {
       const store = this.game().getStore();

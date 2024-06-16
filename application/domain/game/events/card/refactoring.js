@@ -4,13 +4,13 @@
 
     let diceFound = false;
     for (const plane of game.select('Plane')) {
-      for (const dice of plane.select('Dice')) {
+      for (const dice of plane.select({ className: 'Dice', directParent: false })) {
         dice.set({ eventData: { selectable: true } });
         diceFound = true;
       }
     }
     for (const bridge of game.select('Bridge')) {
-      for (const dice of bridge.select('Dice')) {
+      for (const dice of bridge.select({ className: 'Dice', directParent: false })) {
         dice.set({ eventData: { selectable: true } });
         diceFound = true;
       }
@@ -30,13 +30,13 @@
     DEACTIVATE: function () {
       const { game, player } = this.eventContext();
 
-      for (const plane of game.select('Plane')) {
-        for (const dice of plane.select('Dice')) {
+      for (const plane of game.decks.table.getAllItems()) {
+        for (const dice of plane.select({ className: 'Dice', directParent: false })) {
           dice.set({ eventData: { selectable: null } });
         }
       }
       for (const bridge of game.select('Bridge')) {
-        for (const dice of bridge.select('Dice')) {
+        for (const dice of bridge.select({ className: 'Dice', directParent: false })) {
           dice.set({ eventData: { selectable: null } });
         }
       }
@@ -64,17 +64,21 @@
 
       if (!this.targetDice) {
         // ищем первый попавшийся dice
-        for (const plane of game.select('Plane')) {
-          for (const dice of plane.select('Dice')) {
+        for (const plane of game.decks.table.getAllItems()) {
+          for (const dice of plane.select({ className: 'Dice', directParent: false })) {
             this.emit('TRIGGER', { target: dice });
+            if(this.targetDice) break;
           }
+          if(this.targetDice) break;
         }
       }
       if (!this.targetDice) {
-        for (const plane of game.select('Plane')) {
-          for (const dice of plane.select('Dice')) {
+        for (const bridge of game.select('Bridge')) {
+          for (const dice of bridge.select({ className: 'Dice', directParent: false })) {
             this.emit('TRIGGER', { target: dice });
+            if(this.targetDice) break;
           }
+          if(this.targetDice) break;
         }
       }
 

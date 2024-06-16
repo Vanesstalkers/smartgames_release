@@ -3,12 +3,8 @@
     super(data, { col: 'dice', parent });
     this.broadcastableFields(['_id', 'code', 'sideList', 'deleted', 'visible', 'locked', 'placedAtRound', 'eventData']);
 
-    this.set({
-      deleted: data.deleted,
-      visible: data.visible,
-      locked: data.locked,
-      placedAtRound: data.placedAtRound,
-    });
+    const { deleted, visible, locked, placedAtRound } = data;
+    this.set({ deleted, visible, locked, placedAtRound });
 
     if (data.sideList) {
       const store = this.game().getStore();

@@ -29,13 +29,8 @@
     super(data, { col: 'port', parent });
     this.broadcastableFields(['_id', 'code', 'width', 'height', 'left', 'top', 'links', 'linkedBridge']);
 
-    this.set({
-      left: data.left,
-      top: data.top,
-      direct: data.direct,
-      links: data.links || {},
-      linkedBridge: data.linkedBridge,
-    });
+    const { left, top, direct, links = {}, linkedBridge } = data;
+    this.set({ left, top, direct, links, linkedBridge });
   }
 
   getDirect() {

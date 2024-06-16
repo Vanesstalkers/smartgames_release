@@ -3,11 +3,8 @@
     super(data, { col: 'zoneside', parent });
     this.broadcastableFields(['_id', 'code', 'value', 'links', 'expectedValues']);
 
-    this.set({
-      value: data.value,
-      links: data.links || {},
-      expectedValues: data.expectedValues || {},
-    });
+    const { value, links = {}, expectedValues = {} } = data;
+    this.set({ value, links, expectedValues });
   }
 
   addLink(link) {

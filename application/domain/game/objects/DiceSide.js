@@ -3,7 +3,8 @@
     super(data, { col: 'diceside', parent });
     this.broadcastableFields(['_id', 'value', 'eventData']);
 
-    this.set({ value: data.value });
+    const { value } = data;
+    this.set({ value });
   }
   prepareBroadcastData({ data, player, viewerMode }) {
     let visibleId = this._id;

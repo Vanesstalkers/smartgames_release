@@ -5,31 +5,13 @@
   constructor(data, { parent }) {
     super(data, { col: 'plane', parent });
     this.broadcastableFields([
-      '_id',
-      'code',
-      'price',
-      'zoneMap',
-      'portMap',
-      'width',
-      'height',
-      'left',
-      'top',
-      'rotation',
-      'customClass',
-      'eventData',
+      ...['_id', 'code', 'zoneMap', 'portMap', 'customClass'],
+      ...['price', 'width', 'height', 'left', 'top', 'rotation', 'eventData'],
     ]);
 
-    this.set({
-      price: data.price,
-      width: data.width,
-      height: data.height,
-      left: data.left || 0,
-      top: data.top || 0,
-      rotation: data.rotation || 0,
-      release: data.release || false,
-      customClass: data.customClass || [],
-      cardPlane: data.cardPlane || false,
-    });
+    const { price, width, height, left = 0, top = 0, rotation = 0 } = data;
+    const { release = false, customClass = [], cardPlane = false } = data;
+    this.set({ price, width, height, left, top, rotation, release, customClass, cardPlane });
 
     if (data.zoneMap) {
       data.zoneList = [];

@@ -7,15 +7,8 @@
     super(data, { col: 'bridge', parent });
     this.broadcastableFields(['_id', 'code', 'zoneMap', 'width', 'height', 'left', 'top', 'rotation']);
 
-    this.set({
-      release: data.release || false,
-      left: data.left,
-      top: data.top,
-      rotation: data.rotation || 0,
-      linkedPlanesIds: data.linkedPlanesIds,
-      linkedPortsIds: data.linkedPortsIds,
-      bridgeToCardPlane: data.bridgeToCardPlane,
-    });
+    const { release = false, left, top, rotation = 0, linkedPlanesIds, linkedPortsIds, bridgeToCardPlane } = data;
+    this.set({ release, left, top, rotation, linkedPlanesIds, linkedPortsIds, bridgeToCardPlane });
   }
 
   getLinkedPorts() {

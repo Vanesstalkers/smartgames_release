@@ -1,12 +1,7 @@
 (class Player extends lib.game.objects.Player {
   constructor(data, { parent }) {
     super(data, { parent });
-    this.broadcastableFields(
-      this.broadcastableFields().concat(
-        // добавляем недостающие поля
-        ['availableZones']
-      )
-    );
+    this.broadcastableFields(['availableZones']);
 
     this.set({
       availableZones: [],
@@ -30,8 +25,6 @@
     return { visibleId, preparedData };
   }
   triggerEventEnabled() {
-    return (
-      this.eventData.activeEvents.find((event) => event.hasHandler('ADD_PLANE'))
-    );
+    return this.eventData.activeEvents.find((event) => event.hasHandler('ADD_PLANE'));
   }
 });

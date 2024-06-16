@@ -21,7 +21,7 @@
       const { game, player } = this.eventContext();
 
       const deck = game.find('Deck[domino]');
-      for (const dice of target.select('Dice')) {
+      for (const dice of target.select({ className: 'Dice', directParent: false })) {
         dice.moveToTarget(deck);
       }
       target.set({ release: null });
