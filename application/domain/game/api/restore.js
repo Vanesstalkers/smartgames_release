@@ -23,7 +23,7 @@ async (context, { deckType, gameType, gameId, needLoadGame }) => {
               ).load({ fromData: gameData }, { initStore: true });
               game.restorationMode = true;
               game.run('fillGameData', gameData);
-              game.clearEvents(); // тут сохраненные в БД eventListeners (пустые объекты) - у corporateGame их нет, т.к. атм отрабатывает preventSaveFields
+              game.clearEvents(); // тут сохраненные в БД eventListeners (пустые объекты) - у corporateGame их нет, т.к. там отрабатывает preventSaveFields
               game.run('initPlayerWaitEvents');
             }
           }
