@@ -70,7 +70,7 @@
         if (players[playerId]) {
           players[playerId] = userId;
           const game = this.get(gameId);
-          game.toggleEventHandlers('PLAYER_JOIN', { targetId: playerId }, [player]);
+          game.toggleEventHandlers('PLAYER_JOIN', { targetId: playerId }, player);
         }
       }
       this.set({ gamesMap });

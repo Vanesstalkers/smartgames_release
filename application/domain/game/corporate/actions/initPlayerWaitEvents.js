@@ -1,7 +1,4 @@
 (function () {
-  const player = this.players()[0];
-  if (!player) return;
-
   this.initEvent(
     {
       init: function () {
@@ -11,7 +8,7 @@
       handlers: {
         PLAYER_JOIN: function () {
           const { game, player } = this.eventContext();
-          
+
           if (game.restorationMode) return;
 
           if (game.getFreePlayerSlot()) return { preventListenerRemove: true };
@@ -20,8 +17,6 @@
         },
       },
     },
-    { defaultResetHandler: true, player }
+    { defaultResetHandler: true, allowedPlayers: this.players() }
   );
-
-  return { status: 'ok' };
 });

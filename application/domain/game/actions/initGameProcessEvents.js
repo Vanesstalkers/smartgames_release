@@ -61,9 +61,7 @@
     },
     {
       defaultResetHandler: true,
-      player: this.players()[0],
+      allowedPlayers: this.players(),
     }
   );
-
-  return { status: 'ok' };
 });

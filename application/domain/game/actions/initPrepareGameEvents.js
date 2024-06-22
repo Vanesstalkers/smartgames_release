@@ -35,7 +35,6 @@
     }
 
     game.changeActivePlayer();
-    this.player(game.getActivePlayer()); // чтобы пройти player-access проверку в toggleEventHandlers
     lib.timers.timerRestart(game, { time: game.settings.timeToPlaceStartPlane });
     return { preventListenerRemove: true };
   };
@@ -45,6 +44,5 @@
     return { preventListenerRemove: true };
   };
 
-  this.initEvent(event, { player: this.getActivePlayer() });
-  return { status: 'ok' };
+  this.initEvent(event, { allowedPlayers: this.players() });
 });

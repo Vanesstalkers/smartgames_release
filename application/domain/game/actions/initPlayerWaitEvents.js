@@ -1,7 +1,4 @@
 (function () {
-  const player = this.getActivePlayer() || this.players()[0];
-  if (!player) return;
-
   this.initEvent(
     {
       init: function () {
@@ -50,6 +47,6 @@
         },
       },
     },
-    { defaultResetHandler: true, player }
+    { defaultResetHandler: true, allowedPlayers: this.players() }
   );
 });
