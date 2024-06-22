@@ -124,4 +124,6 @@
   for (const logEvent of newRoundLogEvents) this.logs(logEvent);
 
   this.set({ statusLabel: `Раунд ${newRoundNumber}`, round: newRoundNumber });
+
+  this.dumpState();
 });

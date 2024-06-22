@@ -12,8 +12,11 @@
     :style="customStyle"
     @click="controlAction"
   >
-    <div v-if="showEndRoundBtn" class="action-btn end-round-btn">Закончить раунд</div>
-    <div v-if="player.active && player.timerEndTime && game.status != 'WAIT_FOR_PLAYERS'" class="end-round-timer">
+    <div v-if="showEndRoundBtn && !showLeaveBtn" class="action-btn end-round-btn">Закончить раунд</div>
+    <div
+      v-if="showControls && player.active && player.timerEndTime && game.status != 'WAIT_FOR_PLAYERS'"
+      class="end-round-timer"
+    >
       {{ this.localTimer }}
     </div>
     <div v-if="!iam && game.status != 'WAIT_FOR_PLAYERS'" class="domino-dice">
@@ -123,7 +126,7 @@ export default {
       return this.showControls && this.iam && this.sessionPlayerIsActive();
     },
     showLeaveBtn() {
-      return (this.game.status === 'FINISHED' && this.iam) || this.viewerId;
+      return (this.gameFinished() && this.iam) || this.viewerId;
     },
   },
   methods: {
@@ -135,7 +138,7 @@ export default {
         });
         return;
       }
-      if (this.showEndRoundBtn) return await this.endRound();
+      if (this.showEndRoundBtn && !this.showLeaveBtn) return await this.endRound();
       if (this.showLeaveBtn) return await this.leaveGame();
     },
 

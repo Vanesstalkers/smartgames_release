@@ -14,6 +14,13 @@
           if (game.getFreePlayerSlot()) return { preventListenerRemove: true };
 
           game.run('putStartPlanes');
+          this.emit('RESET');
+
+          if (game.isCoreGame()) {
+            for (const childGame of Object.values(game.store.game)) {
+              childGame.run('startGame');
+            }
+          }
         },
       },
     },

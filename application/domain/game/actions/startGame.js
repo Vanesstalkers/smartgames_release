@@ -18,6 +18,6 @@
     const round = this.round;
     this.set({ round, statusLabel: `Раунд ${round}` });
   } else {
-    this.run('endRound', { forceActivePlayer: players[0] });
+    this.run('endRound', { resetActivePlayer: true });
   }
 });

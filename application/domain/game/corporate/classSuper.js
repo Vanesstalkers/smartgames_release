@@ -4,6 +4,7 @@
     const {
       utils: { structuredClone: clone },
     } = lib;
+    playerCount = playerCount.val;
 
     await super.create({ deckType, gameType, gameConfig, gameTimer });
     this.set({ playerCount });
@@ -37,7 +38,10 @@
         }
         playerMap[player.id()] = {};
       }
-      game.set({ playerMap });
+      game.set({
+        playerMap,
+        roundReady: false,
+      });
       if (players.length === 1) game.set({ settings: { singlePlayer: true } });
       game.decks.table.set({ access: this.playerMap });
       game.run('initPlayerWaitEvents');
@@ -95,6 +99,19 @@
     }
   }
 
+  async playerLeave({ userId, viewerId }) {
+    if (this.status !== 'FINISHED' && !viewerId) {
+      this.logs({ msg: `Игрок {{player}} вышел из игры.`, userId });
+      try {
+        this.run('endGame', { canceledByUser: userId });
+      } catch (exception) {
+        if (exception instanceof lib.game.endGameException) {
+          await this.removeGame();
+        } else throw exception;
+      }
+    }
+    lib.store.broadcaster.publishAction(`gameuser-${userId}`, 'leaveGame', {});
+  }
   run(actionName, data, initPlayer) {
     const action =
       domain.game.corporate.actions?.[actionName] ||
@@ -113,5 +130,17 @@
 
     await game.handleAction(...arguments);
     await this.saveChanges();
+  }
+
+  getAllGames() {
+    return Object.values(this.store.game);
+  }
+  allGamesRoundReady() {
+    return this.getAllGames().find((game) => !game.roundReady) ? false : true;
+  }
+
+  async dumpState() {
+    await db.mongo.deleteOne(this.col() + '_dump', { _id: this.id() });
+    await db.mongo.insertOne(this.col() + '_dump', this);
   }
 });

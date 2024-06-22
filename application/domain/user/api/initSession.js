@@ -48,7 +48,7 @@
 
       // удаляем из store и broadcaster
       session.remove();
-      if (!user.sessions().length) user.remove();
+      if (user && !user.sessions().length) user.remove();
 
       console.log(`session disconnected (token=${session.token}, windowTabId=${windowTabId}`);
     });

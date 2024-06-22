@@ -13,26 +13,27 @@
           <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
           <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
 
-          <div
-            v-for="position in possibleAddPlanePositions"
-            :key="position.joinPortId + position.joinPortDirect + position.targetPortId + position.targetPortDirect"
-            :joinPortId="position.joinPortId"
-            :joinPortDirect="position.joinPortDirect"
-            :targetPortId="position.targetPortId"
-            :targetPortDirect="position.targetPortDirect"
-            :style="position.style"
-            class="fake-plane"
-            v-on:click="putPlaneOnField"
-            v-on:mouseover="previewPlaneOnField(position)"
-            v-on:mouseleave="hidePreviewPlaneOnField()"
-          />
-
-          <plane
-            v-if="gameCustom.selectedPlane._id && gameCustom.selectedPlane.style"
-            :planeId="gameCustom.selectedPlane._id"
-            :viewStyle="gameCustom.selectedPlane.style"
-            :class="['preview']"
-          />
+          <div v-if="game.gameId === playerGameId()">
+            <div
+              v-for="position in possibleAddPlanePositions"
+              :key="position.joinPortId + position.joinPortDirect + position.targetPortId + position.targetPortDirect"
+              :joinPortId="position.joinPortId"
+              :joinPortDirect="position.joinPortDirect"
+              :targetPortId="position.targetPortId"
+              :targetPortDirect="position.targetPortDirect"
+              :style="position.style"
+              class="fake-plane"
+              v-on:click="putPlaneOnField"
+              v-on:mouseover="previewPlaneOnField(position)"
+              v-on:mouseleave="hidePreviewPlaneOnField()"
+            />
+            <plane
+              v-if="gameCustom.selectedPlane._id && gameCustom.selectedPlane.style"
+              :planeId="gameCustom.selectedPlane._id"
+              :viewStyle="gameCustom.selectedPlane.style"
+              :class="['preview']"
+            />
+          </div>
         </div>
       </div>
     </template>
@@ -42,6 +43,7 @@
         <div class="game-status-label">
           Бюджет <span style="color: gold">{{ fullPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽</span>
           {{ game.statusLabel }}
+          <small v-if="game.roundReady">Ожидание других команд</small>
         </div>
         <div v-for="deck in deckList" :key="deck._id" class="deck" :code="deck.code.replace(game.code, '')">
           <div v-if="deck._id && deck.code === `${game.code}Deck[domino]`" class="hat" v-on:click="takeDice">
@@ -119,12 +121,24 @@ export default {
       },
       playerGameId() {
         const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
-        return Object.entries(game.gamesMap || {}).find(([gameId, players]) => players[this.gameState.sessionPlayerId])?.[0];
+        return Object.entries(game.gamesMap || {}).find(
+          ([gameId, players]) => players[this.gameState.sessionPlayerId]
+        )?.[0];
+      },
+      getSuperGame() {
+        return this.$root.state.store.game?.[this.gameState.gameId] || {};
       },
       getGame() {
-        const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
         const gameId = this.playerGameId();
-        return game.store?.game[gameId] || {};
+        return this.getSuperGame().store?.game[gameId] || {};
+      },
+      gameFinished() {
+        return this.getSuperGame().status === 'FINISHED';
+      },
+      actionsDisabled() {
+        return (
+          this.getGame().roundReady || this.store.player?.[this.gameState.sessionPlayerId]?.eventData?.actionsDisabled
+        );
       },
       calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
         const playerGameId = this.playerGameId();
@@ -277,7 +291,7 @@ export default {
       return Object.values(this.store.game || {}).filter(({ status }) => status !== 'WAIT_FOR_PLAYERS').length;
     },
     showPlayerControls() {
-      return this.game.status === 'IN_PROCESS';
+      return this.game.status === 'IN_PROCESS' && !this.game.roundReady;
     },
     playerIds() {
       const ids = Object.keys(this.game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
@@ -413,23 +427,23 @@ export default {
   },
 };
 </script>
-<style>
+<style lang="scss">
 #gamePlane {
   transform-origin: left top !important;
-}
+  .gp-content {
+    position: absolute;
 
-#gamePlane .gp-content {
-  position: absolute;
-}
-#gamePlane .gp-content:before {
-  content: '';
-  width: 100px;
-  height: 100px;
-  background: red;
-  z-index: 99999;
-  position: absolute;
-  left: 0px;
-  top: 0px;
+    &:before {
+      content: '';
+      width: 100px;
+      height: 100px;
+      background: red;
+      z-index: 99999;
+      position: absolute;
+      left: 0px;
+      top: 0px;
+    }
+  }
 }
 
 .deck > .card-event {
@@ -502,12 +516,22 @@ export default {
 }
 
 .game-status-label {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 1;
+
   text-align: right;
   color: white;
   font-weight: bold;
   font-size: 2em;
   white-space: nowrap;
   text-shadow: black 1px 0 10px;
+
+  > small {
+    display: block;
+    font-size: 50%;
+  }
 }
 #game.mobile-view .game-status-label {
   font-size: 1.5em;

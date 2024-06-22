@@ -85,7 +85,7 @@ const init = async () => {
   });
 
   router.beforeEach((to, from, next) => {
-    state.currentRoute = to.name;
+    state.currentRoute = to;
     return next();
   });
 
