@@ -43,7 +43,7 @@
       <div class="wrapper">
         <div class="game-status-label">
           Бюджет
-          <span style="color: gold">{{ (fullPrice / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}k ₽</span>
+          <span style="color: gold">{{ fullPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}k ₽</span>
           {{ game.statusLabel }}
           <small v-if="game.roundReady">Ожидание других команд</small>
         </div>
@@ -500,17 +500,6 @@ export default {
   transform-origin: left top !important;
   .gp-content {
     position: absolute;
-
-    &:before {
-      content: '';
-      width: 100px;
-      height: 100px;
-      background: red;
-      z-index: 99999;
-      position: absolute;
-      left: 0px;
-      top: 0px;
-    }
   }
 }
 

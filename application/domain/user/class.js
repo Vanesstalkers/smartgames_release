@@ -49,7 +49,7 @@
       });
       let incomeText = `${income.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')} ₽`;
       if (penaltySum > 0)
-        incomeText += ` (с учетом штрафа ${penaltySum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}₽)`;
+        incomeText += ` (с учетом штрафа ${penaltySum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}₽ за костыли)`;
       tutorial[endGameStatus].text = tutorial[endGameStatus].text.replace('[[win-money]]', incomeText);
       this.set({ money: (this.money || 0) + income, helper: tutorial[endGameStatus], rankings });
       await this.saveChanges();

@@ -36,7 +36,7 @@
       <div class="wrapper">
         <div class="game-status-label">
           Бюджет
-          <span style="color: gold">{{ (fullPrice / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}k ₽</span>
+          <span style="color: gold">{{ fullPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}k ₽</span>
           {{ game.statusLabel }}
         </div>
         <div v-for="deck in deckList" :key="deck._id" class="deck" :code="deck.code">
@@ -177,7 +177,7 @@ export default {
         .reduce((sum, plane) => sum + plane.price, 0);
       const timerMod = 30000 / gameTimer;
       const configMod = { blitz: 0.5, standart: 0.75, hardcore: 1 }[gameConfig];
-      return Math.floor(baseSum * 1000 * timerMod * configMod);
+      return Math.floor(baseSum * timerMod * configMod);
     },
     deckList() {
       return Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id]) || [];

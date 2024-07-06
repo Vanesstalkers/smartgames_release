@@ -244,12 +244,13 @@
       autoFinishAfterRoundsOverdue: 10,
 
       playerCount: '2-8',
+      maxPlayersInGame: '1-4',
       playerTemplates: {
         default: {
           deckList: [{ type: 'domino', itemType: 'any' }, { type: 'card', itemType: 'event' }, { type: 'plane' }],
         },
       },
-      
+
       playerList: [],
       deckList: [
         { type: 'plane' },
