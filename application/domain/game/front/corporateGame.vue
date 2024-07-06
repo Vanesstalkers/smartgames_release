@@ -85,7 +85,7 @@
           v-for="game in sortedGames"
           :key="game.gameId"
           :class="['game-item', game.selected ? 'selected' : '', game.super ? 'super' : '', game.my ? 'my' : '']"
-          v-on:click="selectedGame = game.gameId"
+          v-on:click="selectGame(game.gameId)"
         >
           {{ game.gameId.split('').reverse().join('') }}
         </div>
@@ -125,7 +125,6 @@ export default {
   props: {},
   data() {
     return {
-      selectedGame: null,
       selectedPlanes: {},
     };
   },
@@ -269,6 +268,7 @@ export default {
     });
 
     gameGlobals.gameCustom = reactive({
+      selectedGame: '',
       pickedDiceId: '',
       selectedDiceSideId: '',
       selectedCard: '',
@@ -382,6 +382,9 @@ export default {
     activeCards() {
       return this.deckList.find((deck) => deck.subtype === 'active') || {};
     },
+    selectedGame() {
+      return this.gameCustom.selectedGame;
+    },
   },
   methods: {
     gamePlaneStyle(gameId) {
@@ -491,6 +494,10 @@ export default {
           targetPortDirect: event.target.attributes.targetPortDirect.value,
         },
       });
+    },
+    selectGame(gameId) {
+      this.gameCustom.selectedGame = gameId;
+      this.$children[0].$emit('resetPlanePosition'); // !!! костыль
     },
   },
 };
