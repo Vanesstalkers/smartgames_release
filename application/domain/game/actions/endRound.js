@@ -107,18 +107,19 @@
   const newRoundLogEvents = [];
   newRoundLogEvents.push(`Начало раунда №${newRoundNumber}.`);
 
-  const card = this.run('smartMoveRandomCard', {
-    target: roundStartCardAddToPlayerHand ? playerCardHand : this.decks.active,
-  });
-  if (card && allowedAutoCardPlayRoundStart === true) {
-    card.play({ player: activePlayer });
-    newRoundLogEvents.push(`Активировано ежедневное событие "${card.title}".`);
-  }
-
   // обновляем таймер
   const actionsDisabled = activePlayer.eventData.actionsDisabled === true;
   const timerConfig = actionsDisabled ? { time: 5 } : {};
   lib.timers.timerRestart(this, timerConfig);
+
+  const card = this.run('smartMoveRandomCard', {
+    target: roundStartCardAddToPlayerHand ? playerCardHand : this.decks.active,
+  });
+  // делаем после обновления таймера, в частности из-за карты "time"
+  if (card && allowedAutoCardPlayRoundStart === true) {
+    card.play({ player: activePlayer });
+    newRoundLogEvents.push(`Активировано ежедневное событие "${card.title}".`);
+  }
 
   // обновляем логи
   for (const logEvent of newRoundLogEvents) this.logs(logEvent);

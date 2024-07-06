@@ -13,9 +13,9 @@
           <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
           <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
 
-          <div v-if="game.gameId === playerGameId()">
+          <div>
             <div
-              v-for="position in possibleAddPlanePositions"
+              v-for="position in possibleAddPlanePositions(game)"
               :key="position.joinPortId + position.joinPortDirect + position.targetPortId + position.targetPortDirect"
               :joinPortId="position.joinPortId"
               :joinPortDirect="position.joinPortDirect"
@@ -28,9 +28,10 @@
               v-on:mouseleave="hidePreviewPlaneOnField()"
             />
             <plane
-              v-if="gameCustom.selectedPlane._id && gameCustom.selectedPlane.style"
-              :planeId="gameCustom.selectedPlane._id"
-              :viewStyle="gameCustom.selectedPlane.style"
+              v-for="[_id, style] of Object.entries(selectedPlanes[game.gameId] || {})"
+              :key="_id + '_preview'"
+              :planeId="_id"
+              :viewStyle="style"
               :class="['preview']"
             />
           </div>
@@ -41,7 +42,8 @@
     <template #gameinfo="{} = {}">
       <div class="wrapper">
         <div class="game-status-label">
-          Бюджет <span style="color: gold">{{ fullPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽</span>
+          Бюджет
+          <span style="color: gold">{{ (fullPrice / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}k ₽</span>
           {{ game.statusLabel }}
           <small v-if="game.roundReady">Ожидание других команд</small>
         </div>
@@ -78,6 +80,17 @@
       />
     </template>
     <template #opponents="{} = {}">
+      <div class="games">
+        <div
+          v-for="game in sortedGames"
+          :key="game.gameId"
+          :class="['game-item', game.selected ? 'selected' : '', game.super ? 'super' : '', game.my ? 'my' : '']"
+          v-on:click="selectedGame = game.gameId"
+        >
+          {{ game.gameId.split('').reverse().join('') }}
+        </div>
+      </div>
+
       <player
         v-for="(id, index) in playerIds"
         :key="id"
@@ -110,26 +123,41 @@ export default {
     bridge,
   },
   props: {},
+  data() {
+    return {
+      selectedGame: null,
+      selectedPlanes: {},
+    };
+  },
   setup() {
     const gameGlobals = prepareGameGlobals();
 
     Object.assign(gameGlobals, releaseGameGlobals);
     Object.assign(gameGlobals, {
+      getSuperGame() {
+        return this.$root.state.store.game?.[this.gameState.gameId] || {};
+      },
+      getSuperStore() {
+        return this.getSuperGame().store || {};
+      },
       getStore() {
         const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
         return game.store || {};
       },
       playerGameId() {
         const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
+
+        if (this.gameState.viewerMode) return this.gameState.gameId;
+
         return Object.entries(game.gamesMap || {}).find(
           ([gameId, players]) => players[this.gameState.sessionPlayerId]
         )?.[0];
       },
-      getSuperGame() {
-        return this.$root.state.store.game?.[this.gameState.gameId] || {};
-      },
       getGame() {
         const gameId = this.playerGameId();
+
+        if (this.gameState.viewerMode) return this.getSuperGame();
+
         return this.getSuperGame().store?.game[gameId] || {};
       },
       gameFinished() {
@@ -244,7 +272,6 @@ export default {
       pickedDiceId: '',
       selectedDiceSideId: '',
       selectedCard: '',
-      selectedPlane: { _id: null, style: null },
     });
     provide('gameGlobals', gameGlobals);
 
@@ -258,12 +285,6 @@ export default {
     'game.eventListeners.TRIGGER': function () {
       this.gameCustom.pickedDiceId = '';
       this.hideZonesAvailability();
-    },
-    'game.previewPlaneId': async function (joinPlaneId) {
-      if (joinPlaneId) {
-        this.gameCustom.selectedPlane._id = joinPlaneId;
-        await this.handleGameApi({ name: 'showPlanePortsAvailability', data: { joinPlaneId } });
-      }
     },
     'game.availablePorts': function () {
       this.$nextTick(() => {
@@ -294,10 +315,13 @@ export default {
       return this.game.status === 'IN_PROCESS' && !this.game.roundReady;
     },
     playerIds() {
-      const ids = Object.keys(this.game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
-      if (this.gameState.viewerMode) return ids;
+      if (this.gameState.viewerMode)
+        return Object.keys(this.game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
+
+      const game = this.getSuperStore().game[this.selectedGame || this.playerGameId()];
+      const ids = Object.keys(game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
       const curPlayerIdx = ids.indexOf(this.gameState.sessionPlayerId);
-      const result = ids.slice(curPlayerIdx + 1).concat(ids.slice(0, curPlayerIdx));
+      const result = curPlayerIdx != -1 ? ids.slice(curPlayerIdx + 1).concat(ids.slice(0, curPlayerIdx)) : ids;
       return result;
     },
     sessionPlayer() {
@@ -330,6 +354,8 @@ export default {
     },
     games() {
       const games = [];
+      const playerGameId = this.playerGameId();
+      const selectedGame = this.selectedGame || playerGameId;
       games.push([this.gameState.gameId, this.state.store.game?.[this.gameState.gameId] || {}]);
       if (this.store.game) games.push(...Object.entries(this.store.game));
       return games.map(([gameId, game]) => {
@@ -339,35 +365,22 @@ export default {
             .map((deckId) => this.store.deck[deckId])
             .find((deck) => deck.subtype === 'table'),
           bridgeMap: game.bridgeMap,
+          playersMap: game.playersMap,
+          availablePorts: game.availablePorts,
+          selected: selectedGame === gameId,
+          super: this.gameState.gameId === gameId,
+          my: gameId === playerGameId,
         };
       });
+    },
+    sortedGames() {
+      return this.games.sort((a, b) => (a.my ? 1 : -1));
     },
     tablePlanes() {
       return this.deckList.find((deck) => deck.subtype === 'table') || {};
     },
     activeCards() {
       return this.deckList.find((deck) => deck.subtype === 'active') || {};
-    },
-
-    possibleAddPlanePositions() {
-      if (!this.sessionPlayerIsActive()) return [];
-      return (this.game.availablePorts || []).map(
-        ({ joinPortId, joinPortDirect, targetPortId, targetPortDirect, position }) => {
-          return {
-            joinPortId,
-            joinPortDirect,
-            targetPortId,
-            targetPortDirect,
-            style: {
-              left: position.left + 'px',
-              top: position.top + 'px',
-              width: position.right - position.left + 'px',
-              height: position.bottom - position.top + 'px',
-              rotation: position.rotation,
-            },
-          };
-        }
-      );
     },
   },
   methods: {
@@ -389,30 +402,85 @@ export default {
       // return;
       await this.handleGameApi({ name: 'takeCard', data: { count: 5 } });
     },
-    async previewPlaneOnField({ style: previewStyle }) {
-      const style = { ...previewStyle };
-      switch (style.rotation) {
-        case 1:
-          style.left = parseInt(style.left) + parseInt(style.width);
-          break;
-        case 2:
-          style.left = parseInt(style.left) + parseInt(style.width);
-          style.top = parseInt(style.top) + parseInt(style.height);
-          break;
-        case 3:
-          style.top = parseInt(style.top) + parseInt(style.height);
-          break;
+    possibleAddPlanePositions(game) {
+      if (!this.sessionPlayerIsActive()) return [];
+      const availablePorts = game.availablePorts || [];
+      return availablePorts
+        .filter(({ playerId }) => playerId === this.gameState.sessionPlayerId)
+        .map(
+          ({
+            gameId,
+            joinPlaneId,
+            joinPortId,
+            joinPortDirect,
+            targetPortId,
+            targetPortDirect,
+            position,
+            linkedPlanes,
+          }) => {
+            return {
+              gameId,
+              joinPlaneId,
+              joinPortId,
+              joinPortDirect,
+              targetPortId,
+              targetPortDirect,
+              style: {
+                left: position.left + 'px',
+                top: position.top + 'px',
+                width: position.right - position.left + 'px',
+                height: position.bottom - position.top + 'px',
+                rotation: position.rotation,
+              },
+              linkedPlanes,
+            };
+          }
+        );
+    },
+    async previewPlaneOnField(previewPosition) {
+      const { gameId, joinPlaneId, style: previewStyle, linkedPlanes } = previewPosition;
+
+      function prepareStyle(style) {
+        switch (style.rotation) {
+          case 1:
+            style.left = parseInt(style.left) + parseInt(style.width);
+            break;
+          case 2:
+            style.left = parseInt(style.left) + parseInt(style.width);
+            style.top = parseInt(style.top) + parseInt(style.height);
+            break;
+          case 3:
+            style.top = parseInt(style.top) + parseInt(style.height);
+            break;
+        }
+        delete style.width;
+        delete style.height;
       }
-      delete style.width;
-      delete style.height;
-      this.gameCustom.selectedPlane.style = style;
+
+      const style = { ...previewStyle };
+      prepareStyle(style);
+
+      if (!this.selectedPlanes[gameId]) this.$set(this.selectedPlanes, gameId, {});
+      this.$set(this.selectedPlanes[gameId], joinPlaneId, style);
+
+      for (const plane of linkedPlanes) {
+        const { joinPlaneId, position } = plane;
+        const style = {
+          left: position.left + 'px',
+          top: position.top + 'px',
+          width: position.right - position.left + 'px',
+          height: position.bottom - position.top + 'px',
+          rotation: position.rotation,
+        };
+        prepareStyle(style);
+        this.$set(this.selectedPlanes[gameId], joinPlaneId, style);
+      }
     },
     async hidePreviewPlaneOnField() {
-      this.gameCustom.selectedPlane.style = null;
+      this.selectedPlanes = {};
     },
     async putPlaneOnField(event) {
-      this.gameCustom.selectedPlane._id = null;
-      this.gameCustom.selectedPlane.style = null;
+      this.selectedPlanes = {};
       await this.handleGameApi({
         name: 'putPlaneOnField',
         data: {
@@ -559,5 +627,41 @@ export default {
   opacity: 0;
   z-index: 1;
   cursor: pointer;
+}
+.game-item {
+  cursor: pointer;
+  background: grey;
+  color: white;
+  font-size: 24px;
+  padding: 4px 10px;
+  margin-top: 4px;
+  border: 1px solid black;
+  border-radius: 4px;
+  transform: rotate(-90deg);
+  transform-origin: top left;
+  margin-top: 100px;
+  width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  &.my {
+    background: #3f51b5;
+  }
+
+  &.selected {
+    box-shadow: 0px 10px 2px 0px green;
+  }
+  &.super {
+    display: none;
+    background: gold;
+    color: black;
+  }
+}
+.player {
+  margin-left: 60px;
+}
+.games {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
 }
 </style>

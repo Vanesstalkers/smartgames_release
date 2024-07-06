@@ -22,7 +22,6 @@
   this.round = data.round || 0;
   this.cardEvents = data.cardEvents || {};
   this.availablePorts = data.availablePorts || [];
-  this.previewPlaneId = data.previewPlaneId;
 
   if (data.playerMap) {
     data.playerList = [];

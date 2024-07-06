@@ -27,7 +27,7 @@
   this.enableChanges();
   if (!targetPortIsAvailable) throw new Error('Блок игрового поля не может быть добавлен к этой зоне интеграции');
 
-  this.set({ availablePorts: [], previewPlaneId: null });
+  this.set({ availablePorts: [] });
 
   joinPort.updateDirect(joinPortDirect);
   targetPort.updateDirect(targetPortDirect);

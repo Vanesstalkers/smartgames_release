@@ -9,6 +9,7 @@
       :class="['side' + index]"
       :x="position.left + (position.vertical ? 36 : index === 0 ? 36 : 108)"
       :y="position.top + (position.vertical ? (index === 0 ? 36 : 108) : 36)"
+      :expected="JSON.stringify(side.expectedValues)"
     />
   </div>
 </template>

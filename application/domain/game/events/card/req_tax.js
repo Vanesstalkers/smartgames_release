@@ -19,7 +19,7 @@
     });
     if (plane) {
       plane.moveToTarget(playerHand);
-      game.set({ previewPlaneId: plane.id() });
+      game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, player);
     }
   };
 

@@ -1,6 +1,6 @@
 (class CorporateSuperGame extends domain.game.class {
   gamesMap = {};
-  async create({ deckType, gameType, gameConfig, gameTimer, playerCount } = {}) {
+  async create({ deckType, gameType, gameConfig, gameTimer, playerCount, maxPlayersInGame = 2 } = {}) {
     const {
       utils: { structuredClone: clone },
     } = lib;
@@ -19,13 +19,13 @@
 
     const fullPlayersList = Object.values(this.store.player);
     const gamesMap = {};
-    for (let _code = 1; _code <= playerCount; _code++) {
+    for (let _code = 1; _code <= Math.ceil(playerCount / maxPlayersInGame); _code++) {
       const game = await new domain.game.corporate.classGame(
         { _code }, // data
         { parent: this } // config
       ).create({ deckType, gameType, gameConfig, gameTimer });
 
-      const players = fullPlayersList.splice(0, 1);
+      const players = fullPlayersList.splice(0, maxPlayersInGame);
 
       let active = true;
       const playerMap = {};

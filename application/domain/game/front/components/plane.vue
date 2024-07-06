@@ -13,7 +13,7 @@
     v-on:click.stop="(e) => (selectable ? choosePlane() : selectPlane(e))"
     :code="plane.code"
   >
-    <div class="price">{{ plane.price }}k</div>
+    <div class="price">{{ (plane.price * 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽</div>
     <div class="zone-wraper">
       <plane-zone v-for="id in zoneIds" :key="id" v-bind:zoneId="id" :linkLines="linkLines" />
     </div>
@@ -119,12 +119,10 @@ export default {
     async selectPlane(event) {
       const $plane = event.target.closest('.plane');
       if ($plane.closest('.player.iam')) {
-        this.gameCustom.selectedPlane._id = this.planeId;
         await this.handleGameApi({ name: 'showPlanePortsAvailability', data: { joinPlaneId: this.planeId } });
       }
     },
     async choosePlane() {
-      this.gameCustom.selectedPlane._id = null;
       await this.handleGameApi({ name: 'eventTrigger', data: { eventData: { targetId: this.planeId } } });
     },
     customBG(pid) {
@@ -159,10 +157,6 @@ export default {
         this.customClass = { ...this.customClass, inHand: `in-hand` };
       } else {
         this.inHandStyle = {};
-        if (!this.gameCustom.selectedPlane._id) {
-          // чтобы масштаба не сбрасывался при preview для размещения блока
-          this.state.gamePlaneNeedUpdate = true;
-        }
       }
     }, 100);
   },

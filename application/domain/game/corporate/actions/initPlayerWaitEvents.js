@@ -20,6 +20,7 @@
             for (const childGame of Object.values(game.store.game)) {
               childGame.run('startGame');
             }
+            game.set({ status: 'IN_PROCESS' });
           }
         },
       },
