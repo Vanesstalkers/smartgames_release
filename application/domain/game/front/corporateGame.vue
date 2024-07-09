@@ -84,7 +84,13 @@
         <div
           v-for="game in sortedGames"
           :key="game.gameId"
-          :class="['game-item', game.selected ? 'selected' : '', game.super ? 'super' : '', game.my ? 'my' : '']"
+          :class="[
+            'game-item',
+            game.selected ? 'selected' : '',
+            game.super ? 'super' : '',
+            game.my ? 'my' : '',
+            !game.roundReady ? 'wait-for-round-ready' : '',
+          ]"
           v-on:click="selectGame(game.gameId)"
         >
           {{ game.gameId.split('').reverse().join('') }}
@@ -96,7 +102,7 @@
         :key="id"
         :playerId="id"
         :customClass="[`idx-${index}`]"
-        :showControls="false"
+        :showControls="playerGamesReady[id] ? false : true"
       />
     </template>
   </game>
@@ -228,7 +234,7 @@ export default {
       },
       getGamePlaneOffsets() {
         const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
-        const deviceOffset = this.$root.state.isMobile ? (this.$root.state.isLandscape ? 200 : 0) : 700;
+        const deviceOffset = this.$root.state.isMobile ? (this.$root.state.isLandscape ? 100 : 0) : 500;
 
         let offsetY = 0;
         const gameCount = Object.values(game.store.game).filter(({ status }) => status !== 'WAIT_FOR_PLAYERS').length;
@@ -365,16 +371,26 @@ export default {
             .map((deckId) => this.store.deck[deckId])
             .find((deck) => deck.subtype === 'table'),
           bridgeMap: game.bridgeMap,
-          playersMap: game.playersMap,
+          playerMap: game.playerMap || {},
           availablePorts: game.availablePorts,
           selected: selectedGame === gameId,
           super: this.gameState.gameId === gameId,
           my: gameId === playerGameId,
+          roundReady: game.roundReady,
         };
       });
     },
+    playerGamesReady() {
+      const result = {};
+      for (const game of this.games) {
+        for (const playerId of Object.keys(game.playerMap)) {
+          result[playerId] = game.roundReady;
+        }
+      }
+      return result;
+    },
     sortedGames() {
-      return this.games.sort((a, b) => (a.my ? 1 : -1));
+      return this.games.sort((a, b) => (a.my ? -1 : 1));
     },
     tablePlanes() {
       return this.deckList.find((deck) => deck.subtype === 'table') || {};
@@ -624,40 +640,98 @@ export default {
   z-index: 1;
   cursor: pointer;
 }
-.game-item {
-  cursor: pointer;
-  background: grey;
-  color: white;
-  font-size: 24px;
-  padding: 4px 10px;
-  margin-top: 4px;
-  border: 1px solid black;
-  border-radius: 4px;
-  transform: rotate(-90deg);
-  transform-origin: top left;
-  margin-top: 100px;
-  width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  &.my {
-    background: #3f51b5;
-  }
 
-  &.selected {
-    box-shadow: 0px 10px 2px 0px green;
-  }
-  &.super {
-    display: none;
-    background: gold;
-    color: black;
-  }
-}
 .player {
   margin-left: 60px;
 }
 .games {
   position: absolute;
-  left: 0px;
+  left: 40px;
   bottom: 0px;
+  height: 50px;
+  display: flex;
+  flex-direction: row;
+  transform: rotate(-90deg);
+  transform-origin: bottom left;
+
+  .game-item {
+    background: grey;
+    color: white;
+    font-size: 24px;
+    padding: 4px 10px;
+    margin-top: 4px;
+    border: 1px solid black;
+    border-radius: 4px;
+    margin-right: 20px;
+    width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:hover {
+      cursor: pointer;
+      opacity: 0.7;
+    }
+
+    &.selected {
+      box-shadow: 0px 10px 2px 0px green;
+    }
+    &.super {
+      display: none;
+      background: gold;
+      color: black;
+    }
+    &.wait-for-round-ready {
+      background: orange;
+    }
+    &.my {
+      background: #3f51b5;
+    }
+  }
+
+  .config-btn {
+    margin-top: 8px;
+    margin-right: 10px;
+    width: 42px;
+    height: 42px;
+    background-size: cover;
+    transform: rotate(90deg);
+
+    &:hover {
+      cursor: pointer;
+      opacity: 0.7;
+    }
+  }
+}
+
+#game.mobile-view {
+  &.portrait-view {
+    .player {
+      margin-left: 0px;
+      margin-right: 60px;
+    }
+    .games {
+      position: absolute;
+      left: 100%;
+      top: 0px;
+      height: 40px;
+      display: flex;
+      flex-direction: row;
+      transform: rotate(90deg);
+      transform-origin: top left;
+    }
+    .deck-active {
+      flex-direction: row-reverse;
+    }
+    .deck[code='Deck[card_active]'] {
+      .card-event {
+        margin-top: 0px;
+        margin-left: -75px;
+      }
+    }
+  }
+
+  .game-status-label {
+    font-size: 1.5em;
+  }
 }
 </style>

@@ -77,7 +77,7 @@
         :key="id"
         :playerId="id"
         :customClass="[`idx-${index}`]"
-        :showControls="false"
+        :showControls="true"
       />
     </template>
   </game>
@@ -270,7 +270,7 @@ export default {
   },
 };
 </script>
-<style>
+<style lang="scss">
 #gamePlane {
   transform-origin: left top !important;
 }
@@ -335,13 +335,14 @@ export default {
   top: 140px;
   right: 0px;
   display: flex;
-}
 
-.deck[code='Deck[card_active]'] .card-event {
-  margin-top: -135px;
-}
-.deck[code='Deck[card_active]'] .card-event:first-child {
-  margin-top: 0px !important;
+  .card-event {
+    margin-top: -135px;
+
+    &:first-child {
+      margin-top: 0px !important;
+    }
+  }
 }
 .deck-active {
   display: flex;
@@ -355,9 +356,6 @@ export default {
   font-size: 2em;
   white-space: nowrap;
   text-shadow: black 1px 0 10px;
-}
-#game.mobile-view .game-status-label {
-  font-size: 1.5em;
 }
 
 .plane {
@@ -382,5 +380,21 @@ export default {
   opacity: 0;
   z-index: 1;
   cursor: pointer;
+}
+
+#game.mobile-view {
+  .deck-active {
+    flex-direction: row-reverse;
+  }
+  .deck[code='Deck[card_active]'] {
+    .card-event {
+      margin-top: 0px;
+      margin-left: -75px;
+    }
+  }
+
+  .game-status-label {
+    font-size: 1.5em;
+  }
 }
 </style>

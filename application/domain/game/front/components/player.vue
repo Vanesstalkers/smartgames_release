@@ -141,9 +141,12 @@ export default {
     handCardsWidth() {
       const cardWidth = 130;
       const maxCardStack = 4;
-      return state.isMobile
+
+      return !state.isMobile
+        ? `${Math.ceil(this.mainCardDeckItemsCount / maxCardStack) * cardWidth}px`
+        : this.mainCardDeckItemsCount > 0
         ? `${cardWidth}px`
-        : `${Math.ceil(this.mainCardDeckItemsCount / maxCardStack) * cardWidth}px`;
+        : 'auto';
     },
   },
   methods: {},
