@@ -5,6 +5,7 @@
     for (const player of game.players()) {
       player.set({ eventData: { selectable: true } });
     }
+    player.set({ eventData: { canSelectWorkers: true } });
   },
   handlers: {
     RESET: function () {
@@ -13,6 +14,7 @@
       for (const player of game.players()) {
         player.set({ eventData: { selectable: null } });
       }
+      player.set({ eventData: { canSelectWorkers: null } });
 
       source.removeEvent(this);
       player.removeEvent(this);

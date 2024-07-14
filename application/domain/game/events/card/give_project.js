@@ -20,6 +20,7 @@
         if (player === activePlayer) continue;
         player.set({ eventData: { selectable: null } });
       }
+      activePlayer.set({ eventData: { canSelectWorkers: null } });
 
       source.removeEvent(this);
       activePlayer.removeEvent(this);
@@ -57,6 +58,7 @@
             if (player === activePlayer) continue;
             player.set({ eventData: { selectable: true } });
           }
+          player.set({ eventData: { canSelectWorkers: true } });
         }
 
         return { preventListenerRemove: true };

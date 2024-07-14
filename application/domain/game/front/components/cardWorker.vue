@@ -102,7 +102,7 @@ export default {
       return style;
     },
     selectable() {
-      return this.sessionPlayerIsActive() && this.player.eventData.selectable;
+      return this.sessionPlayer().eventData.canSelectWorkers && this.player.eventData.selectable;
     },
     dominoDeckCount() {
       return (
