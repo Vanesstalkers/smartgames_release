@@ -5,6 +5,11 @@
       ...lib.chat['@class'].decorate(),
       ...lib.game.decorators['@hasDeck'].decorate(),
     });
+
+    this.defaultClasses({
+      Player: domain.game.objects.Player,
+    });
+
     this.preventSaveFields(['availableZones', 'decks']);
     this.preventBroadcastFields(['decks']);
   }

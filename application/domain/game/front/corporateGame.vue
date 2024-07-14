@@ -81,6 +81,7 @@
     </template>
     <template #opponents="{} = {}">
       <div class="games">
+        <div v-if="player.teamlead" class="config-btn helper-avatar" v-on:click="openTeamleadMenu"></div>
         <div
           v-for="game in sortedGames"
           :key="game.gameId"
@@ -93,7 +94,7 @@
           ]"
           v-on:click="selectGame(game.gameId)"
         >
-          {{ game.gameId.split('').reverse().join('') }}
+          {{ game.title }}
         </div>
       </div>
 
@@ -311,6 +312,9 @@ export default {
     game() {
       return this.getGame();
     },
+    player() {
+      return this.store.player[this.gameState.sessionPlayerId] || {};
+    },
     gameDataLoaded() {
       return this.game.addTime;
     },
@@ -329,9 +333,6 @@ export default {
       const curPlayerIdx = ids.indexOf(this.gameState.sessionPlayerId);
       const result = curPlayerIdx != -1 ? ids.slice(curPlayerIdx + 1).concat(ids.slice(0, curPlayerIdx)) : ids;
       return result;
-    },
-    sessionPlayer() {
-      return this.store.player?.[this.gameState.sessionPlayerId] || {};
     },
     sessionUserCardDeckLength() {
       return (
@@ -376,6 +377,7 @@ export default {
           selected: selectedGame === gameId,
           super: this.gameState.gameId === gameId,
           my: gameId === playerGameId,
+          title: game.title,
           roundReady: game.roundReady,
         };
       });
@@ -403,6 +405,22 @@ export default {
     },
   },
   methods: {
+    openTeamleadMenu() {
+      this.$set(this.state.store.user?.[this.state.currentUser], 'helper', {
+        menu: {
+          text: 'Что необходимо сделать?',
+          pos: 'bottom-left',
+          showList: [
+            { title: 'Переименовать команду', action: { tutorial: 'game-tutorial-teamleadMenu', step: 'renameTeam' } },
+            {
+              title: 'Передать руководство',
+              action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
+            },
+          ],
+          buttons: [{ text: 'Спасибо, ничего не нужно', action: 'exit', exit: true }],
+        },
+      });
+    },
     gamePlaneStyle(gameId) {
       const { x, y } = this.getGamePlaneOffsets()[gameId];
       return { transform: `translate(${x}px, ${y}px)` };
@@ -718,6 +736,10 @@ export default {
       flex-direction: row;
       transform: rotate(90deg);
       transform-origin: top left;
+
+      .config-btn {
+        transform: rotate(-90deg);
+      }
     }
     .deck-active {
       flex-direction: row-reverse;

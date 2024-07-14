@@ -1,5 +1,13 @@
 (class CorporateSuperGame extends domain.game.class {
   gamesMap = {};
+
+  constructor() {
+    super(...arguments);
+    this.defaultClasses({
+      Player: domain.game.corporate.objects.Player,
+    });
+  }
+
   async create({ deckType, gameType, gameConfig, gameTimer, playerCount, maxPlayersInGame } = {}) {
     const {
       utils: { structuredClone: clone },
@@ -29,6 +37,7 @@
       ).create({ deckType, gameType, gameConfig, gameTimer });
 
       const players = fullPlayersList.splice(0, maxPlayersInGame.val);
+      players[0].set({ teamlead: true });
 
       let active = true;
       const playerMap = {};
@@ -44,6 +53,7 @@
       game.set({
         playerMap,
         roundReady: false,
+        title: `Команда №${_code}`,
       });
       if (players.length === 1) game.set({ settings: { singlePlayer: true } });
       game.decks.table.set({ access: this.playerMap });

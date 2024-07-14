@@ -157,9 +157,6 @@ export default {
       const result = ids.slice(curPlayerIdx + 1).concat(ids.slice(0, curPlayerIdx));
       return result;
     },
-    sessionPlayer() {
-      return this.store.player?.[this.gameState.sessionPlayerId] || {};
-    },
     sessionUserCardDeckLength() {
       return (
         Object.keys(

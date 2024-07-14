@@ -3,7 +3,8 @@
   // const self = this;
 
   const store = this.getStore();
-  const player = new domain.game.objects.Player(data, { parent: this });
+  const { Player: playerClass } = this.defaultClasses();
+  const player = new playerClass(data, { parent: this });
   this.set({ playerMap: { [player._id]: {} } });
 
   if (data.deckMap) {
@@ -28,4 +29,6 @@
     item.access = { [player._id]: {} };
     player.addDeck(item, { deckItemClass });
   }
+
+  return player;
 });
