@@ -158,6 +158,8 @@ export default {
       } else {
         this.inHandStyle = {};
       }
+
+      this.state.gamePlaneNeedUpdate = true; // выставит правильный zoom
     }, 100);
   },
 };

@@ -234,7 +234,7 @@ export default {
       },
       getGamePlaneOffsets() {
         const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
-        const deviceOffset = this.$root.state.isMobile ? (this.$root.state.isLandscape ? 100 : 0) : 500;
+        const deviceOffset = this.$root.state.isMobile ? (this.$root.state.isLandscape ? 0 : -100) : 500;
 
         let offsetY = 0;
         const gameCount = Object.values(game.store.game).filter(({ status }) => status !== 'WAIT_FOR_PLAYERS').length;
