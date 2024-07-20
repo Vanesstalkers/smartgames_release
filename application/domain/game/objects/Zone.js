@@ -47,14 +47,14 @@
   getItemClass() {
     return domain.game.objects.Dice;
   }
-  addItem(item) {
+  addItem(item, { force = false } = {}) {
     const itemClass = this.getItemClass();
     const newObjectCreation = item.constructor != itemClass ? true : false;
 
     if (newObjectCreation) item = new itemClass(item, { parent: this });
 
     const available = this.checkIsAvailable(item);
-    if (available) {
+    if (available || force) {
       if (!newObjectCreation) item.setParent(this);
       this.set({ itemMap: { [item._id]: {} } });
       if (available === 'rotate') item.set({ sideList: [...item.sideList.reverse()] });

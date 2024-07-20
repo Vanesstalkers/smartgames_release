@@ -27,8 +27,8 @@
       availableZones.push(zone._id);
     }
 
-    // восстанавливаем состояние для ранее удаленного dice
-    for (const dice of deletedDices) dice.getParent().addItem(dice);
+    // восстанавливаем состояние для ранее удаленного dice (без force сработает правило обязательности заполнения прилегающих зон для bridge)
+    for (const dice of deletedDices) dice.getParent().addItem(dice, { force: true });
   }
   this.enableChanges();
 
