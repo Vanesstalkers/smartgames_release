@@ -49,12 +49,15 @@
   }
   addItem(item) {
     const itemClass = this.getItemClass();
-    if (item.constructor != itemClass) item = new itemClass(item, { parent: this });
+    const newObjectCreation = item.constructor != itemClass ? true : false;
+
+    if (newObjectCreation) item = new itemClass(item, { parent: this });
 
     const available = this.checkIsAvailable(item);
     if (available) {
-      if (available === 'rotate') item.set({ sideList: [...item.sideList.reverse()] });
+      if (!newObjectCreation) item.setParent(this);
       this.set({ itemMap: { [item._id]: {} } });
+      if (available === 'rotate') item.set({ sideList: [...item.sideList.reverse()] });
       this.updateValues();
     }
 
@@ -73,8 +76,8 @@
         side.set({ value: null, diceSideCode: null });
       }
       // обновляем expectedValues у всех соседей
-      for (const linkCode of Object.values(side.links)) {
-        this.game().find(linkCode).updateExpectedValues();
+      for (const linkId of Object.keys(side.links)) {
+        this.game().get(linkId).updateExpectedValues();
       }
     });
   }

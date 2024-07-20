@@ -93,7 +93,8 @@
     const game = this.game();
     const result = [];
 
-    game.disableChanges();
+    // включить, если findAvailableZones будет вызываться откуда то кроме showZonesAvailability
+    // game.disableChanges(); 
     {
       // чтобы не мешать расчету для соседних зон при перемещении из одной зоны в другую (ниже вернем состояние)
       this.getParent().removeItem(this);
@@ -118,7 +119,7 @@
       // восстанавливаем состояние для ранее удаленного dice (ссылка на parent все еще на месте, т.к. она меняется только через updateParent/setParent)
       this.getParent().addItem(this);
     }
-    game.enableChanges();
+    // game.enableChanges();
     return result;
   }
 });

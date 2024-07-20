@@ -15,10 +15,12 @@
         plane.moveToTarget(this.decks.table);
       } else {
         this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
-        if (this.availablePorts.length === 0) continue;
-
-        const availablePortConfig = this.availablePorts[Math.floor(Math.random() * this.availablePorts.length)];
-        this.run('putPlaneOnField', availablePortConfig);
+        if (this.availablePorts.length === 0) {
+          this.run('putPlaneOnFieldRecursive', { planes: [plane] });
+        } else {
+          const availablePortConfig = this.availablePorts[Math.floor(Math.random() * this.availablePorts.length)];
+          this.run('putPlaneOnField', availablePortConfig);
+        }
       }
     } else {
       i = planesAtStart;
