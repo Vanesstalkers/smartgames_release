@@ -16,19 +16,17 @@
           <div>
             <div
               v-for="position in possibleAddPlanePositions(game)"
-              :key="position.joinPortId + position.joinPortDirect + position.targetPortId + position.targetPortDirect"
+              :key="position.code"
               :joinPortId="position.joinPortId"
               :joinPortDirect="position.joinPortDirect"
               :targetPortId="position.targetPortId"
               :targetPortDirect="position.targetPortDirect"
               :style="position.style"
-              class="fake-plane"
-              v-on:click="putPlaneOnField"
-              v-on:mouseover="previewPlaneOnField(position)"
-              v-on:mouseleave="hidePreviewPlaneOnField()"
+              :class="['fake-plane', position.code === selectedFakePlanePosition ? 'hidden' : '']"
+              v-on:click="previewPlaneOnField($event, position)"
             />
             <plane
-              v-for="[_id, style] of Object.entries(selectedPlanes[game.gameId] || {})"
+              v-for="[_id, style] of Object.entries(gameCustom.selectedFakePlanes[game.gameId] || {})"
               :key="_id + '_preview'"
               :planeId="_id"
               :viewStyle="style"
@@ -114,6 +112,7 @@ import { provide, reactive } from 'vue';
 
 import { prepareGameGlobals } from '~/lib/game/front/gameGlobals.mjs';
 import releaseGameGlobals from '~/domain/game/front/releaseGameGlobals.mjs';
+import corporateGameGlobals from '~/domain/game/front/corporateGameGlobals.mjs';
 import Game from '~/lib/game/front/Game.vue';
 import card from '~/lib/game/front/components/card.vue';
 
@@ -132,154 +131,15 @@ export default {
   props: {},
   data() {
     return {
-      selectedPlanes: {},
+      selectedFakePlanePosition: '',
     };
   },
   setup() {
     const gameGlobals = prepareGameGlobals();
 
     Object.assign(gameGlobals, releaseGameGlobals);
-    Object.assign(gameGlobals, {
-      getSuperGame() {
-        return this.$root.state.store.game?.[this.gameState.gameId] || {};
-      },
-      getSuperStore() {
-        return this.getSuperGame().store || {};
-      },
-      getStore() {
-        const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
-        return game.store || {};
-      },
-      playerGameId() {
-        const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
+    Object.assign(gameGlobals, corporateGameGlobals);
 
-        if (this.gameState.viewerMode) return this.gameState.gameId;
-
-        return Object.entries(game.gamesMap || {}).find(
-          ([gameId, players]) => players[this.gameState.sessionPlayerId]
-        )?.[0];
-      },
-      getGame() {
-        const gameId = this.playerGameId();
-
-        if (this.gameState.viewerMode) return this.getSuperGame();
-
-        return this.getSuperGame().store?.game[gameId] || {};
-      },
-      gameFinished() {
-        return this.getSuperGame().status === 'FINISHED';
-      },
-      actionsDisabled() {
-        return (
-          this.getGame().roundReady || this.store.player?.[this.gameState.sessionPlayerId]?.eventData?.actionsDisabled
-        );
-      },
-      calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
-        const playerGameId = this.playerGameId();
-
-        const p = {};
-        const gamePlane = document.getElementById('gamePlane');
-        if (gamePlane instanceof HTMLElement) {
-          const gamePlaneRect = gamePlane.getBoundingClientRect();
-
-          const pp = {};
-          gamePlane.querySelectorAll('.gp').forEach((gp) => {
-            const gameId = gp.attributes.gameid.value;
-            const gp_rect = gp.getBoundingClientRect();
-
-            // !!! костыль
-            if (p.l == undefined || gp_rect.left < p.l) p.l = gp_rect.left;
-            if (p.r == undefined || gp_rect.left > p.r) p.r = gp_rect.left;
-
-            gp.querySelectorAll('.plane, .fake-plane').forEach((plane) => {
-              const rect = plane.getBoundingClientRect();
-
-              const offsetTop = rect.top - gamePlaneRect.top;
-              const offsetLeft = rect.left - gamePlaneRect.left;
-
-              if (gameId === playerGameId) {
-                if (pp.t == undefined || rect.top < pp.t) pp.t = rect.top;
-                if (pp.b == undefined || rect.bottom > pp.b) pp.b = rect.bottom;
-                if (pp.l == undefined || rect.left < pp.l) pp.l = rect.left;
-                if (pp.r == undefined || rect.right > pp.r) pp.r = rect.right;
-
-                const gp_offsetTop = rect.top - gp_rect.top;
-                const gp_offsetLeft = rect.left - gp_rect.left;
-
-                if (pp.ot == undefined || gp_offsetTop < pp.ot) pp.ot = gp_offsetTop;
-                if (pp.ol == undefined || gp_offsetLeft < pp.ol) pp.ol = gp_offsetLeft;
-              }
-
-              if (p.t == undefined || rect.top < p.t) p.t = rect.top;
-              if (p.b == undefined || rect.bottom > p.b) p.b = rect.bottom;
-              if (p.l == undefined || rect.left < p.l) p.l = rect.left;
-              if (p.r == undefined || rect.right > p.r) p.r = rect.right;
-
-              if (p.ot == undefined || offsetTop < p.ot) p.ot = offsetTop;
-              if (p.ol == undefined || offsetLeft < p.ol) p.ol = offsetLeft;
-            });
-          });
-
-          const gamePlaneTransformOrigin =
-            `${(pp.r - pp.l) / (gamePlaneScale * 2) + pp.ol / gamePlaneScale}px ` +
-            `${(pp.b - pp.t) / (gamePlaneScale * 2) + pp.ot / gamePlaneScale}px `;
-
-          return {
-            height: (p.b - p.t) / gamePlaneScale + 'px',
-            width: (p.r - p.l) / gamePlaneScale + 'px',
-            top: `calc(50% - ${(p.b - p.t) / 2 + p.ot * 1}px)`,
-            left: `calc(50% - ${(p.r - p.l) / 2 + p.ol * 1}px)`,
-            gamePlaneTransformOrigin,
-          };
-        }
-      },
-      getGamePlaneOffsets() {
-        const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
-        const deviceOffset = this.$root.state.isMobile ? (this.$root.state.isLandscape ? 0 : -100) : 500;
-
-        let offsetY = 0;
-        const gameCount = Object.values(game.store.game).filter(({ status }) => status !== 'WAIT_FOR_PLAYERS').length;
-        if (gameCount === 3) offsetY = -1000; // !!! костыль
-
-        const offsets = {
-          [this.gameState.gameId]: { x: 0 + deviceOffset, y: 0 + offsetY },
-        };
-
-        const gameIds = Object.keys(game.gamesMap);
-        for (let i = 0; i < gameIds.length; i++) {
-          switch (gameIds.length) {
-            case 2:
-              offsets[gameIds[i]] = {
-                x: [-2000, 2000][i] + deviceOffset,
-                y: 0 + offsetY,
-              };
-              break;
-            case 3:
-              offsets[gameIds[i]] = {
-                x: [-2000, 2000, 0][i] + deviceOffset,
-                y: [0, 0, 2000][i] + offsetY,
-              };
-              break;
-            case 4:
-            default: // !!!!
-              offsets[gameIds[i]] = {
-                x: [-2000, 2000, 0, 0][i] + deviceOffset,
-                y: [0, 0, 2000, -2000][i] + offsetY,
-              };
-              break;
-          }
-        }
-
-        return offsets;
-      },
-    });
-
-    gameGlobals.gameCustom = reactive({
-      selectedGame: '',
-      pickedDiceId: '',
-      selectedDiceSideId: '',
-      selectedCard: '',
-    });
     provide('gameGlobals', gameGlobals);
 
     return gameGlobals;
@@ -293,9 +153,11 @@ export default {
       this.gameCustom.pickedDiceId = '';
       this.hideZonesAvailability();
     },
-    'game.availablePorts': function () {
+    'superGame.availablePorts': function () {
       this.$nextTick(() => {
         this.state.gamePlaneNeedUpdate = true;
+        this.selectedFakePlanePosition = '';
+        this.gameCustom.selectedFakePlanes = {};
       });
     },
     activeGamesCount: function () {
@@ -311,6 +173,9 @@ export default {
     },
     game() {
       return this.getGame();
+    },
+    superGame() {
+      return this.getSuperGame();
     },
     player() {
       return this.store.player[this.gameState.sessionPlayerId] || {};
@@ -442,7 +307,7 @@ export default {
     possibleAddPlanePositions(game) {
       if (!this.sessionPlayerIsActive()) return [];
       const availablePorts = game.availablePorts || [];
-      return availablePorts
+      const positions = availablePorts
         .filter(({ playerId }) => playerId === this.gameState.sessionPlayerId)
         .map(
           ({
@@ -456,6 +321,7 @@ export default {
             linkedPlanes,
           }) => {
             return {
+              code: joinPortId + joinPortDirect + targetPortId + targetPortDirect,
               gameId,
               joinPlaneId,
               joinPortId,
@@ -473,9 +339,11 @@ export default {
             };
           }
         );
+
+      return positions;
     },
-    async previewPlaneOnField(previewPosition) {
-      const { gameId, joinPlaneId, style: previewStyle, linkedPlanes } = previewPosition;
+    async previewPlaneOnField(event, previewPosition) {
+      const { code, gameId, joinPlaneId, style: previewStyle, linkedPlanes } = previewPosition;
 
       function prepareStyle(style) {
         switch (style.rotation) {
@@ -497,8 +365,8 @@ export default {
       const style = { ...previewStyle };
       prepareStyle(style);
 
-      if (!this.selectedPlanes[gameId]) this.$set(this.selectedPlanes, gameId, {});
-      this.$set(this.selectedPlanes[gameId], joinPlaneId, style);
+      if (!this.gameCustom.selectedFakePlanes[gameId]) this.$set(this.gameCustom.selectedFakePlanes, gameId, {});
+      this.$set(this.gameCustom.selectedFakePlanes[gameId], joinPlaneId, style);
 
       for (const plane of linkedPlanes) {
         const { joinPlaneId, position } = plane;
@@ -510,24 +378,31 @@ export default {
           rotation: position.rotation,
         };
         prepareStyle(style);
-        this.$set(this.selectedPlanes[gameId], joinPlaneId, style);
+        this.$set(this.gameCustom.selectedFakePlanes[gameId], joinPlaneId, style);
       }
-    },
-    async hidePreviewPlaneOnField() {
-      this.selectedPlanes = {};
-    },
-    async putPlaneOnField(event) {
-      this.selectedPlanes = {};
-      await this.handleGameApi({
-        name: 'putPlaneOnField',
-        data: {
-          gameId: this.gameState.gameId,
-          joinPortId: event.target.attributes.joinPortId.value,
-          targetPortId: event.target.attributes.targetPortId.value,
-          joinPortDirect: event.target.attributes.joinPortDirect.value,
-          targetPortDirect: event.target.attributes.targetPortDirect.value,
+
+      this.gameState.cardWorkerAction = {
+        show: true,
+        label: 'Сделать выбор',
+        style: { background: '#ffa500' },
+        sendApiData: {
+          path: 'game.api.action',
+          args: [
+            {
+              name: 'putPlaneOnField',
+              data: {
+                gameId: this.gameState.gameId,
+                joinPortId: event.target.attributes.joinPortId.value,
+                targetPortId: event.target.attributes.targetPortId.value,
+                joinPortDirect: event.target.attributes.joinPortDirect.value,
+                targetPortDirect: event.target.attributes.targetPortDirect.value,
+              },
+            },
+          ],
         },
-      });
+      };
+
+      this.selectedFakePlanePosition = code;
     },
     selectGame(gameId) {
       this.gameCustom.selectedGame = gameId;
@@ -649,14 +524,19 @@ export default {
 
 .fake-plane {
   position: absolute;
-  background: red;
+  background: #ffa500;
   border: 1px solid;
   opacity: 0.5;
-}
-.fake-plane:hover {
-  opacity: 0;
-  z-index: 1;
-  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+    z-index: 1;
+    cursor: pointer;
+  }
+
+  &.hidden {
+    display: none;
+  }
 }
 
 .player {

@@ -70,6 +70,23 @@
     return this;
   }
 
+  prepareBroadcastData({ data = {}, userId, viewerMode }) {
+    const broadcastData = super.prepareBroadcastData({ data, userId, viewerMode });
+
+    if (data.game) {
+      const gamesWithoutStore = Object.keys(data.game).reduce(
+        (obj, item) => Object.assign(obj, { [item]: { store: null } }),
+        {}
+      );
+
+      lib.utils.mergeDeep({
+        target: broadcastData,
+        source: { game: gamesWithoutStore },
+      });
+    }
+    return broadcastData;
+  }
+
   async playerJoin({ userId, userName }) {
     try {
       if (this.status === 'FINISHED') throw new Error('Игра уже завершена.');

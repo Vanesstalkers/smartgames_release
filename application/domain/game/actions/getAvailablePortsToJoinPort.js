@@ -22,12 +22,14 @@
     }
   };
   const checkLinkedPlanesHasCollision = (mainPlane, usedBridges = []) => {
+    const mainPlanePositions = { left: mainPlane.left, top: mainPlane.top, rotation: mainPlane.rotation };
+
     const linkedPlanes = [];
     for (const bridge of mainPlane.getLinkedBridges()) {
       if (usedBridges.includes(bridge)) continue;
       usedBridges.push(bridge);
 
-      const [joinPort, targetPort] = bridge.getLinkedPorts().sort((a, b) => (mainPlane.get(a) ? -1 : 1));
+      const [joinPort, targetPort] = bridge.getLinkedPorts().sort((a, b) => (a.parent() !== mainPlane ? -1 : 1));
       const joinPlane = joinPort.parent();
       if (!originalPositions[joinPlane.id()]) {
         originalPositions[joinPlane.id()] = { left: joinPlane.left, top: joinPlane.top, rotation: joinPlane.rotation };
@@ -39,6 +41,8 @@
       linkedPlanes.push(joinPlane);
       linkedPlanes.push(...checkLinkedPlanesHasCollision(joinPlane, usedBridges));
     }
+
+    mainPlane.set(mainPlanePositions); // без этого будет некорректный расчет joinPlane.getPosition()
     return linkedPlanes;
   };
 

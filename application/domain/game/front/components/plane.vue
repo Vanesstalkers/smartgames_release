@@ -67,6 +67,7 @@ export default {
         return {};
       },
     },
+    fake: Boolean
   },
   setup() {
     return inject('gameGlobals');

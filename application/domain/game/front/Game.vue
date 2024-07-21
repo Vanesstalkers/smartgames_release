@@ -15,15 +15,13 @@
             :targetPortId="position.targetPortId"
             :targetPortDirect="position.targetPortDirect"
             :style="position.style"
-            class="fake-plane"
-            v-on:click="putPlaneOnField"
-            v-on:mouseover="previewPlaneOnField(positions)"
-            v-on:mouseleave="hidePreviewPlaneOnField()"
+            :class="['fake-plane', position.code === selectedFakePlanePosition ? 'hidden' : '']"
+            v-on:click="previewPlaneOnField($event, position)"
           />
         </div>
 
         <plane
-          v-for="[_id, style] of Object.entries(gameCustom.selectedPlanes)"
+          v-for="[_id, style] of Object.entries(gameCustom.selectedFakePlanes)"
           :key="_id + '_preview'"
           :planeId="_id"
           :viewStyle="style"
@@ -104,17 +102,15 @@ export default {
     bridge,
   },
   props: {},
+  data() {
+    return {
+      selectedFakePlanePosition: '',
+    };
+  },
   setup() {
     const gameGlobals = prepareGameGlobals();
 
     Object.assign(gameGlobals, releaseGameGlobals);
-
-    gameGlobals.gameCustom = reactive({
-      pickedDiceId: '',
-      selectedDiceSideId: '',
-      selectedCard: '',
-      selectedPlanes: {},
-    });
     provide('gameGlobals', gameGlobals);
 
     return gameGlobals;
@@ -131,6 +127,7 @@ export default {
     'game.availablePorts': function () {
       this.$nextTick(() => {
         this.state.gamePlaneNeedUpdate = true;
+        this.selectedFakePlanePosition = '';
       });
     },
   },
@@ -194,6 +191,7 @@ export default {
         .map(({ gameId, joinPlaneId, joinPortId, joinPortDirect, targetPortId, targetPortDirect, position }) => {
           return [
             {
+              code: joinPortId + joinPortDirect + targetPortId + targetPortDirect,
               gameId,
               joinPlaneId,
               joinPortId,
@@ -227,32 +225,53 @@ export default {
       // return;
       await this.handleGameApi({ name: 'takeCard', data: { count: 5 } });
     },
-    async previewPlaneOnField(positions) {
-      for (const position of positions) {
-        const { joinPlaneId, style: previewStyle } = position;
-        const style = { ...previewStyle };
-        switch (style.rotation) {
-          case 1:
-            style.left = parseInt(style.left) + parseInt(style.width);
-            break;
-          case 2:
-            style.left = parseInt(style.left) + parseInt(style.width);
-            style.top = parseInt(style.top) + parseInt(style.height);
-            break;
-          case 3:
-            style.top = parseInt(style.top) + parseInt(style.height);
-            break;
-        }
-        delete style.width;
-        delete style.height;
-        this.$set(this.gameCustom.selectedPlanes, joinPlaneId, style);
+    async previewPlaneOnField(event, position) {
+      const { joinPlaneId, style: previewStyle, code } = position;
+      const style = { ...previewStyle };
+      switch (style.rotation) {
+        case 1:
+          style.left = parseInt(style.left) + parseInt(style.width);
+          break;
+        case 2:
+          style.left = parseInt(style.left) + parseInt(style.width);
+          style.top = parseInt(style.top) + parseInt(style.height);
+          break;
+        case 3:
+          style.top = parseInt(style.top) + parseInt(style.height);
+          break;
       }
+      delete style.width;
+      delete style.height;
+      this.$set(this.gameCustom.selectedFakePlanes, joinPlaneId, style);
+
+      this.gameState.cardWorkerAction = {
+        show: true,
+        label: 'Сделать выбор',
+        style: { background: '#ffa500' },
+        sendApiData: {
+          path: 'game.api.action',
+          args: [
+            {
+              name: 'putPlaneOnField',
+              data: {
+                gameId: this.gameState.gameId,
+                joinPortId: event.target.attributes.joinPortId.value,
+                targetPortId: event.target.attributes.targetPortId.value,
+                joinPortDirect: event.target.attributes.joinPortDirect.value,
+                targetPortDirect: event.target.attributes.targetPortDirect.value,
+              },
+            },
+          ],
+        },
+      };
+
+      this.selectedFakePlanePosition = code;
     },
     async hidePreviewPlaneOnField() {
-      this.gameCustom.selectedPlanes = {};
+      this.gameCustom.selectedFakePlanes = {};
     },
     async putPlaneOnField(event) {
-      this.gameCustom.selectedPlanes = {};
+      this.gameCustom.selectedFakePlanes = {};
       await this.handleGameApi({
         name: 'putPlaneOnField',
         data: {
@@ -369,14 +388,19 @@ export default {
 
 .fake-plane {
   position: absolute;
-  background: red;
+  background: #ffa500;
   border: 1px solid;
   opacity: 0.5;
-}
-.fake-plane:hover {
-  opacity: 0;
-  z-index: 1;
-  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+    z-index: 1;
+    cursor: pointer;
+  }
+
+  &.hidden {
+    display: none;
+  }
 }
 
 #game.mobile-view {

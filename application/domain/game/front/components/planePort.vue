@@ -1,11 +1,12 @@
 <template>
   <div
     v-if="port._id"
-    class="port"
+    :class="['port', selectable ? 'selectable' : '']"
     :id="port.code"
     :style="{ left: port.left + 'px', top: port.top + 'px', opacity: port.linkedBridge ? 0 : 1 }"
     :x="port.left + 37.5"
     :y="port.top + 37.5"
+    v-on:click.stop="(e) => (selectable ? choosePort() : null)"
   />
 </template>
 
@@ -27,11 +28,23 @@ export default {
     store() {
       return this.getStore();
     },
+    game() {
+      return this.getGame();
+    },
     port() {
       return this.store.port?.[this.portId];
     },
+    sessionPlayerGamePort() {
+      return this.port.code.indexOf(this.game.code) === 0;
+    },
+    selectable() {
+      return this.port.eventData.selectable && this.sessionPlayerIsActive() && this.sessionPlayerGamePort;
+    },
   },
   methods: {
+    async choosePort() {
+      await this.handleGameApi({ name: 'eventTrigger', data: { eventData: { targetId: this.portId } } });
+    },
     paintLinks() {
       const portEl = document.getElementById(this.port.code);
       for (const link of Object.keys(this.port.links)) {
@@ -67,17 +80,22 @@ export default {
   background-repeat: no-repeat;
   background: black;
   opacity: 1;
+
+  &:after {
+    content: '';
+    background-image: url(../assets/portIcon.png);
+    width: 100%;
+    height: 100%;
+    background-size: 30px;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: block;
+    opacity: 0.5;
+  }
 }
-.port::after {
-  content: '';
-  background-image: url(../assets/portIcon.png);
-  width: 100%;
-  height: 100%;
-  background-size: 30px;
-  background-position: center;
-  background-repeat: no-repeat;
-  display: block;
-  opacity: 0.5;
+
+.plane.preview .port.selectable {
+  box-shadow: none !important;
 }
 
 #game.debug {

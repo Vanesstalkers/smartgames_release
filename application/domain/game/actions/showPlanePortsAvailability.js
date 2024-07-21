@@ -1,4 +1,6 @@
-(function ({ joinPlaneId, games = [] }, initPlayer) {
+(function ({ joinPlaneId, joinPortId, games = [] }, initPlayer) {
+  if (joinPortId) joinPlaneId = this.get(joinPortId).parent().id();
+
   const availablePorts = [];
   const joinPlane = this.get(joinPlaneId);
   const playerId = initPlayer ? initPlayer.id() : undefined;
@@ -11,7 +13,9 @@
     {
       const joinPorts = joinPlane.select('Port');
       for (const port of joinPorts) {
+        if (joinPortId && port.id() !== joinPortId) continue;
         if (port.linkedBridge) continue;
+
         const realDirect = port.getDirect();
         for (const direct of Object.keys(port.direct)) {
           port.updateDirect(direct);

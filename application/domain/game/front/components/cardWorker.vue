@@ -7,12 +7,11 @@
       'card-worker-' + player.code,
       player.active ? 'active' : '',
       selectable ? 'selectable' : '',
-      showEndRoundBtn || showLeaveBtn ? 'has-action' : '',
+      showEndRoundBtn || showLeaveBtn || customAction.show ? 'has-action' : '',
     ]"
     :style="customStyle"
     @click="controlAction"
   >
-    <div v-if="showEndRoundBtn && !showLeaveBtn" class="action-btn end-round-btn">Закончить раунд</div>
     <div
       v-if="showControls && player.active && player.timerEndTime && game.status != 'WAIT_FOR_PLAYERS'"
       class="end-round-timer"
@@ -25,7 +24,11 @@
     <div v-if="!iam && game.status != 'WAIT_FOR_PLAYERS'" class="card-event">
       {{ cardDeckCount }}
     </div>
+    <div v-if="showEndRoundBtn" class="action-btn end-round-btn">Закончить раунд</div>
     <div v-if="showLeaveBtn" class="action-btn leave-game-btn">Выйти из игры</div>
+    <div v-if="customAction.show && !showLeaveBtn" class="action-btn" :style="customAction.style || {}">
+      {{ customAction.label }}
+    </div>
   </div>
 </template>
 
@@ -101,6 +104,9 @@ export default {
 
       return style;
     },
+    customAction() {
+      return this.gameState.cardWorkerAction || {};
+    },
     selectable() {
       return this.sessionPlayer().eventData.canSelectWorkers && this.player.eventData.selectable;
     },
@@ -123,7 +129,9 @@ export default {
       );
     },
     showEndRoundBtn() {
-      return this.showControls && this.iam && this.sessionPlayerIsActive();
+      return (
+        this.showControls && this.iam && this.sessionPlayerIsActive() && !this.showLeaveBtn && !this.customAction.show
+      );
     },
     showLeaveBtn() {
       return (this.gameFinished() && this.iam) || this.viewerId;
@@ -138,7 +146,15 @@ export default {
         });
         return;
       }
-      if (this.showEndRoundBtn && !this.showLeaveBtn) return await this.endRound();
+
+      if (this.customAction.sendApiData)
+        return await api.action
+          .call(this.customAction.sendApiData)
+          .then(() => {
+            this.gameState.cardWorkerAction = {};
+          })
+          .catch(prettyAlert);
+      if (this.showEndRoundBtn) return await this.endRound();
       if (this.showLeaveBtn) return await this.leaveGame();
     },
 
@@ -161,7 +177,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .card-worker {
   position: relative;
   border: 1px solid;
@@ -174,101 +190,105 @@ export default {
   border-radius: 10px;
   margin: 0px 0px 0px 5px;
   box-shadow: inset 0px 20px 20px 0px black;
-}
-.card-worker.has-action {
-  cursor: pointer;
-}
-.card-worker.has-action:hover .action-btn {
-  background: green;
-}
-.card-worker.active {
-  outline: 4px solid green;
+
+  &.active {
+    outline: 4px solid green;
+  }
+
+  &.selectable {
+    .end-round-btn,
+    .end-round-timer {
+      display: none;
+    }
+  }
+
+  &.has-action {
+    cursor: pointer;
+
+    &:hover .action-btn {
+      background: green !important;
+    }
+  }
+
+  .action-btn {
+    position: absolute;
+    bottom: 0px;
+    width: 100px;
+    font-size: 0.5em;
+    border: 1px solid black;
+    text-align: center;
+    cursor: pointer;
+    margin: 6px 10px;
+    color: white;
+    font-size: 16px;
+
+    &.end-round-btn {
+      background: #3f51b5;
+    }
+
+    &.leave-game-btn {
+      background: #bb3030;
+    }
+  }
+
+  .end-round-timer {
+    position: absolute;
+    bottom: 50px;
+    width: 100px;
+    z-index: 1;
+    font-size: 64px;
+    color: white;
+    border-radius: 50%;
+    height: 100px;
+    line-height: 100px;
+    margin: 10px;
+    color: #ff5900;
+    text-shadow: 4px 4px 0 #fff;
+  }
+
+  .card-event {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 60px;
+    height: 90px;
+    color: white;
+    border: none;
+    font-size: 36px;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    background-image: url(../assets/back-side.jpg);
+  }
+
+  .domino-dice {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 40px;
+    height: 70px;
+    color: white;
+    border: none;
+    font-size: 36px;
+    line-height: 70px;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    background-image: url(../assets/dice.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    visibility: hidden;
+  }
 }
 
-.card-worker .card-event {
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
-  width: 60px;
-  height: 90px;
-  color: white;
-  border: none;
-  font-size: 36px;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  background-image: url(../assets/back-side.jpg);
-}
-#game.mobile-view.portrait-view .card-worker .card-event {
-  left: auto;
-  right: 0px;
-}
-.card-worker .domino-dice {
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
-  width: 40px;
-  height: 70px;
-  color: white;
-  border: none;
-  font-size: 36px;
-  line-height: 70px;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  background-image: url(../assets/dice.png);
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  visibility: hidden;
-}
-#game.mobile-view.portrait-view .card-worker .domino-dice {
-  visibility: visible;
-}
-
-.card-worker.selectable .end-round-btn,
-.card-worker.selectable .end-round-timer {
-  display: none;
-}
-
-.end-round-btn {
-  position: absolute;
-  bottom: 0px;
-  width: 100px;
-  font-size: 0.5em;
-  border: 1px solid black;
-  text-align: center;
-  cursor: pointer;
-  margin: 6px 10px;
-  background: #3f51b5;
-  color: white;
-  font-size: 16px;
-}
-.end-round-timer {
-  position: absolute;
-  bottom: 50px;
-  width: 100px;
-  z-index: 1;
-  font-size: 64px;
-  color: white;
-  border-radius: 50%;
-  height: 100px;
-  line-height: 100px;
-  margin: 10px;
-  color: #ff5900;
-  text-shadow: 4px 4px 0 #fff;
-}
-.leave-game-btn {
-  position: absolute;
-  bottom: 0px;
-  width: 100px;
-  font-size: 0.5em;
-  border: 1px solid black;
-  text-align: center;
-  cursor: pointer;
-  margin: 6px 10px;
-  background: #bb3030;
-  color: white;
-  font-size: 16px;
+#game.mobile-view.portrait-view .card-worker {
+  .card-event {
+    left: auto;
+    right: 0px;
+  }
+  .domino-dice {
+    visibility: visible;
+  }
 }
 </style>
