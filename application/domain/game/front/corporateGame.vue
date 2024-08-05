@@ -61,7 +61,7 @@
               v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"
               :key="_id"
               :cardId="_id"
-              :canPlay="!played && sessionPlayerIsActive()"
+              :canPlay="!played && sessionPlayerIsActive() && showPlayerControls"
             />
           </div>
         </div>
@@ -391,7 +391,6 @@ export default {
             {
               name: 'putPlaneOnField',
               data: {
-                gameId: this.gameState.gameId,
                 joinPortId: event.target.attributes.joinPortId.value,
                 targetPortId: event.target.attributes.targetPortId.value,
                 joinPortDirect: event.target.attributes.joinPortDirect.value,

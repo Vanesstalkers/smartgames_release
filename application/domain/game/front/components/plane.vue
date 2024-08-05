@@ -67,7 +67,7 @@ export default {
         return {};
       },
     },
-    fake: Boolean
+    fake: Boolean,
   },
   setup() {
     return inject('gameGlobals');
@@ -231,6 +231,9 @@ export default {
   background-image: url(../assets/tiles.png);
   background-size: 1120px;
   background-repeat: no-repeat;
+}
+.plane.core .custom-bg {
+  filter: grayscale(100%) brightness(200%) blur(2px);
 }
 
 .plane > svg {

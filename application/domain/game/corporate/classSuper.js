@@ -91,8 +91,12 @@
     try {
       if (this.status === 'FINISHED') throw new Error('Игра уже завершена.');
 
-      const player = this.getFreePlayerSlot();
+      const player = this.restorationMode
+        ? this.players().find((player) => player.userId === userId)
+        : this.getFreePlayerSlot();
+
       if (!player) throw new Error('Свободных мест не осталось');
+
       const gameId = this.id();
       const playerId = player.id();
 

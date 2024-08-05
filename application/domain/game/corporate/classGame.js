@@ -36,6 +36,10 @@
     }
   }
 
+  get(id) {
+    return this.game().get(id);
+  }
+
   find(code) {
     if (code.indexOf(this.code) !== 0) code = this.code + code;
     return this.game().find(code);

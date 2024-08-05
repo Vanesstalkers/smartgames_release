@@ -50,10 +50,12 @@
     if (plane === joinPlane) continue;
 
     for (const port of plane.select('Port')) {
-      if (port.linkedBridge) continue; // port уже занят
+      if (port.linkedBridgeCode) continue; // port уже занят
 
       for (const portDirect of Object.keys(port.direct)) {
-        port.updateDirect(portDirect);
+        const updateResult = port.updateDirect(portDirect);
+        if (!updateResult) continue;
+        
         this.run('updatePlaneCoordinates', { joinPort, targetPort: port });
 
         let linkedPlanes;

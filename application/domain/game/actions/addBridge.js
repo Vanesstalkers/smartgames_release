@@ -29,5 +29,5 @@
     }
   }
 
-  return bridge.code;
+  return bridge;
 });

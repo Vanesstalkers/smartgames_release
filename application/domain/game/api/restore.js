@@ -46,6 +46,8 @@ async (context, { deckType, gameType, gameId, needLoadGame }) => {
         await game.updateGameAtCache({ restorationMode: true });
         game.run('initPlayerWaitEvents');
 
+        for (const player of game.players()) player.set({ ready: false });
+
         const joinData = { userId: user.id(), userName: user.name || user.login, playerId, viewerId };
         if (viewerId) await game.viewerJoin(joinData);
         else await game.playerJoin(joinData);

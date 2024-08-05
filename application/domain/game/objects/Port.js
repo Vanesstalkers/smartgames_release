@@ -27,10 +27,10 @@
 
   constructor(data, { parent }) {
     super(data, { col: 'port', parent });
-    this.broadcastableFields(['_id', 'code', 'eventData', 'width', 'height', 'left', 'top', 'links', 'linkedBridge']);
+    this.broadcastableFields(['_id', 'code', 'eventData', 'width', 'height', 'left', 'top', 'links', 'linkedBridgeCode']);
 
-    const { left, top, direct, links = {}, linkedBridge } = data;
-    this.set({ left, top, direct, links, linkedBridge });
+    const { left, top, direct, links = {}, linkedBridgeCode } = data;
+    this.set({ left, top, direct, links, linkedBridgeCode });
   }
 
   getDirect() {

@@ -7,7 +7,7 @@
       'card-worker-' + player.code,
       player.active ? 'active' : '',
       selectable ? 'selectable' : '',
-      showEndRoundBtn || showLeaveBtn || customAction.show ? 'has-action' : '',
+      showEndRoundBtn || showLeaveBtn || showCustomActionBtn ? 'has-action' : '',
     ]"
     :style="customStyle"
     @click="controlAction"
@@ -26,7 +26,7 @@
     </div>
     <div v-if="showEndRoundBtn" class="action-btn end-round-btn">Закончить раунд</div>
     <div v-if="showLeaveBtn" class="action-btn leave-game-btn">Выйти из игры</div>
-    <div v-if="customAction.show && !showLeaveBtn" class="action-btn" :style="customAction.style || {}">
+    <div v-if="showCustomActionBtn && !showLeaveBtn" class="action-btn" :style="customAction.style || {}">
       {{ customAction.label }}
     </div>
   </div>
@@ -130,12 +130,15 @@ export default {
     },
     showEndRoundBtn() {
       return (
-        this.showControls && this.iam && this.sessionPlayerIsActive() && !this.showLeaveBtn && !this.customAction.show
+        this.showControls && this.iam && this.sessionPlayerIsActive() && !this.showLeaveBtn && !this.showCustomActionBtn
       );
     },
     showLeaveBtn() {
       return (this.gameFinished() && this.iam) || this.viewerId;
     },
+    showCustomActionBtn () {
+      return  this.iam && this.customAction.show;
+    }
   },
   methods: {
     async controlAction() {
@@ -162,7 +165,7 @@ export default {
       this.hideZonesAvailability();
       this.gameCustom.pickedDiceId = '';
 
-      await this.handleGameApi({ name: 'endRound' });
+      await this.handleGameApi({ name: 'handleRound' });
     },
     async leaveGame() {
       await api.action

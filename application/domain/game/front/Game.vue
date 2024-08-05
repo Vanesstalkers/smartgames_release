@@ -128,6 +128,8 @@ export default {
       this.$nextTick(() => {
         this.state.gamePlaneNeedUpdate = true;
         this.selectedFakePlanePosition = '';
+        this.gameState.cardWorkerAction = {};
+        this.gameCustom.selectedFakePlanes = {};
       });
     },
   },
@@ -254,7 +256,6 @@ export default {
             {
               name: 'putPlaneOnField',
               data: {
-                gameId: this.gameState.gameId,
                 joinPortId: event.target.attributes.joinPortId.value,
                 targetPortId: event.target.attributes.targetPortId.value,
                 joinPortDirect: event.target.attributes.joinPortDirect.value,
@@ -266,22 +267,6 @@ export default {
       };
 
       this.selectedFakePlanePosition = code;
-    },
-    async hidePreviewPlaneOnField() {
-      this.gameCustom.selectedFakePlanes = {};
-    },
-    async putPlaneOnField(event) {
-      this.gameCustom.selectedFakePlanes = {};
-      await this.handleGameApi({
-        name: 'putPlaneOnField',
-        data: {
-          gameId: this.gameState.gameId,
-          joinPortId: event.target.attributes.joinPortId.value,
-          targetPortId: event.target.attributes.targetPortId.value,
-          joinPortDirect: event.target.attributes.joinPortDirect.value,
-          targetPortDirect: event.target.attributes.targetPortDirect.value,
-        },
-      });
     },
   },
 };

@@ -121,8 +121,8 @@
   }
   getLinkedBridges() {
     const game = this.game();
-    const ports = this.select('Port').filter(({ linkedBridge }) => linkedBridge);
-    const bridges = ports.map(({ linkedBridge }) => game.find(linkedBridge));
+    const ports = this.select('Port').filter(({ linkedBridgeCode }) => linkedBridgeCode);
+    const bridges = ports.map(({ linkedBridgeCode }) => game.find(linkedBridgeCode));
     return bridges;
   }
   getLinkedPlanes() {

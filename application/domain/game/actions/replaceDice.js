@@ -35,7 +35,7 @@
   dice.markNew();
 
   const releaseInitiated = zone.checkForRelease();
-  if (releaseInitiated) {
+  if (releaseInitiated && !this.checkFieldIsReady()) {
     const playerCardDeck = player.find('Deck[card]');
     this.run('smartMoveRandomCard', { target: playerCardDeck });
     lib.timers.timerRestart(this, { extraTime: this.settings.timerReleasePremium });

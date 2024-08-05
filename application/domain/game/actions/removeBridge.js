@@ -7,7 +7,7 @@
   if (bridgeDice) bridgeDice.moveToTarget(this.find('Deck[domino]'));
 
   for (const port of linkedPorts) {
-    port.set({ linkedBridge: null });
+    port.set({ linkedBridgeCode: null });
   }
 
   for (const side of bridge.select('ZoneSide')) {

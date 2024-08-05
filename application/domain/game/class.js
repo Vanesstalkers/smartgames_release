@@ -14,6 +14,18 @@
     this.preventBroadcastFields(['decks']);
   }
 
+  checkFieldIsReady(){
+    const planeList = this.decks.table.getAllItems();
+    const bridgeList = this.getObjects({ className: 'Bridge', directParent: this });
+
+    let ready = true;
+    for (const releaseItem of [...planeList, ...bridgeList]) {
+      if (!ready) continue;
+      if (!releaseItem.release) ready = false;
+    }
+    
+    return ready;
+  }
   checkCrutches() {
     let updatedMap = {};
     for (const diceSideId of Object.keys(this.crutchMap || {})) {

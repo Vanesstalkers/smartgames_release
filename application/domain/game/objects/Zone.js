@@ -156,7 +156,7 @@
     if (parent.select('Zone').find((zone) => !zone.getNotDeletedItem())) return false; // есть удаленные домино
 
     parent.set({ release: true });
-    this.game().toggleEventHandlers('FINAL_RELEASE');
+    this.game().toggleEventHandlers('RELEASE');
     return true;
   }
 });

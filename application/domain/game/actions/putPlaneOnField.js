@@ -2,15 +2,18 @@
   const joinPort = this.get(joinPortId);
   const joinPlane = joinPort.getParent();
   const targetPort = this.get(targetPortId);
+  const joinGame = joinPort.game();
+  const targetGame = targetPort.game();
+  const targetTable = targetGame.decks.table;
 
   let targetPortIsAvailable = false;
-  this.disableChanges();
+  joinGame.disableChanges();
   {
-    let availablePorts = this.availablePorts; // возможно ранее уже был вызван showPlanePortsAvailability (ВАЖНО чтобы не было pop/unshift от availablePorts)
+    let availablePorts = targetGame.availablePorts; // возможно ранее уже был вызван showPlanePortsAvailability (ВАЖНО чтобы не было pop/unshift от availablePorts)
     if (!availablePorts?.length) {
       // вызов с клиента
       joinPort.updateDirect(joinPortDirect);
-      availablePorts = this.run('getAvailablePortsToJoinPort', { joinPort });
+      availablePorts = targetGame.run('getAvailablePortsToJoinPort', { joinPort });
     }
 
     targetPortIsAvailable =
@@ -24,14 +27,41 @@
         ? true
         : false;
   }
-  this.enableChanges();
+  joinGame.enableChanges();
   if (!targetPortIsAvailable) throw new Error('Блок игрового поля не может быть добавлен к этой зоне интеграции');
 
-  this.set({ availablePorts: [] });
+  targetGame.set({ availablePorts: [] });
 
   joinPort.updateDirect(joinPortDirect);
   targetPort.updateDirect(targetPortDirect);
-  this.run('createBridge', { joinPort, targetPort });
+  const bridge = targetGame.run('createBridge', { joinPort, targetPort });
 
-  joinPlane.moveToTarget(this.decks.table);
+  joinPlane.game(targetGame);
+  joinPlane.moveToTarget(targetTable);
+
+  // переносим все связанные plane-ы
+  const processedBridges = [bridge];
+  const processBridges = (plane) => {
+    const bridges = plane.getLinkedBridges().filter((bridge) => !processedBridges.includes(bridge));
+    for (const bridge of bridges) {
+      const ports = bridge.getLinkedPorts();
+      const [joinPort, targetPort] = ports.sort((a, b) => (a.parent() !== plane ? -1 : 1));
+      const joinPlane = joinPort.parent();
+      const targetPlane = targetPort.parent();
+      const targetGame = targetPlane.game();
+
+      const { targetLinkPoint } = this.run('updatePlaneCoordinates', { joinPort, targetPort });
+
+      joinPlane.game(targetGame);
+      joinPlane.moveToTarget(targetTable);
+
+      bridge.updateParent(targetGame);
+      bridge.set({ left: targetLinkPoint.left, top: targetLinkPoint.top });
+      bridge.updateRotation();
+
+      processedBridges.push(bridge);
+      processBridges(joinPlane);
+    }
+  };
+  processBridges(joinPlane);
 });

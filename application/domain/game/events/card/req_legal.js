@@ -1,8 +1,6 @@
 () => {
   const event = domain.game.events.common.putPlaneFromHand();
 
-  event.config = { playOneTime: true };
-
   event.init = function () {
     const { game, player } = this.eventContext();
     const deck = game.find('Deck[plane]');

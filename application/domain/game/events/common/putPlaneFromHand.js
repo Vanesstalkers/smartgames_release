@@ -44,6 +44,7 @@
 
       return { preventListenerRemove: true };
     },
+    // обработчик для выбора блока, который нужно забрать с поля
     TRIGGER: function ({ target: plane }) {
       if (!plane) return;
       const { game, player } = this.eventContext();
@@ -85,7 +86,7 @@
 
         const joinPlaneId = plane.id();
         game.run('showPlanePortsAvailability', { joinPlaneId });
-        if(this.putPlaneOnEmptyField){
+        if (this.putPlaneOnEmptyField) {
           delete this.putPlaneOnEmptyField;
           break;
         }

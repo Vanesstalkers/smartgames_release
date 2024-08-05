@@ -14,11 +14,13 @@
       const joinPorts = joinPlane.select('Port');
       for (const port of joinPorts) {
         if (joinPortId && port.id() !== joinPortId) continue;
-        if (port.linkedBridge) continue;
+        if (port.linkedBridgeCode) continue;
 
         const realDirect = port.getDirect();
         for (const direct of Object.keys(port.direct)) {
-          port.updateDirect(direct);
+          const updateResult = port.updateDirect(direct);
+          if (!updateResult) continue;
+          
           const ports = game.run('getAvailablePortsToJoinPort', { joinPort: port, gameId, playerId });
           availablePorts.push(...ports);
         }

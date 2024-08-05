@@ -31,7 +31,7 @@
     _code: joinPlane.code + '-' + targetPlane.code,
     left: targetLinkPoint.left,
     top: targetLinkPoint.top,
-    rotation: targetPlane.rotation,
+    masterPlaneId: targetPlane.id(),
     zoneLinks: { 'Zone[1]': bridgeZoneLinks },
     zoneList: [
       {
@@ -47,7 +47,11 @@
     bridgeToCardPlane,
   };
 
-  const bridgeCode = this.run('addBridge', bridgeData);
-  joinPort.set({ linkedBridge: bridgeCode });
-  targetPort.set({ linkedBridge: bridgeCode });
+  const bridge = this.run('addBridge', bridgeData);
+  
+  const linkedBridgeCode = bridge.code;
+  joinPort.set({ linkedBridgeCode });
+  targetPort.set({ linkedBridgeCode });
+
+  return bridge;
 });

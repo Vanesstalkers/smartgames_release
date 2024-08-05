@@ -4,6 +4,7 @@
   event.init = function () {
     const { game, player } = this.eventContext();
     game.set({ statusLabel: 'Подготовка к игре', status: 'PREPARE_START' });
+    game.players()[0].activate();
   };
 
   event.handlers['ADD_PLANE'] = function ({ target: plane }) {
@@ -34,8 +35,11 @@
       return;
     }
 
-    game.changeActivePlayer();
+    game.getActivePlayer().deactivate();
+    const nextPlayer = game.players().find((player) => player.find('Deck[plane]').itemsCount() > 0);
+    nextPlayer.activate();
     lib.timers.timerRestart(game, { time: game.settings.timeToPlaceStartPlane });
+    
     return { preventListenerRemove: true };
   };
 

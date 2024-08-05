@@ -239,7 +239,7 @@
       planesNeedToStart: 3, // нужно для начала игры (будут добавляться игроками)
       planesToChoose: 2, // блоков на выбор игроку для добавления на поле
       timeToPlaceStartPlane: 10, // время на размещение стартового блока
-      roundStartCardAddToPlayerHand: false,
+      roundStartCardAddToPlayerHand: true,
       allowedAutoCardPlayRoundStart: false,
       autoFinishAfterRoundsOverdue: 10,
 
