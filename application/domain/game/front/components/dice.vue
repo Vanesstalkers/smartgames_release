@@ -10,6 +10,7 @@
       hide ? 'hide' : '',
       isPicked ? 'picked' : '',
     ]"
+    :team="dice.teamCode"
     v-on:click="(e) => (selectable ? chooseDice() : pickDice())"
   >
     <div v-if="!locked && !zone?.available && !this.gameState.viewerMode" class="controls">
@@ -266,6 +267,13 @@ export default {
   height: 70px;
   border-radius: 15px;
   background-image: url(../assets/Dices.png);
+}
+
+.domino-dice[team='1'] > .el {
+  background-image: url(../assets/Dices_team1.png);
+}
+.domino-dice[team='2'] > .el {
+  background-image: url(../assets/Dices_team2.png);
 }
 
 .player.iam .hand-dices .domino-dice.picked > .el,

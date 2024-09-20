@@ -1,16 +1,11 @@
 (function (data) {
-  const {
-    objects: { Dice, Plane, Table },
-    configs,
-  } = domain.game;
-  const {
-    objects: { Deck, Card },
-  } = lib.game;
+  const { configs } = domain.game;
+  const { Dice, Plane, Table, Deck, Card } = this.defaultClasses();
   let newGame = false;
 
   if (data.store) this.store = data.store;
   this.logs(data.logs);
-  
+
   this.deckType = data.deckType;
   this.gameType = data.gameType;
   this.gameConfig = data.gameConfig;
@@ -22,6 +17,7 @@
   this.round = data.round || 0;
   this.cardEvents = data.cardEvents || {};
   this.availablePorts = data.availablePorts || [];
+  this.title = data.title;
 
   if (data.playerMap) {
     data.playerList = [];

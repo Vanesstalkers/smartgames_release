@@ -3,8 +3,8 @@
   // const self = this;
 
   const store = this.getStore();
-  const { Player: playerClass } = this.defaultClasses();
-  const player = new playerClass(data, { parent: this });
+  const { Player, Card, Dice, Plane } = this.defaultClasses();
+  const player = new Player(data, { parent: this });
   this.set({ playerMap: { [player._id]: {} } });
 
   if (data.deckMap) {
@@ -12,19 +12,7 @@
     for (const _id of Object.keys(data.deckMap)) data.deckList.push(store.deck[_id]);
   }
   for (const item of data.deckList || []) {
-    /**
-     * @type {(
-     *  import('application/domain/game/types.js').objects.Dice
-     * |import('application/domain/game/types.js').objects.Plane
-     * |import('application/lib/game/types.js').objects.Card
-     * )}
-     * */
-    const deckItemClass =
-      item.type === 'domino'
-        ? domain.game.objects.Dice
-        : item.type === 'plane'
-        ? domain.game.objects.Plane
-        : lib.game.objects.Card;
+    const deckItemClass = item.type === 'domino' ? Dice : item.type === 'plane' ? Plane : Card;
 
     item.access = { [player._id]: {} };
     player.addDeck(item, { deckItemClass });

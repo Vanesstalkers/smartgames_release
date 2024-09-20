@@ -8,19 +8,20 @@
     const { left = 0, top = 0, vertical, double } = data;
     this.set({ left, top, vertical, double });
 
+    const ZoneSide = this.game().defaultClasses()['ZoneSide'];
     if (data.sideList) {
       const store = this.game().getStore();
       this.set({
         sideList: [
-          new domain.game.objects.ZoneSide(store.zoneside[data.sideList[0]._id], { parent: this }),
-          new domain.game.objects.ZoneSide(store.zoneside[data.sideList[1]._id], { parent: this }),
+          new ZoneSide(store.zoneside[data.sideList[0]._id], { parent: this }),
+          new ZoneSide(store.zoneside[data.sideList[1]._id], { parent: this }),
         ],
       });
     } else {
       this.set({
         sideList: [
-          new domain.game.objects.ZoneSide({ _code: 1, value: data[0] }, { parent: this }),
-          new domain.game.objects.ZoneSide({ _code: 2, value: data[1] }, { parent: this }),
+          new ZoneSide({ _code: 1, value: data[0] }, { parent: this }),
+          new ZoneSide({ _code: 2, value: data[1] }, { parent: this }),
         ],
       });
     }
@@ -45,7 +46,7 @@
   } // иначе подставится метод из Deck
 
   getItemClass() {
-    return domain.game.objects.Dice;
+    return this.game().defaultClasses()['Dice'];
   }
   addItem(item, { force = false } = {}) {
     const itemClass = this.getItemClass();

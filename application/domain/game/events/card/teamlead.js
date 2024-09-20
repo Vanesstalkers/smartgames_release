@@ -11,7 +11,7 @@
         settings: { itemsUsageLimit: 1, itemsStartCount: 5 },
         access: { [player._id]: {} },
       },
-      { deckItemClass: domain.game.objects.Dice }
+      { deckItemClass: game.defaultClasses()['Dice'] }
     );
     deck.moveRandomItems({ count: newPlayerHand.settings.itemsStartCount, target: newPlayerHand });
   },

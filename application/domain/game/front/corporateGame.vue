@@ -7,6 +7,7 @@
         :gameId="game.gameId"
         class="gp"
         :style="{ ...gamePlaneStyle(game.gameId) }"
+        :team="game.teamCode"
       >
         <div :class="['gp-content']" :style="{ ...(game.gameId === playerGameId() ? gamePlaneControlStyle : {}) }">
           <plane v-for="id in Object.keys(game.table.itemMap || {})" :key="id" :planeId="id" />
@@ -243,6 +244,7 @@ export default {
           super: this.gameState.gameId === gameId,
           my: gameId === playerGameId,
           title: game.title,
+          teamCode: game.teamCode,
           roundReady: game.roundReady,
         };
       });
@@ -404,7 +406,7 @@ export default {
       this.selectedFakePlanePosition = code;
     },
     selectGame(gameId) {
-      this.gameCustom.selectedGame = gameId;
+      this.$set(this.gameCustom, 'selectedGame', gameId);
       this.$children[0].$emit('resetPlanePosition'); // !!! костыль
     },
   },

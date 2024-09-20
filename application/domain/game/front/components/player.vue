@@ -2,6 +2,7 @@
   <div
     v-if="player._id || viewer._id"
     :class="['player', ...customClass, iam ? 'iam' : '', player.active ? 'active' : '']"
+    :team="game.teamCode"
   >
     <div class="inner-content">
       <div class="player-hands" v-if="game.status != 'WAIT_FOR_PLAYERS'">

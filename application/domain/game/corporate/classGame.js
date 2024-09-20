@@ -1,4 +1,9 @@
 (class CorporateGame extends domain.game.class {
+  constructor(storeData, gameObjectData) {
+    super(storeData, gameObjectData);
+    this.set({ teamCode: storeData._code });
+  }
+
   set(val, config = {}) {
     if (!this._col) throw new Error(`set error ('_col' is no defined)`);
 
@@ -43,6 +48,10 @@
   find(code) {
     if (code.indexOf(this.code) !== 0) code = this.code + code;
     return this.game().find(code);
+  }
+
+  defaultClasses() {
+    return this.game().defaultClasses(); // не пробрасываем arguments, чтобы не перетереть дефолтные классы у родителя
   }
 
   run(actionName, data, initPlayer) {

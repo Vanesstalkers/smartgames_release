@@ -6,15 +6,14 @@
       ...lib.game.decorators['@hasDeck'].decorate(),
     });
 
-    this.defaultClasses({
-      Player: domain.game.objects.Player,
-    });
+    const { Bridge, Dice, DiceSide, Plane, Player, Port, Table, Zone, ZoneSide } = domain.game.objects;
+    this.defaultClasses({ Bridge, Dice, DiceSide, Plane, Player, Port, Table, Zone, ZoneSide });
 
     this.preventSaveFields(['availableZones', 'decks']);
     this.preventBroadcastFields(['decks']);
   }
 
-  checkFieldIsReady(){
+  checkFieldIsReady() {
     const planeList = this.decks.table.getAllItems();
     const bridgeList = this.getObjects({ className: 'Bridge', directParent: this });
 
@@ -23,7 +22,7 @@
       if (!ready) continue;
       if (!releaseItem.release) ready = false;
     }
-    
+
     return ready;
   }
   checkCrutches() {

@@ -5,6 +5,7 @@
     super(...arguments);
     this.defaultClasses({
       Player: domain.game.corporate.objects.Player,
+      Dice: domain.game.corporate.objects.Dice(),
     });
   }
 
@@ -32,9 +33,9 @@
     const gamesMap = {};
     for (let _code = 1; _code <= Math.ceil(playerCount / maxPlayersInGame.val); _code++) {
       const game = await new domain.game.corporate.classGame(
-        { _code }, // data
-        { parent: this } // config
-      ).create({ deckType, gameType, gameConfig, gameTimer });
+        { _code }, // storeData
+        { parent: this } // gameObjectData
+      ).create({ deckType, gameType, gameConfig, gameTimer, teamCode: _code });
 
       const players = fullPlayersList.splice(0, maxPlayersInGame.val);
       players[0].set({ teamlead: true });
@@ -53,7 +54,7 @@
       game.set({
         playerMap,
         roundReady: false,
-        title: `Команда №${_code}`,
+        title: `Команда №${this.teamCode}`,
       });
       if (players.length === 1) game.set({ settings: { singlePlayer: true } });
       game.decks.table.set({ access: this.playerMap });

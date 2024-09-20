@@ -6,19 +6,20 @@
     const { deleted, visible, locked, placedAtRound } = data;
     this.set({ deleted, visible, locked, placedAtRound });
 
+    const DiceSide = this.game().defaultClasses()['DiceSide'];
     if (data.sideList) {
       const store = this.game().getStore();
       this.set({
         sideList: [
-          new domain.game.objects.DiceSide(store.diceside[data.sideList[0]._id], { parent: this }),
-          new domain.game.objects.DiceSide(store.diceside[data.sideList[1]._id], { parent: this }),
+          new DiceSide(store.diceside[data.sideList[0]._id], { parent: this }),
+          new DiceSide(store.diceside[data.sideList[1]._id], { parent: this }),
         ],
       });
     } else {
       this.set({
         sideList: [
-          new domain.game.objects.DiceSide({ _code: 1, value: data[0] }, { parent: this }),
-          new domain.game.objects.DiceSide({ _code: 2, value: data[1] }, { parent: this }),
+          new DiceSide({ _code: 1, value: data[0] }, { parent: this }),
+          new DiceSide({ _code: 2, value: data[1] }, { parent: this }),
         ],
       });
       if (Math.random() > 0.5) this.sideList.reverse(); // code останется в первичном виде

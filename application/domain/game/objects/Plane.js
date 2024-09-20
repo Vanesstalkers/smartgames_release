@@ -17,8 +17,10 @@
       data.zoneList = [];
       for (const _id of Object.keys(data.zoneMap)) data.zoneList.push(this.getStore().zone[_id]);
     }
+
+    const Zone = this.game().defaultClasses()['Zone'];
     for (const item of data.zoneList || []) {
-      const zone = new domain.game.objects.Zone(item, { parent: this });
+      const zone = new Zone(item, { parent: this });
       this.set({ zoneMap: { [zone._id]: {} } });
     }
     if (data.zoneLinks) {
@@ -58,7 +60,8 @@
   }
 
   addPort(data) {
-    const port = new domain.game.objects.Port(data, { parent: this });
+    const portClass = this.game().defaultClasses()['Port'];
+    const port = new portClass(data, { parent: this });
     this.set({ portMap: { [port._id]: {} } });
   }
   getZone() {
