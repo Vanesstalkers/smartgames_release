@@ -6,7 +6,7 @@
       ...lib.game.decorators['@hasDeck'].decorate(),
     });
 
-    const { Bridge, Dice, DiceSide, Plane, Player, Port, Table, Zone, ZoneSide } = domain.game.objects;
+    const { Bridge, Dice, DiceSide, Plane, Player, Port, Table, Zone, ZoneSide } = domain.game['@objects'];
     this.defaultClasses({ Bridge, Dice, DiceSide, Plane, Player, Port, Table, Zone, ZoneSide });
 
     this.preventSaveFields(['availableZones', 'decks']);

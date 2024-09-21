@@ -5,7 +5,7 @@
     super(...arguments);
     this.defaultClasses({
       Player: domain.game.corporate.objects.Player,
-      Dice: domain.game.corporate.objects.Dice(),
+      Dice: domain.game.corporate.objects.Dice,
     });
   }
 

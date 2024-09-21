@@ -1,7 +1,6 @@
-(class Player {
-  constructor(data, { parent }) {
-    const player = new domain.game.objects.Player(data, { parent });
-    player.broadcastableFields(['teamlead']);
-    return player;
+(class Player extends domain.game['@objects'].Player {
+  constructor() {
+    super(...arguments);
+    this.broadcastableFields(['teamlead']);
   }
 });
