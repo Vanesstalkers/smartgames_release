@@ -164,7 +164,6 @@
     const game = lib.store('game').get(gameId);
 
     await game.handleAction(...arguments);
-    await this.saveChanges();
   }
 
   getAllGames() {

@@ -40,6 +40,9 @@
       this.game().deleteBroadcastObject({ col, id });
     }
   }
+  async saveChanges() {
+    await this.game().saveChanges();
+  }
 
   get(id) {
     return this.game().get(id);
