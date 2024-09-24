@@ -43,6 +43,11 @@
     return { preventListenerRemove: true };
   };
 
+  event.handlers['END_ROUND'] = function () {
+    this.emit('CHECK_PLANES_IN_HANDS');
+    return { preventListenerRemove: true };
+  };
+
   event.handlers['PLAYER_TIMER_END'] = function () {
     this.emit('CHECK_PLANES_IN_HANDS');
     return { preventListenerRemove: true };
