@@ -215,7 +215,7 @@ export default {
       const baseSum = Object.keys(this.tablePlanes.itemMap)
         .map((planeId) => this.store.plane?.[planeId] || {})
         .reduce((sum, plane) => sum + plane.price, 0);
-      const timerMod = 30000 / gameTimer;
+      const timerMod = 30 / gameTimer;
       const configMod = { blitz: 0.5, standart: 0.75, hardcore: 1 }[gameConfig] || 1; // !!! + corporate
       return Math.floor(baseSum * timerMod * configMod);
     },
