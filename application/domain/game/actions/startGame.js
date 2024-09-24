@@ -18,6 +18,6 @@
     const round = this.round;
     this.set({ round, statusLabel: `Раунд ${round}` });
   } else {
-    this.run('handleRound');
+    this.run('handleRound', { notUserCall: true });
   }
 });

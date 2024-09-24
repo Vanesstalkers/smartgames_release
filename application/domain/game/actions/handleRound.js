@@ -1,5 +1,8 @@
-(function ({} = {}, initPlayer) {
+(function ({ notUserCall } = {}) {
   const players = this.players();
+
+  const initPlayer = !notUserCall ? this.getActivePlayer() : null;
+
   if (initPlayer) {
     this.toggleEventHandlers('END_ROUND', {}, initPlayer);
     initPlayer.deactivate();

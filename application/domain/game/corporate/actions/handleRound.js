@@ -1,4 +1,4 @@
-(function ({} = {}, initPlayer) {
+(function () {
   const corporateGame = this.game();
 
   this.set({ roundReady: true });
@@ -6,7 +6,7 @@
   if (!corporateGame.allGamesRoundReady()) return;
 
   for (const game of corporateGame.getAllGames()) {
-    game.runSuper('handleRound', {}, game.getActivePlayer());
+    game.runSuper('handleRound');
     game.set({ roundReady: false });
   }
 
