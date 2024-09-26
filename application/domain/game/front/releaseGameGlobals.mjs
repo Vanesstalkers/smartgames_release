@@ -25,6 +25,7 @@ function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
       if (p.ol == undefined || offsetLeft < p.ol) p.ol = offsetLeft;
     });
 
+    // вычисляем центр для определения корректного transform-origin (нужен для вращения gp-content)
     const gamePlaneTransformOrigin =
       `${(p.r - p.l) / (gamePlaneScale * 2) + p.ol / gamePlaneScale}px ` +
       `${(p.b - p.t) / (gamePlaneScale * 2) + p.ot / gamePlaneScale}px `;

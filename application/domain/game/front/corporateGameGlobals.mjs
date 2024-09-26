@@ -41,13 +41,18 @@ function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
       const gameId = gp.attributes.gameid.value;
       const gp_rect = gp.getBoundingClientRect();
 
-      // !!! костыль
+      // gp может будет пустой, когда все plane переместятся в superGame
       if (p.l == undefined || gp_rect.left < p.l) p.l = gp_rect.left;
       if (p.r == undefined || gp_rect.left > p.r) p.r = gp_rect.left;
+      if (p.t == undefined || gp_rect.top < p.t) p.t = gp_rect.top;
+      if (p.b == undefined || gp_rect.top > p.b) p.b = gp_rect.top;
+      if (p.ot == undefined || gp_rect.top - gamePlaneRect.top < p.ot) p.ot = gp_rect.top - gamePlaneRect.top;
+      if (p.ol == undefined || gp_rect.left - gamePlaneRect.left < p.ol) p.ol = gp_rect.left - gamePlaneRect.left;
 
       gp.querySelectorAll('.plane, .fake-plane').forEach((plane) => {
         const rect = plane.getBoundingClientRect();
 
+        // насколько plane вылез во вне gamePlane
         const offsetTop = rect.top - gamePlaneRect.top;
         const offsetLeft = rect.left - gamePlaneRect.left;
 
@@ -74,6 +79,7 @@ function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
       });
     });
 
+    // вычисляем центр для определения корректного transform-origin (нужен для вращения gp-content)
     const gamePlaneTransformOrigin =
       `${(pp.r - pp.l) / (gamePlaneScale * 2) + pp.ol / gamePlaneScale}px ` +
       `${(pp.b - pp.t) / (gamePlaneScale * 2) + pp.ot / gamePlaneScale}px `;
@@ -91,34 +97,33 @@ function getGamePlaneOffsets() {
   const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
   const deviceOffset = this.$root.state.isMobile ? (this.$root.state.isLandscape ? 0 : -100) : 500;
 
-  let offsetY = 0;
-  const gameCount = Object.values(game.store.game).filter(({ status }) => status !== 'WAIT_FOR_PLAYERS').length;
-  if (gameCount === 3) offsetY = -1000; // !!! костыль
-
   const offsets = {
-    [this.gameState.gameId]: { x: 0 + deviceOffset, y: 0 + offsetY },
+    [this.gameState.gameId]: { x: 0 + deviceOffset, y: 0 },
   };
 
   const gameIds = Object.keys(game.gamesMap);
+  // выравниваем gamePlane, равномерно распределяя gp вокруг центра (в corporateGame.vue добавляется game с идентификатором "fake")
+  if (gameIds.length % 2 === 1) gameIds.push('fake');
+
   for (let i = 0; i < gameIds.length; i++) {
     switch (gameIds.length) {
       case 2:
         offsets[gameIds[i]] = {
           x: [-2000, 2000][i] + deviceOffset,
-          y: 0 + offsetY,
+          y: 0,
         };
         break;
       case 3:
         offsets[gameIds[i]] = {
           x: [-2000, 2000, 0][i] + deviceOffset,
-          y: [0, 0, 2000][i] + offsetY,
+          y: [0, 0, 2000][i],
         };
         break;
       case 4:
-      default: // !!!!
+      default:
         offsets[gameIds[i]] = {
           x: [-2000, 2000, 0, 0][i] + deviceOffset,
-          y: [0, 0, 2000, -2000][i] + offsetY,
+          y: [0, 0, 2000, -2000][i],
         };
         break;
     }

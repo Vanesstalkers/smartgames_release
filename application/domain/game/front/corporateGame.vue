@@ -1,8 +1,8 @@
 <template>
-  <game :debug="false" :planeScaleMin="0.3" :planeScaleMax="1">
+  <game :debug="false" :planeScaleMin="0.2" :planeScaleMax="1">
     <template #gameplane="{ gamePlaneControlStyle = {} } = {}">
       <div
-        v-for="game in games"
+        v-for="game in planeViewGames"
         :key="game.gameId"
         :gameId="game.gameId"
         class="gp"
@@ -10,7 +10,7 @@
         :team="game.teamCode"
       >
         <div :class="['gp-content']" :style="{ ...(game.gameId === playerGameId() ? gamePlaneControlStyle : {}) }">
-          <plane v-for="id in Object.keys(game.table.itemMap || {})" :key="id" :planeId="id" />
+          <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" />
           <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
           <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
 
@@ -234,10 +234,10 @@ export default {
       return games.map(([gameId, game]) => {
         return {
           gameId,
-          table: Object.keys(game.deckMap)
+          table: Object.keys(game.deckMap || {})
             .map((deckId) => this.store.deck[deckId])
             .find((deck) => deck.subtype === 'table'),
-          bridgeMap: game.bridgeMap,
+          bridgeMap: game.bridgeMap || {},
           playerMap: game.playerMap || {},
           availablePorts: game.availablePorts,
           selected: selectedGame === gameId,
@@ -249,6 +249,13 @@ export default {
         };
       });
     },
+    planeViewGames() {
+      const games = [...this.games];
+      // выравниваем gamePlane, равномерно распределяя gp вокруг центра (в corporateGameGlobals добавляются соответствующие отступы)
+      if (games.length % 2 === 0) games.push({ gameId: 'fake' });
+      return games;
+    },
+
     playerGamesReady() {
       const result = {};
       for (const game of this.games) {
