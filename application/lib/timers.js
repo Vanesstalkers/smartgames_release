@@ -8,8 +8,8 @@
     if (typeof owner.onTimerRestart === 'function') owner.onTimerRestart({ timerId, data });
 
     const self = this;
-    this.activeTimers[ownerId] = setTimeout(function tick() {
-      if (typeof owner.onTimerTick === 'function') owner.onTimerTick({ timerId, data });
+    this.activeTimers[ownerId] = setTimeout(async function tick() {
+      if (typeof owner.onTimerTick === 'function') await owner.onTimerTick({ timerId, data });
       if (!self.activeTimers[ownerId]) return;
       self.activeTimers[ownerId] = setTimeout(tick, 1000);
     }, 1000);

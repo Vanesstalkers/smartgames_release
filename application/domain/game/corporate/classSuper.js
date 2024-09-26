@@ -54,7 +54,7 @@
       game.set({
         playerMap,
         roundReady: false,
-        title: `Команда №${this.teamCode}`,
+        title: `Команда №${game.teamCode}`,
       });
       if (players.length === 1) game.set({ settings: { singlePlayer: true } });
       game.decks.table.set({ access: this.playerMap });
