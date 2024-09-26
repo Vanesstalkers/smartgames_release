@@ -15,15 +15,13 @@
         },
         handlers: {
           RESET: function () {
-            const { game, source, sourceId } = this.eventContext();
+            const { game, source: plane, sourceId } = this.eventContext();
 
-            for (const plane of game.game().decks.table.items()) {
-              for (const port of plane.select('Port')) {
-                port.set({ eventData: { selectable: null } });
-              }
+            for (const port of plane.select('Port')) {
+              port.set({ eventData: { selectable: null } });
             }
 
-            source.removeEvent(this);
+            plane.removeEvent(this);
             player.removeEvent(this);
             game.removeAllEventListeners({ sourceId });
           },
@@ -35,6 +33,8 @@
             return { preventListenerRemove: true };
           },
           ADD_PLANE: function () {
+            const { game } = this.eventContext();
+            game.set({ merged: true });
             this.emit('RESET');
           },
         },
