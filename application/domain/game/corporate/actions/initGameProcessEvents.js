@@ -7,14 +7,6 @@
     return { preventListenerRemove: true };
   };
 
-  if (this.isCoreGame()) {
-    event.handlers['ADD_PLANE'] = function ({ target: plane }) {
-      const event = plane.eventData.activeEvents.find((event) => event.hasHandler('ADD_PLANE'));
-      if (event) event.game().toggleEventHandlers('ADD_PLANE', { targetId: plane.id() });
-      return { preventListenerRemove: true };
-    };
-  }
-
   return this.initEvent(event, {
     defaultResetHandler: true,
     allowedPlayers: this.players(),

@@ -14,8 +14,12 @@
       if (game.checkFieldIsReady()) return game.run('endGame', { winningPlayer: player });
       return { preventListenerRemove: true };
     },
-    ADD_PLANE: function () {
+    ADD_PLANE: function ({ target: plane }) {
       const { game, player } = this.eventContext();
+
+      for (const event of plane.eventData.activeEvents) {
+        event.emit('ADD_PLANE');
+      }
 
       if (!game.isSinglePlayer()) return { preventListenerRemove: true };
 

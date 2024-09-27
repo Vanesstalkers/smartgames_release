@@ -1,6 +1,8 @@
 (function () {
   const player = this.getActivePlayer();
-  for (const plane of this.decks.table.items()) {
+
+  const tablePlanes = this.decks.table.items();
+  for (const plane of tablePlanes) {
     plane.initEvent(
       {
         init: function () {
@@ -36,6 +38,24 @@
             const { game } = this.eventContext();
             game.set({ merged: true });
             this.emit('RESET');
+
+            const tablePlanes = game.decks.table.items();
+            for (const plane of tablePlanes) {
+              for (const event of plane.eventData.activeEvents) {
+                event.emit('RESET');
+              }
+            }
+          },
+          END_ROUND: function () {
+            const { game, source: plane } = this.eventContext();
+            const superGame = game.game();
+            const joinPlaneId = plane.id();
+            superGame.run('showPlanePortsAvailability', { joinPlaneId });
+
+            if (this.availablePorts.length) {
+              const usedPort = superGame.availablePorts[0];
+              superGame.run('putPlaneOnField', usedPort); // нельзя делать через pop/unshift из-за проверки внутри putPlaneOnField
+            }
           },
         },
       },
