@@ -51,7 +51,6 @@
       playerList: [
         {
           _code: 1,
-          active: true,
           deckList: [{ type: 'domino', itemType: 'any' }, { type: 'card', itemType: 'event' }, { type: 'plane' }],
         },
       ],
@@ -112,17 +111,10 @@
       allowedAutoCardPlayRoundStart: false,
       autoFinishAfterRoundsOverdue: 10,
 
-      playerList: [
-        {
-          _code: 1,
-          active: true,
-          deckList: [{ type: 'domino', itemType: 'any' }, { type: 'card', itemType: 'event' }, { type: 'plane' }],
-        },
-        {
-          _code: 2,
-          deckList: [{ type: 'domino', itemType: 'any' }, { type: 'card', itemType: 'event' }, { type: 'plane' }],
-        },
-      ],
+      playerList: [{ _code: 1 }, { _code: 2 }].map((item) => ({
+        ...item,
+        deckList: [{ type: 'domino', itemType: 'any' }, { type: 'card', itemType: 'event' }, { type: 'plane' }],
+      })),
       deckList: [
         { type: 'plane' },
         { type: 'domino', itemType: 'any' },
@@ -177,21 +169,10 @@
       allowedAutoCardPlayRoundStart: false,
       autoFinishAfterRoundsOverdue: 10,
 
-      playerList: [
-        {
-          _code: 1,
-          active: true,
-          deckList: [{ type: 'domino', itemType: 'any' }, { type: 'card', itemType: 'event' }, { type: 'plane' }],
-        },
-        {
-          _code: 2,
-          deckList: [{ type: 'domino', itemType: 'any' }, { type: 'card', itemType: 'event' }, { type: 'plane' }],
-        },
-        {
-          _code: 3,
-          deckList: [{ type: 'domino', itemType: 'any' }, { type: 'card', itemType: 'event' }, { type: 'plane' }],
-        },
-      ],
+      playerList: [{ _code: 1 }, { _code: 2 }, { _code: 3 }].map((item) => ({
+        ...item,
+        deckList: [{ type: 'domino', itemType: 'any' }, { type: 'card', itemType: 'event' }, { type: 'plane' }],
+      })),
       deckList: [
         { type: 'plane' },
         { type: 'domino', itemType: 'any' },
@@ -210,7 +191,10 @@
     active: false,
     items: { standart: {} },
     itemsDefault: {
-      playerList: [{}, {}, {}, {}],
+      playerList: [{ _code: 1 }, { _code: 2 }, { _code: 3 }, { _code: 4 }].map((item) => ({
+        ...item,
+        deckList: [{ type: 'domino', itemType: 'any' }, { type: 'card', itemType: 'event' }, { type: 'plane' }],
+      })),
     },
   },
 

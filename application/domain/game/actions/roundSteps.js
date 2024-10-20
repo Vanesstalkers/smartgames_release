@@ -1,4 +1,4 @@
-(function ({ initPlayer: lastRoundActivePlayer }) {
+(function ({ initPlayer: currentActivePlayer }) {
   const {
     round,
     settings: {
@@ -10,7 +10,7 @@
   } = this;
   const gameDominoDeck = this.find('Deck[domino]');
 
-  const checkDeletedDices = () => {
+  const checkDeletedDices = (player) => {
     // если есть временно удаленные dice, то восстанавливаем состояние до их удаления
     const deletedDices = this.run('getDeletedDices');
     let restoreAlreadyPlacedDice = false;
@@ -57,7 +57,7 @@
           (restoreAlreadyPlacedDice
             ? ` Те костяшки, которые уже были размещены взамен этой группы, были возвращены обратно в руку игрока {{player}}.`
             : ''),
-        userId: lastRoundActivePlayer.userId,
+        userId: player.userId,
       });
     }
   };
@@ -78,54 +78,14 @@
     player.set({ eventData: { disablePlayerHandLimit: null } });
   };
 
-  const selectNewActivePlayer = () => {
-    if (lastRoundActivePlayer?.eventData.extraTurn) {
-      lastRoundActivePlayer.set({ eventData: { extraTurn: null } });
-      if (lastRoundActivePlayer.eventData.skipTurn) {
-        // актуально только для событий в течение хода игрока, инициированных не им самим
-        lastRoundActivePlayer.set({ eventData: { skipTurn: null } });
-      } else {
-        this.logs({
-          msg: `Игрок {{player}} получает дополнительный ход.`,
-          userId: lastRoundActivePlayer.userId,
-        });
-        return lastRoundActivePlayer;
-      }
-    }
-
-    const playerList = this.players();
-    const activePlayerIndex = playerList.findIndex((player) => player === lastRoundActivePlayer);
-    const newActivePlayer = playerList[(activePlayerIndex + 1) % playerList.length];
-    newActivePlayer.activate();
-
-    if (newActivePlayer.eventData.skipTurn) {
-      this.logs({
-        msg: `Игрок {{player}} пропускает ход.`,
-        userId: newActivePlayer.userId,
-      });
-      newActivePlayer.set({
-        eventData: {
-          skipTurn: null,
-          actionsDisabled: true,
-        },
-      });
-    }
-    return newActivePlayer;
-  };
-
-  if (round > 0 && lastRoundActivePlayer) {
-    this.logs(
-      { msg: `Игрок {{player}} закончил раунд №${round}.`, userId: lastRoundActivePlayer.userId }, //
-      { consoleMsg: true }
-    );
-
-    checkDeletedDices();
-    checkPlayerHandLimit(lastRoundActivePlayer);
+  if (round > 0 && currentActivePlayer) {
+    checkDeletedDices(currentActivePlayer);
+    checkPlayerHandLimit(currentActivePlayer);
   }
 
-  const newRoundActivePlayer = selectNewActivePlayer();
+  const newActivePlayer = this.getNextActivePlayer({ currentActivePlayer });
 
-  const playerHand = newRoundActivePlayer.find('Deck[domino]');
+  const playerHand = newActivePlayer.find('Deck[domino]');
   gameDominoDeck.moveRandomItems({ count: 1, target: playerHand });
 
   const playedCards = this.decks.active.select('Card');
@@ -141,19 +101,20 @@
   newRoundLogEvents.push(`Начало раунда №${newRoundNumber}.`);
 
   // обновляем таймер
-  const actionsDisabled = newRoundActivePlayer.eventData.actionsDisabled === true;
+  const actionsDisabled = newActivePlayer.eventData.actionsDisabled === true;
   const timerConfig = actionsDisabled ? { time: 5 } : {};
+  newActivePlayer.activate(); // делаем строго после проверки actionsDisabled (внутри activate значение сбросится)
   lib.timers.timerRestart(this, timerConfig);
 
-  const playerCardHand = newRoundActivePlayer.find('Deck[card]');
+  const playerCardHand = newActivePlayer.find('Deck[card]');
   const card = this.run('smartMoveRandomCard', {
     target: roundStartCardAddToPlayerHand ? playerCardHand : this.decks.active,
   });
   // делаем после обновления таймера, в частности из-за карты "time"
   if (card && allowedAutoCardPlayRoundStart === true) {
-    card.play({ player: newRoundActivePlayer });
+    card.play({ player: newActivePlayer });
     newRoundLogEvents.push(`Активировано ежедневное событие "${card.title}".`);
   }
-
+  
   return { newRoundLogEvents, newRoundNumber };
 });

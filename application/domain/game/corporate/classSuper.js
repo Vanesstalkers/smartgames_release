@@ -6,6 +6,8 @@
     this.defaultClasses({
       Player: domain.game.corporate.objects.Player,
       Dice: domain.game.corporate.objects.Dice,
+      Plane: domain.game.corporate.objects.Plane,
+      Table: domain.game.corporate.objects.Table,
     });
   }
 
@@ -147,12 +149,21 @@
     }
     lib.store.broadcaster.publishAction(`gameuser-${userId}`, 'leaveGame', {});
   }
-  run(actionName, data, initPlayer) {
-    const action =
-      domain.game.corporate.actions?.[actionName] ||
-      domain.game.actions?.[actionName] ||
-      lib.game.actions?.[actionName];
+  run(actionPath, data, initPlayer) {
+    const [actionName, actionDir] = actionPath.split('.').reverse();
+
+    let action;
+    if (actionDir) {
+      if (actionDir === 'domain') action = domain.game.actions?.[actionName];
+      if (!action) action = lib.game.actions?.[actionName];
+    } else {
+      action = domain.game.corporate.actions?.[actionName];
+      if (!action) action = domain.game.actions?.[actionName];
+      if (!action) action = lib.game.actions?.[actionName];
+    }
+
     if (!action) throw new Error(`action "${actionName}" not found`);
+
     return action.call(this, data, initPlayer);
   }
 

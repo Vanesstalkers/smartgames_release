@@ -6,7 +6,7 @@
   if (!corporateGame.allGamesRoundReady()) return;
 
   for (const game of corporateGame.getAllGames()) {
-    game.runSuper('handleRound');
+    game.run('domain.handleRound');
     game.set({ roundReady: false });
   }
 

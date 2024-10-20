@@ -1,4 +1,9 @@
 () => ({
+  init: function () {
+    const { game } = this.eventContext();
+    game.set({ status: 'IN_PROCESS' });
+    for (const player of game.getActivePlayers()) player.deactivate();
+  },
   handlers: {
     PLAYER_TIMER_END: function () {
       const { game, player } = this.eventContext();

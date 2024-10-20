@@ -17,26 +17,33 @@
                 childGame.run('startGame');
               }
               game.run('initGameProcessEvents');
-              game.set({ status: 'IN_PROCESS' });
             }
             this.emit('RESET');
             return;
           }
 
-          game.run('putStartPlanes');
-          this.emit('RESET');
-
           if (game.isCoreGame()) {
+
+            // это все нужно убрать в game.run('initPrepareCoreGameEvents');
+            game.settings.planesAtStart = game.settings.planesNeedToStart; // тут некому размещать plane руками
+            game.run('putStartPlanes');
+
             for (const plane of game.decks.table.items()) {
               plane.set({ customClass: (plane.customClass || []).concat(['core']) });
             }
 
+            
+            game.initEvent(domain.game.events.common.gameProcess(), {
+              defaultResetHandler: true,
+              allowedPlayers: game.players(),
+            });
+
             for (const childGame of Object.values(game.store.game)) {
-              childGame.run('startGame');
+              childGame.run('initPrepareGameEvents');
             }
-            game.run('initGameProcessEvents');
-            game.set({ status: 'IN_PROCESS' });
           }
+
+          this.emit('RESET');
         },
       },
     },

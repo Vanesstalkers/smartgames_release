@@ -11,12 +11,11 @@
   }
 
   this.run('initGameProcessEvents');
-  this.set({ status: 'IN_PROCESS' });
 
   if (restorationMode) {
-    lib.timers.timerRestart(this);
     const round = this.round;
     this.set({ round, statusLabel: `Раунд ${round}` });
+    lib.timers.timerRestart(this);
   } else {
     this.run('handleRound', { notUserCall: true });
   }

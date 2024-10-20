@@ -2,6 +2,10 @@
   constructor(storeData, gameObjectData) {
     super(storeData, gameObjectData);
     this.set({ teamCode: storeData._code });
+    this.defaultClasses({
+      ...this.game().defaultClasses(),
+      Table: domain.game['@objects'].Table,
+    });
   }
 
   set(val, config = {}) {
@@ -53,22 +57,21 @@
     return this.game().find(code);
   }
 
-  defaultClasses() {
-    return this.game().defaultClasses(); // не пробрасываем arguments, чтобы не перетереть дефолтные классы у родителя
-  }
+  run(actionPath, data, initPlayer) {
+    const [actionName, actionDir] = actionPath.split('.').reverse();
 
-  run(actionName, data, initPlayer) {
-    const action =
-      domain.game.corporate.actions?.[actionName] ||
-      domain.game.actions?.[actionName] ||
-      lib.game.actions?.[actionName];
-    if (!action) throw new Error(`action "${actionName}" not found`);
-    return action.call(this, data, initPlayer);
-  }
+    let action;
+    if (actionDir) {
+      if (actionDir === 'domain') action = domain.game.actions?.[actionName];
+      if (!action) action = lib.game.actions?.[actionName];
+    } else {
+      action = domain.game.corporate.actions?.[actionName];
+      if (!action) action = domain.game.actions?.[actionName];
+      if (!action) action = lib.game.actions?.[actionName];
+    }
 
-  runSuper(actionName, data, initPlayer) {
-    const action = domain.game.actions?.[actionName] || lib.game.actions?.[actionName];
     if (!action) throw new Error(`action "${actionName}" not found`);
+
     return action.call(this, data, initPlayer);
   }
 

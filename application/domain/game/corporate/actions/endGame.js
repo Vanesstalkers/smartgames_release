@@ -1,7 +1,6 @@
 (function ({ winningPlayer, canceledByUser } = {}) {
-
   const superGame = this.game();
-  superGame.runSuper('endGame', { winningPlayer, canceledByUser, customFinalize: true });
+  superGame.run('lib.endGame', { winningPlayer, canceledByUser, customFinalize: true });
 
   for (const game of superGame.getAllGames()) {
     lib.timers.timerDelete(game);
