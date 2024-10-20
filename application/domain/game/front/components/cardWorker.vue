@@ -136,9 +136,9 @@ export default {
     showLeaveBtn() {
       return (this.gameFinished() && this.iam) || this.viewerId;
     },
-    showCustomActionBtn () {
-      return  this.iam && this.customAction.show;
-    }
+    showCustomActionBtn() {
+      return this.iam && this.customAction.show;
+    },
   },
   methods: {
     async controlAction() {

@@ -4,11 +4,14 @@
     :class="['player', ...customClass, iam ? 'iam' : '', player.active ? 'active' : '']"
     :team="game.teamCode"
   >
-    <div class="inner-content">
-      <div class="player-hands" v-if="game.status != 'WAIT_FOR_PLAYERS'">
-        <div v-if="hasPlaneInHand" class="hand-planes">
-          <plane v-for="id in planeInHandIds" :key="id" :planeId="id" :inHand="true" />
-        </div>
+    <div class="inner-content" :style="{ justifyContent: 'flex-end' }">
+      <div class="player-hands" v-if="game.status != 'WAIT_FOR_PLAYERS'" :style="{ justifyContent: 'flex-end' }">
+        <perfect-scrollbar v-if="hasPlaneInHand" :style="{ width: '50%' }">
+          <div class="hand-planes">
+            <plane v-for="id in planeInHandIds" :key="id" :planeId="id" :inHand="true" />
+          </div>
+        </perfect-scrollbar>
+
         <div v-if="!hasPlaneInHand" class="hand-dices-list">
           <div v-for="deck in dominoDecks" :key="deck._id" class="hand-dices-list-content">
             <div
@@ -283,6 +286,29 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  &::after {
+    content: '';
+    width: 200px;
+    flex-shrink: 1;
+  }
+
+  > .plane {
+    flex-shrink: 2;
+
+    &.card-plane {
+      flex-shrink: 0;
+
+      .port-wraper {
+        display: none;
+      }
+    }
+  }
+
+  > .ps__rail-x {
+    left: auto !important;
+    right: 0px;
+  }
 }
 #game.mobile-view.portrait-view .hand-planes {
   flex-wrap: wrap;
@@ -291,7 +317,7 @@ export default {
 .player.iam .hand-planes {
   height: 0px;
   width: 100%;
-  margin-bottom: 150px;
+  margin-bottom: 175px;
 }
 
 #game.debug {
@@ -312,7 +338,6 @@ export default {
 }
 .player.iam .hand-planes .plane:hover {
   cursor: pointer;
-  opacity: 0.7;
 }
 
 .deck-counters {

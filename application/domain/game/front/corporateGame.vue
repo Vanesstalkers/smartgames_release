@@ -41,8 +41,6 @@
     <template #gameinfo="{} = {}">
       <div class="wrapper">
         <div class="game-status-label">
-          Бюджет
-          <span style="color: gold">{{ fullPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}k ₽</span>
           {{ game.statusLabel }}
           <small v-if="game.roundReady">Ожидание других команд</small>
         </div>
@@ -188,7 +186,7 @@ export default {
       return Object.values(this.store.game || {}).filter(({ status }) => status !== 'WAIT_FOR_PLAYERS').length;
     },
     showPlayerControls() {
-      return this.game.status === 'IN_PROCESS' && !this.game.roundReady;
+      return ['IN_PROCESS', 'PREPARE_START'].includes(this.game.status) && !this.game.roundReady;
     },
     playerIds() {
       if (this.gameState.viewerMode)

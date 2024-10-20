@@ -199,8 +199,8 @@ export default {
   position: absolute;
   left: 0px;
   top: 0px;
-  width: 100%;
-  height: 100%;
+  width: 500px;
+  height: 250px;
   border-radius: 20px;
   background: url(../assets/plane.png);
 }
@@ -240,8 +240,8 @@ export default {
   position: absolute;
   left: 0px;
   top: 0px;
-  width: 100%;
-  height: 100%;
+  width: 500px;
+  height: 250px;
   z-index: 0;
 }
 
@@ -258,18 +258,22 @@ export default {
 .plane.in-hand:not(.card-plane) {
   transform: scale(0.5);
   transform-origin: center left;
-  margin: 125px -250px 0px 0px;
+  margin: 125px -250px -50px 0px;
 }
 #game.mobile-view.portrait-view .plane.in-hand:not(.card-plane) {
   transform: scale(0.7);
   transform-origin: top right;
   margin: 25px 0px -75px 0px;
 }
-
+.plane.in-hand:hover {
+  z-index: 1;
+  opacity: 1;
+  margin-bottom: 0px;
+}
 .plane.in-hand.card-plane {
   transform: scale(0.8);
   transform-origin: center left;
-  margin: 125px -24px 0px 0px;
+  margin: 150px -24px 0px 0px;
 
   > .price {
     font-size: 24px;
@@ -285,7 +289,9 @@ export default {
   top: 0px;
   left: 0px;
   background: #00000090;
-  padding: 8px 20px;
+  width: 100%;  
+  padding: 10px 0px;
   border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 </style>
