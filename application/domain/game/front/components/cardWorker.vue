@@ -8,6 +8,7 @@
       player.active ? 'active' : '',
       selectable ? 'selectable' : '',
       showEndRoundBtn || showLeaveBtn || showCustomActionBtn ? 'has-action' : '',
+      controlActionDisabled ? 'disabled' : ''
     ]"
     :style="customStyle"
     @click="controlAction"
@@ -47,6 +48,7 @@ export default {
       localTimer: null,
       localTimerUpdateTime: null,
       localTimerId: null,
+      controlActionDisabled: false,
     };
   },
   setup() {
@@ -142,11 +144,19 @@ export default {
   },
   methods: {
     async controlAction() {
+      if (this.controlActionDisabled) return;
+      this.controlActionDisabled = true;
       if (this.selectable) {
-        await this.handleGameApi({
-          name: 'eventTrigger',
-          data: { eventData: { targetId: this.playerId } },
-        });
+        await this.handleGameApi(
+          {
+            name: 'eventTrigger',
+            data: { eventData: { targetId: this.playerId } },
+          },
+          {
+            onSuccess: () => (this.controlActionDisabled = false),
+            onError: () => (this.controlActionDisabled = false),
+          }
+        );
         return;
       }
 
@@ -154,6 +164,7 @@ export default {
         return await api.action
           .call(this.customAction.sendApiData)
           .then(() => {
+            this.controlActionDisabled = false;
             this.gameState.cardWorkerAction = {};
           })
           .catch(prettyAlert);
@@ -165,7 +176,13 @@ export default {
       this.hideZonesAvailability();
       this.gameCustom.pickedDiceId = '';
 
-      await this.handleGameApi({ name: 'handleRound' });
+      await this.handleGameApi(
+        { name: 'updateRoundStep' },
+        {
+          onSuccess: () => (this.controlActionDisabled = false),
+          onError: () => (this.controlActionDisabled = false),
+        }
+      );
     },
     async leaveGame() {
       await api.action
@@ -231,6 +248,12 @@ export default {
 
     &.leave-game-btn {
       background: #bb3030;
+    }
+  }
+
+  &.disabled {
+    .action-btn {
+      opacity: 0.5;
     }
   }
 

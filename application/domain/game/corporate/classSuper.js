@@ -1,5 +1,6 @@
 (class CorporateSuperGame extends domain.game.class {
   gamesMap = {};
+  #dumps = {};
 
   constructor() {
     super(...arguments);
@@ -117,7 +118,7 @@
       this.set({ gamesMap });
 
       // инициатором события был установлен первый player в списке, который совпадает с активным игроком на старте игры
-      this.toggleEventHandlers('PLAYER_JOIN', { targetId: playerId });
+      this.toggleEventHandlers('PLAYER_JOIN', { targetId: playerId }, player);
       await this.saveChanges();
 
       lib.store.broadcaster.publishAction(`gameuser-${userId}`, 'joinGame', {
@@ -185,7 +186,14 @@
   }
 
   async dumpState() {
+    const clone = lib.utils.structuredClone(this);
+    for (const [gameId, gameDump] of Object.entries(this.#dumps)) {
+      clone.store.game[gameId] = gameDump;
+    }
     await db.mongo.deleteOne(this.col() + '_dump', { _id: this.id() });
-    await db.mongo.insertOne(this.col() + '_dump', this);
+    await db.mongo.insertOne(this.col() + '_dump', clone);
+  }
+  dumpChild(game) {
+    this.#dumps[game._id] = lib.utils.structuredClone(game);
   }
 });

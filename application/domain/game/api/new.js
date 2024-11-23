@@ -19,6 +19,7 @@ async (context, { deckType, gameType, gameConfig, gameTimer, playerCount, maxPla
     session.set({ gameId });
   }
 
+  // PIPELINE_GAME_START (5) :: делаем публикацию о появлении у игры нового игрока (создателя игры)
   lib.store.broadcaster.publishAction(`game-${gameId}`, 'playerJoin', {
     userId,
     userName: user.name || user.login,

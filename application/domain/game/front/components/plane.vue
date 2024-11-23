@@ -27,7 +27,7 @@
         :style="`background-position-x: ${item.x}; background-position-y: ${item.y}`"
       />
     </div>
-    <svg>
+    <svg v-if="!cardPlane">
       <line
         v-for="[key, line] in Object.entries(linkLines)"
         :key="key"
@@ -289,7 +289,7 @@ export default {
   top: 0px;
   left: 0px;
   background: #00000090;
-  width: 100%;  
+  width: 100%;
   padding: 10px 0px;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;

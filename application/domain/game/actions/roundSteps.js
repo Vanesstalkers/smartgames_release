@@ -1,4 +1,4 @@
-(function ({ initPlayer: currentActivePlayer }) {
+(function () {
   const {
     round,
     settings: {
@@ -11,6 +11,8 @@
   const gameDominoDeck = this.find('Deck[domino]');
 
   const checkDeletedDices = (player) => {
+    const playerHand = player.find('Deck[domino]');
+
     // если есть временно удаленные dice, то восстанавливаем состояние до их удаления
     const deletedDices = this.run('getDeletedDices');
     let restoreAlreadyPlacedDice = false;
@@ -21,7 +23,7 @@
       // (!!! если появятся новые источники размещения dice в zone, то этот код нужно переписать)
       const alreadyPlacedDice = zone.getNotDeletedItem();
       if (alreadyPlacedDice) {
-        alreadyPlacedDice.moveToTarget(activePlayerHand);
+        alreadyPlacedDice.moveToTarget(playerHand);
         restoreAlreadyPlacedDice = true;
       }
 
@@ -29,7 +31,7 @@
       if (dice.relatedPlacement) {
         for (const relatedDiceId of Object.keys(dice.relatedPlacement)) {
           const relatedDice = this.get(relatedDiceId);
-          relatedDice.moveToTarget(activePlayerHand);
+          relatedDice.moveToTarget(playerHand);
         }
       }
 
@@ -78,12 +80,13 @@
     player.set({ eventData: { disablePlayerHandLimit: null } });
   };
 
-  if (round > 0 && currentActivePlayer) {
-    checkDeletedDices(currentActivePlayer);
-    checkPlayerHandLimit(currentActivePlayer);
+  const roundActivePlayer = this.roundActivePlayer();
+  if (round > 0 && roundActivePlayer) {
+    checkDeletedDices(roundActivePlayer);
+    checkPlayerHandLimit(roundActivePlayer);
   }
 
-  const newActivePlayer = this.getNextActivePlayer({ currentActivePlayer });
+  const newActivePlayer = this.selectNextActivePlayer();
 
   const playerHand = newActivePlayer.find('Deck[domino]');
   gameDominoDeck.moveRandomItems({ count: 1, target: playerHand });
@@ -115,6 +118,6 @@
     card.play({ player: newActivePlayer });
     newRoundLogEvents.push(`Активировано ежедневное событие "${card.title}".`);
   }
-  
+
   return { newRoundLogEvents, newRoundNumber };
 });

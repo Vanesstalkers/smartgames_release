@@ -14,9 +14,10 @@
           if (game.restorationMode) {
             if (game.isCoreGame()) {
               for (const childGame of Object.values(game.store.game)) {
-                childGame.run('startGame');
+                childGame.run('domain.startGame');
               }
               game.run('initGameProcessEvents');
+              this.set({ status: 'IN_PROCESS' });
             }
             this.emit('RESET');
             return;

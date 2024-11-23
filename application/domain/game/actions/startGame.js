@@ -1,22 +1,13 @@
 (function () {
-  const { restorationMode } = this;
   const players = this.players();
 
-  if (!restorationMode) {
+  if (!this.restorationMode) {
     const deck = this.find('Deck[domino]');
     for (const player of players) {
       const playerHand = player.find('Deck[domino]');
       deck.moveRandomItems({ count: this.settings.playerHandStart, target: playerHand });
     }
   }
-
-  this.run('initGameProcessEvents');
-
-  if (restorationMode) {
-    const round = this.round;
-    this.set({ round, statusLabel: `Раунд ${round}` });
-    lib.timers.timerRestart(this);
-  } else {
-    this.run('handleRound', { notUserCall: true });
-  }
+  // PIPELINE_GAME_START (6.3) :: готовим стартовые руки и вызываем lib.startGame
+  this.run('lib.startGame');
 });

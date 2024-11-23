@@ -1,5 +1,5 @@
 (function () {
-  const player = this.getActivePlayer();
+  const player = this.roundActivePlayer();
 
   const tablePlanes = this.decks.table.items();
   for (const plane of tablePlanes) {

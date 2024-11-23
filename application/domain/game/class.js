@@ -57,4 +57,8 @@
     const configMod = { blitz: 0.5, standart: 0.75, hardcore: 1 }[this.gameConfig];
     return Math.floor(baseSum * timerMod * configMod);
   }
+  addPlayer(data) {
+    const { Player } = this.defaultClasses();
+    return new Player(data, { parent: this });
+  }
 });

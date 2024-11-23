@@ -15,6 +15,7 @@
   this.status = data.status;
   this.statusLabel = data.statusLabel;
   this.round = data.round || 0;
+  this.roundActivePlayerId = data.roundActivePlayerId;
   this.cardEvents = data.cardEvents || {};
   this.availablePorts = data.availablePorts || [];
   this.title = data.title;

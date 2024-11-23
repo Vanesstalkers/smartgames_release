@@ -10,7 +10,7 @@
           const { game, player } = this.eventContext();
 
           if (game.getFreePlayerSlot()) return { preventListenerRemove: true };
-
+          // PIPELINE_GAME_START (6.1) :: вызываем событие игры PLAYER_JOIN (проверка на getFreePlayerSlot)
           this.emit('RESET');
           game.run('initPrepareGameEvents');
         },

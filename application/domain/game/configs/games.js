@@ -200,7 +200,7 @@
 
   corporate: {
     ...{
-      title: 'Тимбилдинг',
+      title: 'Потасовка',
       icon: ['fas', 'star'],
       style: { order: 5, width: '90%', textAlign: 'center' },
     },

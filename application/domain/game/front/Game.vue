@@ -47,7 +47,7 @@
           <div v-if="deck._id && deck.code === 'Deck[card_drop]'" class="card-event">
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === 'Deck[card_active]'" class="deck-active">
+          <div v-if="showPlayerControls && deck._id && deck.code === 'Deck[card_active]'" class="deck-active">
             <!-- активная карта всегда первая - для верстки она должна стать последней -->
             <card
               v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"

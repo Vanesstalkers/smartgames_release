@@ -1,7 +1,4 @@
 (function (data) {
-  // /** @type {(import('application/domain/game/types.js').default)} */
-  // const self = this;
-
   const store = this.getStore();
   const { Player, Card, Dice, Plane } = this.defaultClasses();
   const player = new Player(data, { parent: this });

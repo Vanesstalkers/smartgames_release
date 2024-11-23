@@ -1,5 +1,5 @@
 (function ({ planes }) {
-  const player = this.getActivePlayer();
+  const player = this.roundActivePlayer();
   const playerPlaneDeck = player.find('Deck[plane]');
 
   while (planes.length) {

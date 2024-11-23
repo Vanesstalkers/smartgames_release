@@ -27,13 +27,13 @@
         }
 
         game.set({ statusLabel: 'Подготовка к игре', status: 'PREPARE_START' });
-        game.getNextActivePlayer().activate(); // делаем строго после проверки actionsDisabled (внутри activate значение сбросится)
+        game.selectNextActivePlayer().activate(); // делаем строго после проверки actionsDisabled (внутри activate значение сбросится)
         lib.timers.timerRestart(game, { time: timeToPlaceStartPlane });
 
         return;
       }
     }
-
+    // PIPELINE_GAME_START (6.2) :: стартуем игру (внутри initPrepareGameEvents)
     game.run('startGame');
     return { removeEvent: true };
   };
@@ -48,30 +48,22 @@
     if (!plane.eventData.moveToHand) {
       // один из новых блоков - остальные можно убрать
       const remainPlane = planeList.find(({ eventData: { moveToHand } }) => !moveToHand);
-      if (remainPlane) {
-        // в колоде мог остаться всего один блок на выбор
-        remainPlane.moveToTarget(gamePlaneDeck);
-      }
-    }
-
-    if (playerPlaneDeck.getAllItems().length) {
-      // вернется в CHECK_PLANES_IN_HANDS
-      return { preventListenerRemove: true };
+      // в колоде мог остаться всего один блок на выбор
+      remainPlane?.moveToTarget(gamePlaneDeck);
     }
 
     const gamePlaneReady = game.decks.table.itemsCount() >= game.settings.planesNeedToStart;
-    if (gamePlaneReady) {
-      this.emit('RESET');
-      game.run('startGame');
-      return;
+    if (!gamePlaneReady){ 
+      game.roundActivePlayer().deactivate();
+      const nextPlayer = game.players().find((player) => player.find('Deck[plane]').itemsCount() > 0);
+      nextPlayer.activate();
+      game.roundActivePlayer(nextPlayer);
+      lib.timers.timerRestart(game, { time: game.settings.timeToPlaceStartPlane });
+      return { preventListenerRemove: true };
     }
 
-    game.getActivePlayer().deactivate();
-    const nextPlayer = game.players().find((player) => player.find('Deck[plane]').itemsCount() > 0);
-    nextPlayer.activate();
-    lib.timers.timerRestart(game, { time: game.settings.timeToPlaceStartPlane });
-
-    return { preventListenerRemove: true };
+    this.emit('RESET');
+    game.run('startGame');
   };
 
   event.handlers['END_ROUND'] = function () {
