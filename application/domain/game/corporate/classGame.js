@@ -4,7 +4,7 @@
     this.set({ teamCode: storeData._code });
     this.defaultClasses({
       ...this.game().defaultClasses(),
-      Table: domain.game['@objects'].Table,
+      Table: domain.game._objects.Table,
     });
   }
 

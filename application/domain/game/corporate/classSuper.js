@@ -4,12 +4,8 @@
 
   constructor() {
     super(...arguments);
-    this.defaultClasses({
-      Player: domain.game.corporate.objects.Player,
-      Dice: domain.game.corporate.objects.Dice,
-      Plane: domain.game.corporate.objects.Plane,
-      Table: domain.game.corporate.objects.Table,
-    });
+    const { Dice, Plane, Player, Table } = domain.game.corporate._objects;
+    this.defaultClasses({ Dice, Plane, Player, Table });
   }
 
   async create({ deckType, gameType, gameConfig, gameTimer, playerCount, maxPlayersInGame } = {}) {

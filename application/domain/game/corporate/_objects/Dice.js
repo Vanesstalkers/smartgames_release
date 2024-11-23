@@ -1,4 +1,4 @@
-(class Dice extends domain.game['@objects'].Dice {
+(class Dice extends domain.game._objects.Dice {
   constructor() {
     super(...arguments);
     this.broadcastableFields(['teamCode']);

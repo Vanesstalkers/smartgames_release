@@ -1,4 +1,4 @@
-(class Table extends domain.game['@objects'].Table {
+(class Table extends domain.game._objects.Table {
   afterAddItem(item) {
     const game = this.game();
     const itemGame = game.getAllGames().find((game) => game.id() === item.sourceGameId);

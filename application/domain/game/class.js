@@ -6,13 +6,22 @@
       ...lib.game.decorators['@hasDeck'].decorate(),
     });
 
-    const { Bridge, Dice, DiceSide, Plane, Player, Port, Table, Zone, ZoneSide } = domain.game['@objects'];
+    /* 
+    !!!! добавить в release\node_modules\impress\lib\place.js 
+      const files = await node.fsp.readdir(targetPath, { withFileTypes: true });
+
+      files.sort((a, b) => {
+        if (a.isFile() && !b.isFile()) return -1; // Если 'a' файл, а 'b' нет, то 'a' идет раньше
+        if (!a.isFile() && b.isFile()) return 1; // Если 'a' не файл, а 'b' файл, то 'b' идет раньше
+        return a.name.localeCompare(b.name);
+      });
+    */
+    const { Bridge, Dice, DiceSide, Plane, Player, Port, Table, Zone, ZoneSide } = domain.game._objects;
     this.defaultClasses({ Bridge, Dice, DiceSide, Plane, Player, Port, Table, Zone, ZoneSide });
 
     this.preventSaveFields(['availableZones', 'decks']);
     this.preventBroadcastFields(['decks']);
   }
-
   checkFieldIsReady() {
     const planeList = this.decks.table.getAllItems();
     const bridgeList = this.getObjects({ className: 'Bridge', directParent: this });
