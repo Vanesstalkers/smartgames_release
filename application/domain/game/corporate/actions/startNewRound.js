@@ -1,6 +1,10 @@
 (function ({ initPlayer } = {}) {
-  if (initPlayer) initPlayer.deactivate();
-  if (!this.checkAllPlayersFinishRound()) return; // ждем завершения хода всеми игроками
+  if (!this.isCoreGame()) return;
+
   this.run('domain.startNewRound');
-  this.set({ roundReady: false });
+
+  for (const game of this.getAllGames()) {
+    game.run('domain.startNewRound');
+    game.set({ roundReady: false }); // активируем действия пользователя на фронте
+  }
 });

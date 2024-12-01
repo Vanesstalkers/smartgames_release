@@ -41,7 +41,7 @@
     <template #gameinfo="{} = {}">
       <div class="wrapper">
         <div class="game-status-label">
-          {{ game.statusLabel }}
+          {{ superGame.statusLabel }}
           <small v-if="game.roundReady">Ожидание других команд</small>
         </div>
         <div v-for="deck in deckList" :key="deck._id" class="deck" :code="deck.code.replace(game.code, '')">
@@ -189,6 +189,7 @@ export default {
       return ['IN_PROCESS', 'PREPARE_START'].includes(this.game.status) && !this.game.roundReady;
     },
     playerIds() {
+      // !!!! переделать на отдельный блок для superGame
       if (this.gameState.viewerMode)
         return Object.keys(this.game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
 
@@ -277,6 +278,9 @@ export default {
     },
   },
   methods: {
+    // !!!! принудительное отключение игрока
+    // !!!! завершение хода игроку (или режим автопропуска)
+    // предотвращение окончания игры при выходе игрока
     openTeamleadMenu() {
       this.$set(this.state.store.user?.[this.state.currentUser], 'helper', {
         menu: {

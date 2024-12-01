@@ -131,7 +131,10 @@ export default {
       if (storageFillData)
         try {
           storageFillData = JSON.parse(storageFillData);
-        } catch (e) {}
+          storageFillData = storageFillData[this.gameState.gameId];
+        } catch (e) {
+          storageFillData = null;
+        }
       if (!storageFillData) storageFillData = {};
       let fillData = storageFillData[pid];
 
@@ -146,7 +149,9 @@ export default {
         };
       }
       storageFillData[pid] = fillData;
-      localStorage.setItem('gamePlaneBackgroundData', JSON.stringify(storageFillData));
+
+      // this.gameState.gameId - защита от переполнения локального хранилища (фактически будет сбрасываться каждую новую игру)
+      localStorage.setItem('gamePlaneBackgroundData', JSON.stringify({ [this.gameState.gameId]: storageFillData }));
 
       return fillData;
     },

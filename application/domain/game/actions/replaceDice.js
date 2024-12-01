@@ -1,12 +1,14 @@
 (function ({ diceId, zoneId }) {
+  const dice = this.get(diceId);
+  const zone = this.get(zoneId);
+
+  if (zone.game().roundReady) throw new Error('Действия с этим полем недоступны до следующего раунда.');
+
   const player = this.roundActivePlayer();
   if (this.triggerEventEnabled() || player.triggerEventEnabled())
     throw new Error('Игрок не может совершить это действие, пока не завершит активное событие.');
 
   if (!player.availableZones.includes(zoneId)) throw new Error('Данная зона запрещена для размещения');
-
-  const dice = this.get(diceId);
-  const zone = this.get(zoneId);
 
   const diceIsInHand = dice.findParent({ directParent: player });
   if (!diceIsInHand) throw new Error('Костяшка должна находиться в руке.');

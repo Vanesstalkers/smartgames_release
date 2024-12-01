@@ -3,9 +3,11 @@
     super(...arguments);
     this.broadcastableFields(['teamCode']);
     this.set({ teamCode: this.game().teamCode });
+    // !!!! team при восстановлении игры
   }
   findAvailableZones() {
-    const superGame = this.game().game();
+    const game = this.game();
+    const superGame = game.game();
     const result = [];
 
     // включить, если findAvailableZones будет вызываться откуда то кроме showZonesAvailability
@@ -14,8 +16,11 @@
       // чтобы не мешать расчету для соседних зон при перемещении из одной зоны в другую (ниже вернем состояние)
       this.getParent().removeItem(this);
 
+      const games = superGame.getAllGames({ roundReady: false });
+      if (superGame.allGamesMerged()) games.push(superGame);
+
       const zoneList = [];
-      for (const game of superGame.getAllGames()) {
+      for (const game of games) {
         zoneList.push(
           ...game.decks.table.getAllItems().reduce((arr, plane) => {
             return arr.concat(plane.select('Zone'));

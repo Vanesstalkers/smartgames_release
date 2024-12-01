@@ -4,8 +4,8 @@
 
   constructor() {
     super(...arguments);
-    const { Dice, Plane, Player, Table } = domain.game.corporate._objects;
-    this.defaultClasses({ Dice, Plane, Player, Table });
+    const { Dice, Plane, Player, Table, ZoneSide } = domain.game.corporate._objects;
+    this.defaultClasses({ Dice, Plane, Player, Table, ZoneSide });
   }
 
   async create({ deckType, gameType, gameConfig, gameTimer, playerCount, maxPlayersInGame } = {}) {
@@ -17,8 +17,9 @@
 
     playerCount = playerCount.val;
 
-    await super.create({ deckType, gameType, gameConfig, gameTimer });
+    await super.create({ deckType, gameType, gameConfig, gameTimer }, { initPlayerWaitEvents: false });
     this.set({ playerCount });
+    this.set({ settings: { planesAtStart: this.settings.planesNeedToStart } });
 
     for (let _code = 1; _code <= playerCount; _code++) {
       this.run('addPlayer', {
@@ -34,7 +35,7 @@
       const game = await new domain.game.corporate.classGame(
         { _code }, // storeData
         { parent: this } // gameObjectData
-      ).create({ deckType, gameType, gameConfig, gameTimer, teamCode: _code });
+      ).create({ deckType, gameType, gameConfig, gameTimer, teamCode: _code }, { initPlayerWaitEvents: false });
 
       const players = fullPlayersList.splice(0, maxPlayersInGame.val);
       players[0].set({ teamlead: true });
@@ -50,14 +51,11 @@
         }
         playerMap[player.id()] = {};
       }
-      game.set({
-        playerMap,
-        roundReady: false,
-        title: `Команда №${game.teamCode}`,
-      });
+      
+      game.set({ playerMap, title: `Команда №${game.teamCode}` });
+
       if (players.length === 1) game.set({ settings: { singlePlayer: true } });
       game.decks.table.set({ access: this.playerMap });
-      game.run('initPlayerWaitEvents');
 
       gamesMap[game.id()] = Object.fromEntries(players.map((player) => [player.id(), {}]));
     }
@@ -105,11 +103,7 @@
 
       const gamesMap = this.gamesMap;
       for (const [gameId, players] of Object.entries(gamesMap)) {
-        if (players[playerId]) {
-          players[playerId] = userId;
-          const game = this.get(gameId);
-          game.toggleEventHandlers('PLAYER_JOIN', { targetId: playerId }, player);
-        }
+        if (players[playerId]) players[playerId] = userId;
       }
       this.set({ gamesMap });
 
@@ -174,11 +168,20 @@
     await game.handleAction(...arguments);
   }
 
-  getAllGames() {
-    return Object.values(this.store.game);
+  getAllGames(filter) {
+    let result = Object.values(this.store.game);
+    if (filter) {
+      for (const [key, val] of Object.entries(filter)) {
+        result = result.filter((obj) => obj[key] === val);
+      }
+    }
+    return result;
   }
   allGamesRoundReady() {
     return this.getAllGames().find((game) => !game.roundReady) ? false : true;
+  }
+  allGamesMerged() {
+    return this.getAllGames().find((game) => !game.merged) ? false : true;
   }
 
   async dumpState() {

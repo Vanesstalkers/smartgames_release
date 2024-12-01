@@ -1,0 +1,27 @@
+(function () {
+  if (!this.isCoreGame()) return this.run('domain.initPrepareGameEvents');
+
+  const event = {
+    init() {
+      const { game, player } = this.eventContext();
+      const { restorationMode } = game;
+
+      if (!restorationMode) {
+        game.run('putStartPlanes');
+
+        for (const plane of game.decks.table.items()) {
+          plane.set({ customClass: (plane.customClass || []).concat(['core']) });
+        }
+      }
+
+      game.set({ statusLabel: 'Подготовка к игре', status: 'PREPARE_START' });
+      for (const childGame of game.getAllGames()) {
+        childGame.run('domain.initPrepareGameEvents');
+      }
+
+      return { removeEvent: true };
+    },
+  };
+
+  this.initEvent(event, { defaultResetHandler: true, allowedPlayers: this.players() });
+});

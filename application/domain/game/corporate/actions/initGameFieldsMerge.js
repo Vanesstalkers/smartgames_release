@@ -3,6 +3,7 @@
 
   const tablePlanes = this.decks.table.items();
   for (const plane of tablePlanes) {
+    // !!!! убрать все кроме центральных зон
     plane.initEvent(
       {
         init: function () {
@@ -55,6 +56,8 @@
             if (this.availablePorts.length) {
               const usedPort = superGame.availablePorts[0];
               superGame.run('putPlaneOnField', usedPort); // нельзя делать через pop/unshift из-за проверки внутри putPlaneOnField
+            } else {
+              // !!!! доделать добавление промежуточного блока
             }
           },
         },

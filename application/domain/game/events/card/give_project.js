@@ -30,9 +30,12 @@
       const { game, player } = this.eventContext();
       const deck = player.find('Deck[domino]');
       for (const dice of deck.select('Dice')) {
-        dice.set({ eventData: { selectable: null } });
+        if (dice.eventData.selectable) dice.set({ eventData: { selectable: null } });
       }
       this.targetDice.set({ eventData: { selectable: null } });
+
+      // так как игрок больше не владелец кости, то ему обновленный статус вернется в привязке к fakeId, и в локальном store значение не поменяется - однако когда костяшка попадет на поле, то на ходе игрока она будет подсвечиваться как selectable
+      player.publishStoreData({ dice: { [this.targetDice.id()]: { eventData: { selectable: null } } } });
     },
     TRIGGER: function ({ target }) {
       const { game, player: activePlayer } = this.eventContext();

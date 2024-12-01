@@ -8,6 +8,6 @@
       deck.moveRandomItems({ count: this.settings.playerHandStart, target: playerHand });
     }
   }
-  // PIPELINE_GAME_START (6.3) :: готовим стартовые руки и вызываем lib.startGame
+
   this.run('lib.startGame');
 });

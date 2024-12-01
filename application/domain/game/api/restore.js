@@ -17,6 +17,7 @@ async (context, { deckType, gameType, gameId, needLoadGame }) => {
             corporateGame.run('fillGameData', loadedData);
             for (const gameId of Object.keys(loadedData.gamesMap)) {
               const gameData = loadedData.store.game[gameId];
+              gameData.roundReady = false;
               const game = await new domain.game.corporate.classGame(
                 { _id: gameData._id, _code: gameData.code }, // data
                 { parent: corporateGame } // config
@@ -24,7 +25,6 @@ async (context, { deckType, gameType, gameId, needLoadGame }) => {
               game.restorationMode = true;
               game.run('fillGameData', gameData);
               game.clearEvents(); // тут сохраненные в БД eventListeners (пустые объекты) - у corporateGame их нет, т.к. там отрабатывает preventSaveFields
-              game.run('initPlayerWaitEvents');
             }
           }
         : function (loadedData) {
@@ -74,7 +74,7 @@ async (context, { deckType, gameType, gameId, needLoadGame }) => {
     return { status: 'ok' };
   }
 
-  // PIPELINE_GAME_RESTORE (4.4.2 == 6) :: сообщаем игре игроку о возврате в игру после обновления страницы в браузере
+  // сообщаем игре игроку о возврате в игру после обновления страницы в браузере
   await user.joinGame({ gameId, playerId, viewerId, deckType, gameType });
 
   return { status: 'ok' };

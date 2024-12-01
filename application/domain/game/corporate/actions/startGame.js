@@ -1,13 +1,11 @@
 (function () {
-  this.roundActivePlayer().deactivate();
-  this.set({ roundReady: true });
-
   const corporateGame = this.game();
+
+  this.set({ roundReady: true });
   if (!corporateGame.allGamesRoundReady()) return;
 
-  for (const childGame of Object.values(corporateGame.store.game)) {
+  for (const childGame of corporateGame.getAllGames()) {
     childGame.run('domain.startGame');
   }
-  corporateGame.run('initGameProcessEvents');
-  corporateGame.set({ status: 'IN_PROCESS' });
+  corporateGame.run('lib.startGame'); // в domain.startGame специфичные release-обработчики (в частности, наполнение руки)
 });

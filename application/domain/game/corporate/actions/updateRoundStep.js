@@ -6,6 +6,7 @@
     return;
   }
 
+  // осознанно дублируется логика из startNewRound (ради roundReady)
   initPlayer.deactivate();
   if (this.checkAllPlayersFinishRound()) this.set({ roundReady: true });
 
@@ -13,12 +14,7 @@
   if (!corporateGame.allGamesRoundReady()) return;
 
   for (const game of corporateGame.getAllGames()) {
-    // делаем preventStartNewRound, потому что все объекты лежат в store корпоративной игры
-    game.run('domain.updateRoundStep', { preventStartNewRound: true });
+    game.run('domain.updateRoundStep');
   }
-  // в corporateGame нужна особая логика работы с активным игроком/командой
-  corporateGame.run('domain.updateRoundStep', { preventStartNewRound: true });
-  for (const game of corporateGame.getAllGames()) {
-    game.run('startNewRound');
-  }
+  corporateGame.run('domain.updateRoundStep');
 });

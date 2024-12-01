@@ -8,7 +8,7 @@
 
   if (dice.placedAtRound === this.round) throw new Error('Запрещено менять костяшки, размещенные на текущем ходу.');
 
-  dice.set({ deleted: true });
+  dice.set({ deleted: true, deletedBy: player.id() });
   zone.updateValues();
 
   return { status: 'ok' };

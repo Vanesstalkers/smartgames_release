@@ -8,34 +8,37 @@
       restorationMode,
     } = game;
 
-    const planesToBePlacedByPlayers = planesNeedToStart - planesAtStart;
-
-    if (!restorationMode) {
-      const players = game.players();
-      const gamePlaneDeck = game.find('Deck[plane]');
-
-      game.run('putStartPlanes');
-
-      if (planesToBePlacedByPlayers > 0) {
-        for (let i = 0; i < planesToBePlacedByPlayers; i++) {
-          const player = players[i % players.length];
-          const hand = player.find('Deck[plane]');
-          for (let j = 0; j < planesToChoose; j++) {
-            const plane = gamePlaneDeck.getRandomItem();
-            if (plane) plane.moveToTarget(hand);
-          }
-        }
-
-        game.set({ statusLabel: 'Подготовка к игре', status: 'PREPARE_START' });
-        game.selectNextActivePlayer().activate(); // делаем строго после проверки actionsDisabled (внутри activate значение сбросится)
-        lib.timers.timerRestart(game, { time: timeToPlaceStartPlane });
-
-        return;
-      }
+    function startGame() {
+      game.run('startGame');
+      return { removeEvent: true };
     }
-    // PIPELINE_GAME_START (6.2) :: стартуем игру (внутри initPrepareGameEvents)
-    game.run('startGame');
-    return { removeEvent: true };
+
+    if (restorationMode) return startGame();
+
+    const planesToBePlacedByPlayers = planesNeedToStart - planesAtStart;
+    const players = game.players();
+    const gamePlaneDeck = game.find('Deck[plane]');
+
+    game.run('putStartPlanes');
+
+    if (planesToBePlacedByPlayers > 0) {
+      for (let i = 0; i < planesToBePlacedByPlayers; i++) {
+        const player = players[i % players.length];
+        const hand = player.find('Deck[plane]');
+        for (let j = 0; j < planesToChoose; j++) {
+          const plane = gamePlaneDeck.getRandomItem();
+          if (plane) plane.moveToTarget(hand);
+        }
+      }
+
+      game.set({ statusLabel: 'Подготовка к игре', status: 'PREPARE_START' });
+      game.selectNextActivePlayer().activate(); // делаем строго после проверки actionsDisabled (внутри activate значение сбросится)
+      lib.timers.timerRestart(game, { time: timeToPlaceStartPlane });
+
+      return;
+    }
+
+    return startGame();
   };
 
   event.handlers['ADD_PLANE'] = function ({ target: plane }) {
@@ -53,7 +56,7 @@
     }
 
     const gamePlaneReady = game.decks.table.itemsCount() >= game.settings.planesNeedToStart;
-    if (!gamePlaneReady){ 
+    if (!gamePlaneReady) {
       game.roundActivePlayer().deactivate();
       const nextPlayer = game.players().find((player) => player.find('Deck[plane]').itemsCount() > 0);
       nextPlayer.activate();
