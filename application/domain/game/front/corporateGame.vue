@@ -376,6 +376,7 @@ export default {
       const style = { ...previewStyle };
       prepareStyle(style);
 
+      this.hidePreviewPlanes();
       if (!this.gameCustom.selectedFakePlanes[gameId]) this.$set(this.gameCustom.selectedFakePlanes, gameId, {});
       this.$set(this.gameCustom.selectedFakePlanes[gameId], joinPlaneId, style);
 

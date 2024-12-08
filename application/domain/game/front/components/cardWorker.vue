@@ -146,6 +146,7 @@ export default {
     async controlAction() {
       if (this.controlActionDisabled) return;
       this.controlActionDisabled = true;
+      this.hidePreviewPlanes();
       if (this.selectable) {
         await this.handleGameApi(
           {

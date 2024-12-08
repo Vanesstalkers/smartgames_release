@@ -39,4 +39,7 @@ function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
     };
   }
 }
-export default { zoneAvailable, hideZonesAvailability, calcGamePlaneCustomStyleData };
+function hidePreviewPlanes() {
+  this.gameCustom.selectedFakePlanes = {};
+}
+export default { zoneAvailable, hideZonesAvailability, calcGamePlaneCustomStyleData, hidePreviewPlanes };

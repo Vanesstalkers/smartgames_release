@@ -244,6 +244,8 @@ export default {
       }
       delete style.width;
       delete style.height;
+      
+      this.hidePreviewPlanes();
       this.$set(this.gameCustom.selectedFakePlanes, joinPlaneId, style);
 
       this.gameState.cardWorkerAction = {
