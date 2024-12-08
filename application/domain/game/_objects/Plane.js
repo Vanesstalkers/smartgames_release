@@ -55,6 +55,11 @@
     }
   }
 
+  addCustomClass(newClassArray) {
+    if (!Array.isArray(newClassArray)) newClassArray = [newClassArray];
+    this.set({ customClass: (this.customClass || []).concat(newClassArray) });
+  }
+
   isCardPlane() {
     return this.cardPlane;
   }
@@ -63,6 +68,12 @@
     const portClass = this.game().defaultClasses()['Port'];
     const port = new portClass(data, { parent: this });
     this.set({ portMap: { [port._id]: {} } });
+  }
+  ports() {
+    return this.select('Port');
+  }
+  updatePorts(updateData) {
+    for (const port of this.ports()) port.set(updateData);
   }
   getZone() {
     return Object.keys(this.zoneMap)
@@ -124,7 +135,7 @@
   }
   getLinkedBridges() {
     const game = this.game();
-    const ports = this.select('Port').filter(({ linkedBridgeCode }) => linkedBridgeCode);
+    const ports = this.ports().filter(({ linkedBridgeCode }) => linkedBridgeCode);
     const bridges = ports.map(({ linkedBridgeCode }) => game.find(linkedBridgeCode));
     return bridges;
   }

@@ -207,6 +207,7 @@
     items: {
       cooperative: {
         title: 'Кооперация',
+        skipStartPlanes: ['Deck[plane]Plane[12]', 'Deck[plane]Plane[15]', 'Deck[plane]Plane[16]'],
         // allowedAutoCardPlayRoundStart: true,
       },
       competition: {

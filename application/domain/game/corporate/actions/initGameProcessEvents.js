@@ -4,7 +4,11 @@
   if (!this.isCoreGame()) {
     event.handlers['RELEASE'] = function () {
       const { game, player } = this.eventContext();
-      if (game.checkFieldIsReady()) return game.run('initGameFieldsMerge');
+      if (game.checkFieldIsReady()) {
+        this.emit('RESET');
+        game.run('initGameFieldsMerge');
+        return;
+      }
       return { preventListenerRemove: true };
     };
   }

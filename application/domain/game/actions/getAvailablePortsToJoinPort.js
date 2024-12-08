@@ -49,7 +49,7 @@
   for (const plane of this.decks.table.getAllItems()) {
     if (plane === joinPlane) continue;
 
-    for (const port of plane.select('Port')) {
+    for (const port of plane.ports()) {
       if (port.linkedBridgeCode) continue; // port уже занят
 
       for (const portDirect of Object.keys(port.direct)) {

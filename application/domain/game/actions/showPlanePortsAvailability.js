@@ -11,7 +11,7 @@
     const gameId = game.id();
     game.disableChanges();
     {
-      const joinPorts = joinPlane.select('Port');
+      const joinPorts = joinPlane.ports();
       for (const port of joinPorts) {
         if (joinPortId && port.id() !== joinPortId) continue;
         if (port.linkedBridgeCode) continue;

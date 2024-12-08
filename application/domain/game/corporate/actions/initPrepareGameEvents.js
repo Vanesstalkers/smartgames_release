@@ -10,7 +10,7 @@
         game.run('putStartPlanes');
 
         for (const plane of game.decks.table.items()) {
-          plane.set({ customClass: (plane.customClass || []).concat(['core']) });
+          plane.addCustomClass('core');
         }
       }
 
