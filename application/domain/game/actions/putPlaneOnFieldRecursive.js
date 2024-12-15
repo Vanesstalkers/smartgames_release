@@ -1,8 +1,37 @@
-(function ({ planes }) {
-  const player = this.roundActivePlayer();
-  const playerPlaneDeck = player.find('Deck[plane]');
+(function ({ planes, minFreePorts }) {
+  const deckOwner = this.roundActivePlayer() || this;
+  const planeDeck = deckOwner === this ? deckOwner.find('Deck[plane_drop]') : deckOwner.find('Deck[plane]');
 
-  while (planes.length) {
+  const addExtraPlane = () => {
+    const extraPlane = this.getSmartRandomPlaneFromDeck();
+    if (extraPlane) {
+      const gamePlaneDeck = this.find('Deck[plane]');
+      extraPlane.moveToTarget(gamePlaneDeck);
+      extraPlane.set({ eventData: { moveToHand: true } });
+      planes.push(extraPlane);
+    } else {
+      throw 'endGame'; // проиграли все
+    }
+  };
+
+  const freePortsNotEnough = () => {
+    const plane = this.getSmartRandomPlaneFromDeck();
+    this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
+    const freePortsCount = new Set(this.availablePorts.map((item) => item.targetPortId)).size;
+    return this.isCoreGame() && freePortsCount < minFreePorts;
+  };
+
+  let repeatCounterForAddingExtraPlanesInHand = 0;
+  while (planes.length || freePortsNotEnough()) {
+    if (planes.length === 0) {
+      try {
+        addExtraPlane();
+      } catch (e) {
+        if (e === 'endGame') return this.run('endGame');
+        throw e;
+      }
+    }
+
     const prevLength = planes.length;
     const plane = planes.pop();
 
@@ -29,7 +58,7 @@
       {
         // аналог TRIGGER из events/card/pilot
         const plane = selectablePlanes[0];
-        plane.moveToTarget(playerPlaneDeck);
+        plane.moveToTarget(planeDeck);
         plane.set({ left: 0, top: 0, eventData: { selectable: null } });
 
         const linkedBridges = plane.getLinkedBridges();
@@ -39,7 +68,7 @@
           if (!plane.cardPlane && bridge.bridgeToCardPlane) {
             const cardPlaneId = bridge.linkedPlanesIds.find((id) => id !== plane.id());
             const cardPlane = this.get(cardPlaneId);
-            cardPlane.moveToTarget(playerPlaneDeck);
+            cardPlane.moveToTarget(planeDeck);
             cardPlane.set({ left: 0, top: 0, eventData: { selectable: null } });
           }
         }
@@ -51,29 +80,22 @@
       }
     }
 
-    planes = playerPlaneDeck.getAllItems();
+    planes = planeDeck.getAllItems();
     planes.sort(({ portMap: a }, { portMap: b }) => {
       return Object.keys(a).length < Object.keys(b).length ? -1 : 1;
     });
     if (prevLength === planes.length) {
+      repeatCounterForAddingExtraPlanesInHand++;
+      if (repeatCounterForAddingExtraPlanesInHand > 20)
+        throw new Error('Игра не может быть начата по техническим причинам (repeatCounterForAddingExtraPlanesInHand)');
       this.run('showPlanePortsAvailability', { joinPlaneId: planes[planes.length - 1].id() });
       if (this.availablePorts.length) continue;
 
-      const planeDeck = this.find('Deck[plane]');
-      const extraPlane = planeDeck
-        .getAllItems()
-        .sort(({ portMap: a }, { portMap: b }) => {
-          const al = Object.keys(a).length;
-          const bl = Object.keys(b).length;
-          return al === bl ? (Math.random() > 0.5 ? -1 : 1) : al < bl ? -1 : 1;
-        })
-        .pop();
-      if (extraPlane) {
-        extraPlane.moveToTarget(playerPlaneDeck);
-        extraPlane.set({ eventData: { moveToHand: true } });
-        planes.push(extraPlane);
-      } else {
-        return this.run('endGame'); // проиграли все
+      try {
+        addExtraPlane();
+      } catch (e) {
+        if (e === 'endGame') return this.run('endGame');
+        throw e;
       }
     }
 

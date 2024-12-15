@@ -70,4 +70,14 @@
     const { Player } = this.defaultClasses();
     return new Player(data, { parent: this });
   }
+  getSmartRandomPlaneFromDeck() {
+    return this.find('Deck[plane]')
+      .getAllItems()
+      .sort(({ portMap: a }, { portMap: b }) => {
+        const al = Object.keys(a).length;
+        const bl = Object.keys(b).length;
+        return al === bl ? (Math.random() > 0.5 ? -1 : 1) : al < bl ? -1 : 1;
+      })
+      .pop();
+  }
 });

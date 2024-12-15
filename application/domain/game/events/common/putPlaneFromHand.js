@@ -116,13 +116,7 @@
         if (!usedPorts.includes(usedPortCode)) {
           usedPorts.push(usedPortCode);
         } else {
-          const planeDeck = game.find('Deck[plane]');
-          const extraPlane = planeDeck
-            .getAllItems()
-            .sort(({ portMap: a }, { portMap: b }) => {
-              return Object.keys(a).length < Object.keys(b).length ? -1 : 1;
-            })
-            .pop();
+          const extraPlane = game.getSmartRandomPlaneFromDeck();
           if (extraPlane) {
             extraPlane.moveToTarget(playerPlaneDeck);
             extraPlane.set({ eventData: { moveToHand: true } });

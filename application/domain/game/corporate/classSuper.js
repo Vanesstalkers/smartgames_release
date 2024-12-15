@@ -51,7 +51,7 @@
         }
         playerMap[player.id()] = {};
       }
-      
+
       game.set({ playerMap, title: `Команда №${game.teamCode}` });
 
       if (players.length === 1) game.set({ settings: { singlePlayer: true } });
@@ -168,6 +168,9 @@
     await game.handleAction(...arguments);
   }
 
+  gamesCount() {
+    return Object.values(this.gamesMap).length;
+  }
   getAllGames(filter) {
     let result = Object.values(this.store.game);
     if (filter) {
