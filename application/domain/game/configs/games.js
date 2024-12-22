@@ -56,6 +56,7 @@
       ],
       deckList: [
         { type: 'plane' },
+        { type: 'plane', subtype: 'hand', itemType: 'plane'},
         { type: 'domino', itemType: 'any' },
         { type: 'card', itemType: 'event' },
         { type: 'card', subtype: 'active', itemType: 'event', access: 'all' },
@@ -117,6 +118,7 @@
       })),
       deckList: [
         { type: 'plane' },
+        { type: 'plane', subtype: 'hand', itemType: 'plane'},
         { type: 'domino', itemType: 'any' },
         { type: 'card', itemType: 'event' },
         { type: 'card', subtype: 'active', itemType: 'event', access: 'all' },
@@ -175,6 +177,7 @@
       })),
       deckList: [
         { type: 'plane' },
+        { type: 'plane', subtype: 'hand', itemType: 'plane'},
         { type: 'domino', itemType: 'any' },
         { type: 'card', itemType: 'event' },
         { type: 'card', subtype: 'active', itemType: 'event', access: 'all' },
@@ -239,6 +242,7 @@
       playerList: [],
       deckList: [
         { type: 'plane' },
+        { type: 'plane', subtype: 'hand', itemType: 'plane'},
         { type: 'domino', itemType: 'any' },
         { type: 'card', itemType: 'event' },
         { type: 'card', subtype: 'active', itemType: 'event', access: 'all' },

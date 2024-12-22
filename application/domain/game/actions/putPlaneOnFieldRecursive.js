@@ -1,6 +1,8 @@
 (function ({ planes, minFreePorts }) {
   const deckOwner = this.roundActivePlayer() || this;
-  const planeDeck = deckOwner === this ? deckOwner.find('Deck[plane_drop]') : deckOwner.find('Deck[plane]');
+  const planeDeck = deckOwner.matches({ className: 'Game' })
+    ? deckOwner.find('Deck[plane_hand]')
+    : deckOwner.find('Deck[plane]');
 
   const addExtraPlane = () => {
     const extraPlane = this.getSmartRandomPlaneFromDeck();
