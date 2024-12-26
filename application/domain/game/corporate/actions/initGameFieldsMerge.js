@@ -124,6 +124,13 @@
           }
 
           if (plane.game().isCoreGame()) {
+            const gameCommonDominoDeck = game.find('Deck[domino_common]');
+            const gameCommonCardDeck = game.find('Deck[card_common]');
+            for (const player of game.players()) {
+              player.find('Deck[domino]').moveAllItems({ target: gameCommonDominoDeck, markNew: true });
+              player.find('Deck[card]').moveAllItems({ target: gameCommonCardDeck, markNew: true });
+            }
+
             game.set({ merged: true });
             this.emit('RESET');
             return;

@@ -12,6 +12,12 @@
     const {
       utils: { structuredClone: clone },
     } = lib;
+    const {
+      [gameType]: {
+        //
+        items: { [gameConfig]: settings },
+      } = {},
+    } = domain.game.configs.gamesFilled();
 
     if (!playerCount?.val || !maxPlayersInGame?.val) throw new Error('Не указано количество игроков.');
 
@@ -23,11 +29,12 @@
 
     for (let _code = 1; _code <= playerCount; _code++) {
       this.run('addPlayer', {
-        ...clone(this.settings.playerTemplates['default']),
+        ...clone(settings.playerTemplates['default']),
         _code,
       });
     }
     this.run('initPlayerWaitEvents');
+    this.decks.table.set({ access: this.playerMap });
 
     const fullPlayersList = Object.values(this.store.player);
     const gamesMap = {};
@@ -56,6 +63,8 @@
 
       if (players.length === 1) game.set({ settings: { singlePlayer: true } });
       game.decks.table.set({ access: this.playerMap });
+      game.find('Deck[domino_common]').set({ access: playerMap, markNew: true });
+      game.find('Deck[card_common]').set({ access: playerMap, markNew: true });
 
       gamesMap[game.id()] = Object.fromEntries(players.map((player) => [player.id(), {}]));
     }

@@ -55,7 +55,14 @@
         </div>
       </div>
       <div class="workers">
-        <card-worker :playerId="playerId" :viewerId="viewerId" :iam="iam" :showControls="showControls" />
+        <card-worker
+          :playerId="playerId"
+          :viewerId="viewerId"
+          :iam="iam"
+          :showControls="showControls"
+          :dominoDeckCount="mainDominoDeckItemsCount"
+          :cardDeckCount="mainCardDeckItemsCount"
+        />
       </div>
     </div>
   </div>
@@ -109,7 +116,7 @@ export default {
       return this.getStore();
     },
     game() {
-      return this.getGame();
+      return this.getGame(this.player.gameId);
     },
     player() {
       return this.store.player?.[this.playerId] || {};
@@ -118,15 +125,40 @@ export default {
       return this.store.viewer?.[this.viewerId] || {};
     },
     dominoDecks() {
-      return (
-        this.deckIds.map((id) => this.store.deck?.[id] || {}).filter((deck) => deck.type === 'domino') || []
-      ).sort(({ subtype }) => (subtype ? -1 : 1));
+      const decks = this.deckIds.map((id) => this.store.deck?.[id] || {});
+
+      if (!this.game.merged) {
+        const result = decks.filter((deck) => deck.type === 'domino') || [];
+        return result.sort((deck) => (deck.subtype ? -1 : 1));
+      }
+
+      // сделано не через player.active, чтобы рука не исчезала после окончания хода
+      if (this.game.roundActivePlayerId !== this.playerId) return [];
+
+      const gameDecks = Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id] || {});
+      const commonDecks = gameDecks.filter((deck) => deck.subtype === 'common');
+      const result = [...commonDecks, ...decks].filter((deck) => deck.type === 'domino' && deck.subtype) || [];
+      return result.sort((deck) => (deck.subtype !== 'common' ? -1 : 1));
     },
     cardDecks() {
-      return this.deckIds.map((id) => this.store.deck?.[id]).filter((deck) => deck.type === 'card') || [];
+      const decks = this.deckIds.map((id) => this.store.deck?.[id] || {});
+
+      if (!this.game.merged) {
+        return decks.filter((deck) => deck.type === 'card') || [];
+      }
+
+      // сделано не через player.active, чтобы рука не исчезала после окончания хода
+      if (this.game.roundActivePlayerId !== this.playerId) return [];
+
+      const gameDecks = Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id] || {});
+      const commonDecks = gameDecks.filter((deck) => deck.subtype === 'common');
+      return [...commonDecks, ...decks].filter((deck) => deck.type === 'card' && deck.subtype) || [];
+    },
+    mainDominoDeckItemsCount() {
+      return Object.keys(this.dominoDecks[0]?.itemMap || {}).length || 0;
     },
     mainCardDeckItemsCount() {
-      return Object.keys(this.cardDecks[0]?.itemMap || {}).length;
+      return Object.keys(this.cardDecks[0]?.itemMap || {}).length || 0;
     },
     deckIds() {
       return Object.keys(this.player.deckMap || {});

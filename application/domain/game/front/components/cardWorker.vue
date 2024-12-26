@@ -42,6 +42,8 @@ export default {
     viewerId: String,
     iam: Boolean,
     showControls: Boolean,
+    dominoDeckCount: Number,
+    cardDeckCount: Number,
   },
   data() {
     return {
@@ -111,24 +113,6 @@ export default {
     },
     selectable() {
       return this.sessionPlayer().eventData.canSelectWorkers && this.player.eventData.selectable;
-    },
-    dominoDeckCount() {
-      return (
-        Object.keys(
-          Object.keys(this.player.deckMap || {})
-            .map((id) => this.store.deck?.[id] || {})
-            .filter((deck) => deck.type === 'domino' && !deck.subtype)[0]?.itemMap || {}
-        ).length || 0
-      );
-    },
-    cardDeckCount() {
-      return (
-        Object.keys(
-          Object.keys(this.player.deckMap || {})
-            .map((id) => this.store.deck?.[id] || {})
-            .filter((deck) => deck.type === 'card' && !deck.subtype)[0]?.itemMap || {}
-        ).length || 0
-      );
     },
     showEndRoundBtn() {
       return (

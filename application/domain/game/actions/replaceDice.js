@@ -10,7 +10,7 @@
 
   if (!player.availableZones.includes(zoneId)) throw new Error('Данная зона запрещена для размещения');
 
-  const diceIsInHand = dice.findParent({ directParent: player });
+  const diceIsInHand = dice.parent().access[player.id()] ? true : false;
   if (!diceIsInHand) throw new Error('Костяшка должна находиться в руке.');
 
   if (dice.locked) throw new Error('Костяшка не может быть сыграна на этом ходу.');

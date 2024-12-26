@@ -15,8 +15,8 @@ function playerGameId() {
 
   return Object.entries(game.gamesMap || {}).find(([gameId, players]) => players[this.gameState.sessionPlayerId])?.[0];
 }
-function getGame() {
-  const gameId = this.playerGameId();
+function getGame(gameId) {
+  if (!gameId) gameId = this.playerGameId();
 
   if (this.gameState.viewerMode) return this.getSuperGame();
 
