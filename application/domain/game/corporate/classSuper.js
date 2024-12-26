@@ -207,4 +207,36 @@
   dumpChild(game) {
     this.#dumps[game._id] = lib.utils.structuredClone(game);
   }
+  roundActiveGame(game) {
+    if (game) this.set({ roundActiveGameId: game.id() });
+    return this.get(this.roundActiveGameId);
+  }
+  selectNextActiveGame() {
+    const roundActiveGame = this.roundActiveGame();
+
+    if (
+      // не будет установлен в первый раунд, когда все игры померджились
+      roundActiveGame
+    ) {
+      const roundActivePlayer = roundActiveGame.roundActivePlayer();
+
+      if (roundActivePlayer.eventData.extraTurn) {
+        if (
+          // актуально только для событий в течение хода игрока, инициированных не им самим
+          roundActivePlayer.eventData.skipTurn
+        ) {
+          roundActivePlayer.set({ eventData: { extraTurn: null, skipTurn: null } });
+        } else {
+          return roundActiveGame;
+        }
+      }
+    }
+
+    const gamesList = this.getAllGames();
+    const activeGameIndex = gamesList.findIndex((game) => game === roundActiveGame);
+    const newActiveGame = gamesList[(activeGameIndex + 1) % gamesList.length];
+    this.roundActiveGame(newActiveGame);
+
+    return newActiveGame;
+  }
 });

@@ -10,11 +10,11 @@
   initPlayer.deactivate();
   if (this.checkAllPlayersFinishRound()) this.set({ roundReady: true });
 
-  const corporateGame = this.game();
-  if (!corporateGame.allGamesRoundReady()) return;
+  const superGame = this.game();
+  if (!superGame.allGamesRoundReady()) return;
 
-  for (const game of corporateGame.getAllGames()) {
+  for (const game of superGame.getAllGames()) {
     game.run('domain.updateRoundStep');
   }
-  corporateGame.run('domain.updateRoundStep');
+  superGame.run('domain.updateRoundStep');
 });

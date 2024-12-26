@@ -1,7 +1,7 @@
 (class CorporateGame extends domain.game.class {
   constructor(storeData, gameObjectData) {
     super(storeData, gameObjectData);
-    this.set({ teamCode: storeData._code });
+    this.set({ teamCode: storeData._code, merged: storeData.merged });
     this.defaultClasses({
       ...this.game().defaultClasses(),
       Table: domain.game._objects.Table,
@@ -82,5 +82,9 @@
   addPlayer(data){
     const { Player } = this.defaultClasses();
     return new Player(data, { parent: this });
+  }
+  activate({ setData, publishText } = {}) {
+    this.set({ active: true, activeReady: false, eventData: { actionsDisabled: null } });
+    if (setData) this.set(setData);
   }
 });
