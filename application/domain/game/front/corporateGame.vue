@@ -10,7 +10,7 @@
         :team="game.teamCode"
       >
         <div :class="['gp-content']" :style="{ ...(game.gameId === playerGameId() ? gamePlaneControlStyle : {}) }">
-          <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" />
+          <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" :gameId="game.gameId" />
           <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
           <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
 

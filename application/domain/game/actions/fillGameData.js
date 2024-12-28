@@ -19,6 +19,8 @@
   this.cardEvents = data.cardEvents || {};
   this.availablePorts = data.availablePorts || [];
   this.title = data.title;
+  this.title = data.title;
+  this.cardTemplate = data.cardTemplate || domain.game.configs.cardTemplates.random();
 
   if (data.playerMap) {
     data.playerList = [];

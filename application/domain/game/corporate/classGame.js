@@ -1,4 +1,6 @@
 (class CorporateGame extends domain.game.class {
+  hasSuperGame = true;
+
   constructor(storeData, gameObjectData) {
     super(storeData, gameObjectData);
     this.set({ teamCode: storeData._code, merged: storeData.merged });
@@ -79,7 +81,7 @@
     const clone = lib.utils.structuredClone(this);
     this.game().dumpChild(clone);
   }
-  addPlayer(data){
+  addPlayer(data) {
     const { Player } = this.defaultClasses();
     return new Player(data, { parent: this });
   }

@@ -2,12 +2,15 @@
   const event = domain.game.events.common.putPlaneFromHand();
 
   event.init = function () {
-    const { game, player } = this.eventContext();
+    const { game, player, source: card } = this.eventContext();
     const deck = game.find('Deck[plane]');
     const playerHand = player.find('Deck[plane]');
+    const superGameMode = game.hasSuperGame || game.isSuperGame;
 
-    const code = 'event_req_legal';
+    const superGameSfx = superGameMode ? `-${card.sourceGameId.slice(-4)}` : ''; // могут быть одинаковые card-plane на одном поле
+    const code = 'event_req_legal' + superGameSfx;
     const plane = deck.addItem({
+      ...(superGameMode ? { sourceGameId: card.sourceGameId } : {}),
       _code: code,
       price: 50,
       release: true,

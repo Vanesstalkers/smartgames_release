@@ -2,7 +2,7 @@
   <game :debug="false" :planeScaleMin="0.3" :planeScaleMax="1">
     <template #gameplane="{ gamePlaneControlStyle = {} } = {}">
       <div :class="['gp-content']" :style="{ ...gamePlaneControlStyle }">
-        <plane v-for="id in Object.keys(tablePlanes.itemMap)" :key="id" :planeId="id" />
+        <plane v-for="id in Object.keys(tablePlanes.itemMap)" :key="id" :planeId="id" :gameId="state.gameId" />
         <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
         <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
 
@@ -244,7 +244,7 @@ export default {
       }
       delete style.width;
       delete style.height;
-      
+
       this.hidePreviewPlanes();
       this.$set(this.gameCustom.selectedFakePlanes, joinPlaneId, style);
 

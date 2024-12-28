@@ -59,6 +59,7 @@ export default {
   },
   props: {
     planeId: String,
+    gameId: String,
     inHand: Boolean,
     viewStyle: {
       required: false,
@@ -79,28 +80,34 @@ export default {
     store() {
       return this.getStore();
     },
+    game() {
+      return this.getGame(this.plane.sourceGameId);
+    },
     plane() {
       return this.store.plane?.[this.planeId] || { eventData: {}, customClass: [] };
     },
     customStyle() {
-      const style = { ...this.plane, ...(this.inHand ? this.inHandStyle : {}), ...this.viewStyle } || {};
+      const { game, plane, inHand, inHandStyle, viewStyle, customClass, state: { serverOrigin } = {} } = this;
+
+      const style = { ...plane, ...(inHand ? inHandStyle : {}), ...viewStyle } || {};
       if (style.left) style.left = parseInt(style.left) + 'px';
       if (style.top) style.top = parseInt(style.top) + 'px';
       if (style.width) style.width = parseInt(style.width) + 'px';
       if (style.height) style.height = parseInt(style.height) + 'px';
 
-      if (!this.inHand) {
+      if (!inHand) {
         // для style.rotation == 0 тоже нужно обновлять, иначе во view-режиме подтянется rotation из предыдущей позиции
         const rotateDegree = 90 * (style.rotation || 0);
         style.transform = `rotate(${rotateDegree}deg)`;
-        this.customClass = { ...this.customClass, rotate: `rotate${rotateDegree}` };
+        this.customClass = { ...customClass, rotate: `rotate${rotateDegree}` };
       }
 
-      if (this.plane.customClass.includes('card-event_req_legal'))
-        style.backgroundImage = `url(${this.state.serverOrigin}/img/cards/req_legal.jpg), url(empty-card.jpg)`;
-      if (this.plane.customClass.includes('card-event_req_tax'))
-        style.backgroundImage = `url(${this.state.serverOrigin}/img/cards/req_tax.jpg), url(empty-card.jpg)`;
-
+      if (plane.customClass.includes('card-event')) {
+        const rootPath = `${serverOrigin}/img/cards/${game.cardTemplate}`;
+        console.log("plane.customClass", plane.customClass, plane);
+        const cardName = plane.code.includes('event_req_legal') ? 'req_legal' : 'req_tax';
+        style.backgroundImage = `url(${rootPath}/${cardName}.jpg), url(empty-card.jpg)`;
+      }
       return style;
     },
     cardPlane() {

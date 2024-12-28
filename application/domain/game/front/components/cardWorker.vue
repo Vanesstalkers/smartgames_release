@@ -8,7 +8,7 @@
       player.active ? 'active' : '',
       selectable ? 'selectable' : '',
       showEndRoundBtn || showLeaveBtn || showCustomActionBtn ? 'has-action' : '',
-      controlActionDisabled ? 'disabled' : ''
+      controlActionDisabled ? 'disabled' : '',
     ]"
     :style="customStyle"
     @click="controlAction"
@@ -22,8 +22,10 @@
     <div v-if="!iam && game.status != 'WAIT_FOR_PLAYERS'" class="domino-dice">
       {{ dominoDeckCount }}
     </div>
-    <div v-if="!iam && game.status != 'WAIT_FOR_PLAYERS'" class="card-event">
-      {{ cardDeckCount }}
+    <div v-if="!iam && game.status != 'WAIT_FOR_PLAYERS'" class="card-event" :style="cardEventCustomStyle">
+      <div>
+        {{ cardDeckCount }}
+      </div>
     </div>
     <div v-if="showEndRoundBtn" class="action-btn end-round-btn">Закончить раунд</div>
     <div v-if="showLeaveBtn" class="action-btn leave-game-btn">Выйти из игры</div>
@@ -61,7 +63,9 @@ export default {
       return this.$root.state || {};
     },
     game() {
-      return this.getGame();
+      const store = this.getStore() || {};
+      const player = store.player?.[this.playerId] || {};
+      return this.getGame(player.gameId);
     },
     store() {
       return this.getStore();
@@ -107,6 +111,17 @@ export default {
       style.backgroundImage = `url(${this.state.lobbyOrigin}/img/workers/${avatarCode}.png)`;
 
       return style;
+    },
+    cardEventCustomStyle() {
+      const {
+        state: { serverOrigin },
+        game,
+      } = this;
+
+      const rootPath = `${serverOrigin}/img/cards/${game.cardTemplate}`;
+      return {
+        backgroundImage: `url(${rootPath}/back-side.jpg)`,
+      };
     },
     customAction() {
       return this.gameState.cardWorkerAction || {};
@@ -269,7 +284,22 @@ export default {
     display: flex;
     justify-content: center;
     align-content: center;
-    background-image: url(../assets/back-side.jpg);
+
+    > div {
+      z-index: 1;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 0px;
+      height: 0px;
+      opacity: 50%;
+      z-index: 0;
+      border-radius: 50%;
+      box-shadow: 0px 0px 20px 20px black;
+    }
   }
 
   .domino-dice {

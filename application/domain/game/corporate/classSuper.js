@@ -1,11 +1,12 @@
 (class CorporateSuperGame extends domain.game.class {
+  isSuperGame = true;
   gamesMap = {};
   #dumps = {};
 
   constructor() {
     super(...arguments);
-    const { Dice, Plane, Player, Table, ZoneSide } = domain.game.corporate._objects;
-    this.defaultClasses({ Dice, Plane, Player, Table, ZoneSide });
+    const { Card, Dice, Plane, Player, Table, ZoneSide } = domain.game.corporate._objects;
+    this.defaultClasses({ Card, Dice, Plane, Player, Table, ZoneSide });
   }
 
   async create({ deckType, gameType, gameConfig, gameTimer, playerCount, maxPlayersInGame } = {}) {
@@ -18,12 +19,17 @@
         items: { [gameConfig]: settings },
       } = {},
     } = domain.game.configs.gamesFilled();
+    const usedTemplates = [];
 
     if (!playerCount?.val || !maxPlayersInGame?.val) throw new Error('Не указано количество игроков.');
 
     playerCount = playerCount.val;
 
-    await super.create({ deckType, gameType, gameConfig, gameTimer }, { initPlayerWaitEvents: false });
+    usedTemplates.unshift(domain.game.configs.cardTemplates.random());
+    await super.create(
+      { deckType, gameType, gameConfig, gameTimer, cardTemplate: usedTemplates[0] },
+      { initPlayerWaitEvents: false }
+    );
     this.set({ playerCount });
     this.set({ settings: { planesAtStart: this.settings.planesNeedToStart } });
 
@@ -39,10 +45,14 @@
     const fullPlayersList = Object.values(this.store.player);
     const gamesMap = {};
     for (let _code = 1; _code <= Math.ceil(playerCount / maxPlayersInGame.val); _code++) {
+      usedTemplates.unshift(domain.game.configs.cardTemplates.random({ exclude: usedTemplates }));
       const game = await new domain.game.corporate.classGame(
         { _code }, // storeData
         { parent: this } // gameObjectData
-      ).create({ deckType, gameType, gameConfig, gameTimer, teamCode: _code }, { initPlayerWaitEvents: false });
+      ).create(
+        { deckType, gameType, gameConfig, gameTimer, teamCode: _code, cardTemplate: usedTemplates[0] },
+        { initPlayerWaitEvents: false }
+      );
 
       const players = fullPlayersList.splice(0, maxPlayersInGame.val);
       players[0].set({ teamlead: true });
