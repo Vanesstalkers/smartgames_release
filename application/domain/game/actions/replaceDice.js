@@ -36,13 +36,7 @@
   // у других игроков в хранилище нет данных об этом dice
   dice.markNew();
 
-  const releaseInitiated = zone.checkForRelease();
-  if (releaseInitiated && !this.checkFieldIsReady()) {
-    const playerCardDeck = player.find('Deck[card]');
-    this.run('smartMoveRandomCard', { target: playerCardDeck });
-    lib.timers.timerRestart(this, { extraTime: this.settings.timerReleasePremium });
-    this.logs(`Игрок {{player}} инициировал РЕЛИЗ, за что получает дополнительную карту-события в руку.`);
-  }
+  this.run('checkForRelease', { zone }, player); // для корпоративных игр обязательно указываем player, иначе инициатором будет считаться активный игрок из игры-владельца field-а
 
   const notReplacedDeletedDices = deletedDices.filter((dice) => !dice.getParent().getNotDeletedItem());
   // все удаленные dice заменены

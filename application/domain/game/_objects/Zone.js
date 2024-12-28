@@ -150,14 +150,4 @@
     if (!sizeOfExpectedValues0 && !sizeOfExpectedValues1) return true;
     return false;
   }
-  checkForRelease() {
-    const parent = this.getParent();
-
-    if (parent.release) return false; // РЕЛИЗ был активирован ранее
-    if (parent.select('Zone').find((zone) => !zone.getNotDeletedItem())) return false; // есть удаленные домино
-
-    parent.set({ release: true });
-    this.game().toggleEventHandlers('RELEASE');
-    return true;
-  }
 });
