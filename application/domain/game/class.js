@@ -19,7 +19,7 @@
     const { Bridge, Dice, DiceSide, Plane, Player, Port, Table, Zone, ZoneSide } = domain.game._objects;
     this.defaultClasses({ Bridge, Dice, DiceSide, Plane, Player, Port, Table, Zone, ZoneSide });
 
-    this.preventSaveFields(['availableZones', 'decks']);
+    this.preventSaveFields(['decks']);
     this.preventBroadcastFields(['decks']);
   }
   checkFieldIsReady() {
@@ -71,7 +71,7 @@
     return new Player(data, { parent: this });
   }
   getSmartRandomPlaneFromDeck() {
-    return this.find('Deck[plane]')
+    const plane = this.find('Deck[plane]')
       .getAllItems()
       .sort(({ portMap: a }, { portMap: b }) => {
         const al = Object.keys(a).length;
@@ -79,5 +79,9 @@
         return al === bl ? (Math.random() > 0.5 ? -1 : 1) : al < bl ? -1 : 1;
       })
       .pop();
+
+    if (!plane)this.run('endGame', { message: 'В колоде закончились блоки игрового поля' }); // проиграли все
+
+    return plane;
   }
 });

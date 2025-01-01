@@ -1,12 +1,22 @@
 (class CorporateSuperGame extends domain.game.class {
   isSuperGame = true;
   gamesMap = {};
+  turnOrder = [];
   #dumps = {};
 
   constructor() {
     super(...arguments);
     const { Card, Dice, Plane, Player, Table, ZoneSide } = domain.game.corporate._objects;
     this.defaultClasses({ Card, Dice, Plane, Player, Table, ZoneSide });
+  }
+
+  select(query = {}) {
+    if (typeof query === 'string') query = { className: query };
+    if (query.sourceGameId) {
+      if (!query.attr) query.attr = {};
+      query.attr.sourceGameId = query.sourceGameId;
+    }
+    return super.select(query);
   }
 
   async create({ deckType, gameType, gameConfig, gameTimer, playerCount, maxPlayersInGame } = {}) {
@@ -205,6 +215,9 @@
   allGamesMerged() {
     return this.getAllGames().find((game) => !game.merged) ? false : true;
   }
+  allGamesFieldReady() {
+    return this.getAllGames().find((game) => !game.checkFieldIsReady()) ? false : true;
+  }
 
   async dumpState() {
     const clone = lib.utils.structuredClone(this);
@@ -242,11 +255,16 @@
       }
     }
 
-    const gamesList = this.getAllGames();
-    const activeGameIndex = gamesList.findIndex((game) => game === roundActiveGame);
-    const newActiveGame = gamesList[(activeGameIndex + 1) % gamesList.length];
+    const games = this.turnOrder;
+    const activeGameIndex = games.findIndex((gameId) => gameId === this.roundActiveGameId);
+    const newActiveGameId = games[(activeGameIndex + 1) % games.length];
+    const newActiveGame = this.get(newActiveGameId);
     this.roundActiveGame(newActiveGame);
 
     return newActiveGame;
+  }
+  roundActivePlayer(player) {
+    if (player) this.set({ roundActivePlayerId: player.id() });
+    return this.get(this.roundActiveGame()?.roundActivePlayerId);
   }
 });

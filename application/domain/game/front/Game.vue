@@ -130,6 +130,18 @@ export default {
         this.selectedFakePlanePosition = '';
         this.gameState.cardWorkerAction = {};
         this.gameCustom.selectedFakePlanes = {};
+
+        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn) {
+          this.gameState.cardWorkerAction = {
+            show: true,
+            label: 'Помочь выложить',
+            style: { background: '#ffa500' },
+            sendApiData: {
+              path: 'game.api.action',
+              args: [{ name: 'putPlaneOnFieldRecursive', data: { help: true } }],
+            },
+          };
+        }
       });
     },
   },

@@ -7,7 +7,7 @@
     const playerHand = player.find('Deck[plane]');
     const superGameMode = game.hasSuperGame || game.isSuperGame;
 
-    const superGameSfx = superGameMode ? `-${card.sourceGameId.slice(-4)}` : ''; // могут быть одинаковые card-plane на одном поле
+    const superGameSfx = superGameMode ? `-${card.sourceGameId.slice(-4)}` : Math.random().toString().slice(-4); // могут быть одинаковые card-plane на одном поле
     const code = 'event_req_tax' + superGameSfx;
     const plane = deck.addItem({
       ...(superGameMode ? { sourceGameId: card.sourceGameId } : {}),

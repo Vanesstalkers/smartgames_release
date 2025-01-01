@@ -6,11 +6,4 @@
     this.set({ sourceGameId });
     this.broadcastableFields(['sourceGameId']);
   }
-  getLinkedBridges() {
-    let game = this.game();
-    if (game.hasSuperGame) game = game.game();
-    const ports = this.ports().filter(({ linkedBridgeCode }) => linkedBridgeCode);
-    const bridges = ports.map(({ linkedBridgeCode }) => game.find(linkedBridgeCode));
-    return bridges;
-  }
 });

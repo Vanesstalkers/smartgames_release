@@ -9,6 +9,8 @@
 
   this.disableChanges();
   {
+    // !!!! не учитывает удаленные костяшки в центре
+    // !!!! не удаляет замененные в центе костяшки
     const deletedDices = this.run('getDeletedDices');
     const deletedDicesZones = deletedDices.reduce((result, dice) => {
       const zone = dice.getParent();
@@ -32,5 +34,5 @@
   }
   this.enableChanges();
 
-  player.set({ availableZones });
+  player.set({ eventData: { availableZones } });
 });

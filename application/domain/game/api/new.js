@@ -6,6 +6,10 @@ async (context, { deckType, gameType, gameConfig, gameTimer, playerCount, maxPla
 
   if (!lobbyId) throw new Error('lobby not found'); // этой ошибки быть не должно - оставил проверку для отладки
 
+  gameTimer *= 1000;
+
+  // gameTimer -= 10;
+
   const gameClassGetter = gameType === 'corporate' ? domain.game.corporate.classSuper : domain.game.class;
   const game = await new gameClassGetter().create({
     ...{ deckType, gameType, gameConfig, gameTimer },

@@ -3,4 +3,11 @@
     const game = this.game();
     game.toggleEventHandlers('ADD_PLANE', { targetId: item.id() });
   }
+  getFreePortsCount() {
+    return this.select({
+      className: 'Port',
+      directParent: false,
+      attr: { linkedBridgeCode: undefined },
+    }).length;
+  }
 });

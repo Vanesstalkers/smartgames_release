@@ -1,5 +1,5 @@
 (function ({ joinPlaneId, joinPortId, games = [] }, initPlayer) {
-  if (joinPortId) joinPlaneId = this.get(joinPortId).parent().id();
+    if (joinPortId) joinPlaneId = this.get(joinPortId).parent().id();
 
   const availablePorts = [];
   const joinPlane = this.get(joinPlaneId);

@@ -14,6 +14,7 @@
 
         <div v-if="!hasPlaneInHand" class="hand-dices-list">
           <div v-for="deck in dominoDecks" :key="deck._id" class="hand-dices-list-content">
+            <!-- ??? как viewer видит эти deck`s -->
             <div
               v-if="iam || showDecks || !state.isPortrait"
               class="hand-dices"
@@ -172,7 +173,7 @@ export default {
       return this.planeInHandIds.length > 0;
     },
     showDecks() {
-      return this.sessionPlayerIsActive() && this.player.eventData.showDecks;
+      return this.iam && this.sessionPlayerIsActive() && this.player.eventData.showDecks;
     },
     handCardsWidth() {
       const cardWidth = 130;
@@ -350,6 +351,7 @@ export default {
   height: 0px;
   width: 100%;
   margin-bottom: 175px;
+  padding-top: 20px;
 }
 
 #game.debug {

@@ -1,4 +1,4 @@
-(function ({ winningPlayer, canceledByUser } = {}) {
+(function ({ winningPlayer, canceledByUser, message } = {}) {
   const superGame = this.game();
   superGame.run('lib.endGame', { winningPlayer, canceledByUser, customFinalize: true });
 

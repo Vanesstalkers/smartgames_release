@@ -10,10 +10,11 @@
     port.set({ linkedBridgeCode: null });
   }
 
-  for (const side of bridge.select('ZoneSide')) {
+  for (const side of bridge.select({ className: 'ZoneSide', directParent: false })) {
     for (const linkSideId of Object.keys(side.links)) {
       const linkSide = this.get(linkSideId);
       const linkZone = linkSide.parent();
+      side.deleteLink(linkSide);
       linkSide.deleteLink(side);
       linkZone.updateValues();
     }

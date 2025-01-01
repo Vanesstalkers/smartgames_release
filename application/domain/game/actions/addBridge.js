@@ -16,7 +16,7 @@
   if (data.zoneLinks) {
     for (const [zoneCode, sideList] of Object.entries(data.zoneLinks)) {
       for (const [sideCode, links] of Object.entries(sideList)) {
-        for (const link of links) {
+        for (const link of  links) {
           const [linkZoneCode, linkSideCode] = link.split('.');
           const zone = bridge.find(zoneCode);
           const side = zone.find(sideCode);

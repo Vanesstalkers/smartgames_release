@@ -1,9 +1,9 @@
 function zoneAvailable(zoneId) {
-  return (this.getStore().player?.[this.gameState.sessionPlayerId]?.availableZones || []).includes(zoneId);
+  return (this.getStore().player?.[this.gameState.sessionPlayerId]?.eventData.availableZones || []).includes(zoneId);
 }
 function hideZonesAvailability() {
   if (this.gameState.viewerMode) return;
-  this.getStore().player[this.gameState.sessionPlayerId].availableZones = [];
+  this.getStore().player[this.gameState.sessionPlayerId].eventData.availableZones = [];
 }
 function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
   const p = {};

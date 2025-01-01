@@ -3,6 +3,8 @@
     RESET: function () {
       const { game, player, source, sourceId } = this.eventContext();
 
+      player.set({ eventData: { showNoAvailablePortsBtn: null } });
+
       const gameDeck = game.find('Deck[plane]');
       const playerPlaneDeck = player.find('Deck[plane]');
       playerPlaneDeck.moveAllItems({ target: gameDeck });
@@ -40,6 +42,8 @@
               : { selectable: null, moveToHand: null };
           plane.set({ eventData });
         }
+
+        player.set({ eventData: { showNoAvailablePortsBtn: true } });
       }
 
       return { preventListenerRemove: true };
@@ -65,6 +69,7 @@
         }
       }
 
+      game.set({ availablePorts: [] });
       this.emit('NO_AVAILABLE_PORTS');
       return { preventListenerRemove: true };
     },
@@ -117,13 +122,9 @@
           usedPorts.push(usedPortCode);
         } else {
           const extraPlane = game.getSmartRandomPlaneFromDeck();
-          if (extraPlane) {
-            extraPlane.moveToTarget(playerPlaneDeck);
-            extraPlane.set({ eventData: { moveToHand: true } });
-            planes.push(extraPlane);
-          } else {
-            return game.run('endGame'); // проиграли все
-          }
+          extraPlane.moveToTarget(playerPlaneDeck);
+          extraPlane.set({ eventData: { moveToHand: true } });
+          planes.push(extraPlane);
         }
       }
 

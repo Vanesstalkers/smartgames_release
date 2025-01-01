@@ -67,6 +67,7 @@
 
     this.emit('RESET');
     game.run('startGame');
+    return { preventListenerRemove: true }; // без этого удалится обработчик ADD_PLANE из startGame
   };
 
   event.handlers['END_ROUND'] = function () {
