@@ -1,11 +1,11 @@
-(async function ({ planes = [], minFreePorts = 0, help = false }) {
+(async function ({ planes = [], minFreePorts = 0, fromHand = false }) {
   const deckOwner = this.roundActivePlayer() || this;
   const planeDeck = deckOwner.matches({ className: 'Game' })
     ? deckOwner.find('Deck[plane_hand]')
     : deckOwner.find('Deck[plane]');
-  if (help && planes.length === 0) planes = planeDeck.items();
+  if (fromHand) planes = planeDeck.items();
 
-  const movePlaneFromTableToHand = (i, p) => {
+  const movePlaneFromTableToHand = () => {
     // аналог NO_AVAILABLE_PORTS из events/card/pilot
     for (const plane of this.decks.table.getAllItems()) {
       const linkedPlanes = plane.getLinkedPlanes();
@@ -96,21 +96,24 @@
       const freePorts = this.decks.table.getFreePortsCount();
       movePlaneFromTableToHand();
 
-      await this.saveChanges();
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      // await this.saveChanges();
+      // await new Promise((resolve) => setTimeout(resolve, 0));
 
       this.run('showPlanePortsAvailability', { joinPlaneId });
       if (this.availablePorts.length) {
         const port = this.availablePorts.sort((a, b) => (a.priority > b.priority ? -1 : 1))[0];
         this.run('putPlaneOnField', port);
 
-        await this.saveChanges();
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        // await this.saveChanges();
+        // await new Promise((resolve) => setTimeout(resolve, 0));
       }
       if (freePorts + planeDeck.itemsCount() > this.decks.table.getFreePortsCount()) {
         while (this.decks.table.itemsCount() > 0) {
           movePlaneFromTableToHand();
         }
+
+        // await this.saveChanges();
+        // await new Promise((resolve) => setTimeout(resolve, 0));
 
         planes = planeDeck.items();
         if (requireExtraPlane) {
@@ -132,7 +135,7 @@
       eventData: { selectable: null, moveToHand: null },
     });
 
-    await this.saveChanges();
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    // await this.saveChanges();
+    // await new Promise((resolve) => setTimeout(resolve, 0));
   }
 });

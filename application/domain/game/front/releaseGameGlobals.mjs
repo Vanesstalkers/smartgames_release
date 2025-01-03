@@ -26,16 +26,18 @@ function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
     });
 
     // вычисляем центр для определения корректного transform-origin (нужен для вращения gp-content)
-    const gamePlaneTransformOrigin =
-      `${(p.r - p.l) / (gamePlaneScale * 2) + p.ol / gamePlaneScale}px ` +
-      `${(p.b - p.t) / (gamePlaneScale * 2) + p.ot / gamePlaneScale}px `;
+    this.gameCustom.gamePlaneTransformOrigin = {
+      [this.gameState.gameId]:
+        `${(p.r - p.l) / (gamePlaneScale * 2) + p.ol / gamePlaneScale}px ` +
+        `${(p.b - p.t) / (gamePlaneScale * 2) + p.ot / gamePlaneScale}px `,
+    };
 
     return {
       height: (p.b - p.t) / gamePlaneScale + 'px',
       width: (p.r - p.l) / gamePlaneScale + 'px',
       top: `calc(50% - ${(p.b - p.t) / 2 + p.ot * 1}px)`,
       left: `calc(50% - ${(p.r - p.l) / 2 + p.ol * 1}px)`,
-      gamePlaneTransformOrigin,
+      // gamePlaneTransformOrigin,
     };
   }
 }

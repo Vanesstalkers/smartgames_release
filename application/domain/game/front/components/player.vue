@@ -351,6 +351,7 @@ export default {
   height: 0px;
   width: 100%;
   margin-bottom: 175px;
+  margin-left: 20px;
   padding-top: 20px;
 }
 

@@ -1,5 +1,5 @@
 () =>
-  false
+  domain.three_custom_2_4_planes = false
     ? [
         {
           _code: 1,

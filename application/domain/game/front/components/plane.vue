@@ -283,20 +283,20 @@ export default {
 .plane.in-hand:hover {
   z-index: 2;
   opacity: 1;
-  margin-bottom: 0px;
+  margin-bottom: 40px;
 }
 .plane.in-hand.card-plane {
   order: 0;
   z-index: 1;
-  transform: scale(0.8);
+  transform: scale(0.5);
   transform-origin: center left;
-  margin: 120px -20px -40px -10px;
+  margin: 210px -70px 0px 0px;
   > .price {
     font-size: 24px;
   }
 
   &:hover {
-    margin-bottom: 0px;
+    margin-bottom: 40px;
   }
 }
 

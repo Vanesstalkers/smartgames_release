@@ -1,12 +1,13 @@
 () =>
   (domain.custom_cards = [
     // 'water',
-    'req_tax', 'req_legal',
+    // 'req_tax', 'req_legal',
     'pilot',
     // 'refactoring',
+    // 'give_project',
   ]).length
     ? (() =>
-        Array(5)
+        Array(10)
           .fill(null)
           .reduce((__) => __.concat(domain.custom_cards.map((name) => ({ name, playOneTime: true }))), []))()
     : [
