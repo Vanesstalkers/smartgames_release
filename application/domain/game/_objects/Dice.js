@@ -72,7 +72,7 @@
   getTitle() {
     return this.sideList.map((side) => side.value).join('-');
   }
-  moveToTarget(target) {
+  moveToTarget(target, { preventDelete = false } = {}) {
     const currentParent = this.getParent();
     currentParent.removeItem(this); // сначала удаляем, чтобы не помешать размещению на соседней зоне
     const moveResult = target.addItem(this);
@@ -80,8 +80,10 @@
     if (moveResult) {
       this.set({ visible: null });
       this.updateParent(target);
-      if (target.getParent() === this.game()) {
-        this.markDelete(); // удаляем локальную информацию о dice (с реальным _id)
+
+      if (!preventDelete && target.getParent() === this.game()) {
+        // удаляем локальную информацию о dice (с реальным _id) - необходимо для сброса состояния dice на фронте, например, флага удаления/замены
+        this.markDelete();
       }
     } else {
       currentParent.addItem(this);
@@ -95,7 +97,7 @@
     const result = [];
 
     // включить, если findAvailableZones будет вызываться откуда то кроме showZonesAvailability
-    // game.disableChanges(); 
+    // game.disableChanges();
     {
       // чтобы не мешать расчету для соседних зон при перемещении из одной зоны в другую (ниже вернем состояние)
       this.getParent().removeItem(this);

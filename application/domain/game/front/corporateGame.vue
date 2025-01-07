@@ -148,11 +148,19 @@ export default {
   watch: {
     gameDataLoaded: function () {
       // тут ловим обновление страницы
-      this.hideZonesAvailability();
+      if (
+        this.gameDataLoaded // gameDataLoaded может не быть при restoreGame
+      ) {
+        this.hideZonesAvailability();
+      }
     },
     'game.eventListeners.TRIGGER': function () {
       this.gameCustom.pickedDiceId = '';
-      this.hideZonesAvailability();
+      if (
+        this.gameDataLoaded // gameDataLoaded может не быть при restoreGame
+      ) {
+        this.hideZonesAvailability();
+      }
     },
     'game.availablePorts': function () {
       this.$nextTick(() => {
@@ -328,6 +336,7 @@ export default {
               title: 'Передать руководство',
               action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
             },
+            { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-teamleadMenu', step: 'restoreGame' } },
           ],
           buttons: [{ text: 'Спасибо, ничего не нужно', action: 'exit', exit: true }],
         },

@@ -1,7 +1,7 @@
 (class Dice extends domain.game._objects.Dice {
   constructor(data = {}) {
     super(...arguments);
-    this.broadcastableFields(['teamCode']);
+    this.broadcastableFields(['teamCode']); // !!! переделать на sourceGameId
     let { teamCode } = data;
     if (!teamCode) teamCode = this.game().teamCode;
     this.set({ teamCode });
@@ -20,7 +20,7 @@
       const games = superGame.getAllGames({ roundReady: false });
       if (superGame.allGamesFieldReady() && superGame.allGamesMerged()) games.push(superGame);
 
-// !!!! переделать логику на sourceGameId (когда поле смерджено, но были убраны костяшки)
+      // !!!! переделать логику на sourceGameId (когда поле смерджено, но были убраны костяшки)
 
       const zoneList = [];
       for (const game of games) {
@@ -47,5 +47,17 @@
     }
     // game.enableChanges();
     return result;
+  }
+  moveToTarget(target) {
+    const game = this.game();
+
+    if (game.hasSuperGame && game.merged) {
+      if (target.type === 'domino' && !target.subtype && target.parent().matches({ className: 'Player' })) {
+        target = game.find('Deck[domino_common]');
+      }
+    }
+
+    const item = super.moveToTarget(target, {preventDelete: true});
+    return item;
   }
 });

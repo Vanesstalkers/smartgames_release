@@ -15,7 +15,7 @@
 
       source.removeEvent(this);
       player.removeEvent(this);
-      game.removeAllEventListeners({ sourceId });
+      game.removeAllEventListeners({ /* sourceId, */ event: this });
     },
     NO_AVAILABLE_PORTS: function ({ joinPlane }) {
       const { game, player } = this.eventContext();
@@ -74,61 +74,11 @@
       return { preventListenerRemove: true };
     },
     CHECK_PLANES_IN_HANDS: function () {
-      const { game, player } = this.eventContext();
-      const playerPlaneDeck = player.find('Deck[plane]');
-
+      const { game } = this.eventContext();
+      
       if (game.status === 'FINISHED') return;
 
       game.run('putPlaneOnFieldRecursive', { fromHand: true });
-
-      // let planes = playerPlaneDeck.getAllItems();
-      // const usedPorts = [];
-      // while (planes.length) {
-      //   let usedPort;
-      //   const plane = planes
-      //     .sort(({ portMap: a }, { portMap: b }) => {
-      //       return Object.keys(a).length < Object.keys(b).length ? -1 : 1; // наибольшее количество port-ов
-      //     })
-      //     .pop();
-
-      //   const joinPlaneId = plane.id();
-      //   game.run('showPlanePortsAvailability', { joinPlaneId });
-      //   if (this.putPlaneOnEmptyField) {
-      //     delete this.putPlaneOnEmptyField;
-      //     break;
-      //   }
-
-      //   if (game.availablePorts.length) {
-      //     usedPort = game.availablePorts[0];
-      //     game.run('putPlaneOnField', usedPort); // нельзя делать через pop/unshift из-за проверки внутри putPlaneOnField
-      //   } else {
-      //     const planeForReturnToHand = game.decks.table
-      //       .getAllItems()
-      //       .filter(({ eventData }) => eventData.selectable)
-      //       .sort(({ portMap: a }, { portMap: b }) => {
-      //         return Object.keys(a).length > Object.keys(b).length ? -1 : 1; // наименьшее количество port-ов
-      //       })
-      //       .pop();
-      //     this.emit('TRIGGER', { target: planeForReturnToHand });
-
-      //     game.run('showPlanePortsAvailability', { joinPlaneId });
-      //     if (game.availablePorts.length) {
-      //       usedPort = game.availablePorts[0];
-      //       game.run('putPlaneOnField', usedPort); // нельзя делать через pop/unshift из-за проверки внутри putPlaneOnField
-      //     }
-      //   }
-
-      //   planes = playerPlaneDeck.getAllItems();
-      //   const usedPortCode = planes.length + '::' + JSON.stringify(usedPort);
-      //   if (!usedPorts.includes(usedPortCode)) {
-      //     usedPorts.push(usedPortCode);
-      //   } else {
-      //     const extraPlane = game.getSmartRandomPlaneFromDeck();
-      //     extraPlane.moveToTarget(playerPlaneDeck);
-      //     extraPlane.set({ eventData: { moveToHand: true } });
-      //     planes.push(extraPlane);
-      //   }
-      // }
 
       return { preventListenerRemove: true };
     },

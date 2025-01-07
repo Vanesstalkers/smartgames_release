@@ -22,6 +22,10 @@
     this.preventSaveFields(['decks']);
     this.preventBroadcastFields(['decks']);
   }
+  restore() {
+    super.restore();
+    this.playRoundStartCards(); // делаем после обновления таймера (в super.restore), в частности из-за карты "time"
+  }
   checkFieldIsReady() {
     const planeList = this.decks.table.getAllItems();
     const bridgeList = this.getObjects({ className: 'Bridge', directParent: this });
@@ -80,8 +84,19 @@
       })
       .pop();
 
-    if (!plane)this.run('endGame', { message: 'В колоде закончились блоки игрового поля' }); // проиграли все
+    if (!plane) this.run('endGame', { message: 'В колоде закончились блоки игрового поля' }); // проиграли все
 
     return plane;
+  }
+  playRoundStartCards() {
+    if (!this.settings.allowedAutoCardPlayRoundStart) return;
+
+    const card = this.decks.active.items()[0];
+    if (!card) return;
+
+    card.play({
+      player: this.roundActivePlayer(),
+    });
+    this.logs(`Активировано ежедневное событие "${card.title}".`);
   }
 });

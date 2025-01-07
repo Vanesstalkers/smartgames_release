@@ -97,6 +97,22 @@
     return this;
   }
 
+  restore() {
+    this.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${this.round}` });
+    this.run('initGameProcessEvents');
+
+    const roundActiveGame = this.allGamesMerged() ? this.roundActiveGame() : null;
+
+    for (const game of this.getAllGames()) {
+      game.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${game.round}` });
+      game.run('initGameProcessEvents');
+
+      if (roundActiveGame && game !== roundActiveGame) continue;
+
+      lib.timers.timerRestart(game, game.lastRoundTimerConfig);
+    }
+  }
+
   prepareBroadcastData({ data = {}, userId, viewerMode }) {
     const broadcastData = super.prepareBroadcastData({ data, userId, viewerMode });
 
@@ -221,10 +237,14 @@
 
   async dumpState() {
     const clone = lib.utils.structuredClone(this);
+
     for (const [gameId, gameDump] of Object.entries(this.#dumps)) {
       clone.store.game[gameId] = gameDump;
     }
-    await db.mongo.deleteOne(this.col() + '_dump', { _id: this.id() });
+    clone._gameid = db.mongo.ObjectID(clone._id);
+    delete clone._id;
+
+    // await db.mongo.deleteOne(this.col() + '_dump', { _id: this.id() });
     await db.mongo.insertOne(this.col() + '_dump', clone);
   }
   dumpChild(game) {

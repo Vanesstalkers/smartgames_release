@@ -8,13 +8,6 @@
       restorationMode,
     } = game;
 
-    function startGame() {
-      game.run('startGame');
-      return { removeEvent: true };
-    }
-
-    if (restorationMode) return startGame();
-
     const planesToBePlacedByPlayers = planesNeedToStart - planesAtStart;
     const players = game.players();
     const gamePlaneDeck = game.find('Deck[plane]');
@@ -38,7 +31,8 @@
       return;
     }
 
-    return startGame();
+    game.run('startGame');
+    return { removeEvent: true };
   };
 
   event.handlers['ADD_PLANE'] = function ({ target: plane }) {

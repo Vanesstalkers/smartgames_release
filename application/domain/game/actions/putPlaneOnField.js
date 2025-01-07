@@ -44,6 +44,7 @@
   const processBridges = (plane) => {
     const bridges = plane.getLinkedBridges().filter((bridge) => !processedBridges.includes(bridge));
     for (const bridge of bridges) {
+      // !!!! куда то теряется второй bridge (если он от однотипного capd-plane)
       const ports = bridge.getLinkedPorts();
       const [joinPort, targetPort] = ports.sort((a, b) => (a.parent() !== plane ? -1 : 1));
       const joinPlane = joinPort.parent();

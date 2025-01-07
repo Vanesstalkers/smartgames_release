@@ -4,14 +4,11 @@
   const event = {
     init() {
       const { game, player } = this.eventContext();
-      const { restorationMode } = game;
 
-      if (!restorationMode) {
-        game.run('putStartPlanes');
+      game.run('putStartPlanes');
 
-        for (const plane of game.decks.table.items()) {
-          plane.addCustomClass('core');
-        }
+      for (const plane of game.decks.table.items()) {
+        plane.addCustomClass('core');
       }
 
       game.set({ statusLabel: 'Подготовка к игре', status: 'PREPARE_START' });

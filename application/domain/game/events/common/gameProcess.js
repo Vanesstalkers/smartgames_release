@@ -9,8 +9,8 @@
         const { game, player } = this.eventContext();
         if (game.checkFieldIsReady()) return game.run('endGame', { winningPlayer: player });
         // ??? тут ошибка при релизе bridge между центром и ребенком (проблема с определением активного игрока для события)
-        // const playerCardDeck = player.find('Deck[card]');
-        // game.run('smartMoveRandomCard', { target: playerCardDeck });
+        const playerCardDeck = player.find('Deck[card]');
+        game.run('smartMoveRandomCard', { target: playerCardDeck });
         lib.timers.timerRestart(game, { extraTime: game.settings.timerReleasePremium });
         game.logs(`Игрок {{player}} инициировал РЕЛИЗ, за что получает дополнительную карту-события в руку.`);
 

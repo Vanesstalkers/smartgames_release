@@ -1,15 +1,19 @@
 () =>
   (domain.custom_cards = [
+    // 'crutch',
+    // 'teamlead',
+    // 'dream',
+    // 'take_project',
     // 'water',
     // 'req_tax', 'req_legal',
-    'pilot',
+    // 'pilot',
     // 'refactoring',
     // 'give_project',
   ]).length
     ? (() =>
-        Array(10)
+        Array(5)
           .fill(null)
-          .reduce((__) => __.concat(domain.custom_cards.map((name) => ({ name, playOneTime: true }))), []))()
+          .reduce((__) => __.concat(domain.custom_cards.map((name) => ({ name, playOneTime: false }))), []))()
     : [
         { name: 'audit', title: 'ИТ-аудит' },
         { name: 'claim', title: 'Жалоба' },

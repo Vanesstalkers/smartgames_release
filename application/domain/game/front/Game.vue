@@ -118,13 +118,21 @@ export default {
     return gameGlobals;
   },
   watch: {
-    gameDataLoaded: function () {
+    'gameCustom.dataLoaded': function () {
       // тут ловим обновление страницы
-      this.hideZonesAvailability();
+      if (
+        this.gameCustom.dataLoaded // gameDataLoaded может не быть при restoreGame
+      ) {
+        this.hideZonesAvailability();
+      }
     },
     'game.eventListeners.TRIGGER': function () {
       this.gameCustom.pickedDiceId = '';
-      this.hideZonesAvailability();
+      if (
+        this.gameDataLoaded // gameDataLoaded может не быть при restoreGame
+      ) {
+        this.hideZonesAvailability();
+      }
     },
     'game.availablePorts': function () {
       this.$nextTick(() => {

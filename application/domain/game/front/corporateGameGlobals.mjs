@@ -19,7 +19,7 @@ function playerGameId() {
 }
 function focusedGameId() {
   const selectedGameId = this.gameCustom.selectedGame || this.getPlayerGame()._id;
-  const selectedGame = this.getStore().game?.[selectedGameId];
+  const selectedGame = this.getStore().game?.[selectedGameId] || {};
   const focusedGameId = selectedGame.merged ? this.gameState.gameId : selectedGameId;
   return focusedGameId;
 }
@@ -110,6 +110,12 @@ function getGamePlaneOffsets() {
     [superGameId]: { x: 0 + deviceOffset, y: 0 },
   };
 
+  if (
+    !superGame.store // может возникнуть при restoreGame
+  ) {
+    return offsets;
+  }
+
   const games = Object.entries(superGame.store.game);
   // выравниваем gamePlane, равномерно распределяя gp вокруг центра (в corporateGame.vue добавляется game с идентификатором "fake")
   if (games.length % 2 === 1) games.push(['fake', {}]);
@@ -145,7 +151,7 @@ function resetPlanePosition() {
   if (!this.gameCustom) return;
 
   // если this.getGamePlaneOffsets вызывать не через this, то потеряется ссылка на this.$root
-  const { x, y } = this.getGamePlaneOffsets()[this.focusedGameId()];
+  const { x, y } = this.getGamePlaneOffsets()[this.focusedGameId()] || { x: 0, y: 0 };
   this.gameCustom.gamePlaneTranslateX = -1 * x;
   this.gameCustom.gamePlaneTranslateY = -1 * y;
 }
