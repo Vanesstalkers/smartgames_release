@@ -1,19 +1,27 @@
 function getSuperGame() {
   return this.$root.state.store.game?.[this.gameState.gameId] || {};
 }
-function getSuperStore() {
-  return this.getSuperGame().store || {};
-}
 function getStore() {
-  const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
+  const game = this.getSuperGame();
   return game.store || {};
 }
+function getPlayerGame() {
+  const superGame = this.getSuperGame();
+  const games = Object.entries(superGame.store?.game || {});
+  const [gameId, game] = games.find(([gameId, game]) => game.playerMap[this.gameState.sessionPlayerId]) || [];
+  return game || {};
+}
 function playerGameId() {
-  const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
-
   if (this.gameState.viewerMode) return this.gameState.gameId;
 
-  return Object.entries(game.gamesMap || {}).find(([gameId, players]) => players[this.gameState.sessionPlayerId])?.[0];
+  const game = this.getPlayerGame();
+  return game._id;
+}
+function focusedGameId() {
+  const selectedGameId = this.gameCustom.selectedGame || this.getPlayerGame()._id;
+  const selectedGame = this.getStore().game?.[selectedGameId] || {};
+  const focusedGameId = selectedGame.merged ? this.gameState.gameId : selectedGameId;
+  return focusedGameId;
 }
 function getGame(gameId) {
   if (!gameId) gameId = this.playerGameId();
@@ -29,14 +37,11 @@ function actionsDisabled() {
   return this.getGame().roundReady || this.store.player?.[this.gameState.sessionPlayerId]?.eventData?.actionsDisabled;
 }
 function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
-  const playerGameId = this.playerGameId();
-
   const p = {};
   const gamePlane = document.getElementById('gamePlane');
   if (gamePlane instanceof HTMLElement) {
     const gamePlaneRect = gamePlane.getBoundingClientRect();
 
-    const pp = {};
     gamePlane.querySelectorAll('.gp').forEach((gp) => {
       const gameId = gp.attributes.gameid.value;
       const gp_rect = gp.getBoundingClientRect();
@@ -49,6 +54,7 @@ function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
       if (p.ot == undefined || gp_rect.top - gamePlaneRect.top < p.ot) p.ot = gp_rect.top - gamePlaneRect.top;
       if (p.ol == undefined || gp_rect.left - gamePlaneRect.left < p.ol) p.ol = gp_rect.left - gamePlaneRect.left;
 
+      const pp = {};
       gp.querySelectorAll('.plane, .fake-plane').forEach((plane) => {
         const rect = plane.getBoundingClientRect();
 
@@ -56,7 +62,15 @@ function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
         const offsetTop = rect.top - gamePlaneRect.top;
         const offsetLeft = rect.left - gamePlaneRect.left;
 
-        if (gameId === playerGameId) {
+        if (p.t == undefined || rect.top < p.t) p.t = rect.top;
+        if (p.b == undefined || rect.bottom > p.b) p.b = rect.bottom;
+        if (p.l == undefined || rect.left < p.l) p.l = rect.left;
+        if (p.r == undefined || rect.right > p.r) p.r = rect.right;
+
+        if (p.ot == undefined || offsetTop < p.ot) p.ot = offsetTop;
+        if (p.ol == undefined || offsetLeft < p.ol) p.ol = offsetLeft;
+
+        {
           if (pp.t == undefined || rect.top < pp.t) pp.t = rect.top;
           if (pp.b == undefined || rect.bottom > pp.b) pp.b = rect.bottom;
           if (pp.l == undefined || rect.left < pp.l) pp.l = rect.left;
@@ -68,60 +82,62 @@ function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
           if (pp.ot == undefined || gp_offsetTop < pp.ot) pp.ot = gp_offsetTop;
           if (pp.ol == undefined || gp_offsetLeft < pp.ol) pp.ol = gp_offsetLeft;
         }
-
-        if (p.t == undefined || rect.top < p.t) p.t = rect.top;
-        if (p.b == undefined || rect.bottom > p.b) p.b = rect.bottom;
-        if (p.l == undefined || rect.left < p.l) p.l = rect.left;
-        if (p.r == undefined || rect.right > p.r) p.r = rect.right;
-
-        if (p.ot == undefined || offsetTop < p.ot) p.ot = offsetTop;
-        if (p.ol == undefined || offsetLeft < p.ol) p.ol = offsetLeft;
       });
-    });
 
-    // вычисляем центр для определения корректного transform-origin (нужен для вращения gp-content)
-    const gamePlaneTransformOrigin =
-      `${(pp.r - pp.l) / (gamePlaneScale * 2) + pp.ol / gamePlaneScale}px ` +
-      `${(pp.b - pp.t) / (gamePlaneScale * 2) + pp.ot / gamePlaneScale}px `;
+      // вычисляем центр для определения корректного transform-origin (нужен для вращения gp-content)
+      this.gameCustom.gamePlaneTransformOrigin = {
+        ...this.gameCustom.gamePlaneTransformOrigin,
+        [gameId]:
+          `${(pp.r - pp.l) / (gamePlaneScale * 2) + pp.ol / gamePlaneScale}px ` +
+          `${(pp.b - pp.t) / (gamePlaneScale * 2) + pp.ot / gamePlaneScale}px `,
+      };
+    });
 
     return {
       height: (p.b - p.t) / gamePlaneScale + 'px',
       width: (p.r - p.l) / gamePlaneScale + 'px',
       top: `calc(50% - ${(p.b - p.t) / 2 + p.ot * 1}px)`,
       left: `calc(50% - ${(p.r - p.l) / 2 + p.ol * 1}px)`,
-      gamePlaneTransformOrigin,
     };
   }
 }
 function getGamePlaneOffsets() {
-  const game = this.$root.state.store.game?.[this.gameState.gameId] || {};
+  const superGameId = this.gameState.gameId;
+  const superGame = this.$root.state.store.game?.[superGameId] || {};
   const deviceOffset = this.$root.state.isMobile ? (this.$root.state.isLandscape ? 0 : -100) : 500;
 
   const offsets = {
-    [this.gameState.gameId]: { x: 0 + deviceOffset, y: 0 },
+    [superGameId]: { x: 0 + deviceOffset, y: 0 },
   };
 
-  const gameIds = Object.keys(game.gamesMap);
-  // выравниваем gamePlane, равномерно распределяя gp вокруг центра (в corporateGame.vue добавляется game с идентификатором "fake")
-  if (gameIds.length % 2 === 1) gameIds.push('fake');
+  if (
+    !superGame.store // может возникнуть при restoreGame
+  ) {
+    return offsets;
+  }
 
-  for (let i = 0; i < gameIds.length; i++) {
-    switch (gameIds.length) {
+  const games = Object.entries(superGame.store.game);
+  // выравниваем gamePlane, равномерно распределяя gp вокруг центра (в corporateGame.vue добавляется game с идентификатором "fake")
+  if (games.length % 2 === 1) games.push(['fake', {}]);
+
+  for (let i = 0; i < games.length; i++) {
+    const [gameId, game] = games[i];
+    switch (games.length) {
       case 2:
-        offsets[gameIds[i]] = {
+        offsets[gameId] = {
           x: [-2000, 2000][i] + deviceOffset,
           y: 0,
         };
         break;
       case 3:
-        offsets[gameIds[i]] = {
+        offsets[gameId] = {
           x: [-2000, 2000, 0][i] + deviceOffset,
           y: [0, 0, 2000][i],
         };
         break;
       case 4:
       default:
-        offsets[gameIds[i]] = {
+        offsets[gameId] = {
           x: [-2000, 2000, 0, 0][i] + deviceOffset,
           y: [0, 0, 2000, -2000][i],
         };
@@ -131,14 +147,25 @@ function getGamePlaneOffsets() {
 
   return offsets;
 }
+function resetPlanePosition() {
+  if (!this.gameCustom) return;
+
+  // если this.getGamePlaneOffsets вызывать не через this, то потеряется ссылка на this.$root
+  const { x, y } = this.getGamePlaneOffsets()[this.focusedGameId()] || { x: 0, y: 0 };
+  this.gameCustom.gamePlaneTranslateX = -1 * x;
+  this.gameCustom.gamePlaneTranslateY = -1 * y;
+}
+
 export default {
   getSuperGame,
-  getSuperStore,
   getStore,
+  getPlayerGame,
   playerGameId,
+  focusedGameId,
   getGame,
   gameFinished,
   actionsDisabled,
   calcGamePlaneCustomStyleData,
   getGamePlaneOffsets,
+  resetPlanePosition,
 };

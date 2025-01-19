@@ -3,7 +3,8 @@
 
   constructor(storeData, gameObjectData) {
     super(storeData, gameObjectData);
-    this.set({ teamCode: storeData._code, merged: storeData.merged });
+    const { merged, roundReady } = storeData;
+    this.set({ teamCode: storeData._code, merged, roundReady });
     this.defaultClasses({
       ...this.game().defaultClasses(),
       Table: domain.game._objects.Table,
@@ -88,5 +89,22 @@
   activate({ setData, publishText } = {}) {
     this.set({ active: true, activeReady: false, eventData: { actionsDisabled: null } });
     if (setData) this.set(setData);
+  }
+
+  checkFieldIsReady() {
+    const planeList = this.merged
+      ? this.game().decks.table.select({ className: 'Plane', attr: { sourceGameId: this.id() } })
+      : this.decks.table.getAllItems();
+    const bridgeList = this.merged
+      ? this.game().select({ className: 'Bridge', attr: { sourceGameId: this.id() } })
+      : this.getObjects({ className: 'Bridge', directParent: this });
+
+    let ready = true;
+    for (const releaseItem of [...planeList, ...bridgeList]) {
+      if (!ready) continue;
+      if (!releaseItem.release) ready = false;
+    }
+
+    return ready;
   }
 });

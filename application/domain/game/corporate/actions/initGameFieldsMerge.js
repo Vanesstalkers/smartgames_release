@@ -123,7 +123,7 @@
             }
           }
 
-          if (plane.game().isCoreGame()) {
+          if (plane.game().isSuperGame) {
             const gameCommonDominoDeck = game.find('Deck[domino_common]');
             const gameCommonCardDeck = game.find('Deck[card_common]');
             for (const player of game.players()) {
@@ -132,9 +132,17 @@
             }
 
             game.set({ merged: true });
+
+            const superGame = game.game();
+            superGame.set({ turnOrder: superGame.turnOrder.concat(game.id()) });
+
+            // тут окончание хода
             this.emit('RESET');
+            game.run('updateRoundStep');
             return;
           }
+
+          // ??? не понятно, что это за логика
           if (playerPlaneDeck.itemsCount() === 0) {
             this.emit('RESET');
             game.run('initGameProcessEvents');

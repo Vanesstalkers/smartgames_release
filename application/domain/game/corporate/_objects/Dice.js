@@ -18,7 +18,7 @@
       this.getParent().removeItem(this);
 
       const games = superGame.getAllGames({ roundReady: false });
-      if (superGame.allGamesMerged()) games.push(superGame);
+      if (superGame.allGamesFieldReady() && superGame.allGamesMerged()) games.push(superGame);
 
       const zoneList = [];
       for (const game of games) {
@@ -45,5 +45,17 @@
     }
     // game.enableChanges();
     return result;
+  }
+  moveToTarget(target) {
+    const game = this.game();
+
+    if (game.hasSuperGame && game.merged) {
+      if (target.type === 'domino' && !target.subtype && target.parent().matches({ className: 'Player' })) {
+        target = game.find('Deck[domino_common]');
+      }
+    }
+
+    const item = super.moveToTarget(target, {preventDelete: true});
+    return item;
   }
 });

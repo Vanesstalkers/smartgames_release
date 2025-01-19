@@ -55,7 +55,7 @@
       for (const portDirect of Object.keys(port.direct)) {
         const updateResult = port.updateDirect(portDirect);
         if (!updateResult) continue;
-        
+
         this.run('updatePlaneCoordinates', { joinPort, targetPort: port });
 
         let linkedPlanes;
@@ -82,6 +82,7 @@
             joinPlaneId: plane.id(),
             position: plane.getPosition(),
           })),
+          priority: Math.abs(plane.top - joinPlane.top) + Math.abs(plane.left - joinPlane.left), // чем больше общий bbox, тем (теоретически) больше свободных port-ов
         });
       }
     }

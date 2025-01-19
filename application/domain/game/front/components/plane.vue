@@ -104,7 +104,6 @@ export default {
 
       if (plane.customClass.includes('card-event')) {
         const rootPath = `${serverOrigin}/img/cards/${game.cardTemplate}`;
-        console.log("plane.customClass", plane.customClass, plane);
         const cardName = plane.code.includes('event_req_legal') ? 'req_legal' : 'req_tax';
         style.backgroundImage = `url(${rootPath}/${cardName}.jpg), url(empty-card.jpg)`;
       }
@@ -127,6 +126,7 @@ export default {
     async selectPlane(event) {
       const $plane = event.target.closest('.plane');
       if ($plane.closest('.player.iam')) {
+        this.gameCustom.selectedPlane = this.planeId;
         this.hidePreviewPlanes();
         await this.handleGameApi({ name: 'showPlanePortsAvailability', data: { joinPlaneId: this.planeId } });
       }
@@ -270,6 +270,7 @@ export default {
 }
 
 .plane.in-hand:not(.card-plane) {
+  order: -1;
   transform: scale(0.5);
   transform-origin: center left;
   margin: 125px -250px -50px 0px;
@@ -280,17 +281,22 @@ export default {
   margin: 25px 0px -75px 0px;
 }
 .plane.in-hand:hover {
-  z-index: 1;
+  z-index: 2;
   opacity: 1;
-  margin-bottom: 0px;
+  margin-bottom: 40px;
 }
 .plane.in-hand.card-plane {
-  transform: scale(0.8);
+  order: 0;
+  z-index: 1;
+  transform: scale(0.5);
   transform-origin: center left;
-  margin: 150px -24px 0px 0px;
-
+  margin: 210px -70px 0px 0px;
   > .price {
     font-size: 24px;
+  }
+
+  &:hover {
+    margin-bottom: 40px;
   }
 }
 

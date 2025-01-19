@@ -8,6 +8,11 @@
       RELEASE: function () {
         const { game, player } = this.eventContext();
         if (game.checkFieldIsReady()) return game.run('endGame', { winningPlayer: player });
+        const playerCardDeck = player.find('Deck[card]');
+        game.run('smartMoveRandomCard', { target: playerCardDeck });
+        lib.timers.timerRestart(game, { extraTime: game.settings.timerReleasePremium });
+        game.logs(`Игрок {{player}} инициировал РЕЛИЗ, за что получает дополнительную карту-события в руку.`);
+
         return { preventListenerRemove: true };
       },
       ADD_PLANE: function ({ target: plane }) {
@@ -33,7 +38,11 @@
 
         const dominoInDeck = dominoDeck.itemsCount();
         const dominoInHand = player.select({ className: 'Dice', directParent: false }).length;
-        if (availableZoneCount > dominoInDeck + dominoInHand) return game.run('endGame');
+        if (availableZoneCount > dominoInDeck + dominoInHand) {
+          return game.run('endGame', {
+            message: 'Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля',
+          });
+        }
 
         return { preventListenerRemove: true };
       },

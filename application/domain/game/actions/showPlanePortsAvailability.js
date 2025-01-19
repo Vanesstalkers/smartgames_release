@@ -20,7 +20,7 @@
         for (const direct of Object.keys(port.direct)) {
           const updateResult = port.updateDirect(direct);
           if (!updateResult) continue;
-          
+
           const ports = game.run('getAvailablePortsToJoinPort', { joinPort: port, gameId, playerId });
           availablePorts.push(...ports);
         }

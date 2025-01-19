@@ -8,7 +8,7 @@
   if (this.triggerEventEnabled() || player.triggerEventEnabled())
     throw new Error('Игрок не может совершить это действие, пока не завершит активное событие.');
 
-  if (!player.availableZones.includes(zoneId)) throw new Error('Данная зона запрещена для размещения');
+  if (!player.eventData.availableZones?.includes(zoneId)) throw new Error('Данная зона запрещена для размещения');
 
   const diceIsInHand = dice.parent().access[player.id()] ? true : false;
   if (!diceIsInHand) throw new Error('Костяшка должна находиться в руке.');

@@ -32,5 +32,5 @@
   }
   this.enableChanges();
 
-  player.set({ availableZones });
+  player.set({ eventData: { availableZones } });
 });

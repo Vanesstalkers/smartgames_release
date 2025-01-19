@@ -12,6 +12,9 @@
           if (game.getFreePlayerSlot()) return { preventListenerRemove: true };
 
           this.emit('RESET');
+
+          if (game.restorationMode) return game.restore();
+
           game.run('initPrepareGameEvents');
         },
       },

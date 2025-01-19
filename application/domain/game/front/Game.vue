@@ -1,7 +1,7 @@
 <template>
   <game :debug="false" :planeScaleMin="0.3" :planeScaleMax="1">
-    <template #gameplane="{ gamePlaneControlStyle = {} } = {}">
-      <div :class="['gp-content']" :style="{ ...gamePlaneControlStyle }">
+    <template #gameplane="{} = {}">
+      <div :class="['gp-content']" :style="{ ...gamePlaneContentControlStyle }">
         <plane v-for="id in Object.keys(tablePlanes.itemMap)" :key="id" :planeId="id" :gameId="state.gameId" />
         <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
         <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
@@ -108,7 +108,9 @@ export default {
     };
   },
   setup() {
-    const gameGlobals = prepareGameGlobals();
+    const gameGlobals = prepareGameGlobals({
+      gameCustomArgs: { gamePlaneTransformOrigin: {} },
+    });
 
     Object.assign(gameGlobals, releaseGameGlobals);
     provide('gameGlobals', gameGlobals);
@@ -116,13 +118,13 @@ export default {
     return gameGlobals;
   },
   watch: {
-    gameDataLoaded: function () {
-      // тут ловим обновление страницы
-      this.hideZonesAvailability();
-    },
     'game.eventListeners.TRIGGER': function () {
       this.gameCustom.pickedDiceId = '';
-      this.hideZonesAvailability();
+      if (
+        this.gameDataLoaded // gameDataLoaded может не быть при restoreGame
+      ) {
+        this.hideZonesAvailability();
+      }
     },
     'game.availablePorts': function () {
       this.$nextTick(() => {
@@ -130,6 +132,18 @@ export default {
         this.selectedFakePlanePosition = '';
         this.gameState.cardWorkerAction = {};
         this.gameCustom.selectedFakePlanes = {};
+
+        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn) {
+          this.gameState.cardWorkerAction = {
+            show: true,
+            label: 'Помочь выложить',
+            style: { background: '#ffa500' },
+            sendApiData: {
+              path: 'game.api.action',
+              args: [{ name: 'putPlaneOnFieldRecursive', data: { fromHand: true } }],
+            },
+          };
+        }
       });
     },
   },
@@ -146,6 +160,16 @@ export default {
     gameDataLoaded() {
       return this.game.addTime;
     },
+
+    gamePlaneContentControlStyle() {
+      const transformOrigin = this.gameCustom.gamePlaneTransformOrigin[this.gameState.gameId] ?? 'center center';
+      const transform = [
+        //
+        `rotate(${this.gameCustom.gamePlaneRotation || 0}deg)`,
+      ].join(' ');
+      return { transform, transformOrigin };
+    },
+
     showPlayerControls() {
       return ['IN_PROCESS', 'PREPARE_START'].includes(this.game.status);
     },

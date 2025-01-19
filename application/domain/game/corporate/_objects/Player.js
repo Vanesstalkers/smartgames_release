@@ -1,6 +1,7 @@
 (class Player extends domain.game._objects.Player {
-  constructor() {
+  constructor(data) {
     super(...arguments);
+    this.set({ teamlead: data.teamlead });
     this.broadcastableFields(['teamlead']);
   }
   /**

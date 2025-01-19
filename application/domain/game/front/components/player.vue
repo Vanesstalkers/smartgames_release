@@ -172,7 +172,7 @@ export default {
       return this.planeInHandIds.length > 0;
     },
     showDecks() {
-      return this.sessionPlayerIsActive() && this.player.eventData.showDecks;
+      return this.iam && this.sessionPlayerIsActive() && this.player.eventData.showDecks;
     },
     handCardsWidth() {
       const cardWidth = 130;
@@ -350,6 +350,8 @@ export default {
   height: 0px;
   width: 100%;
   margin-bottom: 175px;
+  margin-left: 20px;
+  padding-top: 20px;
 }
 
 #game.debug {

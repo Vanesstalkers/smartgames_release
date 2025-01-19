@@ -1,17 +1,25 @@
 (function () {
-  // для childGame разыгрываем обычный обработчик
-  if (!this.isCoreGame()) return domain.game.actions.roundSteps.call(this);
+  if (this.isSuperGame) return;
 
-  const { round } = this;
+  if (this.merged) {
+    const player = this.roundActivePlayer();
+    const gameCommonDominoDeck = this.find('Deck[domino_common]');
+    {
+      if (gameCommonDominoDeck.itemsCount() > this.settings.playerHandLimit * this.players().length) {
+        // слишком много доминошек в руке
+        if (!player.eventData.disablePlayerHandLimit) {
+          const gameDominoDeck = this.find('Deck[domino]');
+          gameCommonDominoDeck.moveAllItems({ target: gameDominoDeck });
 
-  let roundActiveGame;
-  if (this.allGamesMerged()) {
-    this.selectNextActiveGame();
+          this.logs({
+            msg: `У команды превышено максимальное количество костяшек в руке на конец хода. Все костяшки сброшены в колоду.`,
+          });
+        }
+      }
+      player.set({ eventData: { disablePlayerHandLimit: null } });
+    }
   }
 
-  const newRoundNumber = round + 1;
-  const newRoundLogEvents = [];
-  newRoundLogEvents.push(`Начало раунда №${newRoundNumber}.`);
-
-  return { newRoundLogEvents, newRoundNumber, roundActiveGame };
+  const roundStepsResult = domain.game.actions.roundSteps.call(this);
+  return roundStepsResult;
 });

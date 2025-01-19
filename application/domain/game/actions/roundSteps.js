@@ -5,7 +5,6 @@
       // конфиги
       playerHandLimit,
       roundStartCardAddToPlayerHand,
-      allowedAutoCardPlayRoundStart,
     },
   } = this;
   const gameDominoDeck = this.find('Deck[domino]');
@@ -103,21 +102,16 @@
   const newRoundLogEvents = [];
   newRoundLogEvents.push(`Начало раунда №${newRoundNumber}.`);
 
+  const smartMoveRandomCardTarget = roundStartCardAddToPlayerHand
+    ? newActivePlayer.find('Deck[card]')
+    : this.decks.active;
+  this.run('smartMoveRandomCard', { target: smartMoveRandomCardTarget });
+
   // обновляем таймер
   const actionsDisabled = newActivePlayer.eventData.actionsDisabled === true;
-  const timerConfig = actionsDisabled ? { time: 5 } : {};
+  const timerConfig = actionsDisabled ? { time: 5 } : null;
+  this.set({ lastRoundTimerConfig: timerConfig }); // нужно для восстановления игры
   newActivePlayer.activate(); // делаем строго после проверки actionsDisabled (внутри activate значение сбросится)
-  lib.timers.timerRestart(this, timerConfig);
-
-  const playerCardHand = newActivePlayer.find('Deck[card]');
-  const card = this.run('smartMoveRandomCard', {
-    target: roundStartCardAddToPlayerHand ? playerCardHand : this.decks.active,
-  });
-  // делаем после обновления таймера, в частности из-за карты "time"
-  if (card && allowedAutoCardPlayRoundStart === true) {
-    card.play({ player: newActivePlayer });
-    newRoundLogEvents.push(`Активировано ежедневное событие "${card.title}".`);
-  }
 
   return { newRoundLogEvents, newRoundNumber };
 });

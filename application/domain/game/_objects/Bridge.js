@@ -7,9 +7,13 @@
     super(data, { col: 'bridge', parent });
     this.broadcastableFields(['_id', 'code', 'zoneMap', 'width', 'height', 'left', 'top', 'rotation']);
 
-    const { release = false, left, top, rotation = 0 } = data;
+    let { sourceGameId, release = false, left, top, rotation = 0 } = data;
     const { masterPlaneId, linkedPlanesIds, linkedPortsIds, bridgeToCardPlane } = data;
-    this.set({ release, left, top, rotation, masterPlaneId, linkedPlanesIds, linkedPortsIds, bridgeToCardPlane });
+    if (!sourceGameId) sourceGameId = this.game().id();
+    this.set({
+      ...{ sourceGameId, release, left, top, rotation },
+      ...{ masterPlaneId, linkedPlanesIds, linkedPortsIds, bridgeToCardPlane },
+    });
     this.updateRotation();
   }
   updateParent(game) {

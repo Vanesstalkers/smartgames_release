@@ -1,5 +1,5 @@
-(function ({ winningPlayer, canceledByUser } = {}) {
-  this.run('lib.endGame', { winningPlayer, canceledByUser, customFinalize: true });
+(function ({ winningPlayer, canceledByUser, message } = {}) {
+  this.run('lib.endGame', { winningPlayer, canceledByUser, customFinalize: true, message });
 
   // игра может завершиться после автодобавления новых plane, алгоритм которого навешивает соответствующие атрибуты
   this.decks.table.updateAllItems({

@@ -1,5 +1,7 @@
 (function (data) {
   this.run('domain.fillGameData', data);
+  const { roundActiveGameId, turnOrder = [] } = data;
+  this.set({ roundActiveGameId, turnOrder });
 
   const { Dice, Deck, Card } = this.defaultClasses();
 

@@ -91,7 +91,7 @@ export default {
       return this.dice.locked || this.actionsDisabled();
     },
     selectable() {
-      return this.sessionPlayerIsActive() && this.dice.eventData.selectable;
+      return this.sessionPlayerIsActive() && this.sessionPlayer().eventData.dice?.[this.diceId]?.selectable;
     },
     hide() {
       return this.inHand && !this.iam && !this.dice.visible && !this.gameState.viewerMode;
@@ -193,7 +193,8 @@ export default {
 #game.viewer-mode .domino-dice {
   cursor: default;
 }
-.domino-dice.locked {
+.domino-dice.locked,
+.hand-planes .plane .domino-dice {
   opacity: 0.5;
   cursor: not-allowed !important;
 }
@@ -231,7 +232,6 @@ export default {
   height: 100%;
 }
 .domino-dice > .controls > .control:not(.disabled):hover > svg {
-  cursor: pointer;
   color: white !important;
 }
 

@@ -1,6 +1,6 @@
 <template>
   <game :debug="false" :planeScaleMin="0.2" :planeScaleMax="1">
-    <template #gameplane="{ gamePlaneControlStyle = {} } = {}">
+    <template #gameplane="{} = {}">
       <div
         v-for="game in planeViewGames"
         :key="game.gameId"
@@ -9,7 +9,7 @@
         :style="{ ...gamePlaneStyle(game.gameId) }"
         :team="game.teamCode"
       >
-        <div :class="['gp-content']" :style="{ ...(game.gameId === playerGameId() ? gamePlaneControlStyle : {}) }">
+        <div :class="['gp-content']" :style="{ ...gamePlaneContentControlStyle(game.gameId) }">
           <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" :gameId="game.gameId" />
           <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
           <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
@@ -134,7 +134,9 @@ export default {
     };
   },
   setup() {
-    const gameGlobals = prepareGameGlobals();
+    const gameGlobals = prepareGameGlobals({
+      gameCustomArgs: { gamePlaneTransformOrigin: {}, gamePlaneRotations: {} },
+    });
 
     Object.assign(gameGlobals, releaseGameGlobals);
     Object.assign(gameGlobals, corporateGameGlobals);
@@ -146,21 +148,63 @@ export default {
   watch: {
     gameDataLoaded: function () {
       // тут ловим обновление страницы
-      this.hideZonesAvailability();
+      if (
+        this.gameDataLoaded // gameDataLoaded может не быть при restoreGame
+      ) {
+        this.hideZonesAvailability();
+      }
     },
     'game.eventListeners.TRIGGER': function () {
       this.gameCustom.pickedDiceId = '';
-      this.hideZonesAvailability();
+      if (
+        this.gameDataLoaded // gameDataLoaded может не быть при restoreGame
+      ) {
+        this.hideZonesAvailability();
+      }
+    },
+    'game.availablePorts': function () {
+      this.$nextTick(() => {
+        this.state.gamePlaneNeedUpdate = true;
+        this.selectedFakePlanePosition = '';
+        this.gameCustom.selectedFakePlanes = {};
+
+        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn) {
+          this.gameState.cardWorkerAction = {
+            show: true,
+            label: 'Помочь выложить',
+            style: { background: '#ffa500' },
+            sendApiData: {
+              path: 'game.api.action',
+              args: [{ name: 'putPlaneOnFieldRecursive', data: { fromHand: true } }],
+            },
+          };
+        }
+      });
     },
     'superGame.availablePorts': function () {
       this.$nextTick(() => {
         this.state.gamePlaneNeedUpdate = true;
         this.selectedFakePlanePosition = '';
         this.gameCustom.selectedFakePlanes = {};
+
+        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn) {
+          this.gameState.cardWorkerAction = {
+            show: true,
+            label: 'Помочь выложить',
+            style: { background: '#ffa500' },
+            sendApiData: {
+              path: 'game.api.action',
+              args: [{ name: 'putPlaneOnFieldRecursive', data: { fromHand: true } }],
+            },
+          };
+        }
       });
     },
+    'game.merged': function () {
+      this.resetPlanePosition();
+    },
     activeGamesCount: function () {
-      this.$children[0].$emit('resetPlanePosition'); // !!! костыль
+      this.resetPlanePosition();
     },
   },
   computed: {
@@ -193,7 +237,7 @@ export default {
       if (this.gameState.viewerMode)
         return Object.keys(this.game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
 
-      const game = this.getSuperStore().game[this.selectedGame || this.playerGameId()];
+      const game = this.getStore().game[this.selectedGame || this.playerGameId()];
       const ids = Object.keys(game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
       const curPlayerIdx = ids.indexOf(this.gameState.sessionPlayerId);
       const result = curPlayerIdx != -1 ? ids.slice(curPlayerIdx + 1).concat(ids.slice(0, curPlayerIdx)) : ids;
@@ -292,10 +336,25 @@ export default {
               title: 'Передать руководство',
               action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
             },
+            { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-teamleadMenu', step: 'restoreGame' } },
           ],
           buttons: [{ text: 'Спасибо, ничего не нужно', action: 'exit', exit: true }],
         },
       });
+    },
+    gamePlaneContentControlStyle(gameId) {
+      const transformOrigin = this.gameCustom.gamePlaneTransformOrigin[gameId] ?? 'center center';
+
+      const rotation =
+        gameId === this.focusedGameId()
+          ? this.gameCustom.gamePlaneRotation
+          : this.gameCustom.gamePlaneRotations[gameId];
+
+      const transform = [
+        //
+        `rotate(${rotation}deg)`,
+      ].join(' ');
+      return { transform, transformOrigin };
     },
     gamePlaneStyle(gameId) {
       const { x, y } = this.getGamePlaneOffsets()[gameId];
@@ -416,8 +475,17 @@ export default {
       this.selectedFakePlanePosition = code;
     },
     selectGame(gameId) {
+      this.gameCustom.gamePlaneRotations = {
+        ...this.gameCustom.gamePlaneRotations,
+        [this.focusedGameId()]: this.gameCustom.gamePlaneRotation,
+      };
+
+      const rotation = this.gameCustom.gamePlaneRotations[gameId] || 0;
+      this.resetMouseEventsConfig({ rotation });
+      this.gameCustom.gamePlaneRotation = rotation;
+
       this.$set(this.gameCustom, 'selectedGame', gameId);
-      this.$children[0].$emit('resetPlanePosition'); // !!! костыль
+      this.resetPlanePosition();
     },
   },
 };

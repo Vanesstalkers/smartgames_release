@@ -9,6 +9,15 @@
     this.defaultClasses({ Card, Dice, Plane, Player, Table, ZoneSide });
   }
 
+  select(query = {}) {
+    if (typeof query === 'string') query = { className: query };
+    if (query.sourceGameId) {
+      if (!query.attr) query.attr = {};
+      query.attr.sourceGameId = query.sourceGameId;
+    }
+    return super.select(query);
+  }
+
   async create({ deckType, gameType, gameConfig, gameTimer, playerCount, maxPlayersInGame } = {}) {
     const {
       utils: { structuredClone: clone },
@@ -85,6 +94,22 @@
     if (!initiatedGame) await this.addGameToCache();
 
     return this;
+  }
+
+  restore() {
+    this.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${this.round}` });
+    this.run('initGameProcessEvents');
+
+    const roundActiveGame = this.allGamesMerged() ? this.roundActiveGame() : null;
+
+    for (const game of this.getAllGames()) {
+      game.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${game.round}` });
+      game.run('initGameProcessEvents');
+
+      if (roundActiveGame && game !== roundActiveGame) continue;
+
+      lib.timers.timerRestart(game, game.lastRoundTimerConfig);
+    }
   }
 
   prepareBroadcastData({ data = {}, userId, viewerMode }) {
@@ -205,13 +230,20 @@
   allGamesMerged() {
     return this.getAllGames().find((game) => !game.merged) ? false : true;
   }
+  allGamesFieldReady() {
+    return this.getAllGames().find((game) => !game.checkFieldIsReady()) ? false : true;
+  }
 
   async dumpState() {
     const clone = lib.utils.structuredClone(this);
+
     for (const [gameId, gameDump] of Object.entries(this.#dumps)) {
       clone.store.game[gameId] = gameDump;
     }
-    await db.mongo.deleteOne(this.col() + '_dump', { _id: this.id() });
+    clone._gameid = db.mongo.ObjectID(clone._id);
+    clone._dumptime = Date.now();
+    delete clone._id;
+
     await db.mongo.insertOne(this.col() + '_dump', clone);
   }
   dumpChild(game) {
@@ -242,11 +274,16 @@
       }
     }
 
-    const gamesList = this.getAllGames();
-    const activeGameIndex = gamesList.findIndex((game) => game === roundActiveGame);
-    const newActiveGame = gamesList[(activeGameIndex + 1) % gamesList.length];
+    const games = this.turnOrder;
+    const activeGameIndex = games.findIndex((gameId) => gameId === this.roundActiveGameId);
+    const newActiveGameId = games[(activeGameIndex + 1) % games.length];
+    const newActiveGame = this.get(newActiveGameId);
     this.roundActiveGame(newActiveGame);
 
     return newActiveGame;
+  }
+  roundActivePlayer(player) {
+    if (player) this.set({ roundActivePlayerId: player.id() });
+    return this.get(this.roundActiveGame()?.roundActivePlayerId);
   }
 });
