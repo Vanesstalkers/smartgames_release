@@ -1,7 +1,6 @@
 (class CorporateSuperGame extends domain.game.class {
   isSuperGame = true;
   gamesMap = {};
-  turnOrder = [];
   #dumps = {};
 
   constructor() {
@@ -242,6 +241,7 @@
       clone.store.game[gameId] = gameDump;
     }
     clone._gameid = db.mongo.ObjectID(clone._id);
+    clone._dumptime = Date.now();
     delete clone._id;
 
     // await db.mongo.deleteOne(this.col() + '_dump', { _id: this.id() });

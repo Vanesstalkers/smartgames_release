@@ -7,7 +7,6 @@ async ({ gameType, gameId, lobbyId, round }) => {
           corporateGame.run('fillGameData', loadedData);
           for (const gameId of Object.keys(loadedData.gamesMap)) {
             const gameData = loadedData.store.game[gameId];
-            gameData.roundReady = false;
             const game = await new domain.game.corporate.classGame(
               { _id: gameData._id, _code: gameData.code }, // data
               { parent: corporateGame } // config

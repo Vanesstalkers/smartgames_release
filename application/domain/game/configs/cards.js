@@ -2,6 +2,7 @@
   (domain.custom_cards = [
     // 'crutch',
     // 'teamlead',
+    // 'flowstate',
     // 'dream',
     // 'take_project',
     // 'water',

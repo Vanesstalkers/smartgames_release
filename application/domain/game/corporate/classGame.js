@@ -3,7 +3,8 @@
 
   constructor(storeData, gameObjectData) {
     super(storeData, gameObjectData);
-    this.set({ teamCode: storeData._code, merged: storeData.merged });
+    const { merged, roundReady } = storeData;
+    this.set({ teamCode: storeData._code, merged, roundReady });
     this.defaultClasses({
       ...this.game().defaultClasses(),
       Table: domain.game._objects.Table,

@@ -109,7 +109,7 @@
 
   // обновляем таймер
   const actionsDisabled = newActivePlayer.eventData.actionsDisabled === true;
-  const timerConfig = actionsDisabled ? { time: 5 } : {};
+  const timerConfig = actionsDisabled ? { time: 5 } : null;
   this.set({ lastRoundTimerConfig: timerConfig }); // нужно для восстановления игры
   newActivePlayer.activate(); // делаем строго после проверки actionsDisabled (внутри activate значение сбросится)
 

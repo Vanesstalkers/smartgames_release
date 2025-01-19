@@ -118,14 +118,6 @@ export default {
     return gameGlobals;
   },
   watch: {
-    'gameCustom.dataLoaded': function () {
-      // тут ловим обновление страницы
-      if (
-        this.gameCustom.dataLoaded // gameDataLoaded может не быть при restoreGame
-      ) {
-        this.hideZonesAvailability();
-      }
-    },
     'game.eventListeners.TRIGGER': function () {
       this.gameCustom.pickedDiceId = '';
       if (

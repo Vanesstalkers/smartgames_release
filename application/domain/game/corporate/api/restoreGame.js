@@ -6,42 +6,61 @@ async (context, { round } = {}) => {
 
   if (!game) throw new Error('Не участвует в игре');
 
-  const { gameType } = game;
-  const players = Object.values(game.store.player);
+  try {
+    const { gameType } = game;
+    const players = Object.values(game.store.player);
 
-  const subscribers = game.channel().subscribers.entries();
-  for (const [subscriberChannel] of subscribers) {
-    await lib.store.broadcaster.publishData(subscriberChannel, game.wrapPublishData(null));
-  }
+    round = parseInt(round);
+    const query = { _gameid: db.mongo.ObjectID(game.id()), round };
+    const [
+      dumpData, // берем первый элемент, т.к. в ответе массив
+    ] = await db.mongo.find(game.col() + '_dump', query, { limit: 1 });
+    if (!dumpData) throw new Error('Копия для восстановления не найдена.');
 
-  await game.removeGame();
-  const restoredGame = await domain.game.load({
-    ...{ gameType, gameId, lobbyId },
-    round: parseInt(round),
-  });
-  restoredGame.restorationMode = true;
-
-  for (const player of players) {
-    const { userId, userName, _id: playerId } = player;
-    const joinData = { userId, userName, playerId /* , viewerId */ };
-    await restoredGame.playerJoin(joinData);
-    // if (viewerId) await game.viewerJoin(joinData);
-    // else await game.playerJoin(joinData);
-
-    const user = lib.store('user').get(userId);
-    user.subscribe(`game-${gameId}`, { rule: 'actions-only' });
-    for (const session of user.sessions()) {
-      session.subscribe(`game-${gameId}`, {
-        rule: 'vue-store',
-        userId,
-        viewerMode: user.viewerId ? true : false,
-      });
-      session.onClose.push(async () => {
-        // проверка на последнего игрока не нужна, потому что игра автоматически завершится через allowedAutoCardPlayRoundStart раундов
-
-        session.unsubscribe(`game-${gameId}`);
-      });
+    const subscribers = game.channel().subscribers.entries();
+    for (const [subscriberChannel] of subscribers) {
+      await lib.store.broadcaster.publishData(subscriberChannel, game.wrapPublishData(null));
     }
+    await game.removeGame();
+
+    const restoredGame = await domain.game.load({
+      ...{ gameType, gameId, lobbyId },
+      round,
+    });
+    restoredGame.restorationMode = true;
+
+    for (const player of players) {
+      const { userId, userName, _id: playerId } = player;
+      const joinData = { userId, userName, playerId /* , viewerId */ };
+      await restoredGame.playerJoin(joinData);
+      // if (viewerId) await game.viewerJoin(joinData);
+      // else await game.playerJoin(joinData);
+
+      const user = lib.store('user').get(userId);
+      user.subscribe(`game-${gameId}`, { rule: 'actions-only' });
+      for (const session of user.sessions()) {
+        session.subscribe(`game-${gameId}`, {
+          rule: 'vue-store',
+          userId,
+          viewerMode: user.viewerId ? true : false,
+        });
+        session.onClose.push(async () => {
+          // проверка на последнего игрока не нужна, потому что игра автоматически завершится через allowedAutoCardPlayRoundStart раундов
+
+          session.unsubscribe(`game-${gameId}`);
+        });
+      }
+    }
+    return { status: 'ok' };
+  } catch (err) {
+    console.log(err);
+    context.client.emit('action/emit', {
+      eventName: 'alert',
+      data: { message: err.message, stack: err.stack },
+    });
+
+    // lib.store('game').set(gameId, game);
+
+    return err;
   }
-  return { status: 'ok' };
 };
