@@ -40,7 +40,7 @@
 
       source.removeEvent(this);
       activePlayer.removeEvent(this);
-      game.removeAllEventListeners({ sourceId });
+      game.removeAllEventListeners({ event: this });
     },
     TRIGGER: function ({ targetId: fakeId, targetPlayerId }) {
       const { game, player: activePlayer } = this.eventContext();

@@ -22,7 +22,7 @@
 
       source.removeEvent(this);
       player.removeEvent(this);
-      game.removeAllEventListeners({ sourceId });
+      game.removeAllEventListeners({ event: this });
     },
     DEACTIVATE: function () {
       const { game, player } = this.eventContext();

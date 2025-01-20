@@ -31,7 +31,7 @@
 
       source.removeEvent(this);
       player.removeEvent(this);
-      game.removeAllEventListeners({ sourceId });
+      game.removeAllEventListeners({ event: this });
     },
     DICE_PLACED: function () {
       const { game, player } = this.eventContext();

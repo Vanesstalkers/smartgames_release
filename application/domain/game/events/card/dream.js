@@ -14,7 +14,7 @@
 
       source.removeEvent(this);
       player.removeEvent(this);
-      game.removeAllEventListeners({ sourceId });
+      game.removeAllEventListeners({ event: this });
     },
     TRIGGER: function ({ target }) {
       if (!target) return;

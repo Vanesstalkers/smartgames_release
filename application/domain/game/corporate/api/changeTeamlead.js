@@ -61,7 +61,7 @@ async (context, { name } = {}) => {
           });
 
           player.removeEvent(this);
-          game.removeAllEventListeners({ sourceId });
+          game.removeAllEventListeners({ event: this });
         },
         TRIGGER: function ({ target: targetPlayer }) {
           const { source: player } = this.eventContext();

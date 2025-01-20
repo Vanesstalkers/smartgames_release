@@ -15,7 +15,7 @@
 
       source.removeEvent(this);
       player.removeEvent(this);
-      game.removeAllEventListeners({ /* sourceId, */ event: this });
+      game.removeAllEventListeners({ event: this });
     },
     NO_AVAILABLE_PORTS: function ({ joinPlane }) {
       const { game, player } = this.eventContext();
