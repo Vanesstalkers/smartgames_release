@@ -33,9 +33,9 @@
       player.removeEvent(this);
       game.removeAllEventListeners({ sourceId });
     },
-    DICE_REPLACED: function () {
+    DICE_PLACED: function () {
       const { game, player } = this.eventContext();
-      
+
       const deck = player.find('Deck[domino_teamlead]');
       const itemIds = Object.keys(deck.itemMap);
       const { itemsStartCount, itemsUsageLimit } = deck.settings;

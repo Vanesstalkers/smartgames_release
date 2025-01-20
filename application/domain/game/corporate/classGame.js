@@ -107,4 +107,15 @@
 
     return ready;
   }
+
+  getDeletedDices() {
+    const result = [];
+    const zones = this.select('Zone');
+    zones.push(...this.game().select('Zone')); // core game
+    for (const zone of zones) {
+      const item = zone.getDeletedItem();
+      if(item) result.push(item);
+    }
+    return result;
+  }
 });

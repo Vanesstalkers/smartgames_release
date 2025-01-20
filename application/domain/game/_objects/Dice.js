@@ -68,6 +68,13 @@
     }
     return { visibleId, preparedData };
   }
+  getRotation() {
+    return '' + this.sideList[0].value + this.sideList[1].value;
+  }
+  rotate() {
+    this.set({ sideList: [...this.sideList.reverse()] });
+    this.getParent().updateValues();
+  }
 
   getTitle() {
     return this.sideList.map((side) => side.value).join('-');
@@ -124,5 +131,13 @@
     }
     // game.enableChanges();
     return result;
+  }
+  getNearestDices() {
+    return this.getParent()
+      .getNearZones()
+      .map((zone) => {
+        return zone.getItem() || zone.getDeletedItem();
+      })
+      .filter((item) => item);
   }
 });

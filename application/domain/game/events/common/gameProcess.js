@@ -30,10 +30,10 @@
 
         let availableZoneCount = 0;
         for (const plane of planeList) {
-          availableZoneCount += plane.select('Zone').filter((zone) => !zone.getNotDeletedItem()).length;
+          availableZoneCount += plane.select('Zone').filter((zone) => !zone.getItem()).length;
         }
         for (const bridge of bridgeList) {
-          availableZoneCount += bridge.select('Zone').filter((zone) => !zone.getNotDeletedItem()).length;
+          availableZoneCount += bridge.select('Zone').filter((zone) => !zone.getItem()).length;
         }
 
         const dominoInDeck = dominoDeck.itemsCount();

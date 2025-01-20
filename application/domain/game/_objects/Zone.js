@@ -68,7 +68,7 @@
    * устанавливает value зоны в соответствии с размещенным в нем dice
    */
   updateValues() {
-    const item = this.getNotDeletedItem();
+    const item = this.getItem();
     this.sideList.forEach((side, sideIndex) => {
       if (item) {
         const itemSide = item.sideList[sideIndex];
@@ -96,18 +96,14 @@
     this.set({ itemMap: { [itemToRemove._id]: null } });
     this.updateValues();
   }
-  getDeletedItem() {
-    return Object.keys(this.itemMap)
-      .map((_id) => this.getStore().dice[_id])
-      .find((dice) => dice.deleted);
+  getItem() {
+    return this.select('Dice').find((dice) => !dice.deleted);
   }
-  getNotDeletedItem() {
-    return Object.keys(this.itemMap)
-      .map((_id) => this.getStore().dice[_id])
-      .find((dice) => !dice.deleted);
+  getDeletedItem() {
+    return this.select('Dice').find((dice) => dice.deleted);
   }
   checkIsAvailable(dice, { skipPlacedItem } = {}) {
-    if (!skipPlacedItem && this.getNotDeletedItem()) return false; // zone уже занята
+    if (!skipPlacedItem && this.getItem()) return false; // zone уже занята
 
     if (this.findParent({ className: 'Player' }) !== null) return false; // это plane в руке player
 

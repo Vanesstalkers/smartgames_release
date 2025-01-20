@@ -4,12 +4,9 @@
     throw new Error('Игрок не может совершить это действие, пока не завершит активное событие.');
 
   const dice = this.get(diceId);
-  const zone = dice.getParent();
-
   if (dice.placedAtRound === this.round) throw new Error('Запрещено менять костяшки, размещенные на текущем ходу.');
 
-  dice.set({ deleted: true, deletedBy: player.id() });
-  zone.updateValues();
+  this.run('initDiceReplacementEvent', { dice });
 
   return { status: 'ok' };
 });

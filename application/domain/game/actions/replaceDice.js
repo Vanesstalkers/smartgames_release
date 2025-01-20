@@ -15,20 +15,23 @@
 
   if (dice.locked) throw new Error('Костяшка не может быть сыграна на этом ходу.');
 
-  const deletedDices = this.run('getDeletedDices');
+  const deletedDices = this.getDeletedDices();
   const replacedOrRelatedDice = deletedDices.find((dice) => {
     const diceZone = dice.getParent();
+    if (diceZone === zone) return true;
+
     const plane = diceZone.getParent();
     const isBridgeZone = plane.matches({ className: 'Bridge' });
     const nearZones = diceZone.getNearZones();
-    return diceZone == zone || (isBridgeZone && nearZones.includes(zone));
+    return isBridgeZone && nearZones.includes(zone);
   });
   const remainDeletedDices = deletedDices.filter((dice) => dice != replacedOrRelatedDice);
   if (!replacedOrRelatedDice && remainDeletedDices.length)
     throw new Error('Добавлять новые костяшки можно только взамен временно удаленных.');
 
   if (replacedOrRelatedDice && zone !== replacedOrRelatedDice.getParent()) {
-    replacedOrRelatedDice.set({ relatedPlacement: { [dice.id()]: true } });
+    if (!replacedOrRelatedDice.relatedPlacement) replacedOrRelatedDice.relatedPlacement = {};
+    replacedOrRelatedDice.relatedPlacement[dice.id()] = true;
   }
   dice.moveToTarget(zone);
   dice.set({ placedAtRound: this.round });
@@ -38,15 +41,5 @@
 
   this.run('checkForRelease', { zone }, player); // для корпоративных игр обязательно указываем player, иначе инициатором будет считаться активный игрок из игры-владельца field-а
 
-  const notReplacedDeletedDices = deletedDices.filter((dice) => !dice.getParent().getNotDeletedItem());
-  // все удаленные dice заменены
-  if (notReplacedDeletedDices.length === 0) {
-    const deck = this.find('Deck[domino]');
-    for (const dice of deletedDices) {
-      dice.set({ deleted: null });
-      dice.moveToTarget(deck); // возвращаем удаленные dice в deck
-    }
-  }
-
-  this.toggleEventHandlers('DICE_REPLACED');
+  this.toggleEventHandlers('DICE_PLACED');
 });

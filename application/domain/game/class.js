@@ -99,4 +99,12 @@
     });
     this.logs(`Активировано ежедневное событие "${card.title}".`);
   }
+  getDeletedDices() {
+    const result = [];
+    for (const zone of this.select('Zone')) {
+      const item = zone.getDeletedItem();
+      if(item) result.push(item);
+    }
+    return result;
+  }
 });

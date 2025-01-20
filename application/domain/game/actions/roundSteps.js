@@ -9,60 +9,6 @@
   } = this;
   const gameDominoDeck = this.find('Deck[domino]');
 
-  const checkDeletedDices = (player) => {
-    const playerHand = player.find('Deck[domino]');
-
-    // если есть временно удаленные dice, то восстанавливаем состояние до их удаления
-    const deletedDices = this.run('getDeletedDices');
-    let restoreAlreadyPlacedDice = false;
-    for (const dice of deletedDices) {
-      const zone = dice.getParent();
-
-      // уже успели заменить один из удаленных dice - возвращаем его в руку player закончившего ход
-      // (!!! если появятся новые источники размещения dice в zone, то этот код нужно переписать)
-      const alreadyPlacedDice = zone.getNotDeletedItem();
-      if (alreadyPlacedDice) {
-        alreadyPlacedDice.moveToTarget(playerHand);
-        restoreAlreadyPlacedDice = true;
-      }
-
-      // была размещена костяшка на прилегающую к Bridge зоне
-      if (dice.relatedPlacement) {
-        for (const relatedDiceId of Object.keys(dice.relatedPlacement)) {
-          const relatedDice = this.get(relatedDiceId);
-          relatedDice.moveToTarget(playerHand);
-        }
-      }
-
-      dice.set({ deleted: null });
-      zone.updateValues();
-      for (const side of zone.sideList) {
-        for (const linkCode of Object.values(side.links)) {
-          const linkedSide = this.find(linkCode);
-          const linkedZone = linkedSide.getParent();
-          const linkedDice = linkedZone.getNotDeletedItem();
-
-          const checkIsAvailable = !linkedDice || linkedZone.checkIsAvailable(linkedDice, { skipPlacedItem: true });
-          if (checkIsAvailable === 'rotate') {
-            // linkedDice был повернут после удаления dice
-            linkedDice.set({ sideList: [...linkedDice.sideList.reverse()] });
-            linkedZone.updateValues();
-          }
-        }
-      }
-    }
-    if (deletedDices.length) {
-      this.logs({
-        msg:
-          `Найдены удаленные, но не замененные костяшки. Вся группа удаленных костяшек была восстановлена на свои места.` +
-          (restoreAlreadyPlacedDice
-            ? ` Те костяшки, которые уже были размещены взамен этой группы, были возвращены обратно в руку игрока {{player}}.`
-            : ''),
-        userId: player.userId,
-      });
-    }
-  };
-
   const checkPlayerHandLimit = (player) => {
     const hand = player.find('Deck[domino]');
     if (hand.itemsCount() > playerHandLimit) {
@@ -81,7 +27,6 @@
 
   const roundActivePlayer = this.roundActivePlayer();
   if (round > 0 && roundActivePlayer) {
-    checkDeletedDices(roundActivePlayer);
     checkPlayerHandLimit(roundActivePlayer);
   }
 
