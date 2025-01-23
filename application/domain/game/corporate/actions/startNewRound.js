@@ -3,8 +3,8 @@
 
   const newRoundNumber = this.round + 1;
   this.set({ statusLabel: `Раунд ${newRoundNumber}`, round: newRoundNumber });
-  const roundActiveGame = this.selectNextActiveGame();
   const allGamesMerged = this.allGamesMerged();
+  const roundActiveGame = allGamesMerged ? this.selectNextActiveGame() : null;
 
   for (const game of this.getAllGames()) {
     if (allGamesMerged && roundActiveGame && game !== roundActiveGame) {
