@@ -336,7 +336,7 @@ export default {
               title: 'Передать руководство',
               action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
             },
-            { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-teamleadMenu', step: 'restoreGame' } },
+            { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-restoreGame' } },
           ],
           buttons: [{ text: 'Спасибо, ничего не нужно', action: 'exit', exit: true }],
         },

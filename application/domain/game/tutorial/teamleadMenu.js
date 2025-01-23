@@ -29,20 +29,5 @@
       },
       buttons: [{ text: 'Отмена', action: 'reset' }],
     },
-    restoreGame: {
-      pos: 'bottom-left',
-      text: 'Какой раунд игры восстановить?',
-      input: { placeholder: 'последний', type: 'number' },
-      actions: {
-        submit: (async (self, round) => {
-          await api.action.call({ path: 'game.corporate.api.restoreGame', args: [{ round }] }).catch(prettyAlert);
-          return { exit: true };
-        }).toString(),
-      },
-      buttons: [
-        { text: 'Готово', action: 'submit' },
-        { text: 'Отмена', action: 'exit' },
-      ],
-    },
   },
 });

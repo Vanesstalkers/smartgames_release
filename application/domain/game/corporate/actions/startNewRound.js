@@ -8,6 +8,7 @@
 
   for (const game of this.getAllGames()) {
     if (allGamesMerged && roundActiveGame && game !== roundActiveGame) {
+      game.set({ round: newRoundNumber }); // иначе иначе будет рассинхрон раундов, которые обновляются в domain.startNewRound
       game.dumpState();
       continue;
     }
