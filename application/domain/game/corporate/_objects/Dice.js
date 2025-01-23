@@ -1,10 +1,10 @@
 (class Dice extends domain.game._objects.Dice {
   constructor(data = {}) {
     super(...arguments);
-    this.broadcastableFields(['teamCode']);
-    let { teamCode } = data;
-    if (!teamCode) teamCode = this.game().teamCode;
-    this.set({ teamCode });
+    let { sourceGameId } = data;
+    if (!sourceGameId) sourceGameId = this.game().id();
+    this.set({ sourceGameId });
+    this.broadcastableFields(['sourceGameId']);
   }
   findAvailableZones() {
     const game = this.game();

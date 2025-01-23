@@ -36,7 +36,7 @@
 
     usedTemplates.unshift(domain.game.configs.cardTemplates.random());
     await super.create(
-      { deckType, gameType, gameConfig, gameTimer, cardTemplate: usedTemplates[0] },
+      { deckType, gameType, gameConfig, gameTimer, templates: { card: usedTemplates[0] } },
       { initPlayerWaitEvents: false }
     );
     this.set({ playerCount });
@@ -59,7 +59,10 @@
         { _code }, // storeData
         { parent: this } // gameObjectData
       ).create(
-        { deckType, gameType, gameConfig, gameTimer, teamCode: _code, cardTemplate: usedTemplates[0] },
+        {
+          ...{ deckType, gameType, gameConfig, gameTimer },
+          templates: { card: usedTemplates[0], dice: `team${_code}` },
+        },
         { initPlayerWaitEvents: false }
       );
 
@@ -78,7 +81,7 @@
         playerMap[player.id()] = {};
       }
 
-      game.set({ playerMap, title: `Команда №${game.teamCode}` });
+      game.set({ playerMap, title: `Команда №${_code}` });
 
       if (players.length === 1) game.set({ settings: { singlePlayer: true } });
       game.decks.table.set({ access: this.playerMap });

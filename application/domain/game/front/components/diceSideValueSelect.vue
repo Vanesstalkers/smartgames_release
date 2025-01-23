@@ -1,18 +1,20 @@
 <template>
   <div class="select-side-value">
-    <div class="el" v-on:click="e => selectValue(e, 0)" value="0" />
-    <div class="el" v-on:click="e => selectValue(e, 1)" value="1" />
-    <div class="el" v-on:click="e => selectValue(e, 2)" value="2" />
-    <div class="el" v-on:click="e => selectValue(e, 3)" value="3" />
-    <div class="el" v-on:click="e => selectValue(e, 4)" value="4" />
-    <div class="el" v-on:click="e => selectValue(e, 5)" value="5" />
-    <div class="el" v-on:click="e => selectValue(e, 6)" value="6" />
+    <div :class="['el', templateClass]" v-on:click="(e) => selectValue(e, 0)" value="0" />
+    <div :class="['el', templateClass]" v-on:click="(e) => selectValue(e, 1)" value="1" />
+    <div :class="['el', templateClass]" v-on:click="(e) => selectValue(e, 2)" value="2" />
+    <div :class="['el', templateClass]" v-on:click="(e) => selectValue(e, 3)" value="3" />
+    <div :class="['el', templateClass]" v-on:click="(e) => selectValue(e, 4)" value="4" />
+    <div :class="['el', templateClass]" v-on:click="(e) => selectValue(e, 5)" value="5" />
+    <div :class="['el', templateClass]" v-on:click="(e) => selectValue(e, 6)" value="6" />
   </div>
 </template>
 
 <script>
 export default {
-  props: {},
+  props: {
+    templateClass: String,
+  },
   computed: {},
   methods: {
     selectValue(event, value) {
@@ -24,7 +26,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .select-side-value {
   display: flex;
   height: 70px;
@@ -46,9 +48,22 @@ export default {
   float: left;
   width: 70px;
   height: 70px;
-  background-image: url(../assets/Dices.png);
+  background-image: url(../assets/dices/default.png);
   background-position: -497px;
   cursor: pointer;
+
+  &.template-team1 {
+    background-image: url(../assets/dices/team1.png);
+  }
+  &.template-team2 {
+    background-image: url(../assets/dices/team2.png);
+  }
+  &.template-team3 {
+    background-image: url(../assets/dices/team3.png);
+  }
+  &.template-team4 {
+    background-image: url(../assets/dices/team4.png);
+  }
 }
 .el:hover {
   opacity: 0.7;

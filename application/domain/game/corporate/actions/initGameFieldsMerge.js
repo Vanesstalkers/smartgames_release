@@ -52,6 +52,8 @@
           const { game, sourceId } = this.eventContext();
           const superGame = game.game();
 
+          player.set({ eventData: { showNoAvailablePortsBtn: null } });
+
           // привязка связанных plane еще не произошло
           const planes = [].concat(game.decks.table.items()).concat(superGame.decks.table.items());
           for (const plane of planes) {

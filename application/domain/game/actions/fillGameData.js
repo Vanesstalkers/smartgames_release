@@ -20,8 +20,8 @@
   this.availablePorts = data.availablePorts || [];
   this.title = data.title;
   this.title = data.title;
-  if (!data.cardTemplate) data.cardTemplate = 'dark';
-  this.cardTemplate = data.cardTemplate || domain.game.configs.cardTemplates.random();
+  if (!data.templates) data.templates = { card: 'dark' }; // !!! заменить выбранный игроком шаблон
+  this.templates = data.templates || { card: domain.game.configs.cardTemplates.random() };
 
   if (data.playerMap) {
     data.playerList = [];

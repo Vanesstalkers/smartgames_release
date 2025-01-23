@@ -10,7 +10,6 @@
       hide ? 'hide' : '',
       isPicked ? 'picked' : '',
     ]"
-    :team="dice.teamCode"
     v-on:click="(e) => (selectable ? chooseDice() : pickDice())"
   >
     <div v-if="!locked && !zone?.available && !this.gameState.viewerMode" class="controls">
@@ -35,7 +34,12 @@
         v-for="side in sideList"
         :key="side._id"
         :value="side.value"
-        :class="['el', side.eventData.selectable ? 'selectable' : '', side.eventData.fakeValue ? 'fake-value' : '']"
+        :class="[
+          'el',
+          'template-' + (game.templates.dice || 'default'),
+          side.eventData.selectable ? 'selectable' : '',
+          side.eventData.fakeValue ? 'fake-value' : '',
+        ]"
         v-on:click="
           (e) => (side.eventData.selectable ? (e.stopPropagation(), openDiceSideValueSelect(side._id)) : null)
         "
@@ -43,6 +47,7 @@
         <dice-side-value-select
           v-if="gameCustom.selectedDiceSideId === side._id"
           v-on:select="pickActiveEventDiceSide"
+          :templateClass="'template-' + (game.templates.dice || 'default')"
         />
       </div>
     </template>
@@ -75,7 +80,7 @@ export default {
       return this.getStore();
     },
     game() {
-      return this.getGame();
+      return this.getGame(this.dice.sourceGameId);
     },
     dice() {
       return this.store.dice?.[this.diceId];
@@ -183,7 +188,7 @@ export default {
 }
 .domino-dice.hide > .el {
   background-image: none;
-  background: black;
+  background: black !important;
 }
 
 .plane .domino-dice,
@@ -266,14 +271,20 @@ export default {
   width: 70px;
   height: 70px;
   border-radius: 15px;
-  background-image: url(../assets/Dices.png);
-}
+  background-image: url(../assets/dices/default.png);
 
-.domino-dice[team='1'] > .el {
-  background-image: url(../assets/Dices_team1.png);
-}
-.domino-dice[team='2'] > .el {
-  background-image: url(../assets/Dices_team2.png);
+  &.template-team1 {
+    background-image: url(../assets/dices/team1.png);
+  }
+  &.template-team2 {
+    background-image: url(../assets/dices/team2.png);
+  }
+  &.template-team3 {
+    background-image: url(../assets/dices/team3.png);
+  }
+  &.template-team4 {
+    background-image: url(../assets/dices/team4.png);
+  }
 }
 
 .player.iam .hand-dices .domino-dice.picked > .el,
@@ -298,28 +309,28 @@ export default {
   box-shadow: inset 0 0 20px 8px orange;
 }
 .domino-dice > .el {
-  background-position: -497px;
+  background-position: -497px !important;
 }
 .domino-dice > .el[value='0'] {
-  background-position: -0px;
+  background-position: -0px !important;
 }
 .domino-dice > .el[value='1'] {
-  background-position: -71px;
+  background-position: -71px !important;
 }
 .domino-dice > .el[value='2'] {
-  background-position: -142px;
+  background-position: -142px !important;
 }
 .domino-dice > .el[value='3'] {
-  background-position: -213px;
+  background-position: -213px !important;
 }
 .domino-dice > .el[value='4'] {
-  background-position: -284px;
+  background-position: -284px !important;
 }
 .domino-dice > .el[value='5'] {
-  background-position: -355px;
+  background-position: -355px !important;
 }
 .domino-dice > .el[value='6'] {
-  background-position: -426px;
+  background-position: -426px !important;
 }
 
 #game.debug {

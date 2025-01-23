@@ -118,7 +118,7 @@ export default {
         game,
       } = this;
 
-      const rootPath = `${serverOrigin}/img/cards/${game.cardTemplate}`;
+      const rootPath = `${serverOrigin}/img/cards/${game.templates.card}`;
       return {
         backgroundImage: `url(${rootPath}/back-side.jpg)`,
       };
@@ -315,7 +315,7 @@ export default {
     display: flex;
     justify-content: center;
     align-content: center;
-    background-image: url(../assets/dice.png);
+    background-image: url(../assets/dices/dice-back.png);
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;

@@ -7,7 +7,6 @@
         :gameId="game.gameId"
         class="gp"
         :style="{ ...gamePlaneStyle(game.gameId) }"
-        :team="game.teamCode"
       >
         <div :class="['gp-content']" :style="{ ...gamePlaneContentControlStyle(game.gameId) }">
           <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" :gameId="game.gameId" />
@@ -287,7 +286,6 @@ export default {
           super: this.gameState.gameId === gameId,
           my: gameId === playerGameId,
           title: game.title,
-          teamCode: game.teamCode,
           roundReady: game.roundReady,
         };
       });
