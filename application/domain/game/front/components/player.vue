@@ -242,6 +242,12 @@ export default {
       box-shadow: 0 0 10px 10px #f4e205 !important;
     }
   }
+
+  > .ps {
+    > .ps__rail-y {
+      display: none !important;
+    }
+  }
 }
 #game.mobile-view.portrait-view .player-hands {
   justify-content: flex-start;
@@ -318,6 +324,17 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  //  решает проблему мерцация при наведении на нижнюю часть plane-а
+  &::before {
+    content: '';
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+    height: 70px;
+    background: #00000099;
+    // background-image: linear-gradient(to bottom, #00000000, #000000);
+  }
 
   &::after {
     content: '';
