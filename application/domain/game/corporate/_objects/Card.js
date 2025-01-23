@@ -9,9 +9,11 @@
   moveToTarget(target) {
     const game = this.game();
 
-    if (game.hasSuperGame && game.merged) {
-      if (target.type === 'card' && !target.subtype && target.parent().matches({ className: 'Player' })) {
+    if (target.type === 'card' && !target.subtype && target.parent().matches({ className: 'Player' })) {
+      if (game.hasSuperGame && game.merged) {
         target = game.find('Deck[card_common]');
+      } else if (game.isSuperGame && game.allGamesMerged()) {
+        target = target.game().find('Deck[card_common]');
       }
     }
 

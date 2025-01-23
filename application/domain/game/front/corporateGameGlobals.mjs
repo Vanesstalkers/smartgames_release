@@ -26,9 +26,11 @@ function focusedGameId() {
 function getGame(gameId) {
   if (!gameId) gameId = this.playerGameId();
 
-  if (this.gameState.viewerMode) return this.getSuperGame();
+  const superGame = this.getSuperGame();
+  if (this.gameState.viewerMode) return superGame;
+  if (gameId === superGame._id) return superGame;
 
-  return this.getSuperGame().store?.game[gameId] || {};
+  return superGame.store?.game[gameId] || {};
 }
 function gameFinished() {
   return this.getSuperGame().status === 'FINISHED';
