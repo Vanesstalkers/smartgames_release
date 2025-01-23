@@ -3,6 +3,8 @@
     const { game, player } = this.eventContext();
     const deck = game.find('Deck[domino]');
 
+    if (deck.itemsCount() == 0) return { removeEvent: true };
+
     const newPlayerHand = player.addDeck(
       {
         type: 'domino',
@@ -14,6 +16,7 @@
       { deckItemClass: game.defaultClasses()['Dice'] }
     );
     deck.moveRandomItems({ count: newPlayerHand.settings.itemsStartCount, target: newPlayerHand });
+    this.extraCardCount = newPlayerHand.itemsCount(); // в колоде могло остаться меньше itemsStartCount карт
   },
   handlers: {
     RESET: function () {
@@ -37,9 +40,9 @@
       const { game, player } = this.eventContext();
 
       const deck = player.find('Deck[domino_flowstate]');
-      const itemIds = Object.keys(deck.itemMap);
-      const { itemsStartCount, itemsUsageLimit } = deck.settings;
-      if (itemIds.length > itemsStartCount - itemsUsageLimit) {
+      const itemsCount = deck.itemsCount();
+      const { itemsUsageLimit } = deck.settings;
+      if (itemsCount > 0 && itemsCount > this.extraCardCount - itemsUsageLimit) {
         return { preventListenerRemove: true };
       }
 
