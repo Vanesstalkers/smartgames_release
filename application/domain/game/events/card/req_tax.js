@@ -30,6 +30,7 @@
     const planeList = playerPlaneDeck.select('Plane');
 
     if (planeList.length == 0) {
+      game.checkDiceResource();
       this.emit('RESET');
     } else {
       this.emit('NO_AVAILABLE_PORTS');

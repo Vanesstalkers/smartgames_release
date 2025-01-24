@@ -289,4 +289,28 @@
     if (player) this.set({ roundActivePlayerId: player.id() });
     return this.get(this.roundActiveGame()?.roundActivePlayerId);
   }
+
+  checkDiceResource() {
+    let availableZonesCount = this.countAvailableZones();
+    let dicesInHandCount = 0;
+    let dicesInDeck = 0;
+
+    for (const game of this.getAllGames()) {
+      availableZonesCount += game.countAvailableZones();
+      dicesInHandCount += game.countDicesInHands();
+      dicesInDeck += game.find('Deck[domino]').itemsCount();
+    }
+
+    if (availableZonesCount > dicesInDeck + dicesInHandCount) {
+      for (const player of this.players()) {
+        if (!player.teamlead) continue;
+
+        const data = {
+          message:
+            'Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля. Попробуйте восстановить более ранние раунды игры.',
+        };
+        lib.store.broadcaster.publishAction(`user-${player.userId}`, 'broadcastToSessions', { data });
+      }
+    }
+  }
 });

@@ -114,8 +114,12 @@
     zones.push(...this.game().select('Zone')); // core game
     for (const zone of zones) {
       const item = zone.getDeletedItem();
-      if(item) result.push(item);
+      if (item) result.push(item);
     }
     return result;
+  }
+
+  checkDiceResource() {
+    this.game().checkDiceResource();
   }
 });

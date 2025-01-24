@@ -88,6 +88,37 @@
 
     return plane;
   }
+  countAvailableZones() {
+    const planeList = this.decks.table.getAllItems();
+    const bridgeList = this.getObjects({ className: 'Bridge', directParent: this });
+
+    let count = 0;
+    for (const plane of planeList) {
+      count += plane.select('Zone').filter((zone) => !zone.getItem()).length;
+    }
+    for (const bridge of bridgeList) {
+      count += bridge.select('Zone').filter((zone) => !zone.getItem()).length;
+    }
+    return count;
+  }
+  countDicesInHands() {
+    let count = 0;
+    for (const player of this.players()) {
+      count += player.select({ className: 'Dice', directParent: false }).length;
+    }
+    return count;
+  }
+  checkDiceResource() {
+    const availableZonesCount = this.countAvailableZones();
+    const dicesInHandCount = this.countDicesInHands();
+    const dicesInDeck = this.find('Deck[domino]').itemsCount();
+
+    if (availableZonesCount > dicesInDeck + dicesInHandCount) {
+      return this.run('endGame', {
+        message: 'Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля',
+      });
+    }
+  }
   playRoundStartCards() {
     if (!this.settings.allowedAutoCardPlayRoundStart) return;
 
@@ -103,7 +134,7 @@
     const result = [];
     for (const zone of this.select('Zone')) {
       const item = zone.getDeletedItem();
-      if(item) result.push(item);
+      if (item) result.push(item);
     }
     return result;
   }

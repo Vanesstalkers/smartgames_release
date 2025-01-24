@@ -22,27 +22,7 @@
           event.emit('ADD_PLANE');
         }
 
-        if (!game.isSinglePlayer()) return { preventListenerRemove: true };
-
-        const planeList = game.decks.table.getAllItems();
-        const bridgeList = game.getObjects({ className: 'Bridge', directParent: game });
-        const dominoDeck = game.find('Deck[domino]');
-
-        let availableZoneCount = 0;
-        for (const plane of planeList) {
-          availableZoneCount += plane.select('Zone').filter((zone) => !zone.getItem()).length;
-        }
-        for (const bridge of bridgeList) {
-          availableZoneCount += bridge.select('Zone').filter((zone) => !zone.getItem()).length;
-        }
-
-        const dominoInDeck = dominoDeck.itemsCount();
-        const dominoInHand = player.select({ className: 'Dice', directParent: false }).length;
-        if (availableZoneCount > dominoInDeck + dominoInHand) {
-          return game.run('endGame', {
-            message: 'Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля',
-          });
-        }
+        game.checkDiceResource();
 
         return { preventListenerRemove: true };
       },
