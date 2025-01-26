@@ -10,6 +10,6 @@
       target: hand,
     });
 
-    return { removeEvent: true };
+    return { resetEvent: true };
   },
 });

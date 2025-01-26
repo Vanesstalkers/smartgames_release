@@ -1,7 +1,7 @@
 () => ({
   handlers: {
     RESET: function () {
-      const { game, player, source, sourceId } = this.eventContext();
+      const { game, player } = this.eventContext();
 
       player.set({ eventData: { showNoAvailablePortsBtn: null } });
 
@@ -13,9 +13,7 @@
         eventData: { selectable: null, moveToHand: null },
       });
 
-      source.removeEvent(this);
-      player.removeEvent(this);
-      game.removeAllEventListeners({ event: this });
+      this.destroy();
     },
     NO_AVAILABLE_PORTS: function ({ joinPlane }) {
       const { game, player } = this.eventContext();

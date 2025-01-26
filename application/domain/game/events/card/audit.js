@@ -9,16 +9,14 @@
   },
   handlers: {
     RESET: function () {
-      const { game, player, source, sourceId } = this.eventContext();
+      const { game, player } = this.eventContext();
 
       for (const player of game.players()) {
         player.set({ eventData: { selectable: null } });
       }
       player.set({ eventData: { canSelectWorkers: null } });
 
-      source.removeEvent(this);
-      player.removeEvent(this);
-      game.removeAllEventListeners({ event: this });
+      this.destroy();
     },
     TRIGGER: function ({ target: targetPlayer }) {
       const { game, player } = this.eventContext();

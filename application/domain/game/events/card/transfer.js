@@ -8,6 +8,6 @@
     playerHand.moveAllItems({ target: gameDeck });
     gameDeck.moveRandomItems({ count, target: playerHand });
 
-    return { removeEvent: true };
+    return { resetEvent: true };
   },
 });

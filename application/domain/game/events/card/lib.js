@@ -6,6 +6,6 @@
     
     deck.moveRandomItems({ count: 1, target: hand });
 
-    return { removeEvent: true };
+    return { resetEvent: true };
   },
 });

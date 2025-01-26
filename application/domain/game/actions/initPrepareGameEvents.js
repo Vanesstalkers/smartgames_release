@@ -2,10 +2,9 @@
   const event = domain.game.events.common.putPlaneFromHand();
 
   event.init = function () {
-    const { game, player } = this.eventContext();
+    const { game, source } = this.eventContext();
     const {
       settings: { planesAtStart, planesNeedToStart, planesToChoose, timeToPlaceStartPlane },
-      restorationMode,
     } = game;
 
     const planesToBePlacedByPlayers = planesNeedToStart - planesAtStart;
@@ -14,25 +13,24 @@
 
     game.run('putStartPlanes');
 
-    if (planesToBePlacedByPlayers > 0) {
-      for (let i = 0; i < planesToBePlacedByPlayers; i++) {
-        const player = players[i % players.length];
-        const hand = player.find('Deck[plane]');
-        for (let j = 0; j < planesToChoose; j++) {
-          const plane = gamePlaneDeck.getRandomItem();
-          if (plane) plane.moveToTarget(hand);
-        }
-      }
-
-      game.set({ statusLabel: 'Подготовка к игре', status: 'PREPARE_START' });
-      game.selectNextActivePlayer().activate(); // делаем строго после проверки actionsDisabled (внутри activate значение сбросится)
-      lib.timers.timerRestart(game, { time: timeToPlaceStartPlane });
-
+    if (!planesToBePlacedByPlayers) {
+      this.destroy(); // RESET возвращает добавленные в руку plane-ы, которых в этом случае нет
+      game.run('startGame');
       return;
     }
 
-    game.run('startGame');
-    return { removeEvent: true };
+    for (let i = 0; i < planesToBePlacedByPlayers; i++) {
+      const player = players[i % players.length];
+      const hand = player.find('Deck[plane]');
+      for (let j = 0; j < planesToChoose; j++) {
+        const plane = gamePlaneDeck.getRandomItem();
+        if (plane) plane.moveToTarget(hand);
+      }
+    }
+
+    game.set({ statusLabel: 'Подготовка к игре', status: 'PREPARE_START' });
+    game.selectNextActivePlayer().activate();
+    lib.timers.timerRestart(game, { time: timeToPlaceStartPlane });
   };
 
   event.handlers['ADD_PLANE'] = function ({ target: plane }) {

@@ -9,13 +9,13 @@
       eventData.dice[dice.id()] = { selectable: true };
       diceFound = true;
     }
-    if (!diceFound) return { removeEvent: true };
+    if (!diceFound) return { resetEvent: true };
 
     player.set({ eventData });
   },
   handlers: {
     RESET: function () {
-      const { game, player: activePlayer, source, sourceId } = this.eventContext();
+      const { game, player: activePlayer } = this.eventContext();
 
       this.emit('DEACTIVATE');
 
@@ -25,9 +25,7 @@
       }
       activePlayer.set({ eventData: { canSelectWorkers: null } });
 
-      source.removeEvent(this);
-      activePlayer.removeEvent(this);
-      game.removeAllEventListeners({ event: this });
+      this.destroy();
     },
     DEACTIVATE: function () {
       const { game, player } = this.eventContext();

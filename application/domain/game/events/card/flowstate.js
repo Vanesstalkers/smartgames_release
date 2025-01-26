@@ -3,7 +3,7 @@
     const { game, player } = this.eventContext();
     const deck = game.find('Deck[domino]');
 
-    if (deck.itemsCount() == 0) return { removeEvent: true };
+    if (deck.itemsCount() == 0) return { resetEvent: true };
 
     const newPlayerHand = player.addDeck(
       {
@@ -20,7 +20,7 @@
   },
   handlers: {
     RESET: function () {
-      const { game, player, source, sourceId } = this.eventContext();
+      const { game, player } = this.eventContext();
 
       const deck = player.find('Deck[domino_flowstate]');
       if (deck) {
@@ -32,9 +32,7 @@
         player.deleteDeck(deck);
       }
 
-      source.removeEvent(this);
-      player.removeEvent(this);
-      game.removeAllEventListeners({ event: this });
+      this.destroy();
     },
     DICE_PLACED: function () {
       const { game, player } = this.eventContext();

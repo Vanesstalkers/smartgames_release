@@ -8,7 +8,7 @@
 
       deck.moveRandomItems({ count: 1, target: hand });
 
-      return { removeEvent: true };
+      return { resetEvent: true };
     } else {
       let diceFound = false;
       for (const player of game.players()) {
@@ -22,12 +22,12 @@
         player.set({ eventData: { showDecks: true } });
       }
 
-      if (!diceFound) return { removeEvent: true };
+      if (!diceFound) return { resetEvent: true };
     }
   },
   handlers: {
     RESET: function () {
-      const { game, player: activePlayer, source, sourceId } = this.eventContext();
+      const { game, player: activePlayer } = this.eventContext();
 
       for (const player of game.players()) {
         if (player === activePlayer) continue;
@@ -38,9 +38,7 @@
         player.set({ eventData: { showDecks: null } });
       }
 
-      source.removeEvent(this);
-      activePlayer.removeEvent(this);
-      game.removeAllEventListeners({ event: this });
+      this.destroy();
     },
     TRIGGER: function ({ targetId: fakeId, targetPlayerId }) {
       const { game, player: activePlayer } = this.eventContext();

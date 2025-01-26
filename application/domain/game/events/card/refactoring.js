@@ -15,17 +15,13 @@
         diceFound = true;
       }
     }
-    if (!diceFound) return { removeEvent: true };
+
+    if (!diceFound) return { resetEvent: true };
   },
   handlers: {
     RESET: function () {
-      const { game, player, source, sourceId } = this.eventContext();
-
       this.emit('DEACTIVATE');
-
-      source.removeEvent(this);
-      player.removeEvent(this);
-      game.removeAllEventListeners({ event: this });
+      this.destroy();
     },
     DEACTIVATE: function () {
       const { game, player } = this.eventContext();

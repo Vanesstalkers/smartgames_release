@@ -36,7 +36,7 @@ async (context, { name } = {}) => {
       },
       handlers: {
         RESET: function () {
-          const { game, source: player, sourceId } = this.eventContext();
+          const { game, source: player } = this.eventContext();
 
           const changes = {};
           for (const teamPlayer of game.players()) {
@@ -60,8 +60,7 @@ async (context, { name } = {}) => {
             data: { game: { [game.game().id()]: { ...changes } } },
           });
 
-          player.removeEvent(this);
-          game.removeAllEventListeners({ event: this });
+          this.destroy();
         },
         TRIGGER: function ({ target: targetPlayer }) {
           const { source: player } = this.eventContext();

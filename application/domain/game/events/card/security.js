@@ -10,6 +10,6 @@
       bridge.set({ release: null });
     }
 
-    return { removeEvent: true };
+    return { resetEvent: true };
   },
 });

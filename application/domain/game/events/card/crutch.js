@@ -12,23 +12,19 @@
         }
       }
     }
-    if (!diceFound) return { removeEvent: true };
+    if (!diceFound) return { resetEvent: true };
   },
   handlers: {
     RESET: function () {
-      const { game, player, source, sourceId } = this.eventContext();
-
       this.emit('DEACTIVATE');
-
-      source.removeEvent(this);
-      player.removeEvent(this);
-      game.removeAllEventListeners({ event: this });
+      this.destroy();
     },
     DEACTIVATE: function () {
-      const { game, player } = this.eventContext();
-      player.removeEvent(this);
+      const { player } = this.eventContext();
+
       for (const deck of player.select('Deck')) {
         if (deck.type !== 'domino') continue;
+        
         for (const dice of deck.select('Dice')) {
           for (const dside of dice.select('DiceSide')) {
             dside.set({ eventData: { selectable: null } });

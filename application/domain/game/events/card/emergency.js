@@ -9,6 +9,6 @@
       deck.moveRandomItems({ count: game.settings.playerHandLimit - count, target: hand });
     }
     
-    return { removeEvent: true };
+    return { resetEvent: true };
   },
 });

@@ -8,13 +8,11 @@
   },
   handlers: {
     RESET: function () {
-      const { game, player, source, sourceId } = this.eventContext();
+      const { game } = this.eventContext();
 
       game.decks.table.updateAllItems({ eventData: { selectable: null } });
 
-      source.removeEvent(this);
-      player.removeEvent(this);
-      game.removeAllEventListeners({ event: this });
+      this.destroy();
     },
     TRIGGER: function ({ target }) {
       if (!target) return;

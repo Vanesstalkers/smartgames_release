@@ -49,7 +49,7 @@
           }
         },
         RESET: function () {
-          const { game, sourceId } = this.eventContext();
+          const { game } = this.eventContext();
           const superGame = game.game();
 
           player.set({ eventData: { showNoAvailablePortsBtn: null } });
@@ -61,8 +61,7 @@
             plane.updatePorts({ eventData: { selectable: null } });
           }
 
-          player.removeEvent(this);
-          game.removeAllEventListeners({ event: this });
+          this.destroy();
         },
         TRIGGER: function ({ target }) {
           const { game, player } = this.eventContext();
@@ -144,13 +143,14 @@
             return;
           }
 
-          // ??? не понятно, что это за логика
+          // plane-ы в руке кончились
           if (playerPlaneDeck.itemsCount() === 0) {
             this.emit('RESET');
             game.run('initGameProcessEvents');
             return;
           }
 
+          // на всякий случай подсвечиваем, какие еще plane-ы можно убрать с поля
           this.emit('NO_AVAILABLE_PORTS');
 
           return { preventListenerRemove: true };

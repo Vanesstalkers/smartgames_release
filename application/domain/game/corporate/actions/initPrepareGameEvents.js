@@ -16,7 +16,7 @@
         childGame.run('domain.initPrepareGameEvents');
       }
 
-      return { removeEvent: true };
+      return { resetEvent: true };
     },
   };
 
