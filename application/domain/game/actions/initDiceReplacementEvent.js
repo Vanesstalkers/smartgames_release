@@ -103,4 +103,5 @@
     },
     { defaultResetHandler: true, allowedPlayers: this.players() }
   );
+  // !!!! проверить в корпоративной игре (один удалил, второй заменил)
 });

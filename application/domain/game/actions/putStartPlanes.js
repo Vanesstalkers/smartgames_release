@@ -1,4 +1,33 @@
 (function () {
+  // if (this.code) {
+  //   // this.find('CorporateGame[1]Deck[plane]Plane[1]').moveToTarget(this.decks.table);
+
+  //   this.find('CorporateGame[1]Deck[plane]Plane[4]').moveToTarget(this.decks.table);
+
+  //   this.run('putPlaneOnField', {
+  //     targetPortId: this.find('CorporateGame[1]Deck[plane]Plane[4]Port[1]').id(),
+  //     targetPortDirect: 'top',
+  //     joinPortId: this.find('CorporateGame[1]Deck[plane]Plane[1]Port[1]').id(),
+  //     joinPortDirect: 'left',
+  //   });
+
+  //   this.run('putPlaneOnField', {
+  //     targetPortId: this.find('CorporateGame[1]Deck[plane]Plane[1]Port[2]').id(),
+  //     targetPortDirect: 'right',
+  //     joinPortId: this.find('CorporateGame[1]Deck[plane]Plane[9]Port[1]').id(),
+  //     joinPortDirect: 'left',
+  //   });
+  // } else {
+  //   this.find('Deck[plane]Plane[16]').moveToTarget(this.decks.table);
+
+  //   this.run('putPlaneOnField', {
+  //     targetPortId: this.find('Deck[plane]Plane[16]Port[2]').id(),
+  //     targetPortDirect: 'top',
+  //     joinPortId: this.find('Deck[plane]Plane[15]Port[1]').id(),
+  //     joinPortDirect: 'top',
+  //   });
+  // }
+  // return;
 
   const {
     settings: { planesAtStart, skipStartPlanes = [] },

@@ -52,7 +52,7 @@
           const { game } = this.eventContext();
           const superGame = game.game();
 
-          player.set({ eventData: { showNoAvailablePortsBtn: null } });
+          player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: true } });
 
           // привязка связанных plane еще не произошло
           const planes = [].concat(game.decks.table.items()).concat(superGame.decks.table.items());
@@ -114,10 +114,18 @@
           const { game, player } = this.eventContext();
           const gamePlaneDeck = game.find('Deck[plane]');
           const playerPlaneDeck = player.find('Deck[plane]');
+          const planeList = playerPlaneDeck.getAllItems();
 
-          if (!plane.eventData.moveToHand) {
-            // один из новых блоков - остальные можно убрать
-            const remainPlane = playerPlaneDeck.items().find(({ eventData: { moveToHand } }) => !moveToHand);
+          if (plane.eventData.extraPlane) {
+            const extraPlanes = planeList.filter((plane) => plane.eventData.extraPlane);
+            if (extraPlanes.length) {
+              for (const plane of extraPlanes) {
+                plane.moveToTarget(gamePlaneDeck);
+              }
+            }
+          } else if (!plane.eventData.moveToHand) {
+            // один из новых блоков для размещения на выбор - остальные можно убрать
+            const remainPlane = planeList.find(() => !plane.eventData.moveToHand);
             if (remainPlane) {
               // в колоде мог остаться всего один блок на выбор
               remainPlane.moveToTarget(gamePlaneDeck);

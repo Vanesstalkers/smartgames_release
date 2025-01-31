@@ -9,7 +9,9 @@
 
   this.disableChanges();
   {
-    const deletedDices = this.run('getDeletedDices');
+    // !!!! не учитывает удаленные костяшки в центре
+    // !!!! не удаляет замененные в центе костяшки
+    const deletedDices = this.getDeletedDices();
     const deletedDicesZones = deletedDices.reduce((result, dice) => {
       const zone = dice.getParent();
       result.push(zone);

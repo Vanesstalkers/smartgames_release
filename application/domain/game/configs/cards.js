@@ -6,8 +6,8 @@
     // 'dream',
     // 'take_project',
     // 'water',
-    // 'req_tax', 'req_legal',
-    // 'pilot',
+    'req_tax', 'req_legal',
+    'pilot',
     // 'refactoring',
     // 'give_project',
   ]).length

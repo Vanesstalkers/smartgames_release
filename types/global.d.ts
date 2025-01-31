@@ -10,6 +10,7 @@ import { Database } from 'metasql';
 
 import { Database as MongoDB } from '../application/db/mongo/types';
 import * as _game from '../application/lib/game/types';
+import * as _store from '../application/lib/store/types';
 import * as _game_release from '../application/domain/game/types';
 
 declare global {
@@ -21,6 +22,7 @@ declare global {
 
   namespace lib {
     const game: typeof _game;
+    const store: typeof _store;
   }
 
   namespace domain {

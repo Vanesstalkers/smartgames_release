@@ -64,4 +64,6 @@
     }
   };
   processBridges(joinPlane);
+
+  return { bridge };
 });

@@ -7,12 +7,22 @@
       <div class="player-hands" v-if="game.status != 'WAIT_FOR_PLAYERS'" :style="{ justifyContent: 'flex-end' }">
         <perfect-scrollbar v-if="hasPlaneInHand" :style="{ width: '50%' }">
           <div class="hand-planes">
-            <plane v-for="id in planeInHandIds" :key="id" :planeId="id" :inHand="true" />
+            <!-- !!!! обычная верстка с полной рукой -->
+            <!-- !!!! мобильная верстка -->
+            <plane
+              v-if="player.eventData.fakePlaneAddBtn"
+              :key="'fake'"
+              :planeId="'fake'"
+              :inHand="true"
+              :class="['in-hand', 'add-block-action']"
+            />
+            <plane v-for="id in planeInHandIds" :key="id" :planeId="id" :inHand="true" :class="['in-hand']" />
           </div>
         </perfect-scrollbar>
 
         <div v-if="!hasPlaneInHand" class="hand-dices-list">
           <div v-for="deck in dominoDecks" :key="deck._id" class="hand-dices-list-content">
+            <!-- ??? как viewer видит эти deck`s -->
             <div
               v-if="iam || showDecks || !state.isPortrait"
               class="hand-dices"

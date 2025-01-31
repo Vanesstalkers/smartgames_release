@@ -11,7 +11,7 @@
   self() {
     return this;
   }
-  z(){
+  z() {
     // this.self().game().
     this.game();
   }

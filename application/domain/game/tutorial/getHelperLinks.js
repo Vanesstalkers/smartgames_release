@@ -54,4 +54,10 @@
     type: 'game',
     pos: { top: true, left: true },
   },
+  addExtraBlock: {
+    selector: '.plane.add-block-action',
+    tutorial: 'game-tutorial-links',
+    type: 'game',
+    pos: { top: true, left: true },
+  },
 });

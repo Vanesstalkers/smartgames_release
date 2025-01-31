@@ -20,6 +20,8 @@
       const games = superGame.getAllGames({ roundReady: false });
       if (superGame.allGamesFieldReady() && superGame.allGamesMerged()) games.push(superGame);
 
+      // !!!! переделать логику на sourceGameId (когда поле смерджено, но были убраны костяшки)
+
       const zoneList = [];
       for (const game of games) {
         zoneList.push(
