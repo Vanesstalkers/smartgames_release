@@ -5,8 +5,8 @@
 
   constructor() {
     super(...arguments);
-    const { Card, Dice, Plane, Player, Table, ZoneSide } = domain.game.corporate._objects;
-    this.defaultClasses({ Card, Dice, Plane, Player, Table, ZoneSide });
+    const { Bridge, Card, Dice, Plane, Player, Table, ZoneSide } = domain.game.corporate._objects;
+    this.defaultClasses({ Bridge, Card, Dice, Plane, Player, Table, ZoneSide });
   }
 
   select(query = {}) {
@@ -136,10 +136,7 @@
     try {
       if (this.status === 'FINISHED') throw new Error('Игра уже завершена.');
 
-      const player = this.restorationMode
-        ? this.players().find((player) => player.userId === userId)
-        : this.getFreePlayerSlot();
-
+      const player = this.restorationMode ? this.getPlayerByUserId(userId) : this.getFreePlayerSlot();
       if (!player) throw new Error('Свободных мест не осталось');
 
       const gameId = this.id();
@@ -206,8 +203,11 @@
   }
 
   async handleAction({ name: eventName, data: eventData = {}, sessionUserId: userId }) {
-    const player = this.players().find((player) => player.userId === userId);
+    const player = this.getPlayerByUserId(userId);
     if (!player) throw new Error('player not found');
+    if (eventData.teamleadAction) {
+      player.set({ eventData: { disableActivePlayerCheck: true, disableActionsDisabledCheck: true } });
+    }
 
     const gameId = Object.entries(this.gamesMap).find(([gameId, players]) => players[player.id()])[0];
     const game = lib.store('game').get(gameId);

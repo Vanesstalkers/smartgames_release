@@ -20,17 +20,21 @@
       const games = superGame.getAllGames({ roundReady: false });
       if (superGame.allGamesFieldReady() && superGame.allGamesMerged()) games.push(superGame);
 
+      // !!!! переделать логику на sourceGameId (когда поле смерджено, но были убраны костяшки)
+
       const zoneList = [];
       for (const game of games) {
         zoneList.push(
           ...game.decks.table.getAllItems().reduce((arr, plane) => {
-            return arr.concat(plane.select('Zone'));
+            const freeZones = plane.select('Zone').filter((zone) => !zone.getItem());
+            return arr.concat(freeZones);
           }, [])
         );
 
         zoneList.push(
           ...game.getObjects({ className: 'Bridge', directParent: game }).reduce((arr, bridge) => {
-            return arr.concat(bridge.select('Zone'));
+            const freeZones = bridge.select('Zone').filter((zone) => !zone.getItem());
+            return arr.concat(freeZones);
           }, [])
         );
       }
@@ -55,7 +59,7 @@
       }
     }
 
-    const item = super.moveToTarget(target, {preventDelete: true});
+    const item = super.moveToTarget(target, { preventDelete: true });
     return item;
   }
 });

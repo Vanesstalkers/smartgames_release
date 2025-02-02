@@ -1,5 +1,8 @@
 (function () {
-  if (!this.isCoreGame()) return this.run('domain.initPrepareGameEvents');
+  if (!this.isCoreGame()) {
+    throw new Error('initPrepareGameEvents if (!this.isCoreGame()) {');
+    // return this.run('domain.initPrepareGameEvents');
+  }
 
   const event = {
     init() {
@@ -20,5 +23,5 @@
     },
   };
 
-  this.initEvent(event, { defaultResetHandler: true, allowedPlayers: this.players() });
+  this.initEvent(event, { allowedPlayers: this.players() });
 });

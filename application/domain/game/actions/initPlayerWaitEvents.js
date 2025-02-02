@@ -10,7 +10,7 @@
           const { game, player } = this.eventContext();
 
           if (game.getFreePlayerSlot()) return { preventListenerRemove: true };
-          
+
           this.emit('RESET');
 
           if (game.restorationMode) return game.restore();
@@ -19,6 +19,6 @@
         },
       },
     },
-    { defaultResetHandler: true, allowedPlayers: this.players() }
+    { allowedPlayers: this.players() }
   );
 });

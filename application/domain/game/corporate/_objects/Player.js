@@ -11,8 +11,12 @@
   self() {
     return this;
   }
-  z(){
-    // this.self().game().
-    this.game();
+  game(game) {
+    if (!game) return super.game();
+    super.game(game);
+
+    for (const deck of this.select({ className: 'Deck' })) {
+      deck.game(game);
+    }
   }
 });

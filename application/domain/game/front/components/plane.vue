@@ -6,6 +6,7 @@
       'plane',
       selectable ? 'selectable' : '',
       plane.eventData.moveToHand ? 'move-to-hand' : '',
+      plane.eventData.extraPlane ? 'extra-plane' : '',
       ...plane.customClass,
       ...Object.values(customClass),
     ]"
@@ -20,14 +21,14 @@
     <div class="port-wraper">
       <plane-port v-for="id in portIds" :key="id" v-bind:portId="id" :linkLines="linkLines" />
     </div>
-    <div v-if="!cardPlane" div class="custom-bg">
+    <div v-if="!isCardPlane" div class="custom-bg">
       <span
         v-for="item in customBG(plane._id)"
         :key="item.code"
         :style="`background-position-x: ${item.x}; background-position-y: ${item.y}`"
       />
     </div>
-    <svg v-if="!cardPlane">
+    <svg v-if="!isCardPlane">
       <line
         v-for="[key, line] in Object.entries(linkLines)"
         :key="key"
@@ -55,7 +56,7 @@ export default {
     planeZone,
   },
   data() {
-    return { linkLines: {}, customClass: {}, inHandStyle: {} };
+    return { linkLines: {}, customClass: {} };
   },
   props: {
     planeId: String,
@@ -87,9 +88,8 @@ export default {
       return this.store.plane?.[this.planeId] || { eventData: {}, customClass: [] };
     },
     customStyle() {
-      const { game, plane, inHand, inHandStyle, viewStyle, customClass, state: { serverOrigin } = {} } = this;
-
-      const style = { ...plane, ...(inHand ? inHandStyle : {}), ...viewStyle } || {};
+      const { game, plane, inHand, viewStyle, customClass, state: { serverOrigin } = {} } = this;
+      const style = { ...plane, ...viewStyle } || {};
       if (style.left) style.left = parseInt(style.left) + 'px';
       if (style.top) style.top = parseInt(style.top) + 'px';
       if (style.width) style.width = parseInt(style.width) + 'px';
@@ -102,14 +102,15 @@ export default {
         this.customClass = { ...customClass, rotate: `rotate${rotateDegree}` };
       }
 
-      if (plane.customClass.includes('card-event')) {
-        const rootPath = `${serverOrigin}/img/cards/${game.cardTemplate}`;
+      if (this.isCardPlane) {
+        const sourceGame = this.getGame(plane.sourceGameId);
+        const rootPath = `${serverOrigin}/img/cards/${sourceGame.templates.card}`;
         const cardName = plane.code.includes('event_req_legal') ? 'req_legal' : 'req_tax';
         style.backgroundImage = `url(${rootPath}/${cardName}.jpg), url(empty-card.jpg)`;
       }
       return style;
     },
-    cardPlane() {
+    isCardPlane() {
       return this.plane.customClass.includes('card-plane');
     },
     zoneIds() {
@@ -128,7 +129,11 @@ export default {
       if ($plane.closest('.player.iam')) {
         this.gameCustom.selectedPlane = this.planeId;
         this.hidePreviewPlanes();
-        await this.handleGameApi({ name: 'showPlanePortsAvailability', data: { joinPlaneId: this.planeId } });
+        if (this.planeId === 'fake' && this.inHand) {
+          await this.handleGameApi({ name: 'takePlane', data: {} });
+        } else {
+          await this.handleGameApi({ name: 'showPlanePortsAvailability', data: { joinPlaneId: this.planeId } });
+        }
       }
     },
     async choosePlane() {
@@ -168,12 +173,6 @@ export default {
   mounted() {
     // $nextTick не всегда помогает при запуске новой игры
     setTimeout(() => {
-      if (this.inHand) {
-        this.customClass = { ...this.customClass, inHand: `in-hand` };
-      } else {
-        this.inHandStyle = {};
-      }
-
       this.state.gamePlaneNeedUpdate = true; // выставит правильный zoom
     }, 100);
   },
@@ -199,15 +198,19 @@ export default {
   &.selectable:after {
     box-shadow: inset 0 0 0px 10px yellow;
   }
-  &.selectable.move-to-hand:after {
+  &.move-to-hand:after {
     box-shadow: inset 0 0 0px 10px orange;
   }
-  &.selectable.card-plane.move-to-hand {
+  &.card-plane.move-to-hand {
     box-shadow: inset 0 0 20px 8px orange !important;
+  }
+  &.extra-plane:after {
+    box-shadow: inset 0 0 0px 10px greenyellow;
   }
 }
 
-.plane:not(.card-plane):after {
+.plane:not(.card-plane):after,
+.plane:not(.card-plane):before {
   content: '';
   z-index: -1;
   position: absolute;
@@ -217,6 +220,10 @@ export default {
   height: 250px;
   border-radius: 20px;
   background: url(../assets/plane.png);
+}
+.plane:not(.card-plane):before {
+  background: none;
+  display: none;
 }
 .plane > .zone-wraper,
 .plane > .port-wraper {
@@ -297,6 +304,33 @@ export default {
 
   &:hover {
     margin-bottom: 40px;
+  }
+}
+.plane.in-hand.add-block-action {
+  &::before {
+    content: '+';
+    background: rgb(0 255 0 / 40%);
+    display: block;
+    z-index: 1;
+    font-size: 100px;
+    color: white;
+    text-align: left;
+    padding-left: 20px;
+    width: 480px;
+    height: 250px;
+    line-height: 100px;
+  }
+  > .price {
+    display: none !important;
+  }
+}
+.plane.in-hand.add-block-action:hover {
+  &::before {
+    content: 'Добавить блок';
+    font-size: 32px;
+    line-height: 32px;
+    padding-top: 20px;
+    height: 230px;
   }
 }
 

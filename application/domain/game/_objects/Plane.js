@@ -133,16 +133,34 @@
     }
     return moveResult;
   }
+  removeFromTable({ target }) {
+    const game = this.game();
+
+    this.moveToTarget(target);
+    this.set({ left: 0, top: 0, eventData: { selectable: null } });
+
+    const linkedBridges = this.getLinkedBridges();
+    for (const bridge of linkedBridges) {
+      game.run('removeBridge', { bridge });
+
+      if (!this.cardPlane && bridge.bridgeToCardPlane) {
+        const cardPlaneId = bridge.linkedPlanesIds.find((id) => id !== this.id());
+        const cardPlane = game.get(cardPlaneId);
+        cardPlane.moveToTarget(target);
+        cardPlane.set({ left: 0, top: 0, eventData: { selectable: null } });
+      }
+    }
+  }
   getLinkedBridges() {
     const game = this.game();
-    const ports = this.ports().filter(({ linkedBridgeCode }) => linkedBridgeCode);
-    const bridges = ports.map(({ linkedBridgeCode }) => game.find(linkedBridgeCode));
+    const ports = this.ports().filter((port) => port.linkedBridgeCode);
+    const bridges = ports.map((port) => game.find(port.linkedBridgeCode)).filter((bridge) => bridge);
     return bridges;
   }
   getLinkedPlanes() {
     const game = this.game();
     const bridges = this.getLinkedBridges();
-    const planesIds = bridges.map(({ linkedPlanesIds }) => linkedPlanesIds.find((id) => id !== this.id()));
+    const planesIds = bridges.map((bridge) => bridge.linkedPlanesIds.find((id) => id !== this.id()));
     const planes = planesIds.map((id) => game.get(id));
     return planes;
   }

@@ -34,6 +34,8 @@
 
   joinPort.updateDirect(joinPortDirect);
   targetPort.updateDirect(targetPortDirect);
+
+  // добавляем в joinGame, чтобы корректно работал Plane.removeFromTable->getLinkedBridges в returnFieldToHand
   const bridge = targetGame.run('createBridge', { joinPort, targetPort });
 
   joinPlane.game(targetGame);
@@ -64,4 +66,6 @@
     }
   };
   processBridges(joinPlane);
+
+  return { bridge };
 });
