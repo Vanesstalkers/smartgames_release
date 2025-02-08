@@ -23,7 +23,9 @@
               :targetPortDirect="position.targetPortDirect"
               :style="position.style"
               :class="['fake-plane', position.code === selectedFakePlanePosition ? 'hidden' : '']"
-              v-on:click="previewPlaneOnField($event, position)"
+              @click="previewPlaneOnField($event, position)"
+              @mouseenter="zIndexDecrease($event, position.code)"
+              @mouseleave="zIndexRestore($event, position.code)"
             />
             <plane
               v-for="[_id, style] of Object.entries(gameCustom.selectedFakePlanes[game.gameId] || {})"
@@ -130,6 +132,7 @@ export default {
   data() {
     return {
       selectedFakePlanePosition: '',
+      zIndexDecreaseChangeTimeout: null,
     };
   },
   setup() {
@@ -320,9 +323,6 @@ export default {
     },
   },
   methods: {
-    // !!!! принудительное отключение игрока
-    // !!!! завершение хода игроку (или режим автопропуска)
-    // предотвращение окончания игры при выходе игрока
     openTeamleadMenu() {
       this.$set(this.state.store.user?.[this.state.currentUser], 'helper', {
         menu: {
@@ -335,7 +335,10 @@ export default {
               action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
             },
             { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-restoreGame' } },
-            { title: 'Вернуть игровой стол команды', action: { tutorial: 'game-tutorial-teamleadMenu', step: 'transferTable' } },
+            {
+              title: 'Вернуть игровой стол команды',
+              action: { tutorial: 'game-tutorial-teamleadMenu', step: 'transferTable' },
+            },
           ],
           buttons: [{ text: 'Спасибо, ничего не нужно', action: 'exit', exit: true }],
         },
@@ -472,6 +475,17 @@ export default {
       };
 
       this.selectedFakePlanePosition = code;
+    },
+    zIndexDecrease(event) {
+      clearTimeout(this.zIndexDecreaseChangeTimeout);
+
+      this.zIndexDecreaseChangeTimeout = setTimeout(() => {
+        event.target.classList.add('low-zindex');
+      }, 1000);
+    },
+    zIndexRestore(event) {
+      clearTimeout(this.zIndexDecreaseChangeTimeout);
+      event.target.classList.remove('low-zindex');
     },
     selectGame(gameId) {
       this.gameCustom.gamePlaneRotations = {
@@ -610,6 +624,9 @@ export default {
     opacity: 1;
     z-index: 1;
     cursor: pointer;
+  }
+  &.low-zindex {
+    z-index: -1;
   }
 
   &.hidden {

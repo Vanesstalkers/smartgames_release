@@ -9,7 +9,7 @@
 
   this.disableChanges();
   {
-    const deletedDices = this.run('getDeletedDices');
+    const deletedDices = this.getDeletedDices();
     const deletedDicesZones = deletedDices.reduce((result, dice) => {
       const zone = dice.getParent();
       result.push(zone);

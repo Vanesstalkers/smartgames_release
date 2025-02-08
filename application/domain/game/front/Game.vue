@@ -16,7 +16,9 @@
             :targetPortDirect="position.targetPortDirect"
             :style="position.style"
             :class="['fake-plane', position.code === selectedFakePlanePosition ? 'hidden' : '']"
-            v-on:click="previewPlaneOnField($event, position)"
+            @click="previewPlaneOnField($event, position)"
+            @mouseenter="zIndexDecrease($event, position.code)"
+            @mouseleave="zIndexRestore($event, position.code)"
           />
         </div>
 
@@ -105,6 +107,7 @@ export default {
   data() {
     return {
       selectedFakePlanePosition: '',
+      zIndexDecreaseChangeTimeout: null,
     };
   },
   setup() {
@@ -294,6 +297,17 @@ export default {
 
       this.selectedFakePlanePosition = code;
     },
+    zIndexDecrease(event) {
+      clearTimeout(this.zIndexDecreaseChangeTimeout);
+
+      this.zIndexDecreaseChangeTimeout = setTimeout(() => {
+        event.target.classList.add('low-zindex');
+      }, 1000);
+    },
+    zIndexRestore(event) {
+      clearTimeout(this.zIndexDecreaseChangeTimeout);
+      event.target.classList.remove('low-zindex');
+    },
   },
 };
 </script>
@@ -407,6 +421,9 @@ export default {
     opacity: 1;
     z-index: 1;
     cursor: pointer;
+  }
+  &.low-zindex {
+    z-index: -1;
   }
 
   &.hidden {
