@@ -93,7 +93,7 @@
       const port = this.availablePorts.sort((a, b) => (a.priority > b.priority ? -1 : 1))[0];
       this.run('putPlaneOnField', port);
     } else {
-      const freePorts = this.decks.table.getFreePortsCount();
+      const freePortsCount = this.decks.table.getFreePorts().length;
       movePlaneFromTableToHand();
 
       this.run('showPlanePortsAvailability', { joinPlaneId });
@@ -101,7 +101,7 @@
         const port = this.availablePorts.sort((a, b) => (a.priority > b.priority ? -1 : 1))[0];
         this.run('putPlaneOnField', port);
       }
-      if (freePorts + planeDeck.itemsCount() > this.decks.table.getFreePortsCount()) {
+      if (freePortsCount + planeDeck.itemsCount() > this.decks.table.getFreePorts().length) {
         while (this.decks.table.itemsCount() > 0) {
           movePlaneFromTableToHand();
         }

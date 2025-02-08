@@ -319,4 +319,15 @@
   keysToNull(obj) {
     return Object.fromEntries(Object.keys(obj).map((key) => [key, null]));
   },
+  calcObjDifference(obj1, obj2) {
+    const result = {};
+
+    Object.keys(obj1).forEach((key) => {
+      if (obj2.hasOwnProperty(key)) {
+        result[key] = Math.abs(obj1[key] - obj2[key]);
+      }
+    });
+
+    return result;
+  },
 });

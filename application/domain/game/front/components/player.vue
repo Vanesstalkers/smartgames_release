@@ -7,7 +7,14 @@
       <div class="player-hands" v-if="game.status != 'WAIT_FOR_PLAYERS'" :style="{ justifyContent: 'flex-end' }">
         <perfect-scrollbar v-if="hasPlaneInHand" :style="{ width: '50%' }">
           <div class="hand-planes">
-            <plane v-for="id in planeInHandIds" :key="id" :planeId="id" :inHand="true" />
+            <plane
+              v-if="player.eventData.fakePlaneAddBtn"
+              :key="'fake'"
+              :planeId="'fake'"
+              :inHand="true"
+              :class="['in-hand', 'add-block-action']"
+            />
+            <plane v-for="id in planeInHandIds" :key="id" :planeId="id" :inHand="true" :class="['in-hand']" />
           </div>
         </perfect-scrollbar>
 

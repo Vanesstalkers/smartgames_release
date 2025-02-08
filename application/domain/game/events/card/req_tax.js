@@ -24,24 +24,5 @@
     }
   };
 
-  event.handlers['ADD_PLANE'] = function () {
-    const { game, player } = this.eventContext();
-    const playerPlaneDeck = player.find('Deck[plane]');
-    const planeList = playerPlaneDeck.select('Plane');
-
-    if (planeList.length == 0) {
-      game.checkDiceResource();
-      this.emit('RESET');
-    } else {
-      this.emit('NO_AVAILABLE_PORTS');
-      return { preventListenerRemove: true };
-    }
-  };
-
-  event.handlers['END_ROUND'] = function () {
-    this.emit('CHECK_PLANES_IN_HANDS');
-    this.emit('RESET');
-  };
-
   return event;
 };

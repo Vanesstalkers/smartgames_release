@@ -100,9 +100,18 @@
       : this.getObjects({ className: 'Bridge', directParent: this });
 
     let ready = true;
-    for (const releaseItem of [...planeList, ...bridgeList]) {
+    for (const plane of planeList) {
       if (!ready) continue;
-      if (!releaseItem.release) ready = false;
+      if (!plane.release) ready = false;
+    }
+    for (const bridge of bridgeList) {
+      if (!ready) continue;
+      if (
+        !bridge.release &&
+        !bridge.mergedGameId // зона стыковки с super-игрой
+      ) {
+        ready = false;
+      }
     }
 
     return ready;
@@ -111,7 +120,7 @@
   getDeletedDices() {
     const result = [];
     const zones = this.select('Zone');
-    zones.push(...this.game().select('Zone')); // core game
+    if (this.merged) zones.push(...this.game().select('Zone')); // core game
     for (const zone of zones) {
       const item = zone.getDeletedItem();
       if (item) result.push(item);

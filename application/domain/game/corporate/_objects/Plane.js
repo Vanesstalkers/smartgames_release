@@ -1,20 +1,28 @@
 (class Plane extends domain.game._objects.Plane {
   constructor(data = {}) {
     super(...arguments);
-    let { sourceGameId } = data;
+    let { sourceGameId, mergedPlane } = data;
     if (!sourceGameId) sourceGameId = this.game().id();
-    this.set({ sourceGameId });
+    this.set({ sourceGameId, mergedPlane });
     this.broadcastableFields(['sourceGameId']);
   }
-  setParent(parent) {
-    const currentParent = this.parent();
-    super.setParent(parent);
-    if (!currentParent) return; // тут первичное создание объекта
-    const newParentGame = parent.game();
-    if (newParentGame !== currentParent.game()) {
-      for (const obj of this.getAllObjects()) {
-        obj.game(newParentGame);
-      }
+  game(game) {
+    const currentGame = super.game();
+    if (!game) return currentGame;
+    super.game(game);
+
+    if (game === currentGame) return;
+
+    for (const obj of this.getAllObjects({ directParent: false })) {
+      obj.game(game);
+    }
+  }
+  updateParent(newParent) {
+    super.updateParent(newParent);
+
+    const newParentGame = newParent.game();
+    if (newParentGame !== this.game()) {
+      this.game(newParentGame);
     }
   }
   moveToTarget(target) {
@@ -24,5 +32,19 @@
     if (newParentGame !== currentParent.game()) {
       this.game(newParentGame);
     }
+  }
+  getLinkedBridges() {
+    const bridges = super.getLinkedBridges();
+
+    if (this.mergedPlane) {
+      const game = this.game();
+      const superGame = game.game();
+      bridges.push(
+        // bridge-связка с супер-игрой
+        ...superGame.select({ className: 'Bridge', attr: { mergedGameId: game.id() } })
+      );
+    }
+
+    return bridges;
   }
 });

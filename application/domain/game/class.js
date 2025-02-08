@@ -26,6 +26,7 @@
     super.restore();
     this.playRoundStartCards(); // делаем после обновления таймера (в super.restore), в частности из-за карты "time"
   }
+
   checkFieldIsReady() {
     const planeList = this.decks.table.getAllItems();
     const bridgeList = this.getObjects({ className: 'Bridge', directParent: this });

@@ -36,10 +36,5 @@
     }
   };
 
-  event.handlers['END_ROUND'] = function () {
-    this.emit('CHECK_PLANES_IN_HANDS');
-    this.emit('RESET');
-  };
-
   return event;
 };

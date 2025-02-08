@@ -3,17 +3,41 @@
     RESET: function () {
       const { game, player } = this.eventContext();
 
-      player.set({ eventData: { showNoAvailablePortsBtn: null } });
+      player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null } });
 
       const gameDeck = game.find('Deck[plane]');
       const playerPlaneDeck = player.find('Deck[plane]');
       playerPlaneDeck.moveAllItems({ target: gameDeck });
 
       game.decks.table.updateAllItems({
-        eventData: { selectable: null, moveToHand: null },
+        eventData: { selectable: null, moveToHand: null, extraPlane: null },
       });
 
       this.destroy();
+    },
+    ADD_PLANE: function ({ target: plane }) {
+      const { game, player } = this.eventContext();
+      const gamePlaneDeck = game.find('Deck[plane]');
+      const playerPlaneDeck = player.find('Deck[plane]');
+      const planeList = playerPlaneDeck.select('Plane');
+
+      const requiredPlanes = planeList.filter((plane) => plane.eventData.moveToHand);
+      if (requiredPlanes.length === 0) {
+        game.checkDiceResource();
+        this.emit('RESET');
+      } else {
+        if (plane.eventData.extraPlane) {
+          const extraPlanes = planeList.filter((plane) => plane.eventData.extraPlane);
+          if (extraPlanes.length) {
+            for (const plane of extraPlanes) {
+              plane.moveToTarget(gamePlaneDeck);
+            }
+          }
+        }
+
+        this.emit('NO_AVAILABLE_PORTS');
+        return { preventListenerRemove: true };
+      }
     },
     NO_AVAILABLE_PORTS: function ({ joinPlane }) {
       const { game, player } = this.eventContext();
@@ -41,44 +65,38 @@
           plane.set({ eventData });
         }
 
-        player.set({ eventData: { showNoAvailablePortsBtn: true } });
+        player.set({ eventData: { showNoAvailablePortsBtn: true, fakePlaneAddBtn: true } });
       }
 
       return { preventListenerRemove: true };
     },
     // обработчик для выбора блока, который нужно забрать с поля
     TRIGGER: function ({ target: plane }) {
-      if (!plane) return;
       const { game, player } = this.eventContext();
-      const playerPlaneDeck = player.find('Deck[plane]');
 
-      plane.moveToTarget(playerPlaneDeck);
-      plane.set({ left: 0, top: 0, eventData: { selectable: null } });
+      if (!plane) return;
 
-      const linkedBridges = plane.getLinkedBridges();
-      for (const bridge of linkedBridges) {
-        game.run('removeBridge', { bridge });
-
-        if (!plane.cardPlane && bridge.bridgeToCardPlane) {
-          const cardPlaneId = bridge.linkedPlanesIds.find((id) => id !== plane.id());
-          const cardPlane = game.get(cardPlaneId);
-          cardPlane.moveToTarget(playerPlaneDeck);
-          cardPlane.set({ left: 0, top: 0, eventData: { selectable: null } });
-        }
-      }
+      plane.removeFromTable({
+        target: player.find('Deck[plane]'),
+      });
 
       game.set({ availablePorts: [] });
       this.emit('NO_AVAILABLE_PORTS');
+
       return { preventListenerRemove: true };
     },
     CHECK_PLANES_IN_HANDS: function () {
       const { game } = this.eventContext();
-      
+
       if (game.status === 'FINISHED') return;
 
       game.run('putPlaneOnFieldRecursive', { fromHand: true });
 
       return { preventListenerRemove: true };
+    },
+    END_ROUND: function () {
+      this.emit('CHECK_PLANES_IN_HANDS');
+      this.emit('RESET');
     },
   },
 });

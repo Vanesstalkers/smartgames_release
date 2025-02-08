@@ -5,7 +5,7 @@
   for (const game of superGame.getAllGames()) {
     lib.timers.timerDelete(game);
     game.decks.table.updateAllItems({
-      eventData: { selectable: null, moveToHand: null },
+      eventData: { selectable: null, moveToHand: null, extraPlane: null },
     });
   }
 

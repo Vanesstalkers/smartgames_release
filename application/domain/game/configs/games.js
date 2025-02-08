@@ -223,7 +223,7 @@
       timerReleasePremium: 20,
       playerHandStart: 3,
       playerHandLimit: 3,
-      planesAtStart: 3, // изначальное количество блоков на поле
+      planesAtStart: 3, // изначальное количество блоков на поле (для core-игры количество соответствует количеству игр)
       planesNeedToStart: 3, // нужно для начала игры (будут добавляться игроками)
       planesToChoose: 2, // блоков на выбор игроку для добавления на поле
       timeToPlaceStartPlane: 10, // время на размещение стартового блока

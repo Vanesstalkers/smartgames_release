@@ -3,7 +3,7 @@
 
   // игра может завершиться после автодобавления новых plane, алгоритм которого навешивает соответствующие атрибуты
   this.decks.table.updateAllItems({
-    eventData: { selectable: null, moveToHand: null },
+    eventData: { selectable: null, moveToHand: null, extraPlane: null },
   });
 
   this.checkCrutches();

@@ -20,5 +20,5 @@
     },
   };
 
-  this.initEvent(event, { defaultResetHandler: true, allowedPlayers: this.players() });
+  this.initEvent(event, { allowedPlayers: this.players() });
 });

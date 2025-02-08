@@ -335,6 +335,7 @@ export default {
               action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
             },
             { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-restoreGame' } },
+            { title: 'Вернуть игровой стол команды', action: { tutorial: 'game-tutorial-teamleadMenu', step: 'transferTable' } },
           ],
           buttons: [{ text: 'Спасибо, ничего не нужно', action: 'exit', exit: true }],
         },

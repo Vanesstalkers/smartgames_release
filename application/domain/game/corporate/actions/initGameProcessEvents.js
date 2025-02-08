@@ -14,14 +14,13 @@
       game.logs(`Игрок {{player}} инициировал РЕЛИЗ, за что получает дополнительную карту-события в руку.`);
 
       if (game.checkFieldIsReady()) {
-        this.emit('RESET');
         game.run('initGameFieldsMerge');
-        return;
+        // не RESET-им событие, т.к. поле могут вернуть в руку и понадобится повторный merge
       }
 
       return { preventListenerRemove: true };
     };
   }
 
-  return this.initEvent(event, { defaultResetHandler: true, allowedPlayers });
+  return this.initEvent(event, { allowedPlayers });
 });

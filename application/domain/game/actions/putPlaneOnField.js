@@ -34,6 +34,7 @@
 
   joinPort.updateDirect(joinPortDirect);
   targetPort.updateDirect(targetPortDirect);
+
   const bridge = targetGame.run('createBridge', { joinPort, targetPort });
 
   joinPlane.game(targetGame);
@@ -64,4 +65,6 @@
     }
   };
   processBridges(joinPlane);
+
+  return { bridge };
 });
