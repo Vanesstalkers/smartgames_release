@@ -8,12 +8,12 @@
   });
 
   for (const plane of gamePlanes) {
-    if (this.merged) plane.game(this);
     plane.removeFromTable({ target: playerDeck });
     plane.set({ eventData: { moveToHand: true } });
+    if (this.merged) plane.game(this);
   }
 
-  this.set({ merged: null, roundReady: null });
+  this.set({ merged: null, roundReady: false });
   superGame.set({
     turnOrder: superGame.turnOrder.filter((gameId) => gameId !== this.id()),
   });

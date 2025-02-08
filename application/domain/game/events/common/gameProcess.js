@@ -5,8 +5,8 @@
     init,
     handlers: {
       ...handlers,
-      RELEASE: function () {
-        const { game, player } = this.eventContext();
+      RELEASE: function ({ initPlayer: player }) {
+        const { game } = this.eventContext();
         if (game.checkFieldIsReady()) return game.run('endGame', { winningPlayer: player });
         const playerCardDeck = player.find('Deck[card]');
         game.run('smartMoveRandomCard', { target: playerCardDeck });

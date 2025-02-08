@@ -4,7 +4,7 @@
   const bridgeDice = this.get(Object.keys(bridgeZone.itemMap)[0]);
 
   this.set({ bridgeMap: { [bridge.id()]: null } });
-  if (bridgeDice) bridgeDice.moveToTarget(this.find('Deck[domino]'));
+  if (bridgeDice) bridgeDice.moveToSourceDeck();
 
   for (const port of linkedPorts) {
     port.set({ linkedBridgeCode: null });

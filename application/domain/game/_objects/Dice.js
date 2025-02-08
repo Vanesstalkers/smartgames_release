@@ -99,6 +99,10 @@
 
     return moveResult;
   }
+  moveToSourceDeck() {
+    const game = lib.store('game').get(this.sourceGameId);
+    this.moveToTarget(game.find('Deck[domino]'));
+  }
   findAvailableZones() {
     const game = this.game();
     const result = [];
