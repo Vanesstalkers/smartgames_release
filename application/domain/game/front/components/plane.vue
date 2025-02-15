@@ -6,7 +6,7 @@
       'plane',
       selectable ? 'selectable' : '',
       plane.eventData.moveToHand ? 'move-to-hand' : '',
-      plane.eventData.extraPlane ? 'extra-plane' : '',
+      plane.eventData.extraPlane ? 'extra' : '',
       ...plane.customClass,
       ...Object.values(customClass),
     ]"
@@ -201,10 +201,13 @@ export default {
   &.move-to-hand:after {
     box-shadow: inset 0 0 0px 10px orange;
   }
+  &.one-of-many:after {
+    box-shadow: inset 0 0 0px 10px blue;
+  }
   &.card-plane.move-to-hand {
     box-shadow: inset 0 0 20px 8px orange !important;
   }
-  &.extra-plane:after {
+  &.extra:after {
     box-shadow: inset 0 0 0px 10px greenyellow;
   }
 }

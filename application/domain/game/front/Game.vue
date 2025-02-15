@@ -43,10 +43,15 @@
           <div v-if="deck._id && deck.code === 'Deck[domino]'" class="hat" v-on:click="takeDice">
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === 'Deck[card]'" class="card-event" v-on:click="takeCard">
+          <div
+            v-if="deck._id && deck.code === 'Deck[card]'"
+            class="card-event"
+            :style="cardEventCustomStyle"
+            v-on:click="takeCard"
+          >
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === 'Deck[card_drop]'" class="card-event">
+          <div v-if="deck._id && deck.code === 'Deck[card_drop]'" class="card-event" :style="cardEventCustomStyle">
             {{ Object.keys(deck.itemMap).length }}
           </div>
           <div v-if="showPlayerControls && deck._id && deck.code === 'Deck[card_active]'" class="deck-active">
@@ -237,6 +242,18 @@ export default {
             },
           ];
         });
+    },
+
+    cardEventCustomStyle() {
+      const {
+        state: { serverOrigin },
+        game,
+      } = this;
+
+      const rootPath = `${serverOrigin}/img/cards/${game.templates.card}`;
+      return {
+        backgroundImage: `url(${rootPath}/back-side.jpg)`,
+      };
     },
   },
   methods: {

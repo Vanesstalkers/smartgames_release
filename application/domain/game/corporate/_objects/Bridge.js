@@ -1,7 +1,8 @@
 (class Bridge extends domain.game._objects.Bridge {
   constructor(data) {
     super(...arguments);
-    this.set({ mergedGameId: data.mergedGameId });
+    const { mergedGameId, anchorGameId } = data;
+    this.set({ mergedGameId, anchorGameId });
   }
   game(game) {
     const currentGame = super.game();

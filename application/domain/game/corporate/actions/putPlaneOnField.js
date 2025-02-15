@@ -7,14 +7,18 @@
 
   const { bridge } = this.run('domain.putPlaneOnField', ...arguments);
 
-  const mergeFinished = joinGame !== targetGame;
+  const mergeFinished = joinGame !== targetGame && !joinGame.merged;
   if (mergeFinished) {
     const superGame = targetGame;
 
     joinGame.set({ merged: true });
-    superGame.set({ turnOrder: superGame.turnOrder.concat(joinGame.id()) });
     joinPlane.set({ mergedPlane: true });
     bridge.set({ mergedGameId: joinGame.id() });
+
+    const joinGameId = joinGame.id();
+    let turnOrder = superGame.turnOrder.filter((id) => id !== joinGameId);
+    turnOrder.push(joinGameId);
+    superGame.set({ turnOrder });
 
     const gameCommonDominoDeck = joinGame.find('Deck[domino_common]');
     const gameCommonCardDeck = joinGame.find('Deck[card_common]');

@@ -257,10 +257,10 @@ export default {
 .domino-dice > .controls > .control.hidden {
   display: none;
 }
-.bridge .domino-dice > .controls > .control.fake-rotate:not(.hidden) {
+.bridge1 .domino-dice > .controls > .control.fake-rotate:not(.hidden) {
   display: block;
 }
-.bridge .domino-dice > .controls > .control.rotate {
+.bridge1 .domino-dice > .controls > .control.rotate {
   display: none;
 }
 

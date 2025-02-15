@@ -205,7 +205,7 @@ if (simpleGame) {
 
     /*
       const player = this.restorationMode
-        ? this.players().find((player) => player.userId === userId)
+        ? this.getPlayerByUserId(userId)
         : this.getFreePlayerSlot();
       
       this.set({ gamesMap: {players: {[playerId]: userId} } });

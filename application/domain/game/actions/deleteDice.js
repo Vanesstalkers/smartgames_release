@@ -7,6 +7,9 @@
   if (dice.placedAtRound === this.round) throw new Error('Запрещено менять костяшки, размещенные на текущем ходу.');
 
   this.run('initDiceReplacementEvent', { dice });
+  
+  const zone = dice.getParent();
+  zone.updateValues();
 
   return { status: 'ok' };
 });
