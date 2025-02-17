@@ -158,6 +158,15 @@ function resetPlanePosition() {
   this.gameCustom.gamePlaneTranslateY = -1 * y;
 }
 
+async function handleGameApi(data, { onSuccess, onError } = {}) {
+  if (!onError) onError = prettyAlert;
+  data.gameId = this.game._id;
+  await api.action
+    .call({ path: 'game.corporate.api.action', args: [data] })
+    .then(onSuccess)
+    .catch(onError);
+}
+
 export default {
   getSuperGame,
   getStore,
@@ -170,4 +179,5 @@ export default {
   calcGamePlaneCustomStyleData,
   getGamePlaneOffsets,
   resetPlanePosition,
+  handleGameApi,
 };

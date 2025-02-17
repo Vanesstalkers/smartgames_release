@@ -34,7 +34,7 @@
     let ready = true;
     for (const releaseItem of [...planeList, ...bridgeList]) {
       if (!ready) continue;
-      if (!releaseItem.release) ready = false;
+      if (releaseItem.hasEmptyZones()) ready = false;
     }
 
     return ready;
@@ -138,5 +138,39 @@
       if (item) result.push(item);
     }
     return result;
+  }
+  addCardPlane(card) {
+    const deck = this.find('Deck[plane]');
+
+    // const codeSfx = (card.sourceGameId || Math.random().toString()).slice(-4);
+    const codeSfx = Math.random().toString().slice(-4);
+    const plane = deck.addItem({
+      sourceGameId: card.sourceGameId,
+      _code: `event_${card.name}_${codeSfx}`,
+      price: 50,
+      release: true, // зон нет, и для всех проверок plane считается зарелиженным
+      ...{ cardPlane: true, width: 120, height: 180 },
+      customClass: ['card-plane', 'card-event', `card-${card.name}`],
+      portList: [
+        {
+          ...{ _code: 1, links: [], t: 'any', s: 'core' },
+          ...{ left: 22.5, top: 105, direct: { bottom: true } },
+        },
+      ],
+    });
+
+    return plane;
+  }
+
+  checkForRelease({ plane, player }) {
+    if (plane.release) return; // РЕЛИЗ был активирован ранее
+    if (plane.hasEmptyZones()) return;
+
+    let anchorGame = plane.game();
+    if (plane.anchorGameId) anchorGame = lib.store('game').get(plane.anchorGameId);
+
+    plane.set({ release: true });
+
+    anchorGame.toggleEventHandlers('RELEASE', {}, player);
   }
 });

@@ -6,6 +6,9 @@
     this.set({ sourceGameId });
     this.broadcastableFields(['sourceGameId']);
   }
+  sourceGame() {
+    return lib.store('game').get(this.sourceGameId);
+  }
   findAvailableZones() {
     const game = this.game();
     const superGame = game.game();
@@ -22,23 +25,37 @@
 
       const zoneList = [];
       for (const game of games) {
-        zoneList.push(
-          ...game.decks.table.getAllItems().reduce((arr, plane) => {
-            const freeZones = plane.select('Zone').filter((zone) => !zone.getItem());
-            return arr.concat(freeZones);
-          }, [])
-        );
+        const deletedDices = game.getDeletedDices();
+        if (deletedDices.length) {
+          const deletedDicesZones = deletedDices.reduce((result, dice) => {
+            const zone = dice.getParent();
+            result.push(zone);
+            if (zone.findParent({ className: 'Bridge' })) result.push(...zone.getNearZones());
+            return result;
+          }, []);
 
-        zoneList.push(
-          ...game.getObjects({ className: 'Bridge', directParent: game }).reduce((arr, bridge) => {
-            const freeZones = bridge.select('Zone').filter((zone) => !zone.getItem());
-            return arr.concat(freeZones);
-          }, [])
-        );
+          zoneList.push(...deletedDicesZones);
+        } else {
+          const planes = game.decks.table.getAllItems();
+          zoneList.push(
+            ...planes.reduce((arr, plane) => {
+              const freeZones = plane.select('Zone').filter((zone) => !zone.getItem());
+              return arr.concat(freeZones);
+            }, [])
+          );
+
+          const bridges = game.getObjects({ className: 'Bridge', directParent: game });
+          zoneList.push(
+            ...bridges.reduce((arr, bridge) => {
+              const freeZones = bridge.select('Zone').filter((zone) => !zone.getItem());
+              return arr.concat(freeZones);
+            }, [])
+          );
+        }
       }
 
       for (const zone of zoneList) {
-        const status = zone.checkIsAvailable(this);
+        const { status } = zone.checkIsAvailable(this);
         result.push({ zone, status });
       }
 
@@ -48,16 +65,21 @@
     // game.enableChanges();
     return result;
   }
-  moveToTarget(target) {
-    const game = this.game();
+  moveToTarget(target, { markDelete = false } = {}) {
+    const game = this.sourceGame();
 
-    if (game.hasSuperGame && game.merged) {
-      if (target.type === 'domino' && !target.subtype && target.parent().matches({ className: 'Player' })) {
-        target = game.find('Deck[domino_common]');
+    if (game.merged) {
+      const targetParentIsPlayer = target.parent().matches({ className: 'Player' });
+      const targetIsPlayerDominoHand = targetParentIsPlayer && target.type === 'domino' && !target.subtype;
+      if (targetIsPlayerDominoHand) {
+        if (target.game() !== game) {
+          target = target.game().find('Deck[domino_common]');
+        } else {
+          target = game.find('Deck[domino_common]');
+        }
       }
     }
 
-    const item = super.moveToTarget(target, { preventDelete: true });
-    return item;
+    return super.moveToTarget(target, { markDelete });
   }
 });

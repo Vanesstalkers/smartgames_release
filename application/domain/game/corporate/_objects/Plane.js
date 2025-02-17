@@ -1,10 +1,10 @@
 (class Plane extends domain.game._objects.Plane {
   constructor(data = {}) {
     super(...arguments);
-    let { sourceGameId, mergedPlane } = data;
+    let { sourceGameId, anchorGameId, mergedPlane } = data;
     if (!sourceGameId) sourceGameId = this.game().id();
-    this.set({ sourceGameId, mergedPlane });
-    this.broadcastableFields(['sourceGameId']);
+    this.set({ sourceGameId, anchorGameId, mergedPlane });
+    this.broadcastableFields(['sourceGameId', 'anchorGameId']);
   }
   game(game) {
     const currentGame = super.game();
@@ -25,7 +25,11 @@
       this.game(newParentGame);
     }
   }
-  moveToTarget(target) {
+  moveToTarget(target, { anchorGameId } = {}) {
+    if (target.subtype === 'table' && !this.anchorGameId) {
+      this.set({ anchorGameId: anchorGameId || this.game().id() });
+    }
+
     const currentParent = this.parent();
     super.moveToTarget(target);
     const newParentGame = target.game();
@@ -34,16 +38,21 @@
     }
   }
   getLinkedBridges() {
-    const bridges = super.getLinkedBridges();
+    // const bridges = super.getLinkedBridges();
+    const game = this.game();
+    const superGame = game.game();
 
-    if (this.mergedPlane) {
-      const game = this.game();
-      const superGame = game.game();
-      bridges.push(
-        // bridge-связка с супер-игрой
-        ...superGame.select({ className: 'Bridge', attr: { mergedGameId: game.id() } })
-      );
-    }
+    const ports = this.ports().filter((port) => port.linkedBridgeCode);
+    const bridges = ports.map((port) => superGame.find(port.linkedBridgeCode)).filter((bridge) => bridge);
+
+    // if (this.mergedPlane) {
+    //   const game = this.game();
+    //   const superGame = game.game();
+    //   bridges.push(
+    //     // bridge-связка с супер-игрой
+    //     ...superGame.select({ className: 'Bridge', attr: { mergedGameId: game.id() } })
+    //   );
+    // }
 
     return bridges;
   }

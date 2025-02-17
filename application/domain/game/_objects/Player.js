@@ -10,16 +10,17 @@
   self() {
     return this;
   }
-  triggerEventEnabled() {
-    // /** @type {(import('application/domain/game/types.js')._objects.Player)} */
-    // const self = this;
-    // const g = self.game();
-    // const g = this.game();
-    // const pp = new domain.game._objects.Player();
-    // const gg = pp.game();
-    // const g = this.game();
-    // gg.
+  // !!! не очень понял, зачем эта логика
+  // triggerEventEnabled() {
+  //   // /** @type {(import('application/domain/game/types.js')._objects.Player)} */
+  //   // const self = this;
+  //   // const g = self.game();
+  //   // const g = this.game();
+  //   // const pp = new domain.game._objects.Player();
+  //   // const gg = pp.game();
+  //   // const g = this.game();
+  //   // gg.
 
-    return this.eventData.activeEvents.find((event) => event.hasHandler('ADD_PLANE'));
-  }
+  //   return this.eventData.activeEvents.find((event) => event.hasHandler('ADD_PLANE')); 
+  // }
 });

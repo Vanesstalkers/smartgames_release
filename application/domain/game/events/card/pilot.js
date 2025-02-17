@@ -8,7 +8,10 @@
 
     for (let i = 0; i < game.settings.planesToChoose; i++) {
       const plane = gameDeck.getRandomItem();
-      if (plane) plane.moveToTarget(deck);
+      if (plane) {
+        plane.moveToTarget(deck);
+        plane.addCustomClass('one-of-many');
+      }
     }
   };
   event.handlers['ADD_PLANE'] = function ({ target: plane }) {
@@ -17,17 +20,26 @@
     const playerPlaneDeck = player.find('Deck[plane]');
     const planeList = playerPlaneDeck.select('Plane');
 
-    const requiredPlanes = planeList.filter(({ eventData: { moveToHand } }) => moveToHand);
-    const pilotPlanePlaced = planeList.length - requiredPlanes.length <= game.settings.planesToChoose - 1;
-    if (requiredPlanes.length == 0 && pilotPlanePlaced) {
+    const requiredPlanes = planeList.filter((plane) => plane.eventData.moveToHand);
+    const extraPlanes = planeList.filter((plane) => plane.eventData.extraPlane);
+    const pilotPlanePlaced =
+      planeList.length - requiredPlanes.length - extraPlanes.length <= game.settings.planesToChoose - 1;
+    if (requiredPlanes.length === 0 && pilotPlanePlaced) {
+      plane.removeCustomClass('one-of-many');
       this.emit('RESET');
     } else {
-      if (!plane.eventData.moveToHand) {
-        // один из новых блоков - остальные можно убрать
-        const remainPlane = planeList.find(({ eventData: { moveToHand } }) => !moveToHand);
+      if (plane.eventData.extraPlane) {
+        if (extraPlanes.length) {
+          for (const plane of extraPlanes) {
+            plane.moveToTarget(gamePlaneDeck);
+          }
+        }
+      } else if (!plane.eventData.moveToHand) {
+        // один из новых блоков для размещения на выбор - остальные можно убрать
+        const remainPlane = planeList.find((plane) => !plane.eventData.moveToHand);
         if (remainPlane) {
-          // в колоде мог остаться всего один блок на выбор
           remainPlane.moveToTarget(gamePlaneDeck);
+          remainPlane.removeCustomClass('one-of-many');
         }
       }
 

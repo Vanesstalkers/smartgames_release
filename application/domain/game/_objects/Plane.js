@@ -59,6 +59,10 @@
     if (!Array.isArray(newClassArray)) newClassArray = [newClassArray];
     this.set({ customClass: (this.customClass || []).concat(newClassArray) });
   }
+  removeCustomClass(classArray) {
+    if (!Array.isArray(classArray)) classArray = [classArray];
+    this.set({ customClass: (this.customClass || []).filter((item) => !classArray.includes(item)) });
+  }
 
   isCardPlane() {
     return this.cardPlane;
@@ -163,5 +167,8 @@
     const planesIds = bridges.map((bridge) => bridge.linkedPlanesIds.find((id) => id !== this.id()));
     const planes = planesIds.map((id) => game.get(id));
     return planes;
+  }
+  hasEmptyZones() {
+    return this.select('Zone').find((zone) => !zone.getItem()) ? true : false;
   }
 });

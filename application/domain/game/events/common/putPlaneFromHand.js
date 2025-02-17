@@ -1,4 +1,7 @@
 () => ({
+  data: {
+    extraPlanes: [],
+  },
   handlers: {
     RESET: function () {
       const { game, player } = this.eventContext();
@@ -7,11 +10,14 @@
 
       const gameDeck = game.find('Deck[plane]');
       const playerPlaneDeck = player.find('Deck[plane]');
-      playerPlaneDeck.moveAllItems({ target: gameDeck });
 
       game.decks.table.updateAllItems({
         eventData: { selectable: null, moveToHand: null, extraPlane: null },
       });
+      playerPlaneDeck.updateAllItems({
+        eventData: { selectable: null, moveToHand: null, extraPlane: null },
+      });
+      playerPlaneDeck.moveAllItems({ target: gameDeck });
 
       this.destroy();
     },
@@ -27,11 +33,9 @@
         this.emit('RESET');
       } else {
         if (plane.eventData.extraPlane) {
-          const extraPlanes = planeList.filter((plane) => plane.eventData.extraPlane);
-          if (extraPlanes.length) {
-            for (const plane of extraPlanes) {
-              plane.moveToTarget(gamePlaneDeck);
-            }
+          for (const extraPlane of this.data.extraPlanes) {
+            if (extraPlane === plane) continue;
+            extraPlane.moveToTarget(gamePlaneDeck);
           }
         }
 
@@ -82,6 +86,22 @@
 
       game.set({ availablePorts: [] });
       this.emit('NO_AVAILABLE_PORTS');
+
+      return { preventListenerRemove: true };
+    },
+    TRIGGER_EXTRA_PLANE: function ({ initPlayer: player }) {
+      const { game } = this.eventContext();
+      const deck = player.find('Deck[plane]');
+      const gameDeck = game.find('Deck[plane]');
+
+      const plane = gameDeck.getRandomItem();
+      if (!plane) throw new Error('В колоде закончились блоки');
+
+      this.data.extraPlanes.push(plane);
+
+      plane.moveToTarget(deck);
+      plane.set({ eventData: { extraPlane: true } });
+      plane.markNew(); // у игроков в хранилище нет данных об этом plane
 
       return { preventListenerRemove: true };
     },

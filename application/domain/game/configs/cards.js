@@ -8,12 +8,12 @@
     // 'water',
     // 'req_tax', 'req_legal',
     // 'pilot',
-    // 'refactoring',
+    'refactoring',
     // 'give_project',
     // 'time'
   ]).length
     ? (() =>
-        Array(5)
+        Array(10)
           .fill(null)
           .reduce((__) => __.concat(domain.custom_cards.map((name) => ({ name, playOneTime: false }))), []))()
     : [

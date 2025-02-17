@@ -29,7 +29,10 @@ const init = async () => {
       ? `${location.hostname}:${port}`
       : `${location.hostname + location.pathname}api/`;
 
-  const metacom = Metacom.create(`${protocol}://${serverHost}`);
+  const metacom = Metacom.create(`${protocol}://${serverHost}`, { callTimeout: 1000 * 1000 });
+  metacom.on('error', (err) => {
+    console.log({ err });
+  });
   const { api } = metacom;
   window.metacom = metacom;
   window.api = api;
@@ -39,6 +42,8 @@ const init = async () => {
 
   const state = {
     serverOrigin: `${location.protocol}//${serverHost}`,
+    innerWidth: window.innerWidth,
+    innerHeight: window.innerHeight,
     isMobile: false,
     isLandscape: true,
     isPortrait: false,
@@ -193,6 +198,8 @@ const init = async () => {
   const checkDevice = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
+    state.innerWidth = width;
+    state.innerHeight = height;
     state.isMobile = isMobile() ? true : false;
     state.isLandscape = height < width;
     state.isPortrait = !state.isLandscape;

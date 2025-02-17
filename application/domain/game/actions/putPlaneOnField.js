@@ -1,7 +1,8 @@
 (function ({ joinPortId, targetPortId, targetPortDirect, joinPortDirect }) {
   const joinPort = this.get(joinPortId);
-  const joinPlane = joinPort.getParent();
+  const joinPlane = joinPort.parent();
   const targetPort = this.get(targetPortId);
+  const targetPlane = targetPort.parent();
   const joinGame = joinPort.game();
   const targetGame = targetPort.game();
   const targetTable = targetGame.decks.table;
@@ -38,7 +39,7 @@
   const bridge = targetGame.run('createBridge', { joinPort, targetPort });
 
   joinPlane.game(targetGame);
-  joinPlane.moveToTarget(targetTable);
+  joinPlane.moveToTarget(targetTable, { anchorGameId: targetPlane.anchorGameId });
 
   // переносим все связанные plane-ы
   const processedBridges = [bridge];

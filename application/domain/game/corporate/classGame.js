@@ -78,6 +78,48 @@
     return action.call(this, data, initPlayer);
   }
 
+  async handleAction({ name: eventName, data: eventData = {}, sessionUserId: userId }) {
+    try {
+      const player = this.game().getPlayerByUserId(userId) || this.roundActivePlayer();
+      if (!player) throw new Error('player not found');
+
+      const activePlayers = this.game().getActivePlayers();
+      const { disableActivePlayerCheck, disableActionsDisabledCheck } = player.eventData;
+      if (!activePlayers.includes(player) && eventName !== 'leaveGame' && !disableActivePlayerCheck)
+        throw new Error('Игрок не может совершить это действие, так как сейчас не его ход.');
+      else if (
+        (this.roundReady || player.eventData.actionsDisabled) &&
+        !this.merged &&
+        !disableActionsDisabledCheck &&
+        eventName !== 'updateRoundStep' &&
+        eventName !== 'leaveGame'
+      )
+        throw new Error('Игрок не может совершать действия в этот ход.');
+
+      if (disableActivePlayerCheck || disableActionsDisabledCheck) {
+        player.set({ eventData: { disableActivePlayerCheck: null, disableActionsDisabledCheck: null } });
+      }
+
+      // !!! защитить методы, которые не должны вызываться с фронта
+      if (this[eventName]) {
+        this[eventName](eventData, player);
+      } else {
+        this.run(eventName, eventData, player);
+      }
+
+      await this.saveChanges();
+    } catch (exception) {
+      if (exception instanceof lib.game.endGameException) {
+        await this.removeGame();
+      } else {
+        console.error(exception);
+        lib.store.broadcaster.publishAction(`gameuser-${userId}`, 'broadcastToSessions', {
+          data: { message: exception.message, stack: exception.stack },
+        });
+      }
+    }
+  }
+
   dumpState() {
     const clone = lib.utils.structuredClone(this);
     this.game().dumpChild(clone);
@@ -100,18 +142,9 @@
       : this.getObjects({ className: 'Bridge', directParent: this });
 
     let ready = true;
-    for (const plane of planeList) {
+    for (const releaseItem of [...planeList, ...bridgeList]) {
       if (!ready) continue;
-      if (!plane.release) ready = false;
-    }
-    for (const bridge of bridgeList) {
-      if (!ready) continue;
-      if (
-        !bridge.release &&
-        !bridge.mergedGameId // зона стыковки с super-игрой
-      ) {
-        ready = false;
-      }
+      if (releaseItem.hasEmptyZones()) ready = false;
     }
 
     return ready;
@@ -130,5 +163,9 @@
 
   checkDiceResource() {
     this.game().checkDiceResource();
+  }
+
+  isSinglePlayer() {
+    return false;
   }
 });

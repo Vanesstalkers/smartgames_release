@@ -9,7 +9,7 @@
         :style="{ ...gamePlaneStyle(game.gameId) }"
       >
         <div :class="['gp-content']" :style="{ ...gamePlaneContentControlStyle(game.gameId) }">
-          <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" :gameId="game.gameId" />
+          <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" />
           <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
           <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
 
@@ -49,10 +49,19 @@
           <div v-if="deck._id && deck.code === `${game.code}Deck[domino]`" class="hat" v-on:click="takeDice">
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === `${game.code}Deck[card]`" class="card-event" v-on:click="takeCard">
+          <div
+            v-if="deck._id && deck.code === `${game.code}Deck[card]`"
+            class="card-event"
+            :style="cardEventCustomStyle"
+            v-on:click="takeCard"
+          >
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === `${game.code}Deck[card_drop]`" class="card-event">
+          <div
+            v-if="deck._id && deck.code === `${game.code}Deck[card_drop]`"
+            class="card-event"
+            :style="cardEventCustomStyle"
+          >
             {{ Object.keys(deck.itemMap).length }}
           </div>
           <div v-if="deck._id && deck.code === `${game.code}Deck[card_active]`" class="deck-active">
@@ -156,7 +165,7 @@ export default {
         this.hideZonesAvailability();
       }
     },
-    'game.eventListeners.TRIGGER': function () {
+    'player.eventData.triggerListenerEnabled': function () {
       this.gameCustom.pickedDiceId = '';
       if (
         this.gameDataLoaded // gameDataLoaded может не быть при restoreGame
@@ -170,7 +179,7 @@ export default {
         this.selectedFakePlanePosition = '';
         this.gameCustom.selectedFakePlanes = {};
 
-        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn) {
+        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn && !this.gameFinished()) {
           this.gameState.cardWorkerAction = {
             show: true,
             label: 'Помочь выложить',
@@ -189,7 +198,7 @@ export default {
         this.selectedFakePlanePosition = '';
         this.gameCustom.selectedFakePlanes = {};
 
-        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn) {
+        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn && !this.gameFinished()) {
           this.gameState.cardWorkerAction = {
             show: true,
             label: 'Помочь выложить',
@@ -320,6 +329,18 @@ export default {
     },
     selectedGame() {
       return this.gameCustom.selectedGame;
+    },
+
+    cardEventCustomStyle() {
+      const {
+        state: { serverOrigin },
+        game,
+      } = this;
+
+      const rootPath = `${serverOrigin}/img/cards/${game.templates.card}`;
+      return {
+        backgroundImage: `url(${rootPath}/back-side.jpg)`,
+      };
     },
   },
   methods: {
@@ -638,6 +659,7 @@ export default {
   margin-left: 60px;
 }
 .games {
+  z-index: 1;
   position: absolute;
   left: 40px;
   bottom: 0px;

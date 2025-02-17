@@ -4,22 +4,31 @@
     :class="['player', ...customClass, iam ? 'iam' : '', player.active ? 'active' : '']"
   >
     <div class="inner-content" :style="{ justifyContent: 'flex-end' }">
-      <div class="player-hands" v-if="game.status != 'WAIT_FOR_PLAYERS'" :style="{ justifyContent: 'flex-end' }">
-        <perfect-scrollbar v-if="hasPlaneInHand" :style="{ width: '50%' }">
-          <div class="hand-planes">
-            <plane
-              v-if="player.eventData.fakePlaneAddBtn"
-              :key="'fake'"
-              :planeId="'fake'"
-              :inHand="true"
-              :class="['in-hand', 'add-block-action']"
-            />
-            <plane v-for="id in planeInHandIds" :key="id" :planeId="id" :inHand="true" :class="['in-hand']" />
-          </div>
-        </perfect-scrollbar>
+      <div
+        class="player-hands"
+        v-if="game.status != 'WAIT_FOR_PLAYERS'"
+        :style="{ justifyContent: 'flex-end', maxWidth: state.innerWidth / 2 + 'px' }"
+      >
+        <div v-if="hasPlaneInHand" class="hand-planes">
+          <plane
+            v-if="iam && player.eventData?.fakePlaneAddBtn"
+            :key="'fake'"
+            :planeId="'fake'"
+            :inHand="true"
+            :class="['in-hand', 'add-block-action']"
+          />
+          <plane
+            v-for="id in planeInHandIds"
+            :key="id"
+            :planeId="iam ? id : 'fake'"
+            :inHand="true"
+            :class="['in-hand']"
+          />
+        </div>
 
         <div v-if="!hasPlaneInHand" class="hand-dices-list">
           <div v-for="deck in dominoDecks" :key="deck._id" class="hand-dices-list-content">
+            <!-- ??? как viewer видит эти deck`s -->
             <div
               v-if="iam || showDecks || !state.isPortrait"
               class="hand-dices"
@@ -199,11 +208,16 @@ export default {
 .player:not(.iam) {
   position: relative;
   margin-top: 10px;
-}
-.player:not(.iam) > .inner-content {
-  display: flex;
-  align-items: flex-end;
-  flex-direction: row-reverse;
+  
+  > .inner-content {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: row-reverse;
+
+    .hand-planes {
+      flex-direction: row-reverse;
+    }
+  }
 }
 #game.mobile-view.portrait-view .player:not(.iam) > .inner-content {
   flex-direction: row;
@@ -344,8 +358,12 @@ export default {
 
   &::after {
     content: '';
-    width: 200px;
+    width: 320px;
     flex-shrink: 1;
+
+    // :second-child {
+    //   width: 0px;
+    // }
   }
 
   > .plane {

@@ -4,7 +4,7 @@
   const playerDeck = initPlayer.find('Deck[plane]');
   const gamePlanes = currentTable.select({
     className: 'Plane',
-    attr: { sourceGameId: this.id() },
+    attr: { anchorGameId: this.id() },
   });
 
   for (const plane of gamePlanes) {

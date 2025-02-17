@@ -41,4 +41,7 @@
     const planes = this.linkedPlanesIds.map((id) => game.get(id));
     return planes;
   }
+  hasEmptyZones() {
+    return this.select('Zone').find((zone) => !zone.getItem()) ? true : false;
+  }
 });

@@ -36,7 +36,7 @@
         :value="side.value"
         :class="[
           'el',
-          'template-' + (game.templates.dice || 'default'),
+          'template-' + (sourceGame.templates.dice || 'default'),
           side.eventData.selectable ? 'selectable' : '',
           side.eventData.fakeValue ? 'fake-value' : '',
         ]"
@@ -47,7 +47,7 @@
         <dice-side-value-select
           v-if="gameCustom.selectedDiceSideId === side._id"
           v-on:select="pickActiveEventDiceSide"
-          :templateClass="'template-' + (game.templates.dice || 'default')"
+          :templateClass="'template-' + (sourceGame.templates.dice || 'default')"
         />
       </div>
     </template>
@@ -67,6 +67,7 @@ export default {
     inHand: Boolean,
     iam: Boolean,
     zone: Object,
+    gameId: String,
   },
   setup() {
     return inject('gameGlobals');
@@ -80,6 +81,9 @@ export default {
       return this.getStore();
     },
     game() {
+      return this.getGame(this.gameId || this.dice.sourceGameId);
+    },
+    sourceGame() {
       return this.getGame(this.dice.sourceGameId);
     },
     dice() {

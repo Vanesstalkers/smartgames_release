@@ -75,8 +75,13 @@
     return this.isCoreGame() && freePortsCount < minFreePorts;
   };
 
+  let attempts = 20;
   let requireExtraPlane = false;
   while (planes.length || freePortsNotEnough()) {
+    if (--attempts === 0) {
+        return this.run('endGame', { message: 'Возникла рекурсия, израсходовавшая все ресурсы. Продолжение игры не возможно.' });
+    }
+
     // freePortsNotEnough
     if (planes.length === 0) {
       addExtraPlane();
