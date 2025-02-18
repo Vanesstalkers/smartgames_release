@@ -10,7 +10,6 @@
     v-on:click="putDice"
     :code="zone.code"
   >
-    {{ 'gameId='+gameId }}
     <div class="wraper">
       <plane-zone-sides
         :linkLines="linkLines"

@@ -18,7 +18,7 @@ function playerGameId() {
   return game._id;
 }
 function focusedGameId() {
-  const selectedGameId = this.gameCustom.selectedGame || this.getPlayerGame()._id;
+  const selectedGameId = this.gameCustom.selectedGameId || this.getPlayerGame()._id;
   const selectedGame = this.getStore().game?.[selectedGameId] || {};
   const focusedGameId = selectedGame.merged ? this.gameState.gameId : selectedGameId;
   return focusedGameId;

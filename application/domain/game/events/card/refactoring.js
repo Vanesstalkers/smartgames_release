@@ -49,7 +49,7 @@
     },
     TRIGGER: function ({ target: dice }) {
       const { game, player } = this.eventContext();
-      const parent = dice.findParent({ className: 'Zone' }).getParent(); // тут может быть Bridge
+      const parent = dice.findParent({ className: 'Zone' }).parent(); // тут может быть Bridge
       const playerHand = player.find('Deck[domino]');
 
       dice.moveToTarget(playerHand);

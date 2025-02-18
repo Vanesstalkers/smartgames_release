@@ -43,14 +43,19 @@
       <div class="wrapper">
         <div class="game-status-label">
           {{ superGame.statusLabel }}
-          <small v-if="game.roundReady">Ожидание других команд</small>
+          <small v-if="selectedGame.roundReady">Ожидание других команд</small>
         </div>
-        <div v-for="deck in deckList" :key="deck._id" class="deck" :code="deck.code.replace(game.code, '')">
-          <div v-if="deck._id && deck.code === `${game.code}Deck[domino]`" class="hat" v-on:click="takeDice">
+        <div
+          v-for="deck in deckList"
+          :key="deck._id"
+          :class="['deck', 'template-' + (selectedGame.templates.dice || 'default')]"
+          :code="deck.code.replace(selectedGame.code, '')"
+        >
+          <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[domino]`" class="hat" v-on:click="takeDice">
             {{ Object.keys(deck.itemMap).length }}
           </div>
           <div
-            v-if="deck._id && deck.code === `${game.code}Deck[card]`"
+            v-if="deck._id && deck.code === `${selectedGame.code}Deck[card]`"
             class="card-event"
             :style="cardEventCustomStyle"
             v-on:click="takeCard"
@@ -58,13 +63,13 @@
             {{ Object.keys(deck.itemMap).length }}
           </div>
           <div
-            v-if="deck._id && deck.code === `${game.code}Deck[card_drop]`"
+            v-if="deck._id && deck.code === `${selectedGame.code}Deck[card_drop]`"
             class="card-event"
             :style="cardEventCustomStyle"
           >
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === `${game.code}Deck[card_active]`" class="deck-active">
+          <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[card_active]`" class="deck-active">
             <!-- активная карта всегда первая - для верстки она должна стать последней -->
             <card
               v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"
@@ -228,11 +233,14 @@ export default {
     game() {
       return this.getGame();
     },
+    selectedGame() {
+      return this.getGame(this.gameCustom.selectedGameId);
+    },
     superGame() {
       return this.getSuperGame();
     },
     player() {
-      return this.store.player[this.gameState.sessionPlayerId] || {};
+      return this.store.player?.[this.gameState.sessionPlayerId] || {};
     },
     gameDataLoaded() {
       return this.game.addTime;
@@ -248,9 +256,11 @@ export default {
       if (this.gameState.viewerMode)
         return Object.keys(this.game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
 
-      const game = this.getStore().game[this.selectedGame || this.playerGameId()];
+      const game = this.getStore().game[this.gameCustom.selectedGameId || this.playerGameId()];
+
       const ids = Object.keys(game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
       const curPlayerIdx = ids.indexOf(this.gameState.sessionPlayerId);
+
       const result = curPlayerIdx != -1 ? ids.slice(curPlayerIdx + 1).concat(ids.slice(0, curPlayerIdx)) : ids;
       return result;
     },
@@ -274,7 +284,7 @@ export default {
       return Math.floor(baseSum * timerMod * configMod);
     },
     deckList() {
-      return Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id]) || [];
+      return Object.keys(this.selectedGame.deckMap).map((id) => this.store.deck?.[id]) || [];
     },
     tables() {
       return Object.values(this.store.deck).filter((deck) => deck.subtype === 'table');
@@ -282,7 +292,7 @@ export default {
     games() {
       const games = [];
       const playerGameId = this.playerGameId();
-      const selectedGame = this.selectedGame || playerGameId;
+      const selectedGameId = this.gameCustom.selectedGameId || playerGameId;
       games.push([this.gameState.gameId, this.state.store.game?.[this.gameState.gameId] || {}]);
       if (this.store.game) games.push(...Object.entries(this.store.game));
       return games.map(([gameId, game]) => {
@@ -294,11 +304,12 @@ export default {
           bridgeMap: game.bridgeMap || {},
           playerMap: game.playerMap || {},
           availablePorts: game.availablePorts,
-          selected: selectedGame === gameId,
+          selected: selectedGameId === gameId,
           super: this.gameState.gameId === gameId,
           my: gameId === playerGameId,
           title: game.title,
           roundReady: game.roundReady,
+          code: game.code,
         };
       });
     },
@@ -327,17 +338,14 @@ export default {
     activeCards() {
       return this.deckList.find((deck) => deck.subtype === 'active') || {};
     },
-    selectedGame() {
-      return this.gameCustom.selectedGame;
-    },
 
     cardEventCustomStyle() {
       const {
         state: { serverOrigin },
-        game,
+        selectedGame,
       } = this;
 
-      const rootPath = `${serverOrigin}/img/cards/${game.templates.card}`;
+      const rootPath = `${serverOrigin}/img/cards/${selectedGame.templates.card}`;
       return {
         backgroundImage: `url(${rootPath}/back-side.jpg)`,
       };
@@ -518,7 +526,7 @@ export default {
       this.resetMouseEventsConfig({ rotation });
       this.gameCustom.gamePlaneRotation = rotation;
 
-      this.$set(this.gameCustom, 'selectedGame', gameId);
+      this.$set(this.gameCustom, 'selectedGameId', gameId);
       this.resetPlanePosition();
     },
   },
@@ -544,16 +552,43 @@ export default {
   text-shadow: 1px 1px 0 #fff;
   background-image: url(./assets/back-side.jpg);
 }
+.deck > .card-event:hover {
+  box-shadow: inset 0 0 0 1000px rgba(255, 255, 255, 0.5);
+  color: black !important;
+}
 
 .deck[code='Deck[domino]'] {
   position: absolute;
   top: 35px;
   right: 100px;
-  background: url(./assets/dominoes.png);
-  background-size: cover;
   padding: 14px;
   cursor: default;
 }
+
+.deck[code='Deck[domino]']:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0px;
+  top: 0px;
+  z-index: -1;
+  background: url(./assets/dices/deck.png);
+  background-size: cover;
+}
+.deck[code='Deck[domino]'].template-team1:after {
+  filter: hue-rotate(200deg);
+}
+.deck[code='Deck[domino]'].template-team2:after {
+  filter: hue-rotate(320deg);
+}
+.deck[code='Deck[domino]'].template-team3:after {
+  filter: hue-rotate(80deg);
+}
+.deck[code='Deck[domino]'].template-team4:after {
+  filter: hue-rotate(10deg);
+}
+
 .deck[code='Deck[domino]'] > .hat {
   color: white;
   font-size: 36px;

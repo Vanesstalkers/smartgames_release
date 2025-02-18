@@ -50,6 +50,7 @@
     }
     this.run('initPlayerWaitEvents');
     this.decks.table.set({ access: this.playerMap });
+    this.decks.active.set({ access: this.playerMap });
 
     const fullPlayersList = Object.values(this.store.player);
     const gamesMap = {};
@@ -85,6 +86,7 @@
 
       if (players.length === 1) game.set({ settings: { singlePlayer: true } });
       game.decks.table.set({ access: this.playerMap });
+      game.decks.active.set({ access: this.playerMap });
       game.find('Deck[domino_common]').set({ access: playerMap, markNew: true });
       game.find('Deck[card_common]').set({ access: playerMap, markNew: true });
 

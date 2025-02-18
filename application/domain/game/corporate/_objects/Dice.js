@@ -12,6 +12,7 @@
   findAvailableZones() {
     const game = this.game();
     const superGame = game.game();
+    const superGameId = superGame.id();
     const result = [];
 
     // включить, если findAvailableZones будет вызываться откуда то кроме showZonesAvailability
@@ -21,9 +22,10 @@
       this.getParent().removeItem(this);
 
       const games = superGame.getAllGames({ roundReady: false });
-      if (superGame.allGamesFieldReady() && superGame.allGamesMerged()) games.push(superGame);
+      // if (superGame.allGamesFieldReady() && superGame.allGamesMerged()) games.push(superGame);
+      if (superGame.allGamesMerged()) games.push(superGame);
 
-      const zoneList = [];
+      let zoneList = [];
       for (const game of games) {
         const deletedDices = game.getDeletedDices();
         if (deletedDices.length) {
@@ -54,6 +56,10 @@
         }
       }
 
+      if (!superGame.allGamesFieldReady()) {
+        zoneList = zoneList.filter((z) => z.sourceGameId !== superGameId);
+      }
+
       for (const zone of zoneList) {
         const { status } = zone.checkIsAvailable(this);
         result.push({ zone, status });
@@ -70,8 +76,8 @@
 
     if (game.merged) {
       const targetParentIsPlayer = target.parent().matches({ className: 'Player' });
-      const targetIsPlayerDominoHand = targetParentIsPlayer && target.type === 'domino' && !target.subtype;
-      if (targetIsPlayerDominoHand) {
+      const targetIsPlayerHand = targetParentIsPlayer && target.type === 'domino' && !target.subtype;
+      if (targetIsPlayerHand) {
         if (target.game() !== game) {
           target = target.game().find('Deck[domino_common]');
         } else {

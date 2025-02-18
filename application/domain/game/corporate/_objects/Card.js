@@ -6,14 +6,33 @@
     this.set({ sourceGameId });
     this.broadcastableFields(['sourceGameId']);
   }
+  sourceGame() {
+    return lib.store('game').get(this.sourceGameId);
+  }
   moveToTarget(target) {
-    const game = this.game();
+    // const game = this.game();
 
-    if (target.type === 'card' && !target.subtype && target.parent().matches({ className: 'Player' })) {
-      if (game.merged) {
-        target = game.find('Deck[card_common]');
-      } else if (game.isSuperGame && game.allGamesMerged()) {
-        target = target.game().find('Deck[card_common]');
+    // if (target.type === 'card' && !target.subtype && target.parent().matches({ className: 'Player' })) {
+    //   if (game.merged) {
+    //     target = game.find('Deck[card_common]');
+    //   } else if (game.isSuperGame && game.allGamesMerged()) {
+    //     target = target.game().find('Deck[card_common]');
+    //   }
+    // }
+
+    // return super.moveToTarget(target);
+
+    const game = this.sourceGame();
+
+    if (game.merged || game.isSuperGame) {
+      const targetParentIsPlayer = target.parent().matches({ className: 'Player' });
+      const targetIsPlayerHand = targetParentIsPlayer && target.type === 'card' && !target.subtype;
+      if (targetIsPlayerHand) {
+        if (target.game() !== game) {
+          target = target.game().find('Deck[card_common]');
+        } else {
+          target = game.find('Deck[card_common]');
+        }
       }
     }
 

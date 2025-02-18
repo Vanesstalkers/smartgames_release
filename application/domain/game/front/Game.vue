@@ -357,7 +357,7 @@ export default {
   position: absolute;
   top: 35px;
   right: 100px;
-  background: url(assets/dominoes.png);
+  background: url(assets/dices/deck.png);
   background-size: cover;
   padding: 14px;
   cursor: default;
