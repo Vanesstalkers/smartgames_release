@@ -45,10 +45,7 @@
               return { preventListenerRemove: true };
             }
 
-            for (const dice of deletedDices) {
-              dice.set({ deleted: null });
-              dice.moveToSourceDeck();
-            }
+            for (const dice of deletedDices) dice.moveToDeck();
 
             for (const [plane, player] of possibleReleases) {
               game.checkForRelease({ plane, player });

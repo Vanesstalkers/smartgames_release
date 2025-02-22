@@ -660,24 +660,25 @@ export default {
   top: 65px;
   right: -10px;
   cursor: default;
-}
-.deck[code='Deck[card_drop]'] > .card-event,
-.deck[code='SuperDeck[card_drop]'] > .card-event {
-  color: #ccc;
-}
 
-.deck[code='Deck[card_active]'] {
+  > .card-event {
+    color: #ccc;
+  }
+}
+.deck[code='Deck[card_active]'],
+.deck[code='SuperDeck[card_active]'] {
   position: absolute;
   top: 140px;
   right: 0px;
   display: flex;
-}
 
-.deck[code='Deck[card_active]'] .card-event {
-  margin-top: -135px;
-}
-.deck[code='Deck[card_active]'] .card-event:first-child {
-  margin-top: 0px !important;
+  .card-event {
+    margin-top: -135px;
+
+    &:first-child {
+      margin-top: 0px !important;
+    }
+  }
 }
 .deck-active {
   display: flex;

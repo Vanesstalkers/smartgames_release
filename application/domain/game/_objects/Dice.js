@@ -25,9 +25,6 @@
       if (Math.random() > 0.5) this.sideList.reverse(); // code останется в первичном виде
     }
   }
-  sourceGame() {
-    return this.game();
-  }
   customObjectCode({ codeTemplate, replacementFragment }, data) {
     return codeTemplate.replace(replacementFragment, '' + data[0] + data[1]);
   }
@@ -98,9 +95,9 @@
 
     return moveResult;
   }
-  moveToSourceDeck() {
-    const deck = this.sourceGame().find('Deck[domino]');
-    this.moveToTarget(deck, {
+  moveToDeck() {
+    this.set({ deleted: null }); // мог быть 
+    this.moveToTarget(this.game().find('Deck[domino]'), {
       markDelete: true, // сбрасываем флаги удаления и т.п.
     });
   }

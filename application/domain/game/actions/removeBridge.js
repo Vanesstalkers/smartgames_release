@@ -1,10 +1,10 @@
 (function ({ bridge }) {
   const linkedPorts = bridge.getLinkedPorts();
   const bridgeZone = this.get(Object.keys(bridge.zoneMap)[0]);
-  const bridgeDice = this.get(Object.keys(bridgeZone.itemMap)[0]);
+  const dice = this.get(Object.keys(bridgeZone.itemMap)[0]);
 
   this.set({ bridgeMap: { [bridge.id()]: null } });
-  if (bridgeDice) bridgeDice.moveToSourceDeck();
+  if (dice) dice.moveToDeck();
 
   for (const port of linkedPorts) {
     port.set({ linkedBridgeCode: null });

@@ -9,6 +9,7 @@
   const games = this.getAllGames();
 
   // карты должны вернуться в исходные колоды своих игр до того, иначе первая по списку игра не увидит то, что было разыграно из ее колоды в последующих играх
+  this.dropPlayedCards();
   for (const game of games) game.dropPlayedCards();
 
   for (const game of games) {

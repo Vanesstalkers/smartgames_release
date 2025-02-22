@@ -19,6 +19,8 @@
   moveToTarget(target) {
     const sourceGame = this.sourceGame();
     const targetGame = target.game();
+    const superGame = sourceGame.isSuperGame ? sourceGame : sourceGame.game();
+
     const targetParent = target.parent();
     const targetCode = target.shortCode();
 
@@ -29,27 +31,23 @@
         if (targetGame !== sourceGame) {
           // сброшенные карты возвращаем в исходную колоду
           target = sourceGame.find('Deck[card_drop]');
-          // this.anchorGame(sourceGame);
+        }
+      } else if (targetCode === 'Deck[card_active]' && targetGame !== superGame) {
+        if (superGame.allGamesMerged()) {
+          target = superGame.find('Deck[card_active]');
         }
       }
-    } else {
-      if (targetParent.is('Player')) {
-        if (targetCode === 'Deck[card]') {
-          // рука игрока
+    } else if (targetParent.is('Player')) {
+      if (targetCode === 'Deck[card]') {
+        // рука игрока
 
-          if (sourceGame.merged || sourceGame.isSuperGame) {
-            // активирована общая рука команды
+        if (sourceGame.merged || sourceGame.isSuperGame) {
+          // активирована общая рука команды
 
-            if (targetGame !== sourceGame) {
-              target = targetGame.find('Deck[card_common]');
-              // this.anchorGame(targetGame); // иначе карта не будет отображаться на фронте в deck.active
-            } else {
-              target = sourceGame.find('Deck[card_common]');
-            }
+          if (targetGame !== sourceGame) {
+            target = targetGame.find('Deck[card_common]');
           } else {
-            // if (targetGame !== sourceGame) {
-            //   this.anchorGame(targetGame); // иначе карта не будет отображаться на фронте в deck.active
-            // }
+            target = sourceGame.find('Deck[card_common]');
           }
         }
       }

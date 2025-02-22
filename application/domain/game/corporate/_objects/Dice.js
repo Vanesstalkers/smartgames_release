@@ -21,9 +21,13 @@
       // чтобы не мешать расчету для соседних зон при перемещении из одной зоны в другую (ниже вернем состояние)
       this.getParent().removeItem(this);
 
-      const games = superGame.getAllGames({ roundReady: false });
+      const allGamesMerged = superGame.allGamesMerged();
+      const games = superGame.getAllGames({ roundReady: false }).filter(
+        (g) => (allGamesMerged ? true : !g.merged) // с интегрированными в ядро играми можно взаимодействовать только после allGamesMerged
+      );
+      if (allGamesMerged) games.push(superGame);
+
       // if (superGame.allGamesFieldReady() && superGame.allGamesMerged()) games.push(superGame);
-      if (superGame.allGamesMerged()) games.push(superGame);
 
       let zoneList = [];
       for (const game of games) {
@@ -56,9 +60,9 @@
         }
       }
 
-      if (!superGame.allGamesFieldReady()) {
-        zoneList = zoneList.filter((z) => z.sourceGameId !== superGameId);
-      }
+      // if (!superGame.allGamesFieldReady()) {
+      //   zoneList = zoneList.filter((z) => z.sourceGameId !== superGameId);
+      // }
 
       for (const zone of zoneList) {
         const { status } = zone.checkIsAvailable(this);
@@ -72,16 +76,31 @@
     return result;
   }
   moveToTarget(target, { markDelete = false } = {}) {
-    const game = this.sourceGame();
+    const sourceGame = this.sourceGame();
+    const targetGame = target.game();
+    // const superGame = sourceGame.isSuperGame ? sourceGame : sourceGame.game();
 
-    if (game.merged) {
-      const targetParentIsPlayer = target.parent().matches({ className: 'Player' });
-      const targetIsPlayerHand = targetParentIsPlayer && !target.subtype;
-      if (targetIsPlayerHand) {
-        if (target.game() !== game) {
-          target = target.game().find('Deck[domino_common]');
-        } else {
-          target = game.find('Deck[domino_common]');
+    const targetParent = target.parent();
+    const targetCode = target.shortCode();
+
+    if (targetParent.is('Game')) {
+      if (targetCode === 'Deck[domino]') {
+        if (targetGame !== sourceGame) {
+          // сброшенные костяшки возвращаем в исходную колоду
+          target = sourceGame.find('Deck[domino]');
+        }
+      }
+    }
+    if (sourceGame.merged) {
+      if (targetParent.is('Player')) {
+        if (targetCode === 'Deck[domino]') {
+          // рука игрока
+
+          if (targetGame !== sourceGame) {
+            target = targetGame.find('Deck[domino_common]');
+          } else {
+            target = sourceGame.find('Deck[domino_common]');
+          }
         }
       }
     }
