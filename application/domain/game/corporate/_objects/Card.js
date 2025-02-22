@@ -1,37 +1,56 @@
 (class Card extends lib.game._objects.Card {
   constructor(data = {}) {
     super(...arguments);
-    let { sourceGameId } = data;
+    let { sourceGameId, anchorGameId } = data;
     if (!sourceGameId) sourceGameId = this.game().id();
-    this.set({ sourceGameId });
-    this.broadcastableFields(['sourceGameId']);
+    if (anchorGameId) this.game(lib.store('game').get(anchorGameId));
+    this.set({ sourceGameId, anchorGameId });
+    this.broadcastableFields(['sourceGameId', 'anchorGameId']);
   }
   sourceGame() {
     return lib.store('game').get(this.sourceGameId);
   }
+  setAnchorGame(game) {
+    if (game) {
+      this.set({ anchorGameId: game.id() });
+      this.game(game);
+    }
+  }
   moveToTarget(target) {
-    // const game = this.game();
+    const sourceGame = this.sourceGame();
+    const targetGame = target.game();
+    const targetParent = target.parent();
+    const targetCode = target.shortCode();
 
-    // if (target.type === 'card' && !target.subtype && target.parent().matches({ className: 'Player' })) {
-    //   if (game.merged) {
-    //     target = game.find('Deck[card_common]');
-    //   } else if (game.isSuperGame && game.allGamesMerged()) {
-    //     target = target.game().find('Deck[card_common]');
-    //   }
-    // }
+    if (targetGame !== sourceGame) this.setAnchorGame(targetGame);
 
-    // return super.moveToTarget(target);
+    if (targetParent.is('Game')) {
+      if (targetCode === 'Deck[card_drop]') {
+        if (targetGame !== sourceGame) {
+          // сброшенные карты возвращаем в исходную колоду
+          target = sourceGame.find('Deck[card_drop]');
+          // this.anchorGame(sourceGame);
+        }
+      }
+    } else {
+      if (targetParent.is('Player')) {
+        if (targetCode === 'Deck[card]') {
+          // рука игрока
 
-    const game = this.sourceGame();
+          if (sourceGame.merged || sourceGame.isSuperGame) {
+            // активирована общая рука команды
 
-    if (game.merged || game.isSuperGame) {
-      const targetParentIsPlayer = target.parent().matches({ className: 'Player' });
-      const targetIsPlayerHand = targetParentIsPlayer && target.type === 'card' && !target.subtype;
-      if (targetIsPlayerHand) {
-        if (target.game() !== game) {
-          target = target.game().find('Deck[card_common]');
-        } else {
-          target = game.find('Deck[card_common]');
+            if (targetGame !== sourceGame) {
+              target = targetGame.find('Deck[card_common]');
+              // this.anchorGame(targetGame); // иначе карта не будет отображаться на фронте в deck.active
+            } else {
+              target = sourceGame.find('Deck[card_common]');
+            }
+          } else {
+            // if (targetGame !== sourceGame) {
+            //   this.anchorGame(targetGame); // иначе карта не будет отображаться на фронте в deck.active
+            // }
+          }
         }
       }
     }

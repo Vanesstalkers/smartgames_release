@@ -87,8 +87,7 @@
 import { inject } from 'vue';
 import { PerfectScrollbar } from 'vue2-perfect-scrollbar';
 
-import card from '~/lib/game/front/components/card.vue';
-
+import card from './card.vue';
 import plane from './plane.vue';
 import dice from './dice.vue';
 import cardWorker from './cardWorker.vue';
@@ -208,7 +207,7 @@ export default {
 .player:not(.iam) {
   position: relative;
   margin-top: 10px;
-  
+
   > .inner-content {
     display: flex;
     align-items: flex-end;

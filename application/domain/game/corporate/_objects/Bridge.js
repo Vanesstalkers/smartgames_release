@@ -1,7 +1,11 @@
 (class Bridge extends domain.game._objects.Bridge {
   constructor(data) {
     super(...arguments);
-    const { mergedGameId, anchorGameId } = data;
+    let { mergedGameId, anchorGameId } = data;
+
+    if (anchorGameId) this.game(lib.store('game').get(anchorGameId));
+    else anchorGameId = this.game().id();
+
     this.set({ mergedGameId, anchorGameId });
     this.broadcastableFields(['anchorGameId']);
   }

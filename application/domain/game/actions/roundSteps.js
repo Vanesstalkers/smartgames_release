@@ -35,13 +35,7 @@
   const playerHand = newActivePlayer.find('Deck[domino]');
   gameDominoDeck.moveRandomItems({ count: 1, target: playerHand });
 
-  const playedCards = this.decks.active.select('Card');
-  for (const card of playedCards) {
-    if (!card.playOneTime) card.set({ played: null });
-    card.moveToTarget(this.decks.drop);
-    // card.markDelete();
-  }
-
+  this.dropPlayedCards();
   this.checkCrutches();
 
   const newRoundNumber = round + 1;

@@ -40,7 +40,7 @@
     </template>
 
     <template #gameinfo="{} = {}">
-      <div class="wrapper">
+      <div :class="['wrapper decks ', allGamesMerged ? 'show-super' : '']">
         <div class="game-status-label">
           {{ superGame.statusLabel }}
           <small v-if="selectedGame.roundReady">Ожидание других команд</small>
@@ -57,7 +57,7 @@
           <div
             v-if="deck._id && deck.code === `${selectedGame.code}Deck[card]`"
             class="card-event"
-            :style="cardEventCustomStyle"
+            :style="cardEventCustomStyle[selectedGame._id]"
             v-on:click="takeCard"
           >
             {{ Object.keys(deck.itemMap).length }}
@@ -65,11 +65,35 @@
           <div
             v-if="deck._id && deck.code === `${selectedGame.code}Deck[card_drop]`"
             class="card-event"
-            :style="cardEventCustomStyle"
+            :style="cardEventCustomStyle[selectedGame._id]"
           >
             {{ Object.keys(deck.itemMap).length }}
           </div>
           <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[card_active]`" class="deck-active">
+            <!-- активная карта всегда первая - для верстки она должна стать последней -->
+            <card
+              v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"
+              :key="_id"
+              :cardId="_id"
+              :canPlay="!played && sessionPlayerIsActive() && showPlayerControls"
+            />
+          </div>
+          <div
+            v-if="deck._id && deck.code === `SuperDeck[card]`"
+            class="card-event"
+            :style="cardEventCustomStyle[superGame._id]"
+            v-on:click="takeCard"
+          >
+            {{ Object.keys(deck.itemMap).length }}
+          </div>
+          <div
+            v-if="deck._id && deck.code === `SuperDeck[card_drop]`"
+            class="card-event"
+            :style="cardEventCustomStyle[superGame._id]"
+          >
+            {{ Object.keys(deck.itemMap).length }}
+          </div>
+          <div v-if="deck._id && deck.code === `SuperDeck[card_active]`" class="deck-active">
             <!-- активная карта всегда первая - для верстки она должна стать последней -->
             <card
               v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"
@@ -128,8 +152,8 @@ import { prepareGameGlobals } from '~/lib/game/front/gameGlobals.mjs';
 import releaseGameGlobals from '~/domain/game/front/releaseGameGlobals.mjs';
 import corporateGameGlobals from '~/domain/game/front/corporateGameGlobals.mjs';
 import Game from '~/lib/game/front/Game.vue';
-import card from '~/lib/game/front/components/card.vue';
 
+import card from './components/card.vue';
 import player from './components/player.vue';
 import plane from './components/plane.vue';
 import bridge from './components/bridge.vue';
@@ -284,7 +308,19 @@ export default {
       return Math.floor(baseSum * timerMod * configMod);
     },
     deckList() {
-      return Object.keys(this.selectedGame.deckMap).map((id) => this.store.deck?.[id]) || [];
+      return (
+        Object.keys(this.selectedGame.deckMap)
+          .map((id) => this.store.deck?.[id])
+          .concat(this.superGameCardDeck) || []
+      );
+    },
+    superGameCardDeck() {
+      return (
+        Object.keys(this.superGame.deckMap).map((id) => {
+          const deck = this.store.deck?.[id];
+          return { ...deck, code: `Super${deck.code}` };
+        }) || []
+      );
     },
     tables() {
       return Object.values(this.store.deck).filter((deck) => deck.subtype === 'table');
@@ -310,6 +346,7 @@ export default {
           title: game.title,
           roundReady: game.roundReady,
           code: game.code,
+          merged: game.merged,
         };
       });
     },
@@ -343,12 +380,21 @@ export default {
       const {
         state: { serverOrigin },
         selectedGame,
+        superGame,
+        allGamesMerged,
       } = this;
 
-      const rootPath = `${serverOrigin}/img/cards/${selectedGame.templates.card}`;
       return {
-        backgroundImage: `url(${rootPath}/back-side.jpg)`,
+        [selectedGame._id]: {
+          backgroundImage: `url(${serverOrigin}/img/cards/${selectedGame.templates.card}/back-side.jpg)`,
+        },
+        [superGame._id]: {
+          backgroundImage: `url(${serverOrigin}/img/cards/${superGame.templates.card}/back-side.jpg)`,
+        },
       };
+    },
+    allGamesMerged() {
+      return this.games.every((game) => game.super || game.merged);
     },
   },
   methods: {
@@ -606,7 +652,8 @@ export default {
   cursor: default;
 }
 
-.deck[code='Deck[card_drop]'] {
+.deck[code='Deck[card_drop]'],
+.deck[code='SuperDeck[card_drop]'] {
   position: absolute;
   filter: grayscale(1);
   transform: scale(0.5);
@@ -614,7 +661,8 @@ export default {
   right: -10px;
   cursor: default;
 }
-.deck[code='Deck[card_drop]'] > .card-event {
+.deck[code='Deck[card_drop]'] > .card-event,
+.deck[code='SuperDeck[card_drop]'] > .card-event {
   color: #ccc;
 }
 
@@ -634,6 +682,35 @@ export default {
 .deck-active {
   display: flex;
   flex-direction: column;
+}
+
+.deck[code='SuperDeck[card]'],
+.deck[code='SuperDeck[card_active]'],
+.deck[code='SuperDeck[card_drop]'] {
+  display: none;
+}
+.decks.show-super {
+  .deck[code='SuperDeck[card]'],
+  .deck[code='SuperDeck[card_active]'],
+  .deck[code='SuperDeck[card_drop]'] {
+    display: block;
+  }
+
+  .deck[code='SuperDeck[card]'] {
+    position: absolute;
+    top: 35px;
+    right: 30px;
+    cursor: default;
+  }
+  .deck[code='Deck[domino]'] {
+    right: 200px;
+  }
+  .deck[code='Deck[card]'] {
+    right: 130px;
+  }
+  .deck[code='Deck[card_drop]'] {
+    right: 90px;
+  }
 }
 
 .game-status-label {

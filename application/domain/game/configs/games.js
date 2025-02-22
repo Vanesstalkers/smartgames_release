@@ -225,7 +225,7 @@
       playerHandStart: 3,
       playerHandLimit: 3,
       planesAtStart: 0, // изначальное количество блоков на поле (для core-игры количество соответствует количеству игр)
-      planesNeedToStart: 2, // нужно для начала игры (будут добавляться игроками)
+      planesNeedToStart: 1, // нужно для начала игры (будут добавляться игроками)
       planesToChoose: 2, // блоков на выбор игроку для добавления на поле
       timeToPlaceStartPlane: 1000, // время на размещение стартового блока
       roundStartCardAddToPlayerHand: true,

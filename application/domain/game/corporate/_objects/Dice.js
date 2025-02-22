@@ -76,7 +76,7 @@
 
     if (game.merged) {
       const targetParentIsPlayer = target.parent().matches({ className: 'Player' });
-      const targetIsPlayerHand = targetParentIsPlayer && target.type === 'domino' && !target.subtype;
+      const targetIsPlayerHand = targetParentIsPlayer && !target.subtype;
       if (targetIsPlayerHand) {
         if (target.game() !== game) {
           target = target.game().find('Deck[domino_common]');
