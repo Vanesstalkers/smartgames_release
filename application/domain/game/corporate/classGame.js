@@ -168,4 +168,8 @@
   isSinglePlayer() {
     return false;
   }
+  mergeStatus() {
+    const superGame = this.game();
+    return this.merged ? (superGame.allGamesMerged() ? 'merged' : 'freezed') : '';
+  }
 });

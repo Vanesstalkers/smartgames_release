@@ -7,6 +7,7 @@
       selectable ? 'selectable' : '',
       plane.eventData.moveToHand ? 'move-to-hand' : '',
       plane.eventData.extraPlane ? 'extra' : '',
+      game.merged ? 'source-game-merged' : '',
       ...plane.customClass,
       ...Object.values(customClass),
     ]"
@@ -16,7 +17,13 @@
   >
     <div class="price">{{ (plane.price * 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽</div>
     <div class="zone-wraper">
-      <plane-zone v-for="id in zoneIds" :key="id" v-bind:zoneId="id" :linkLines="linkLines" :gameId="plane.anchorGameId" />
+      <plane-zone
+        v-for="id in zoneIds"
+        :key="id"
+        v-bind:zoneId="id"
+        :linkLines="linkLines"
+        :gameId="plane.anchorGameId"
+      />
     </div>
     <div class="port-wraper">
       <plane-port v-for="id in portIds" :key="id" v-bind:portId="id" :linkLines="linkLines" />

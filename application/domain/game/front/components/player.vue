@@ -1,7 +1,12 @@
 <template>
   <div
     v-if="player._id || viewer._id"
-    :class="['player', ...customClass, iam ? 'iam' : '', player.active ? 'active' : '']"
+    :class="[
+      'player',
+      ...customClass,
+      iam ? 'iam' : '',
+      player.active ? 'active' : '',
+    ]"
   >
     <div class="inner-content" :style="{ justifyContent: 'flex-end' }">
       <div
@@ -52,7 +57,14 @@
                     }
               "
             >
-              <dice v-for="id in Object.keys(deck.itemMap)" :key="id" :diceId="id" :inHand="true" :iam="iam" />
+              <dice
+                v-for="id in Object.keys(deck.itemMap)"
+                :key="id"
+                :diceId="id"
+                :inHand="true"
+                :iam="iam"
+                :gameId="player.gameId"
+              />
               <card v-if="iam && deck.subtype === 'teamlead'" :cardData="{ name: 'teamlead' }" />
               <card v-if="iam && deck.subtype === 'flowstate'" :cardData="{ name: 'flowstate' }" />
             </div>
@@ -337,6 +349,14 @@ export default {
 }
 #game.mobile-view.portrait-view .hand-dices .card-event {
   display: none;
+}
+
+.player .plane .domino-dice {
+  opacity: 0.5;
+  cursor: pointer !important;
+  > .controls {
+    display: none !important;
+  }
 }
 
 .hand-planes {

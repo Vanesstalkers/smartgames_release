@@ -16,16 +16,17 @@
   const newRoundLogEvents = [];
   newRoundLogEvents.push(`Начало раунда №${newRoundNumber}.`);
 
-  const smartMoveRandomCardTarget = this.settings.roundStartCardAddToPlayerHand
-    ? player.find('Deck[card]')
-    : this.decks.active;
+  const smartMoveRandomCardTarget =
+    this.settings.roundStartCardAddToPlayerHand || this.mergeStatus() === 'freezed'
+      ? player.find('Deck[card]')
+      : this.decks.active;
 
   if (superGame.allGamesMerged()) {
     superGame.run('smartMoveRandomCard', { target: smartMoveRandomCardTarget });
   } else {
     this.run('smartMoveRandomCard', { target: smartMoveRandomCardTarget });
   }
-  
+
   // обновляем таймер
   const actionsDisabled = player.eventData.actionsDisabled === true;
   const timerConfig = actionsDisabled ? { time: 5 } : null;

@@ -12,7 +12,7 @@
   findAvailableZones() {
     const game = this.game();
     const superGame = game.game();
-    const superGameId = superGame.id();
+    // const superGameId = superGame.id();
     const result = [];
 
     // включить, если findAvailableZones будет вызываться откуда то кроме showZonesAvailability
@@ -26,8 +26,6 @@
         (g) => (allGamesMerged ? true : !g.merged) // с интегрированными в ядро играми можно взаимодействовать только после allGamesMerged
       );
       if (allGamesMerged) games.push(superGame);
-
-      // if (superGame.allGamesFieldReady() && superGame.allGamesMerged()) games.push(superGame);
 
       let zoneList = [];
       for (const game of games) {

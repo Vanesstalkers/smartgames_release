@@ -202,8 +202,7 @@ export default {
 #game.viewer-mode .domino-dice {
   cursor: default;
 }
-.domino-dice.locked,
-.hand-planes .plane .domino-dice {
+.domino-dice.locked {
   opacity: 0.5;
   cursor: not-allowed !important;
 }
@@ -255,7 +254,7 @@ export default {
 }
 
 .domino-dice > .controls > .control.disabled {
-  cursor: not-allowed;
+  cursor: default;
 }
 .domino-dice > .controls > .control.fake-rotate,
 .domino-dice > .controls > .control.hidden {

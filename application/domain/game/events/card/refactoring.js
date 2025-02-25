@@ -4,15 +4,15 @@
     let planes = game.decks.table.select('Plane');
     let bridges = game.select('Bridge');
 
-    if (game.hasSuperGame) {
-      const superGame = game.game();
-      planes = superGame.select('Plane');
-      if (!game.checkFieldIsReady()) {
-        planes = planes.filter((plane) => plane.sourceGameId !== superGame.id());
-      }
-      bridges = superGame.select('Bridge');
-      if (!game.checkFieldIsReady()) {
-        bridges = bridges.filter((bridge) => bridge.sourceGameId !== superGame.id());
+    if (game.hasSuperGame || (game.isSuperGame && !game.allGamesMerged())) {
+      const games = game.isSuperGame ? game.getAllGames().filter((g) => !g.merged) : game.game().getAllGames();
+      planes = [];
+      bridges = [];
+      for (const game of games) {
+        if (game.mergeStatus === 'freezed') continue;
+
+        planes.push(...game.decks.table.getAllItems());
+        bridges.push(...game.select('Bridge'));
       }
     }
 
@@ -52,6 +52,8 @@
       const parent = dice.findParent({ className: 'Zone' }).parent(); // тут может быть Bridge
       const playerHand = player.find('Deck[domino]');
 
+      // !!! чужая костяшка не попадает в руку (у freezed-игр)
+      // !!! чужую костяшку не получается положить на свой стол
       dice.moveToTarget(playerHand);
       dice.set({ visible: true, locked: true });
       parent.set({ release: null });

@@ -8,7 +8,10 @@
         class="gp"
         :style="{ ...gamePlaneStyle(game.gameId) }"
       >
-        <div :class="['gp-content']" :style="{ ...gamePlaneContentControlStyle(game.gameId) }">
+        <div
+          :class="['gp-content', allGamesMerged ? 'all-games-merged' : '']"
+          :style="{ ...gamePlaneContentControlStyle(game.gameId) }"
+        >
           <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" />
           <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
           <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
@@ -127,6 +130,7 @@
             game.super ? 'super' : '',
             game.my ? 'my' : '',
             !game.roundReady ? 'wait-for-round-ready' : '',
+            game.merged && !allGamesMerged ? 'disable-field' : '',
           ]"
           v-on:click="selectGame(game.gameId)"
         >
@@ -381,7 +385,6 @@ export default {
         state: { serverOrigin },
         selectedGame,
         superGame,
-        allGamesMerged,
       } = this;
 
       return {
@@ -583,6 +586,17 @@ export default {
   transform-origin: left top !important;
   .gp-content {
     position: absolute;
+
+    // замороженная игра (ждет merge всех остальных игр)
+    &:not(.all-games-merged) {
+      .plane.source-game-merged .domino-dice {
+        opacity: 0.5;
+        cursor: default !important;
+        > .controls {
+          display: none;
+        }
+      }
+    }
   }
 }
 
