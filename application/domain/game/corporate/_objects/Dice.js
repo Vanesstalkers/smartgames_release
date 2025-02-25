@@ -89,16 +89,17 @@
         }
       }
     }
-    if (sourceGame.merged) {
+    // if (sourceGame.merged) {
+    if (targetGame.merged) {
       if (targetParent.is('Player')) {
         if (targetCode === 'Deck[domino]') {
           // рука игрока
 
-          if (targetGame !== sourceGame) {
+          // if (targetGame !== sourceGame) {
             target = targetGame.find('Deck[domino_common]');
-          } else {
-            target = sourceGame.find('Deck[domino_common]');
-          }
+          // } else {
+          //   target = sourceGame.find('Deck[domino_common]');
+          // }
         }
       }
     }

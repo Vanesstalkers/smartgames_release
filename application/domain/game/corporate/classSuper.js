@@ -316,4 +316,7 @@
       }
     }
   }
+  fieldIsBlocked() {
+    return false;
+  }
 });

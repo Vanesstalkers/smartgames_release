@@ -29,7 +29,14 @@
 
   // осознанно дублируется логика из startNewRound (ради roundReady)
   player.deactivate();
-  if (this.checkAllPlayersFinishRound()) this.set({ roundReady: true });
+  if (this.checkAllPlayersFinishRound()) {
+    this.set({ roundReady: true });
+
+    for (const event of this.relatedEvents()) {
+      // инициированные в других играх события, связанные с дочерними объектами (refactoring)
+      event.processRoundReady(this);
+    }
+  }
 
   const superGame = this.game();
   if (!superGame.allGamesRoundReady()) return;

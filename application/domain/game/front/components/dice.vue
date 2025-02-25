@@ -204,7 +204,7 @@ export default {
 }
 .domino-dice.locked {
   opacity: 0.5;
-  cursor: not-allowed !important;
+  cursor: default !important;
 }
 
 .domino-dice > .controls {

@@ -1,15 +1,22 @@
 () => ({
   init: function () {
-    let { game, player } = this.eventContext();
-    let planes = game.decks.table.select('Plane');
-    let bridges = game.select('Bridge');
+    let { game: eventGame, player } = this.eventContext();
+    let planes = eventGame.decks.table.select('Plane');
+    let bridges = eventGame.select('Bridge');
 
-    if (game.hasSuperGame || (game.isSuperGame && !game.allGamesMerged())) {
-      const games = game.isSuperGame ? game.getAllGames().filter((g) => !g.merged) : game.game().getAllGames();
+    if (eventGame.hasSuperGame || (eventGame.isSuperGame && !eventGame.allGamesMerged())) {
+      const games = eventGame.isSuperGame
+        ? eventGame.getAllGames().filter((g) => !g.merged)
+        : eventGame.game().getAllGames();
       planes = [];
       bridges = [];
       for (const game of games) {
-        if (game.mergeStatus === 'freezed') continue;
+        if (game.fieldIsBlocked()) continue;
+
+        if (game !== eventGame) {
+          this.relatedGames.add(game);
+          game.relatedEvents({ add: this });
+        }
 
         planes.push(...game.decks.table.getAllItems());
         bridges.push(...game.select('Bridge'));
@@ -38,6 +45,12 @@
   handlers: {
     RESET: function () {
       this.emit('DEACTIVATE');
+
+      for (const game of this.relatedGames) {
+        this.relatedGames.delete(game);
+        game.relatedEvents({ remove: this });
+      }
+
       this.destroy();
     },
     DEACTIVATE: function () {
@@ -52,7 +65,6 @@
       const parent = dice.findParent({ className: 'Zone' }).parent(); // тут может быть Bridge
       const playerHand = player.find('Deck[domino]');
 
-      // !!! чужая костяшка не попадает в руку (у freezed-игр)
       // !!! чужую костяшку не получается положить на свой стол
       dice.moveToTarget(playerHand);
       dice.set({ visible: true, locked: true });
@@ -90,10 +102,25 @@
         }
       }
 
-      for (const dice of game.select('Dice')) {
-        if (dice.locked) dice.set({ locked: null });
-      }
+      this.targetDice?.set({ locked: null });
+
       this.emit('RESET');
     },
+  },
+
+  relatedGames: new Set(),
+  processRoundReady(game) {
+    let { player } = this.eventContext();
+    const eventData = { dice: {} };
+
+    for (const diceId of Object.keys(player.eventData.dice)) {
+      if (game.get(diceId, { directParent: true })) {
+        eventData.dice[diceId] = null;
+      }
+    }
+
+    player.set({ eventData });
+
+    if (Object.keys(player.eventData.dice).length === 0) this.emit('RESET');
   },
 });

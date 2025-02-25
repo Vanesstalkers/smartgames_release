@@ -5,13 +5,10 @@
         v-for="game in planeViewGames"
         :key="game.gameId"
         :gameId="game.gameId"
-        class="gp"
+        :class="['gp', game.roundReady ? 'round-ready' : '', allGamesMerged ? 'all-games-merged' : '']"
         :style="{ ...gamePlaneStyle(game.gameId) }"
       >
-        <div
-          :class="['gp-content', allGamesMerged ? 'all-games-merged' : '']"
-          :style="{ ...gamePlaneContentControlStyle(game.gameId) }"
-        >
+        <div class="gp-content" :style="{ ...gamePlaneContentControlStyle(game.gameId) }">
           <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" />
           <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
           <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
@@ -129,7 +126,7 @@
             game.selected ? 'selected' : '',
             game.super ? 'super' : '',
             game.my ? 'my' : '',
-            !game.roundReady ? 'wait-for-round-ready' : '',
+            game.roundReady ? 'round-ready' : '',
             game.merged && !allGamesMerged ? 'disable-field' : '',
           ]"
           v-on:click="selectGame(game.gameId)"
@@ -586,17 +583,16 @@ export default {
   transform-origin: left top !important;
   .gp-content {
     position: absolute;
+  }
+}
 
-    // замороженная игра (ждет merge всех остальных игр)
-    &:not(.all-games-merged) {
-      .plane.source-game-merged .domino-dice {
-        opacity: 0.5;
-        cursor: default !important;
-        > .controls {
-          display: none;
-        }
-      }
-    }
+// замороженная игра (ждет merge всех остальных игр)
+.gp.round-ready .plane .domino-dice,
+.gp:not(.all-games-merged) .plane.source-game-merged .domino-dice {
+  opacity: 0.5;
+  cursor: default !important;
+  > .controls {
+    display: none !important;
   }
 }
 
@@ -822,7 +818,7 @@ export default {
       background: gold;
       color: black;
     }
-    &.wait-for-round-ready {
+    &:not(.round-ready) {
       background: orange;
     }
     &.my {

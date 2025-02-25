@@ -1,5 +1,6 @@
 (class CorporateGame extends domain.game.class {
   hasSuperGame = true;
+  #relatedEvents = new Set();
 
   constructor(storeData, gameObjectData) {
     super(storeData, gameObjectData);
@@ -51,8 +52,9 @@
     await this.game().saveChanges();
   }
 
-  get(id) {
-    return this.game().get(id);
+  get(id, { directParent = false } = {}) {
+    const obj = this.game().get(id);
+    return directParent && obj.game() !== this ? null : obj;
   }
 
   find(code) {
@@ -88,8 +90,9 @@
       if (!activePlayers.includes(player) && eventName !== 'leaveGame' && !disableActivePlayerCheck)
         throw new Error('Игрок не может совершить это действие, так как сейчас не его ход.');
       else if (
-        (this.roundReady || player.eventData.actionsDisabled) &&
-        !this.merged &&
+        // (this.roundReady || player.eventData.actionsDisabled) &&
+        // !this.merged &&
+        player.eventData.actionsDisabled &&
         !disableActionsDisabledCheck &&
         eventName !== 'updateRoundStep' &&
         eventName !== 'leaveGame'
@@ -168,8 +171,17 @@
   isSinglePlayer() {
     return false;
   }
+  fieldIsBlocked() {
+    return this.roundReady || this.mergeStatus() === 'freezed';
+  }
   mergeStatus() {
     const superGame = this.game();
     return this.merged ? (superGame.allGamesMerged() ? 'merged' : 'freezed') : '';
+  }
+
+  relatedEvents({ add, remove } = {}) {
+    if (add) this.#relatedEvents.add(add);
+    if (remove) this.#relatedEvents.delete(remove);
+    return this.#relatedEvents;
   }
 });
