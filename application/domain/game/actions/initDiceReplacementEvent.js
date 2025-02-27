@@ -26,13 +26,18 @@
           }
         },
         disableZoneParent(parent) {
+          this.disabledZoneParents.add(parent);
+
           parent.set({
             eventData: {
               actionsDisabled:
                 'Действия с этим блоком игрового поля запрещены, до тех пор пока не будет завершена замена костяшек.',
             },
           });
-          this.disabledZoneParents.add(parent);
+
+          const game = parent.game();
+          const superGame = game.isSuperGame ? game : game.game();
+          superGame.broadcastEvent('GAME_FIELD_DISABLED', { zoneParent: parent });
         },
         handlers: {
           DICE_PLACED: function ({ dice, initPlayer: player }) {
@@ -76,7 +81,7 @@
             // при любом подозрении на ошибку с размещением костяшки восстанавливаем исходное состояние стола
 
             const { game, player } = this.eventContext();
-            const { deletedDices, placedDices, savedRotations } = this;
+            const { deletedDices, placedDices, savedRotations, disabledZoneParents } = this;
 
             // если есть временно удаленные dice, то восстанавливаем состояние до их удаления
             for (const dice of deletedDices) {
