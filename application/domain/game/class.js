@@ -162,14 +162,14 @@
     return plane;
   }
 
-  checkForRelease({ plane, player }) {
-    if (plane.release) return; // РЕЛИЗ был активирован ранее
-    if (plane.hasEmptyZones()) return;
+  checkForRelease({ zoneParent, player }) {
+    if (zoneParent.release) return; // РЕЛИЗ был активирован ранее
+    if (zoneParent.hasEmptyZones()) return;
 
-    let anchorGame = plane.game();
-    if (plane.anchorGameId) anchorGame = lib.store('game').get(plane.anchorGameId);
+    let anchorGame = zoneParent.game();
+    if (zoneParent.anchorGameId) anchorGame = lib.store('game').get(zoneParent.anchorGameId);
 
-    plane.set({ release: true });
+    zoneParent.set({ release: true });
 
     anchorGame.toggleEventHandlers('RELEASE', {}, player);
   }

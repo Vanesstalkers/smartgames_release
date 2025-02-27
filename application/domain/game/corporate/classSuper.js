@@ -319,4 +319,9 @@
   fieldIsBlocked() {
     return false;
   }
+  broadcastEvent(handler, data) {
+    for (const game of this.getAllGames()) {
+      game.toggleEventHandlers(handler, data, game.roundActivePlayer());
+    }
+  }
 });

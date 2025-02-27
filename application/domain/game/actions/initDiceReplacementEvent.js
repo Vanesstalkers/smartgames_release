@@ -7,14 +7,17 @@
       {
         name: eventName,
         deletedDices: new Set(),
-        placedDices: new Set(),
+        placedDices: new Map(),
         possibleReleases: new Map(),
         savedRotations: new Map(),
+        disabledZoneParents: new Set(),
         addDeletedDice(dice) {
           const { deletedDices, savedRotations } = this;
 
           dice.set({ deleted: true });
           deletedDices.add(dice);
+
+          this.disableZoneParent(dice.parent().parent());
 
           const observeDices = [dice, ...dice.getNearestDices()];
           for (const dice of observeDices) {
@@ -22,11 +25,19 @@
             savedRotations.set(dice, dice.getRotation());
           }
         },
+        disableZoneParent(parent) {
+          parent.set({
+            eventData: {
+              actionsDisabled:
+                'Действия с этим блоком игрового поля запрещены, до тех пор пока не будет завершена замена костяшек.',
+            },
+          });
+          this.disabledZoneParents.add(parent);
+        },
         handlers: {
           DICE_PLACED: function ({ dice, initPlayer: player }) {
             const { game } = this.eventContext();
-            const { deletedDices, placedDices, possibleReleases } = this;
-            const deck = game.find('Deck[domino]');
+            const { deletedDices, placedDices, possibleReleases, disabledZoneParents } = this;
 
             if (
               deletedDices.has(dice) // восстановление удаленной dice
@@ -34,10 +45,12 @@
               deletedDices.delete(dice);
               dice.set({ deleted: null });
             } else {
-              placedDices.add(dice);
+              placedDices.set(dice, player);
             }
 
-            possibleReleases.set(dice.parent().parent(), player);
+            const zone = dice.parent();
+            possibleReleases.set(zone, player);
+            this.disableZoneParent(zone.parent());
 
             const notReplacedDeletedDices = [...deletedDices].filter((d) => !d.parent().getItem());
             if (notReplacedDeletedDices.length > 0) {
@@ -47,8 +60,14 @@
 
             for (const dice of deletedDices) dice.moveToDeck();
 
-            for (const [plane, player] of possibleReleases) {
-              game.checkForRelease({ plane, player });
+            for (const [zone, player] of possibleReleases) {
+              const zoneParent = zone.parent();
+              game.checkForRelease({ zoneParent, player });
+            }
+
+            // убираем блокировку на действия с plane/bridge
+            for (const zoneParent of disabledZoneParents) {
+              zoneParent.set({ eventData: { actionsDisabled: null } });
             }
 
             this.emit('RESET');
@@ -58,22 +77,27 @@
 
             const { game, player } = this.eventContext();
             const { deletedDices, placedDices, savedRotations } = this;
-            const playerHand = player.find('Deck[domino]');
 
             // если есть временно удаленные dice, то восстанавливаем состояние до их удаления
             for (const dice of deletedDices) {
               dice.set({ deleted: null });
-              dice.parent().updateValues();
+              const zone = dice.parent();
+              zone.updateValues();
             }
 
             // уже успели заменить часть из удаленных dice - возвращаем все в руку
-            for (const dice of placedDices) {
-              dice.moveToTarget(playerHand);
+            for (const [dice, player] of placedDices.entries()) {
+              dice.moveToTarget(player.find('Deck[domino]'));
             }
 
             // восстанавливаем положение повернутых dice
             for (const [dice, rotation] of savedRotations) {
               if (dice.getRotation() !== rotation) dice.rotate();
+            }
+
+            // убираем блокировку на действия с plane/bridge
+            for (const zoneParent of disabledZoneParents) {
+              zoneParent.set({ eventData: { actionsDisabled: null } });
             }
 
             if (msg) {

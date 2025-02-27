@@ -55,6 +55,15 @@
 
     return super.moveToTarget(target);
   }
+  getEvent(eventName) {
+    if (!eventName) eventName = this.name;
+    const event =
+      domain.game.corporate.events?.card?.[eventName] ||
+      domain.game.events?.card?.[eventName] ||
+      lib.game.events?.card?.[eventName];
+    if (!event) return null;
+    return event();
+  }
   play({ player, logMsg } = {}) {
     if (this.played) return;
 

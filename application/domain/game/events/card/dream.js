@@ -18,6 +18,13 @@
       if (!target) return;
       const { game, player } = this.eventContext();
 
+      // if (target.eventData.actionsDisabled) {
+      //   lib.store.broadcaster.publishAction(`user-${player.userId}`, 'broadcastToSessions', {
+      //     data: { message: target.eventData.actionsDisabled },
+      //     // config: { hideTime: 3000 },
+      //   });
+      // }
+
       const deck = game.find('Deck[domino]');
       for (const dice of target.select({ className: 'Dice', directParent: false })) {
         dice.moveToTarget(deck);

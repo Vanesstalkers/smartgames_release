@@ -27,18 +27,15 @@
     }
   }
 
+  const superGame = this.game();
+
   // осознанно дублируется логика из startNewRound (ради roundReady)
   player.deactivate();
   if (this.checkAllPlayersFinishRound()) {
     this.set({ roundReady: true });
-
-    for (const event of this.relatedEvents()) {
-      // инициированные в других играх события, связанные с дочерними объектами (refactoring)
-      event.processRoundReady(this);
-    }
+    superGame.broadcastEvent('GAME_FIELD_DISABLED', { game: this });
   }
 
-  const superGame = this.game();
   if (!superGame.allGamesRoundReady()) return;
 
   for (const game of superGame.getAllGames()) {

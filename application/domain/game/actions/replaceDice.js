@@ -44,7 +44,7 @@
     this.toggleEventHandlers('DICE_PLACED', { dice }, player);
   } else {
     this.checkForRelease({
-      plane: zone.parent(),
+      zoneParent: zone.parent(),
       player, // для корпоративных игр обязательно указываем player, иначе инициатором будет считаться активный игрок из игры-владельца field-а
     });
   }
