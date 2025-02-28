@@ -37,9 +37,8 @@
         game.run('putStartPlanes');
 
         if (planesNeedToStart <= planesAtStart) {
-          this.destroy(); // RESET возвращает добавленные в руку plane-ы, которых в этом случае нет
           game.run('startGame');
-          return;
+          return { resetEvent: true };
         }
 
         game.set({ statusLabel: 'Подготовка к игре', status: 'PREPARE_START' });
@@ -142,9 +141,12 @@
     { allowedPlayers: this.players() }
   );
 
+  if (!event) return;
+
   for (const player of this.players()) {
     player.setEventWithTriggerListener(event);
   }
+
   // const eventTemplate = domain.game.events.common.putPlaneFromHand();
 
   // eventTemplate.init = function () {

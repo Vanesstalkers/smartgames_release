@@ -30,7 +30,7 @@
       const { player } = this.eventContext();
 
       player.set({ eventData: { dice: null } });
-      player.removeEventWithTriggerListener();
+      player.removeEventWithTriggerListener(); // иначе сохранится блокировка на другие действия
     },
     TRIGGER: function ({ target: dice }) {
       const { game, player } = this.eventContext();
