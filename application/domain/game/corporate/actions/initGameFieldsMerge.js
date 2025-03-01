@@ -14,6 +14,9 @@
     {
       data,
       init() {
+        const { game } = this.eventContext();
+        const superGame = game.game();
+        superGame.broadcastEvent('DICES_DISABLED', { parent: game });
         return this.emit('CHECK_AVAILABLE_PORTS');
       },
       handlers: {

@@ -7,7 +7,7 @@
     throw new Error('Действия с этим полем недоступны до следующего раунда.');
   }
 
-  if (this.triggerEventEnabled() || player.triggerEventEnabled())
+  if (player.triggerEventEnabled())
     throw new Error('Игрок не может совершить это действие, пока не завершит активное событие.');
   if (!player.eventData.availableZones?.includes(zoneId)) throw new Error('Данная зона запрещена для размещения');
   if (!diceIsInHand) throw new Error('Костяшка должна находиться в руке.');

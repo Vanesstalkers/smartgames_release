@@ -1,11 +1,11 @@
 (function ({ diceId }, player) {
-  if (this.triggerEventEnabled() || player.triggerEventEnabled())
+  if (player.triggerEventEnabled())
     throw new Error('Игрок не может совершить это действие, пока не завершит активное событие.');
 
   const dice = this.get(diceId);
   const zone = dice.getParent();
 
-  const { status, msg = 'Ошибка восстановления удаленной костяшки.' } = zone.checkIsAvailable(dice);
+  const { status, msg = 'Ошибка восстановления удаленной костяшки. Размещенные костяшки возвращены в руки игроков.' } = zone.checkIsAvailable(dice);
   if (status !== true) {
     return this.toggleEventHandlers('DICE_RESTORE_NOT_AVAILABLE', { msg });
   }

@@ -21,13 +21,6 @@
   },
   disableZoneParent(parent) {
     this.disabledZoneParents.add(parent);
-
-    parent.set({
-      eventData: {
-        actionsDisabled:
-          'Действия с этим блоком игрового поля запрещены, до тех пор пока не будет завершена замена костяшек.',
-      },
-    });
   },
   handlers: {
     DICE_PLACED: function ({ dice, initPlayer: player }) {

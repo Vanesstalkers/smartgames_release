@@ -588,7 +588,8 @@ export default {
 
 // замороженная игра (ждет merge всех остальных игр)
 .gp.round-ready .plane .domino-dice,
-.gp:not(.all-games-merged) .plane.source-game-merged .domino-dice {
+.gp:not(.all-games-merged) .plane.source-game-merged .domino-dice,
+.gp:not(.all-games-merged) .bridge.anchor-game-merged .domino-dice {
   opacity: 0.5;
   cursor: default !important;
   > .controls {

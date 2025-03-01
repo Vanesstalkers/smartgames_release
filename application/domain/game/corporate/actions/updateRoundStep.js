@@ -33,7 +33,7 @@
   player.deactivate();
   if (this.checkAllPlayersFinishRound()) {
     this.set({ roundReady: true });
-    superGame.broadcastEvent('GAME_FIELD_DISABLED', { game: this });
+    superGame.broadcastEvent('DICES_DISABLED', { parent: this });
   }
 
   if (!superGame.allGamesRoundReady()) return;
