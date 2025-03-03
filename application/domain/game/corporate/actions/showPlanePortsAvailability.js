@@ -1,7 +1,8 @@
 (function ({ joinPlaneId, joinPortId, games = [] }, initPlayer) {
-
   const game = this.merged ? this.game() : this;
+
   game.run('domain.showPlanePortsAvailability', { joinPlaneId, joinPortId }, initPlayer);
+
   let availablePorts = game.availablePorts;
   if (this.merged) {
     const superGame = game;

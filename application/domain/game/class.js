@@ -34,7 +34,7 @@
     let ready = true;
     for (const releaseItem of [...planeList, ...bridgeList]) {
       if (!ready) continue;
-      if (!releaseItem.release) ready = false;
+      if (releaseItem.hasEmptyZones()) ready = false;
     }
 
     return ready;
@@ -138,5 +138,46 @@
       if (item) result.push(item);
     }
     return result;
+  }
+  addCardPlane(card) {
+    const deck = this.find('Deck[plane]');
+
+    const plane = deck.addItem({
+      sourceGameId: card.sourceGameId,
+      _code: `event_${card.name}_${codeSfx}`,
+      price: 50,
+      release: true, // зон нет, и для всех проверок plane считается зарелиженным
+      ...{ cardPlane: true, width: 120, height: 180 },
+      customClass: ['card-plane', 'card-event', `card-${card.name}`],
+      portList: [
+        {
+          ...{ _code: 1, links: [], t: 'any', s: 'core' },
+          ...{ left: 22.5, top: 105, direct: { bottom: true } },
+        },
+      ],
+    });
+
+    return plane;
+  }
+
+  checkForRelease({ zoneParent, player }) {
+    if (zoneParent.release) return; // РЕЛИЗ был активирован ранее
+    if (zoneParent.hasEmptyZones()) return;
+
+    let anchorGame = zoneParent.game();
+    if (zoneParent.anchorGameId) anchorGame = lib.store('game').get(zoneParent.anchorGameId);
+
+    zoneParent.set({ release: true });
+
+    anchorGame.toggleEventHandlers('RELEASE', {}, player);
+  }
+
+  dropPlayedCards() {
+    const playedCards = this.decks.active.select('Card');
+    for (const card of playedCards) {
+      if (!card.playOneTime) card.set({ played: null });
+      card.moveToTarget(this.decks.drop);
+      // card.markDelete();
+    }
   }
 });

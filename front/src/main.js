@@ -39,6 +39,8 @@ const init = async () => {
 
   const state = {
     serverOrigin: `${location.protocol}//${serverHost}`,
+    innerWidth: window.innerWidth,
+    innerHeight: window.innerHeight,
     isMobile: false,
     isLandscape: true,
     isPortrait: false,
@@ -193,6 +195,8 @@ const init = async () => {
   const checkDevice = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
+    state.innerWidth = width;
+    state.innerHeight = height;
     state.isMobile = isMobile() ? true : false;
     state.isLandscape = height < width;
     state.isPortrait = !state.isLandscape;

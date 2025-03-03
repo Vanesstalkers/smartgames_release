@@ -211,10 +211,12 @@
       cooperative: {
         title: 'Кооперация',
         skipStartPlanes: ['Deck[plane]Plane[12]', 'Deck[plane]Plane[15]', 'Deck[plane]Plane[16]'],
+        // roundStartCardAddToPlayerHand: false,
         // allowedAutoCardPlayRoundStart: true,
       },
       competition: {
         title: 'Соревнование',
+        // roundStartCardAddToPlayerHand: false,
         // allowedAutoCardPlayRoundStart: true,
       },
     },

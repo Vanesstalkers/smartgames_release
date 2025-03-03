@@ -2,7 +2,7 @@
   <game :debug="false" :planeScaleMin="0.3" :planeScaleMax="1">
     <template #gameplane="{} = {}">
       <div :class="['gp-content']" :style="{ ...gamePlaneContentControlStyle }">
-        <plane v-for="id in Object.keys(tablePlanes.itemMap)" :key="id" :planeId="id" :gameId="state.gameId" />
+        <plane v-for="id in Object.keys(tablePlanes.itemMap)" :key="id" :planeId="id" />
         <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
         <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
 
@@ -43,10 +43,15 @@
           <div v-if="deck._id && deck.code === 'Deck[domino]'" class="hat" v-on:click="takeDice">
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === 'Deck[card]'" class="card-event" v-on:click="takeCard">
+          <div
+            v-if="deck._id && deck.code === 'Deck[card]'"
+            class="card-event"
+            :style="cardEventCustomStyle"
+            v-on:click="takeCard"
+          >
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === 'Deck[card_drop]'" class="card-event">
+          <div v-if="deck._id && deck.code === 'Deck[card_drop]'" class="card-event" :style="cardEventCustomStyle">
             {{ Object.keys(deck.itemMap).length }}
           </div>
           <div v-if="showPlayerControls && deck._id && deck.code === 'Deck[card_active]'" class="deck-active">
@@ -89,8 +94,8 @@ import { provide, reactive } from 'vue';
 import { prepareGameGlobals } from '~/lib/game/front/gameGlobals.mjs';
 import releaseGameGlobals from '~/domain/game/front/releaseGameGlobals.mjs';
 import Game from '~/lib/game/front/Game.vue';
-import card from '~/lib/game/front/components/card.vue';
 
+import card from './components/card.vue';
 import player from './components/player.vue';
 import plane from './components/plane.vue';
 import bridge from './components/bridge.vue';
@@ -121,7 +126,7 @@ export default {
     return gameGlobals;
   },
   watch: {
-    'game.eventListeners.TRIGGER': function () {
+    'player.eventData.triggerListenerEnabled': function () {
       this.gameCustom.pickedDiceId = '';
       if (
         this.gameDataLoaded // gameDataLoaded может не быть при restoreGame
@@ -136,7 +141,7 @@ export default {
         this.gameState.cardWorkerAction = {};
         this.gameCustom.selectedFakePlanes = {};
 
-        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn) {
+        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn && !this.gameFinished()) {
           this.gameState.cardWorkerAction = {
             show: true,
             label: 'Помочь выложить',
@@ -162,6 +167,9 @@ export default {
     },
     gameDataLoaded() {
       return this.game.addTime;
+    },
+    player() {
+      return this.store.player?.[this.gameState.sessionPlayerId] || {};
     },
 
     gamePlaneContentControlStyle() {
@@ -237,6 +245,18 @@ export default {
             },
           ];
         });
+    },
+
+    cardEventCustomStyle() {
+      const {
+        state: { serverOrigin },
+        game,
+      } = this;
+
+      const rootPath = `${serverOrigin}/img/cards/${game.templates.card}`;
+      return {
+        backgroundImage: `url(${rootPath}/back-side.jpg)`,
+      };
     },
   },
   methods: {
@@ -337,7 +357,7 @@ export default {
   position: absolute;
   top: 35px;
   right: 100px;
-  background: url(assets/dominoes.png);
+  background: url(assets/dices/deck.png);
   background-size: cover;
   padding: 14px;
   cursor: default;

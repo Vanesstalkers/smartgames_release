@@ -1,6 +1,6 @@
 (function ({ diceId }) {
   const player = this.roundActivePlayer();
-  if (this.triggerEventEnabled() || player.triggerEventEnabled())
+  if (player.triggerEventEnabled())
     throw new Error('Игрок не может совершить это действие, пока не завершит активное событие.');
 
   const dice = this.get(diceId);
@@ -9,20 +9,12 @@
 
   this.disableChanges();
   {
-    const deletedDices = this.getDeletedDices();
-    const deletedDicesZones = deletedDices.reduce((result, dice) => {
-      const zone = dice.getParent();
-      result.push(zone);
-      if (zone.findParent({ className: 'Bridge' })) result.push(...zone.getNearZones());
-      return result;
-    }, []);
-
     // чтобы не мешать расчету для соседних зон при перемещении из одной зоны в другую (ниже вернем состояние)
+    const deletedDices = this.getDeletedDices();
     for (const dice of deletedDices) dice.getParent().removeItem(dice);
 
     for (const { zone, status: zoneAvailable } of dice.findAvailableZones()) {
       if (zone === currentZone) continue;
-      if (deletedDicesZones.length && !deletedDicesZones.includes(zone)) continue;
       if (!zoneAvailable) continue;
       availableZones.push(zone._id);
     }

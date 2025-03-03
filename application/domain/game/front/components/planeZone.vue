@@ -16,7 +16,7 @@
         :sideList="zone.sideList"
         :position="{ left: zone.left, top: zone.top, vertical: zone.vertical }"
       />
-      <dice v-for="id in Object.keys(zone.itemMap)" :key="id" :diceId="id" :zone="zone" />
+      <dice v-for="id in Object.keys(zone.itemMap)" :key="id" :diceId="id" :zone="zone" :gameId="gameId" />
     </div>
   </div>
 </template>
@@ -34,6 +34,7 @@ export default {
   props: {
     zoneId: String,
     linkLines: Object,
+    gameId: String,
   },
   setup() {
     return inject('gameGlobals');
@@ -46,7 +47,7 @@ export default {
       return this.getStore();
     },
     game() {
-      return this.getGame();
+      return this.getGame(this.zone.sourceGameId);
     },
     zone() {
       return {
@@ -59,7 +60,11 @@ export default {
     async putDice() {
       if (this.gameCustom.pickedDiceId) {
         await this.handleGameApi(
-          { name: 'replaceDice', data: { diceId: this.gameCustom.pickedDiceId, zoneId: this.zoneId } },
+          {
+            name: 'replaceDice',
+            gameId: this.game._id,
+            data: { diceId: this.gameCustom.pickedDiceId, zoneId: this.zoneId },
+          },
           {
             onSuccess: (res) => {
               this.gameCustom.pickedDiceId = '';

@@ -5,8 +5,8 @@
 
   constructor() {
     super(...arguments);
-    const { Bridge, Card, Dice, Plane, Player, Table, ZoneSide } = domain.game.corporate._objects;
-    this.defaultClasses({ Bridge, Card, Dice, Plane, Player, Table, ZoneSide });
+    const { Bridge, Card, Dice, Plane, Player, Table, Zone, ZoneSide } = domain.game.corporate._objects;
+    this.defaultClasses({ Bridge, Card, Dice, Plane, Player, Table, Zone, ZoneSide });
   }
 
   select(query = {}) {
@@ -50,6 +50,7 @@
     }
     this.run('initPlayerWaitEvents');
     this.decks.table.set({ access: this.playerMap });
+    this.decks.active.set({ access: this.playerMap });
 
     const fullPlayersList = Object.values(this.store.player);
     const gamesMap = {};
@@ -85,6 +86,7 @@
 
       if (players.length === 1) game.set({ settings: { singlePlayer: true } });
       game.decks.table.set({ access: this.playerMap });
+      game.decks.active.set({ access: this.playerMap });
       game.find('Deck[domino_common]').set({ access: playerMap, markNew: true });
       game.find('Deck[card_common]').set({ access: playerMap, markNew: true });
 
@@ -202,17 +204,18 @@
     return action.call(this, data, initPlayer);
   }
 
-  async handleAction({ name: eventName, data: eventData = {}, sessionUserId: userId }) {
+  async handleAction({ name: eventName, gameId, data: eventData = {}, sessionUserId: userId }) {
     const player = this.getPlayerByUserId(userId);
     if (!player) throw new Error('player not found');
     if (eventData.teamleadAction) {
       player.set({ eventData: { disableActivePlayerCheck: true, disableActionsDisabledCheck: true } });
     }
 
-    const gameId = Object.entries(this.gamesMap).find(([gameId, players]) => players[player.id()])[0];
+    if (!gameId) gameId = player.gameId;
     const game = lib.store('game').get(gameId);
 
-    await game.handleAction(...arguments);
+    if (game.isSuperGame) super.handleAction(...arguments);
+    else await game.handleAction(...arguments);
   }
 
   gamesCount() {
@@ -311,6 +314,14 @@
         };
         lib.store.broadcaster.publishAction(`user-${player.userId}`, 'broadcastToSessions', { data });
       }
+    }
+  }
+  fieldIsBlocked() {
+    return false;
+  }
+  broadcastEvent(handler, data) {
+    for (const game of this.getAllGames()) {
+      game.toggleEventHandlers(handler, data, game.roundActivePlayer());
     }
   }
 });

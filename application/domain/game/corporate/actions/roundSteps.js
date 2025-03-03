@@ -1,25 +1,37 @@
 (function () {
   if (this.isSuperGame) return;
 
-  if (this.merged) {
-    const player = this.roundActivePlayer();
-    const gameCommonDominoDeck = this.find('Deck[domino_common]');
-    {
-      if (gameCommonDominoDeck.itemsCount() > this.settings.playerHandLimit * this.players().length) {
-        // слишком много доминошек в руке
-        if (!player.eventData.disablePlayerHandLimit) {
-          const gameDominoDeck = this.find('Deck[domino]');
-          gameCommonDominoDeck.moveAllItems({ target: gameDominoDeck });
+  const superGame = this.game();
+  const player = this.selectNextActivePlayer();
 
-          this.logs({
-            msg: `У команды превышено максимальное количество костяшек в руке на конец хода. Все костяшки сброшены в колоду.`,
-          });
-        }
-      }
-      player.set({ eventData: { disablePlayerHandLimit: null } });
-    }
+  this.find('Deck[domino]').moveRandomItems({
+    count: 1,
+    target: player.find('Deck[domino]'),
+  });
+
+  this.dropPlayedCards();
+  this.checkCrutches();
+
+  const newRoundNumber = this.round + 1;
+  const newRoundLogEvents = [];
+  newRoundLogEvents.push(`Начало раунда №${newRoundNumber}.`);
+
+  const smartMoveRandomCardTarget =
+    this.settings.roundStartCardAddToPlayerHand || this.mergeStatus() === 'freezed'
+      ? player.find('Deck[card]')
+      : this.decks.active;
+
+  if (superGame.allGamesMerged()) {
+    superGame.run('smartMoveRandomCard', { target: smartMoveRandomCardTarget });
+  } else {
+    this.run('smartMoveRandomCard', { target: smartMoveRandomCardTarget });
   }
 
-  const roundStepsResult = domain.game.actions.roundSteps.call(this);
-  return roundStepsResult;
+  // обновляем таймер
+  const actionsDisabled = player.eventData.actionsDisabled === true;
+  const timerConfig = actionsDisabled ? { time: 5 } : null;
+  this.set({ lastRoundTimerConfig: timerConfig }); // нужно для восстановления игры
+  player.activate(); // делаем строго после проверки actionsDisabled (внутри activate значение сбросится)
+
+  return { newRoundLogEvents, newRoundNumber };
 });

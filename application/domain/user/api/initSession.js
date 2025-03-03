@@ -49,7 +49,7 @@
       // удаляем из store и broadcaster
       session.removeStore();
       session.removeChannel();
-      if (!user.sessions().length) {
+      if (user && user.sessions().length === 0) {
         user.removeStore();
         user.removeChannel();
       }

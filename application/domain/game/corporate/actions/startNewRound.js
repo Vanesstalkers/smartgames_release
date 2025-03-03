@@ -6,7 +6,13 @@
   const allGamesMerged = this.allGamesMerged();
   const roundActiveGame = allGamesMerged ? this.selectNextActiveGame() : null;
 
-  for (const game of this.getAllGames()) {
+  const games = this.getAllGames();
+
+  // карты должны вернуться в исходные колоды своих игр до того, иначе первая по списку игра не увидит то, что было разыграно из ее колоды в последующих играх
+  this.dropPlayedCards();
+  for (const game of games) game.dropPlayedCards();
+
+  for (const game of games) {
     if (allGamesMerged && roundActiveGame && game !== roundActiveGame) {
       game.set({ round: newRoundNumber }); // иначе иначе будет рассинхрон раундов, которые обновляются в domain.startNewRound
       game.dumpState();

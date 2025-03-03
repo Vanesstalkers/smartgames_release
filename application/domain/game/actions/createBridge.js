@@ -48,7 +48,8 @@
   };
 
   const bridge = this.run('addBridge', bridgeData);
-  
+  bridge.set({ anchorGameId: targetPlane.anchorGameId });
+
   const linkedBridgeCode = bridge.code;
   joinPort.set({ linkedBridgeCode });
   targetPort.set({ linkedBridgeCode });

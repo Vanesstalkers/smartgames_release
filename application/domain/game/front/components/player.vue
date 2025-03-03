@@ -1,22 +1,35 @@
 <template>
   <div
     v-if="player._id || viewer._id"
-    :class="['player', ...customClass, iam ? 'iam' : '', player.active ? 'active' : '']"
+    :class="[
+      'player',
+      ...customClass,
+      iam ? 'iam' : '',
+      player.active ? 'active' : '',
+    ]"
   >
     <div class="inner-content" :style="{ justifyContent: 'flex-end' }">
-      <div class="player-hands" v-if="game.status != 'WAIT_FOR_PLAYERS'" :style="{ justifyContent: 'flex-end' }">
-        <perfect-scrollbar v-if="hasPlaneInHand" :style="{ width: '50%' }">
-          <div class="hand-planes">
-            <plane
-              v-if="player.eventData.fakePlaneAddBtn"
-              :key="'fake'"
-              :planeId="'fake'"
-              :inHand="true"
-              :class="['in-hand', 'add-block-action']"
-            />
-            <plane v-for="id in planeInHandIds" :key="id" :planeId="id" :inHand="true" :class="['in-hand']" />
-          </div>
-        </perfect-scrollbar>
+      <div
+        class="player-hands"
+        v-if="game.status != 'WAIT_FOR_PLAYERS'"
+        :style="{ justifyContent: 'flex-end', maxWidth: state.innerWidth / 2 + 'px' }"
+      >
+        <div v-if="hasPlaneInHand" class="hand-planes">
+          <plane
+            v-if="iam && player.eventData?.fakePlaneAddBtn"
+            :key="'fake'"
+            :planeId="'fake'"
+            :inHand="true"
+            :class="['in-hand', 'add-block-action']"
+          />
+          <plane
+            v-for="id in planeInHandIds"
+            :key="id"
+            :planeId="iam ? id : 'fake'"
+            :inHand="true"
+            :class="['in-hand']"
+          />
+        </div>
 
         <div v-if="!hasPlaneInHand" class="hand-dices-list">
           <div v-for="deck in dominoDecks" :key="deck._id" class="hand-dices-list-content">
@@ -43,7 +56,14 @@
                     }
               "
             >
-              <dice v-for="id in Object.keys(deck.itemMap)" :key="id" :diceId="id" :inHand="true" :iam="iam" />
+              <dice
+                v-for="id in Object.keys(deck.itemMap)"
+                :key="id"
+                :diceId="id"
+                :inHand="true"
+                :iam="iam"
+                :gameId="player.gameId"
+              />
               <card v-if="iam && deck.subtype === 'teamlead'" :cardData="{ name: 'teamlead' }" />
               <card v-if="iam && deck.subtype === 'flowstate'" :cardData="{ name: 'flowstate' }" />
             </div>
@@ -78,8 +98,7 @@
 import { inject } from 'vue';
 import { PerfectScrollbar } from 'vue2-perfect-scrollbar';
 
-import card from '~/lib/game/front/components/card.vue';
-
+import card from './card.vue';
 import plane from './plane.vue';
 import dice from './dice.vue';
 import cardWorker from './cardWorker.vue';
@@ -199,11 +218,16 @@ export default {
 .player:not(.iam) {
   position: relative;
   margin-top: 10px;
-}
-.player:not(.iam) > .inner-content {
-  display: flex;
-  align-items: flex-end;
-  flex-direction: row-reverse;
+
+  > .inner-content {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: row-reverse;
+
+    .hand-planes {
+      flex-direction: row-reverse;
+    }
+  }
 }
 #game.mobile-view.portrait-view .player:not(.iam) > .inner-content {
   flex-direction: row;
@@ -326,6 +350,14 @@ export default {
   display: none;
 }
 
+.player .plane .domino-dice {
+  opacity: 0.5;
+  cursor: pointer !important;
+  > .controls {
+    display: none !important;
+  }
+}
+
 .hand-planes {
   display: flex;
   justify-content: center;
@@ -344,7 +376,7 @@ export default {
 
   &::after {
     content: '';
-    width: 200px;
+    width: 320px;
     flex-shrink: 1;
   }
 

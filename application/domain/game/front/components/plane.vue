@@ -6,7 +6,8 @@
       'plane',
       selectable ? 'selectable' : '',
       plane.eventData.moveToHand ? 'move-to-hand' : '',
-      plane.eventData.extraPlane ? 'extra-plane' : '',
+      plane.eventData.extraPlane ? 'extra' : '',
+      game.merged ? 'source-game-merged' : '',
       ...plane.customClass,
       ...Object.values(customClass),
     ]"
@@ -16,7 +17,13 @@
   >
     <div class="price">{{ (plane.price * 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽</div>
     <div class="zone-wraper">
-      <plane-zone v-for="id in zoneIds" :key="id" v-bind:zoneId="id" :linkLines="linkLines" />
+      <plane-zone
+        v-for="id in zoneIds"
+        :key="id"
+        v-bind:zoneId="id"
+        :linkLines="linkLines"
+        :gameId="plane.anchorGameId"
+      />
     </div>
     <div class="port-wraper">
       <plane-port v-for="id in portIds" :key="id" v-bind:portId="id" :linkLines="linkLines" />
@@ -60,7 +67,6 @@ export default {
   },
   props: {
     planeId: String,
-    gameId: String,
     inHand: Boolean,
     viewStyle: {
       required: false,
@@ -201,10 +207,13 @@ export default {
   &.move-to-hand:after {
     box-shadow: inset 0 0 0px 10px orange;
   }
+  &.one-of-many:after {
+    box-shadow: inset 0 0 0px 10px blue;
+  }
   &.card-plane.move-to-hand {
     box-shadow: inset 0 0 20px 8px orange !important;
   }
-  &.extra-plane:after {
+  &.extra:after {
     box-shadow: inset 0 0 0px 10px greenyellow;
   }
 }
@@ -282,6 +291,12 @@ export default {
   transform-origin: center left;
   margin: 125px -250px -50px 0px;
 }
+
+.player:not(.am) .plane.in-hand:not(.card-plane) {
+  transform-origin: center right;
+  // margin: 125px -250px -50px 0px;
+}
+
 #game.mobile-view.portrait-view .plane.in-hand:not(.card-plane) {
   transform: scale(0.7);
   transform-origin: top right;

@@ -2,21 +2,24 @@
   init: function () {
     const { game, player } = this.eventContext();
 
+    const eventData = { dice: {} };
     let diceFound = false;
-    for (const plane of game.select('Plane')) {
+    for (const plane of game.decks.table.getAllItems()) {
       for (const dice of plane.select({ className: 'Dice', directParent: false })) {
-        dice.set({ eventData: { selectable: true } });
+        eventData.dice[dice.id()] = { selectable: true };
         diceFound = true;
       }
     }
     for (const bridge of game.select('Bridge')) {
       for (const dice of bridge.select({ className: 'Dice', directParent: false })) {
-        dice.set({ eventData: { selectable: true } });
+        eventData.dice[dice.id()] = { selectable: true };
         diceFound = true;
       }
     }
 
     if (!diceFound) return { resetEvent: true };
+
+    player.set({ eventData });
   },
   handlers: {
     RESET: function () {
@@ -24,19 +27,10 @@
       this.destroy();
     },
     DEACTIVATE: function () {
-      const { game, player } = this.eventContext();
+      const { player } = this.eventContext();
 
-      for (const plane of game.decks.table.getAllItems()) {
-        for (const dice of plane.select({ className: 'Dice', directParent: false })) {
-          dice.set({ eventData: { selectable: null } });
-        }
-      }
-      for (const bridge of game.select('Bridge')) {
-        for (const dice of bridge.select({ className: 'Dice', directParent: false })) {
-          dice.set({ eventData: { selectable: null } });
-        }
-      }
-      this.targetDice.set({ eventData: { selectable: null } });
+      player.set({ eventData: { dice: null } });
+      player.removeEventWithTriggerListener(); // иначе сохранится блокировка на другие действия
     },
     TRIGGER: function ({ target: dice }) {
       const { game, player } = this.eventContext();
@@ -56,31 +50,30 @@
       this.emit('DEACTIVATE');
     },
     END_ROUND: function () {
-      const { game, player } = this.eventContext();
+      const { game } = this.eventContext();
 
       if (!this.targetDice) {
         // ищем первый попавшийся dice
         for (const plane of game.decks.table.getAllItems()) {
           for (const dice of plane.select({ className: 'Dice', directParent: false })) {
             this.emit('TRIGGER', { target: dice });
-            if(this.targetDice) break;
+            if (this.targetDice) break;
           }
-          if(this.targetDice) break;
+          if (this.targetDice) break;
         }
       }
       if (!this.targetDice) {
         for (const bridge of game.select('Bridge')) {
           for (const dice of bridge.select({ className: 'Dice', directParent: false })) {
             this.emit('TRIGGER', { target: dice });
-            if(this.targetDice) break;
+            if (this.targetDice) break;
           }
-          if(this.targetDice) break;
+          if (this.targetDice) break;
         }
       }
 
-      for (const dice of game.select('Dice')) {
-        if (dice.locked) dice.set({ locked: null });
-      }
+      this.targetDice?.set({ locked: null });
+
       this.emit('RESET');
     },
   },

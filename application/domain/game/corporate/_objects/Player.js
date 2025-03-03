@@ -19,4 +19,11 @@
       deck.game(game);
     }
   }
+  toggleEventWithTriggerListener(data = {}) {
+    if (data.targetId) {
+      data.target = this.game().game().get(data.targetId);
+      delete data.targetId;
+    }
+    return super.toggleEventWithTriggerListener(data);
+  }
 });

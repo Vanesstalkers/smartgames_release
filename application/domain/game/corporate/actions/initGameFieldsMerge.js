@@ -1,16 +1,29 @@
 (function () {
   const player = this.roundActivePlayer();
-  const event = domain.game.events.common.putPlaneFromHand();
+  const {
+    data,
+    handlers: {
+      //
+      NO_AVAILABLE_PORTS,
+      TRIGGER_EXTRA_PLANE,
+      CHECK_PLANES_IN_HANDS,
+    },
+  } = domain.game.events.common.putPlaneFromHand();
 
   this.initEvent(
     {
-      ...event,
-      init: function () {
+      data,
+      init() {
+        const { game } = this.eventContext();
+        const superGame = game.game();
+        superGame.broadcastEvent('DICES_DISABLED', { parent: game });
         return this.emit('CHECK_AVAILABLE_PORTS');
       },
       handlers: {
-        ...event.handlers,
-        CHECK_AVAILABLE_PORTS: function () {
+        NO_AVAILABLE_PORTS,
+        TRIGGER_EXTRA_PLANE,
+        CHECK_PLANES_IN_HANDS,
+        CHECK_AVAILABLE_PORTS() {
           const { game, player } = this.eventContext();
           const playerPlaneDeck = player.find('Deck[plane]');
           const superGame = game.game();
@@ -57,7 +70,7 @@
             this.emit('NO_AVAILABLE_PORTS');
           }
         },
-        RESET: function () {
+        RESET() {
           const { game, player } = this.eventContext();
           const superGame = game.game();
           const gameDeck = game.find('Deck[plane]');
@@ -78,7 +91,7 @@
 
           this.destroy();
         },
-        TRIGGER: function ({ target }) {
+        TRIGGER({ target }) {
           const { game, player } = this.eventContext();
           const playerPlaneDeck = player.find('Deck[plane]');
 
@@ -127,7 +140,7 @@
           }
           return { preventListenerRemove: true };
         },
-        ADD_PLANE: function ({ target: plane }) {
+        ADD_PLANE({ target: plane }) {
           const { game, player } = this.eventContext();
           const gamePlaneDeck = game.find('Deck[plane]');
           const playerPlaneDeck = player.find('Deck[plane]');
@@ -168,7 +181,7 @@
 
           return { preventListenerRemove: true };
         },
-        END_ROUND: function () {
+        END_ROUND() {
           const { game, source: plane } = this.eventContext();
           const superGame = game.game();
 
@@ -187,6 +200,6 @@
         },
       },
     },
-    { allowedPlayers: [player] }
+    { player }
   );
 });

@@ -5,11 +5,11 @@
         v-for="game in planeViewGames"
         :key="game.gameId"
         :gameId="game.gameId"
-        class="gp"
+        :class="['gp', game.roundReady ? 'round-ready' : '', allGamesMerged ? 'all-games-merged' : '']"
         :style="{ ...gamePlaneStyle(game.gameId) }"
       >
-        <div :class="['gp-content']" :style="{ ...gamePlaneContentControlStyle(game.gameId) }">
-          <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" :gameId="game.gameId" />
+        <div class="gp-content" :style="{ ...gamePlaneContentControlStyle(game.gameId) }">
+          <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" />
           <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
           <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
 
@@ -40,22 +40,60 @@
     </template>
 
     <template #gameinfo="{} = {}">
-      <div class="wrapper">
+      <div :class="['wrapper decks ', allGamesMerged ? 'show-super' : '']">
         <div class="game-status-label">
           {{ superGame.statusLabel }}
-          <small v-if="game.roundReady">Ожидание других команд</small>
+          <small v-if="selectedGame.roundReady">Ожидание других команд</small>
         </div>
-        <div v-for="deck in deckList" :key="deck._id" class="deck" :code="deck.code.replace(game.code, '')">
-          <div v-if="deck._id && deck.code === `${game.code}Deck[domino]`" class="hat" v-on:click="takeDice">
+        <div
+          v-for="deck in deckList"
+          :key="deck._id"
+          :class="['deck', 'template-' + (selectedGame.templates.dice || 'default')]"
+          :code="deck.code.replace(selectedGame.code, '')"
+        >
+          <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[domino]`" class="hat" v-on:click="takeDice">
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === `${game.code}Deck[card]`" class="card-event" v-on:click="takeCard">
+          <div
+            v-if="deck._id && deck.code === `${selectedGame.code}Deck[card]`"
+            class="card-event"
+            :style="cardEventCustomStyle[selectedGame._id]"
+            v-on:click="takeCard"
+          >
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === `${game.code}Deck[card_drop]`" class="card-event">
+          <div
+            v-if="deck._id && deck.code === `${selectedGame.code}Deck[card_drop]`"
+            class="card-event"
+            :style="cardEventCustomStyle[selectedGame._id]"
+          >
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === `${game.code}Deck[card_active]`" class="deck-active">
+          <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[card_active]`" class="deck-active">
+            <!-- активная карта всегда первая - для верстки она должна стать последней -->
+            <card
+              v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"
+              :key="_id"
+              :cardId="_id"
+              :canPlay="!played && sessionPlayerIsActive() && showPlayerControls"
+            />
+          </div>
+          <div
+            v-if="deck._id && deck.code === `SuperDeck[card]`"
+            class="card-event"
+            :style="cardEventCustomStyle[superGame._id]"
+            v-on:click="takeCard"
+          >
+            {{ Object.keys(deck.itemMap).length }}
+          </div>
+          <div
+            v-if="deck._id && deck.code === `SuperDeck[card_drop]`"
+            class="card-event"
+            :style="cardEventCustomStyle[superGame._id]"
+          >
+            {{ Object.keys(deck.itemMap).length }}
+          </div>
+          <div v-if="deck._id && deck.code === `SuperDeck[card_active]`" class="deck-active">
             <!-- активная карта всегда первая - для верстки она должна стать последней -->
             <card
               v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"
@@ -88,7 +126,8 @@
             game.selected ? 'selected' : '',
             game.super ? 'super' : '',
             game.my ? 'my' : '',
-            !game.roundReady ? 'wait-for-round-ready' : '',
+            game.roundReady ? 'round-ready' : '',
+            game.merged && !allGamesMerged ? 'disable-field' : '',
           ]"
           v-on:click="selectGame(game.gameId)"
         >
@@ -114,8 +153,8 @@ import { prepareGameGlobals } from '~/lib/game/front/gameGlobals.mjs';
 import releaseGameGlobals from '~/domain/game/front/releaseGameGlobals.mjs';
 import corporateGameGlobals from '~/domain/game/front/corporateGameGlobals.mjs';
 import Game from '~/lib/game/front/Game.vue';
-import card from '~/lib/game/front/components/card.vue';
 
+import card from './components/card.vue';
 import player from './components/player.vue';
 import plane from './components/plane.vue';
 import bridge from './components/bridge.vue';
@@ -156,7 +195,7 @@ export default {
         this.hideZonesAvailability();
       }
     },
-    'game.eventListeners.TRIGGER': function () {
+    'player.eventData.triggerListenerEnabled': function () {
       this.gameCustom.pickedDiceId = '';
       if (
         this.gameDataLoaded // gameDataLoaded может не быть при restoreGame
@@ -170,7 +209,7 @@ export default {
         this.selectedFakePlanePosition = '';
         this.gameCustom.selectedFakePlanes = {};
 
-        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn) {
+        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn && !this.gameFinished()) {
           this.gameState.cardWorkerAction = {
             show: true,
             label: 'Помочь выложить',
@@ -189,7 +228,7 @@ export default {
         this.selectedFakePlanePosition = '';
         this.gameCustom.selectedFakePlanes = {};
 
-        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn) {
+        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn && !this.gameFinished()) {
           this.gameState.cardWorkerAction = {
             show: true,
             label: 'Помочь выложить',
@@ -219,11 +258,14 @@ export default {
     game() {
       return this.getGame();
     },
+    selectedGame() {
+      return this.getGame(this.gameCustom.selectedGameId);
+    },
     superGame() {
       return this.getSuperGame();
     },
     player() {
-      return this.store.player[this.gameState.sessionPlayerId] || {};
+      return this.store.player?.[this.gameState.sessionPlayerId] || {};
     },
     gameDataLoaded() {
       return this.game.addTime;
@@ -239,9 +281,11 @@ export default {
       if (this.gameState.viewerMode)
         return Object.keys(this.game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
 
-      const game = this.getStore().game[this.selectedGame || this.playerGameId()];
+      const game = this.getStore().game[this.gameCustom.selectedGameId || this.playerGameId()];
+
       const ids = Object.keys(game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
       const curPlayerIdx = ids.indexOf(this.gameState.sessionPlayerId);
+
       const result = curPlayerIdx != -1 ? ids.slice(curPlayerIdx + 1).concat(ids.slice(0, curPlayerIdx)) : ids;
       return result;
     },
@@ -265,7 +309,19 @@ export default {
       return Math.floor(baseSum * timerMod * configMod);
     },
     deckList() {
-      return Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id]) || [];
+      return (
+        Object.keys(this.selectedGame.deckMap)
+          .map((id) => this.store.deck?.[id])
+          .concat(this.superGameCardDeck) || []
+      );
+    },
+    superGameCardDeck() {
+      return (
+        Object.keys(this.superGame.deckMap).map((id) => {
+          const deck = this.store.deck?.[id];
+          return { ...deck, code: `Super${deck.code}` };
+        }) || []
+      );
     },
     tables() {
       return Object.values(this.store.deck).filter((deck) => deck.subtype === 'table');
@@ -273,7 +329,7 @@ export default {
     games() {
       const games = [];
       const playerGameId = this.playerGameId();
-      const selectedGame = this.selectedGame || playerGameId;
+      const selectedGameId = this.gameCustom.selectedGameId || playerGameId;
       games.push([this.gameState.gameId, this.state.store.game?.[this.gameState.gameId] || {}]);
       if (this.store.game) games.push(...Object.entries(this.store.game));
       return games.map(([gameId, game]) => {
@@ -285,11 +341,13 @@ export default {
           bridgeMap: game.bridgeMap || {},
           playerMap: game.playerMap || {},
           availablePorts: game.availablePorts,
-          selected: selectedGame === gameId,
+          selected: selectedGameId === gameId,
           super: this.gameState.gameId === gameId,
           my: gameId === playerGameId,
           title: game.title,
           roundReady: game.roundReady,
+          code: game.code,
+          merged: game.merged,
         };
       });
     },
@@ -318,8 +376,25 @@ export default {
     activeCards() {
       return this.deckList.find((deck) => deck.subtype === 'active') || {};
     },
-    selectedGame() {
-      return this.gameCustom.selectedGame;
+
+    cardEventCustomStyle() {
+      const {
+        state: { serverOrigin },
+        selectedGame,
+        superGame,
+      } = this;
+
+      return {
+        [selectedGame._id]: {
+          backgroundImage: `url(${serverOrigin}/img/cards/${selectedGame.templates.card}/back-side.jpg)`,
+        },
+        [superGame._id]: {
+          backgroundImage: `url(${serverOrigin}/img/cards/${superGame.templates.card}/back-side.jpg)`,
+        },
+      };
+    },
+    allGamesMerged() {
+      return this.games.every((game) => game.super || game.merged);
     },
   },
   methods: {
@@ -497,7 +572,7 @@ export default {
       this.resetMouseEventsConfig({ rotation });
       this.gameCustom.gamePlaneRotation = rotation;
 
-      this.$set(this.gameCustom, 'selectedGame', gameId);
+      this.$set(this.gameCustom, 'selectedGameId', gameId);
       this.resetPlanePosition();
     },
   },
@@ -508,6 +583,17 @@ export default {
   transform-origin: left top !important;
   .gp-content {
     position: absolute;
+  }
+}
+
+// замороженная игра (ждет merge всех остальных игр)
+.gp.round-ready .plane .domino-dice,
+.gp:not(.all-games-merged) .plane.source-game-merged .domino-dice,
+.gp:not(.all-games-merged) .bridge.anchor-game-merged .domino-dice {
+  opacity: 0.5;
+  cursor: default !important;
+  > .controls {
+    display: none !important;
   }
 }
 
@@ -523,16 +609,43 @@ export default {
   text-shadow: 1px 1px 0 #fff;
   background-image: url(./assets/back-side.jpg);
 }
+.deck > .card-event:hover {
+  box-shadow: inset 0 0 0 1000px rgba(255, 255, 255, 0.5);
+  color: black !important;
+}
 
 .deck[code='Deck[domino]'] {
   position: absolute;
   top: 35px;
   right: 100px;
-  background: url(./assets/dominoes.png);
-  background-size: cover;
   padding: 14px;
   cursor: default;
 }
+
+.deck[code='Deck[domino]']:after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0px;
+  top: 0px;
+  z-index: -1;
+  background: url(./assets/dices/deck.png);
+  background-size: cover;
+}
+.deck[code='Deck[domino]'].template-team1:after {
+  filter: hue-rotate(200deg);
+}
+.deck[code='Deck[domino]'].template-team2:after {
+  filter: hue-rotate(320deg);
+}
+.deck[code='Deck[domino]'].template-team3:after {
+  filter: hue-rotate(80deg);
+}
+.deck[code='Deck[domino]'].template-team4:after {
+  filter: hue-rotate(10deg);
+}
+
 .deck[code='Deck[domino]'] > .hat {
   color: white;
   font-size: 36px;
@@ -550,34 +663,66 @@ export default {
   cursor: default;
 }
 
-.deck[code='Deck[card_drop]'] {
+.deck[code='Deck[card_drop]'],
+.deck[code='SuperDeck[card_drop]'] {
   position: absolute;
   filter: grayscale(1);
   transform: scale(0.5);
   top: 65px;
   right: -10px;
   cursor: default;
-}
-.deck[code='Deck[card_drop]'] > .card-event {
-  color: #ccc;
-}
 
-.deck[code='Deck[card_active]'] {
+  > .card-event {
+    color: #ccc;
+  }
+}
+.deck[code='Deck[card_active]'],
+.deck[code='SuperDeck[card_active]'] {
   position: absolute;
   top: 140px;
   right: 0px;
   display: flex;
-}
 
-.deck[code='Deck[card_active]'] .card-event {
-  margin-top: -135px;
-}
-.deck[code='Deck[card_active]'] .card-event:first-child {
-  margin-top: 0px !important;
+  .card-event {
+    margin-top: -135px;
+
+    &:first-child {
+      margin-top: 0px !important;
+    }
+  }
 }
 .deck-active {
   display: flex;
   flex-direction: column;
+}
+
+.deck[code='SuperDeck[card]'],
+.deck[code='SuperDeck[card_active]'],
+.deck[code='SuperDeck[card_drop]'] {
+  display: none;
+}
+.decks.show-super {
+  .deck[code='SuperDeck[card]'],
+  .deck[code='SuperDeck[card_active]'],
+  .deck[code='SuperDeck[card_drop]'] {
+    display: block;
+  }
+
+  .deck[code='SuperDeck[card]'] {
+    position: absolute;
+    top: 35px;
+    right: 30px;
+    cursor: default;
+  }
+  .deck[code='Deck[domino]'] {
+    right: 200px;
+  }
+  .deck[code='Deck[card]'] {
+    right: 130px;
+  }
+  .deck[code='Deck[card_drop]'] {
+    right: 90px;
+  }
 }
 
 .game-status-label {
@@ -638,6 +783,7 @@ export default {
   margin-left: 60px;
 }
 .games {
+  z-index: 1;
   position: absolute;
   left: 40px;
   bottom: 0px;
@@ -673,7 +819,7 @@ export default {
       background: gold;
       color: black;
     }
-    &.wait-for-round-ready {
+    &:not(.round-ready) {
       background: orange;
     }
     &.my {

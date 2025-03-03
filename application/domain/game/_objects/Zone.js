@@ -54,15 +54,15 @@
 
     if (newObjectCreation) item = new itemClass(item, { parent: this });
 
-    const available = this.checkIsAvailable(item);
-    if (available || force) {
+    const { status } = this.checkIsAvailable(item);
+    if (status || force) {
       if (!newObjectCreation) item.setParent(this);
       this.set({ itemMap: { [item._id]: {} } });
-      if (available === 'rotate') item.set({ sideList: [...item.sideList.reverse()] });
+      if (status === 'rotate') item.set({ sideList: [...item.sideList.reverse()] });
       this.updateValues();
     }
 
-    return available;
+    return status;
   }
   /**
    * устанавливает value зоны в соответствии с размещенным в нем dice
@@ -103,9 +103,10 @@
     return this.select('Dice').find((dice) => dice.deleted);
   }
   checkIsAvailable(dice, { skipPlacedItem } = {}) {
-    if (!skipPlacedItem && this.getItem()) return false; // zone уже занята
+    if (!skipPlacedItem && this.getItem()) return { status: false, msg: 'Зона уже занята.' };
 
-    if (this.findParent({ className: 'Player' }) !== null) return false; // это plane в руке player
+    if (this.findParent({ className: 'Player' }) !== null)
+      return { status: false, msg: 'Нельзя заполнять блоки в руке.' };
 
     const expectedValues0 = this.sideList[0].expectedValues;
     const sizeOfExpectedValues0 = Object.keys(expectedValues0).length;
@@ -115,26 +116,27 @@
     const bridgeParent = this.findParent({ className: 'Bridge' });
     if (bridgeParent !== null) {
       if (bridgeParent.bridgeToCardPlane) {
-        if (!(sizeOfExpectedValues0 || sizeOfExpectedValues1)) return false; // для card-bridge-zone должна быть заполнена zone прилегающего plane
+        if (!(sizeOfExpectedValues0 || sizeOfExpectedValues1))
+          return { status: false, msg: 'Должна быть заполнена прилегающая к интеграции зона.' };
       } else if (!sizeOfExpectedValues0 || !sizeOfExpectedValues1) {
-        return false; // для bridge-zone должны быть заполнены соседние zone
+        return { status: false, msg: 'Должны быть заполнены прилегающие к интеграции зоны.' };
       }
     }
 
-    if (!sizeOfExpectedValues0 && !sizeOfExpectedValues1) return true; // соседние zone свободны
+    if (!sizeOfExpectedValues0 && !sizeOfExpectedValues1) return { status: true }; // соседние zone свободны
 
     if (
       (!sizeOfExpectedValues0 || (expectedValues0[dice.sideList[0].value] && sizeOfExpectedValues0 === 1)) &&
       (!sizeOfExpectedValues1 || (expectedValues1[dice.sideList[1].value] && sizeOfExpectedValues1 === 1))
     )
-      return true;
+      return { status: true };
     if (
       (!sizeOfExpectedValues0 || (expectedValues0[dice.sideList[1].value] && sizeOfExpectedValues0 === 1)) &&
       (!sizeOfExpectedValues1 || (expectedValues1[dice.sideList[0].value] && sizeOfExpectedValues1 === 1))
     )
-      return 'rotate';
+      return { status: 'rotate' };
 
-    return false;
+    return { status: false };
   }
   checkItemCanBeRotated() {
     const expectedValues0 = this.sideList[0].expectedValues;
@@ -142,8 +144,11 @@
     const expectedValues1 = this.sideList[1].expectedValues;
     const sizeOfExpectedValues1 = Object.keys(expectedValues1).length;
 
-    if (this.getParent().constructor.name === 'Bridge') return false;
+    if (this.isBridgeZone()) return false;
     if (!sizeOfExpectedValues0 && !sizeOfExpectedValues1) return true;
     return false;
+  }
+  isBridgeZone() {
+    return this.parent().matches({ className: 'Bridge' });
   }
 });
