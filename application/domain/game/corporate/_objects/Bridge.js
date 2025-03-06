@@ -6,6 +6,8 @@
     if (anchorGameId) this.game(lib.store('game').get(anchorGameId));
     else anchorGameId = this.game().id();
 
+    if (this.game().merged) this.game(this.game().game());
+
     this.set({ mergedGameId, anchorGameId });
     this.broadcastableFields(['anchorGameId']);
   }

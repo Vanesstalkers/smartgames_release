@@ -72,7 +72,10 @@
         }
       }
 
-      this.targetDice?.set({ locked: null });
+      if (this.targetDice) {
+        // если сделать { locked: null }, то при возврате dice в колоду информация о ней не придет (из-за fakeId) - в store frontend-а останется locked=true, которое не обновится{ locked: false } при взятии dice в руку, т.к. на бэкенде locked уже удален
+        this.targetDice?.set({ locked: false });
+      }
 
       this.emit('RESET');
     },

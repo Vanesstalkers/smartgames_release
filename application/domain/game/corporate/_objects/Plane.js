@@ -7,6 +7,8 @@
     if (anchorGameId) this.game(lib.store('game').get(anchorGameId));
     else anchorGameId = sourceGameId;
 
+    if (this.game().merged) this.game(this.game().game());
+
     this.set({ sourceGameId, anchorGameId, mergedPlane });
     this.broadcastableFields(['sourceGameId', 'anchorGameId']);
   }
