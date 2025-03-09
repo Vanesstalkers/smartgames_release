@@ -4,9 +4,9 @@
 
   for (const game of superGame.getAllGames()) {
     lib.timers.timerDelete(game);
-    game.decks.table.updateAllItems({
-      eventData: { selectable: null, moveToHand: null, extraPlane: null },
-    });
+    for (const player of game.players()) {
+      player.set({ eventData: { plane: null } });
+    }
   }
 
   superGame.checkCrutches();

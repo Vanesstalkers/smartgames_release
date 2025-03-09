@@ -40,32 +40,4 @@
 
   joinPlane.game(targetGame);
   joinPlane.moveToTarget(targetTable, { anchorGameId: targetPlane.anchorGameId });
-
-  // переносим все связанные plane-ы
-  const processedBridges = [bridge];
-  const processBridges = (plane) => {
-    const bridges = plane.getLinkedBridges().filter((bridge) => !processedBridges.includes(bridge));
-    for (const bridge of bridges) {
-      const ports = bridge.getLinkedPorts();
-      const [joinPort, targetPort] = ports.sort((a, b) => (a.parent() !== plane ? -1 : 1));
-      const joinPlane = joinPort.parent();
-      const targetPlane = targetPort.parent();
-      const targetGame = targetPlane.game();
-
-      const { targetLinkPoint } = this.run('updatePlaneCoordinates', { joinPort, targetPort });
-
-      joinPlane.game(targetGame);
-      joinPlane.moveToTarget(targetTable);
-
-      bridge.updateParent(targetGame);
-      bridge.set({ left: targetLinkPoint.left, top: targetLinkPoint.top });
-      bridge.updateRotation();
-
-      processedBridges.push(bridge);
-      processBridges(joinPlane);
-    }
-  };
-  processBridges(joinPlane);
-
-  return { bridge };
 });

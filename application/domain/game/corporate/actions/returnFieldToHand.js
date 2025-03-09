@@ -1,4 +1,4 @@
-(function ({}, initPlayer) {
+(function ({ }, initPlayer) {
   const superGame = this.game();
   const currentTable = this.merged ? superGame.decks.table : this.decks.table;
   const playerDeck = initPlayer.find('Deck[plane]');
@@ -7,11 +7,13 @@
     attr: { anchorGameId: this.id() },
   });
 
+  const eventData = { plane: {} };
   for (const plane of gamePlanes) {
-    plane.removeFromTable({ target: playerDeck });
-    plane.set({ eventData: { moveToHand: true } });
+    plane.removeFromTableToHand({ player: initPlayer });
+    eventData.plane[plane.id()] = { mustBePlaced: true };
     if (this.merged) plane.game(this);
   }
+  initPlayer.set({ eventData });
 
   this.set({ merged: null, roundReady: false });
   superGame.set({
