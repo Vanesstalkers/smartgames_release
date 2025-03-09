@@ -173,7 +173,7 @@
           ],
         },
       ]
-    : domain.not_enought_ports = false
+    : domain.not_enought_ports = true
     ? [
         {
           _code: 1,
@@ -242,352 +242,419 @@
             },
           ],
         },
-        {
-          _code: 11,
-          price: 180,
-          width: 500,
-          height: 250,
-          zoneLinks: {
-            'Zone[1]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': ['Zone[2].ZoneSide[1]', 'Zone[2].ZoneSide[2]'],
-            },
-            'Zone[3]': {
-              'ZoneSide[1]': ['Zone[2].ZoneSide[1]', 'Zone[2].ZoneSide[2]'],
-              'ZoneSide[2]': [],
-            },
-          },
-          zoneList: [
-            { _code: 1, left: 50, top: 87, itemType: 'any' },
-            {
-              _code: 2,
-              left: 215,
-              top: 50,
-              vertical: 1,
-              double: true,
-              itemType: 'any',
-            },
-            { _code: 3, left: 310, top: 87, itemType: 'any' },
-          ],
-          portList: [
-            {
-              _code: 1,
-              left: 25,
-              top: 5,
-              direct: { top: true, left: false },
-              links: ['Zone[1].ZoneSide[1]'],
-              t: 'any',
-              s: 'core',
-            },
-            {
-              _code: 2,
-              left: 400,
-              top: 5,
-              direct: { top: false, right: true },
-              // direct: { top: true, right: false },
-              links: ['Zone[3].ZoneSide[2]'],
-              t: 'any',
-            },
-            {
-              _code: 3,
-              left: 25,
-              top: 170,
-              //direct: { bottom: true, left: false },
-              direct: { bottom: false, left: true },
-              links: ['Zone[1].ZoneSide[1]'],
-              t: 'any',
-              s: 'core',
-            },
-            {
-              _code: 4,
-              left: 400,
-              top: 170,
-              direct: { bottom: true, right: false },
-              links: ['Zone[3].ZoneSide[2]'],
-              t: 'any',
-              s: 'core',
-            },
-          ],
-        },
-        {
-          _code: 2,
-          price: 100,
-          width: 500,
-          height: 250,
-          zoneLinks: {
-            'Zone[1]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
-            },
-            'Zone[2]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': [],
-            },
-          },
-          zoneList: [
-            { _code: 1, left: 80, top: 87, itemType: 'any' },
-            { _code: 2, left: 280, top: 87, itemType: 'any' },
-          ],
-          portList: [
-            {
-              _code: 1,
-              left: 150,
-              top: 0,
-              direct: { top: true },
-              links: ['Zone[1].ZoneSide[2]'],
-              t: 'any',
-              s: 'core',
-            },
-          ],
-        },
-        {
-          _code: 3,
-          price: 100,
-          width: 500,
-          height: 250,
-          zoneLinks: {
-            'Zone[1]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
-            },
-            'Zone[2]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': [],
-            },
-          },
-          zoneList: [
-            { _code: 1, left: 80, top: 87, itemType: 'any' },
-            { _code: 2, left: 280, top: 87, itemType: 'any' },
-          ],
-          portList: [
-            {
-              _code: 1,
-              left: 150,
-              top: 0,
-              direct: { top: true },
-              links: ['Zone[1].ZoneSide[2]'],
-              t: 'any',
-              s: 'core',
-            },
-          ],
-        },
-        {
-          _code: 4,
-          price: 100,
-          width: 500,
-          height: 250,
-          zoneLinks: {
-            'Zone[1]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
-            },
-            'Zone[2]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': [],
-            },
-          },
-          zoneList: [
-            { _code: 1, left: 80, top: 87, itemType: 'any' },
-            { _code: 2, left: 280, top: 87, itemType: 'any' },
-          ],
-          portList: [
-            {
-              _code: 1,
-              left: 150,
-              top: 0,
-              direct: { top: true },
-              links: ['Zone[1].ZoneSide[2]'],
-              t: 'any',
-              s: 'core',
-            },
-          ],
-        },
-        {
-          _code: 5,
-          price: 100,
-          width: 500,
-          height: 250,
-          zoneLinks: {
-            'Zone[1]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
-            },
-            'Zone[2]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': [],
-            },
-          },
-          zoneList: [
-            { _code: 1, left: 80, top: 87, itemType: 'any' },
-            { _code: 2, left: 280, top: 87, itemType: 'any' },
-          ],
-          portList: [
-            {
-              _code: 1,
-              left: 150,
-              top: 0,
-              direct: { top: true },
-              links: ['Zone[1].ZoneSide[2]'],
-              t: 'any',
-              s: 'core',
-            },
-          ],
-        },
-        {
-          _code: 6,
-          price: 100,
-          width: 500,
-          height: 250,
-          zoneLinks: {
-            'Zone[1]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
-            },
-            'Zone[2]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': [],
-            },
-          },
-          zoneList: [
-            { _code: 1, left: 80, top: 87, itemType: 'any' },
-            { _code: 2, left: 280, top: 87, itemType: 'any' },
-          ],
-          portList: [
-            {
-              _code: 1,
-              left: 150,
-              top: 0,
-              direct: { top: true },
-              links: ['Zone[1].ZoneSide[2]'],
-              t: 'any',
-              s: 'core',
-            },
-          ],
-        },
-        {
-          _code: 7,
-          price: 100,
-          width: 500,
-          height: 250,
-          zoneLinks: {
-            'Zone[1]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
-            },
-            'Zone[2]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': [],
-            },
-          },
-          zoneList: [
-            { _code: 1, left: 80, top: 87, itemType: 'any' },
-            { _code: 2, left: 280, top: 87, itemType: 'any' },
-          ],
-          portList: [
-            {
-              _code: 1,
-              left: 150,
-              top: 0,
-              direct: { top: true },
-              links: ['Zone[1].ZoneSide[2]'],
-              t: 'any',
-              s: 'core',
-            },
-          ],
-        },
-        {
-          _code: 21,
-          price: 100,
-          width: 500,
-          height: 250,
-          zoneLinks: {
-            'Zone[1]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
-            },
-            'Zone[2]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': [],
-            },
-          },
-          zoneList: [
-            { _code: 1, left: 80, top: 87, itemType: 'any' },
-            { _code: 2, left: 280, top: 87, itemType: 'any' },
-          ],
-          portList: [
-            {
-              _code: 1,
-              left: 150,
-              top: 0,
-              direct: { top: true },
-              links: ['Zone[1].ZoneSide[2]'],
-              t: 'any',
-              s: 'core',
-            },
-          ],
-        },
-        {
-          _code: 31,
-          price: 100,
-          width: 500,
-          height: 250,
-          zoneLinks: {
-            'Zone[1]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
-            },
-            'Zone[2]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': [],
-            },
-          },
-          zoneList: [
-            { _code: 1, left: 80, top: 87, itemType: 'any' },
-            { _code: 2, left: 280, top: 87, itemType: 'any' },
-          ],
-          portList: [
-            {
-              _code: 1,
-              left: 150,
-              top: 0,
-              direct: { top: true },
-              links: ['Zone[1].ZoneSide[2]'],
-              t: 'any',
-              s: 'core',
-            },
-          ],
-        },
-        {
-          _code: 41,
-          price: 100,
-          width: 500,
-          height: 250,
-          zoneLinks: {
-            'Zone[1]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
-            },
-            'Zone[2]': {
-              'ZoneSide[1]': [],
-              'ZoneSide[2]': [],
-            },
-          },
-          zoneList: [
-            { _code: 1, left: 80, top: 87, itemType: 'any' },
-            { _code: 2, left: 280, top: 87, itemType: 'any' },
-          ],
-          portList: [
-            {
-              _code: 1,
-              left: 150,
-              top: 0,
-              direct: { top: true },
-              links: ['Zone[1].ZoneSide[2]'],
-              t: 'any',
-              s: 'core',
-            },
-          ],
-        },
+        // {
+        //   _code: 11,
+        //   price: 180,
+        //   width: 500,
+        //   height: 250,
+        //   zoneLinks: {
+        //     'Zone[1]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': ['Zone[2].ZoneSide[1]', 'Zone[2].ZoneSide[2]'],
+        //     },
+        //     'Zone[3]': {
+        //       'ZoneSide[1]': ['Zone[2].ZoneSide[1]', 'Zone[2].ZoneSide[2]'],
+        //       'ZoneSide[2]': [],
+        //     },
+        //   },
+        //   zoneList: [
+        //     { _code: 1, left: 50, top: 87, itemType: 'any' },
+        //     {
+        //       _code: 2,
+        //       left: 215,
+        //       top: 50,
+        //       vertical: 1,
+        //       double: true,
+        //       itemType: 'any',
+        //     },
+        //     { _code: 3, left: 310, top: 87, itemType: 'any' },
+        //   ],
+        //   portList: [
+        //     {
+        //       _code: 1,
+        //       left: 25,
+        //       top: 5,
+        //       direct: { top: true, left: false },
+        //       links: ['Zone[1].ZoneSide[1]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //     {
+        //       _code: 2,
+        //       left: 400,
+        //       top: 5,
+        //       direct: { top: false, right: true },
+        //       // direct: { top: true, right: false },
+        //       links: ['Zone[3].ZoneSide[2]'],
+        //       t: 'any',
+        //     },
+        //     {
+        //       _code: 3,
+        //       left: 25,
+        //       top: 170,
+        //       //direct: { bottom: true, left: false },
+        //       direct: { bottom: false, left: true },
+        //       links: ['Zone[1].ZoneSide[1]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //     {
+        //       _code: 4,
+        //       left: 400,
+        //       top: 170,
+        //       direct: { bottom: true, right: false },
+        //       links: ['Zone[3].ZoneSide[2]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //   ],
+        // },
+        // {
+        //   _code: 111,
+        //   price: 180,
+        //   width: 500,
+        //   height: 250,
+        //   zoneLinks: {
+        //     'Zone[1]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': ['Zone[2].ZoneSide[1]', 'Zone[2].ZoneSide[2]'],
+        //     },
+        //     'Zone[3]': {
+        //       'ZoneSide[1]': ['Zone[2].ZoneSide[1]', 'Zone[2].ZoneSide[2]'],
+        //       'ZoneSide[2]': [],
+        //     },
+        //   },
+        //   zoneList: [
+        //     { _code: 1, left: 50, top: 87, itemType: 'any' },
+        //     {
+        //       _code: 2,
+        //       left: 215,
+        //       top: 50,
+        //       vertical: 1,
+        //       double: true,
+        //       itemType: 'any',
+        //     },
+        //     { _code: 3, left: 310, top: 87, itemType: 'any' },
+        //   ],
+        //   portList: [
+        //     {
+        //       _code: 1,
+        //       left: 25,
+        //       top: 5,
+        //       direct: { top: true, left: false },
+        //       links: ['Zone[1].ZoneSide[1]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //     {
+        //       _code: 2,
+        //       left: 400,
+        //       top: 5,
+        //       direct: { top: false, right: true },
+        //       // direct: { top: true, right: false },
+        //       links: ['Zone[3].ZoneSide[2]'],
+        //       t: 'any',
+        //     },
+        //     {
+        //       _code: 3,
+        //       left: 25,
+        //       top: 170,
+        //       //direct: { bottom: true, left: false },
+        //       direct: { bottom: false, left: true },
+        //       links: ['Zone[1].ZoneSide[1]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //     {
+        //       _code: 4,
+        //       left: 400,
+        //       top: 170,
+        //       direct: { bottom: true, right: false },
+        //       links: ['Zone[3].ZoneSide[2]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //   ],
+        // },
+        // {
+        //   _code: 2,
+        //   price: 100,
+        //   width: 500,
+        //   height: 250,
+        //   zoneLinks: {
+        //     'Zone[1]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
+        //     },
+        //     'Zone[2]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': [],
+        //     },
+        //   },
+        //   zoneList: [
+        //     { _code: 1, left: 80, top: 87, itemType: 'any' },
+        //     { _code: 2, left: 280, top: 87, itemType: 'any' },
+        //   ],
+        //   portList: [
+        //     {
+        //       _code: 1,
+        //       left: 150,
+        //       top: 0,
+        //       direct: { top: true },
+        //       links: ['Zone[1].ZoneSide[2]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //   ],
+        // },
+        // {
+        //   _code: 3,
+        //   price: 100,
+        //   width: 500,
+        //   height: 250,
+        //   zoneLinks: {
+        //     'Zone[1]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
+        //     },
+        //     'Zone[2]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': [],
+        //     },
+        //   },
+        //   zoneList: [
+        //     { _code: 1, left: 80, top: 87, itemType: 'any' },
+        //     { _code: 2, left: 280, top: 87, itemType: 'any' },
+        //   ],
+        //   portList: [
+        //     {
+        //       _code: 1,
+        //       left: 150,
+        //       top: 0,
+        //       direct: { top: true },
+        //       links: ['Zone[1].ZoneSide[2]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //   ],
+        // },
+        // {
+        //   _code: 4,
+        //   price: 100,
+        //   width: 500,
+        //   height: 250,
+        //   zoneLinks: {
+        //     'Zone[1]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
+        //     },
+        //     'Zone[2]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': [],
+        //     },
+        //   },
+        //   zoneList: [
+        //     { _code: 1, left: 80, top: 87, itemType: 'any' },
+        //     { _code: 2, left: 280, top: 87, itemType: 'any' },
+        //   ],
+        //   portList: [
+        //     {
+        //       _code: 1,
+        //       left: 150,
+        //       top: 0,
+        //       direct: { top: true },
+        //       links: ['Zone[1].ZoneSide[2]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //   ],
+        // },
+        // {
+        //   _code: 5,
+        //   price: 100,
+        //   width: 500,
+        //   height: 250,
+        //   zoneLinks: {
+        //     'Zone[1]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
+        //     },
+        //     'Zone[2]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': [],
+        //     },
+        //   },
+        //   zoneList: [
+        //     { _code: 1, left: 80, top: 87, itemType: 'any' },
+        //     { _code: 2, left: 280, top: 87, itemType: 'any' },
+        //   ],
+        //   portList: [
+        //     {
+        //       _code: 1,
+        //       left: 150,
+        //       top: 0,
+        //       direct: { top: true },
+        //       links: ['Zone[1].ZoneSide[2]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //   ],
+        // },
+        // {
+        //   _code: 6,
+        //   price: 100,
+        //   width: 500,
+        //   height: 250,
+        //   zoneLinks: {
+        //     'Zone[1]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
+        //     },
+        //     'Zone[2]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': [],
+        //     },
+        //   },
+        //   zoneList: [
+        //     { _code: 1, left: 80, top: 87, itemType: 'any' },
+        //     { _code: 2, left: 280, top: 87, itemType: 'any' },
+        //   ],
+        //   portList: [
+        //     {
+        //       _code: 1,
+        //       left: 150,
+        //       top: 0,
+        //       direct: { top: true },
+        //       links: ['Zone[1].ZoneSide[2]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //   ],
+        // },
+        // {
+        //   _code: 7,
+        //   price: 100,
+        //   width: 500,
+        //   height: 250,
+        //   zoneLinks: {
+        //     'Zone[1]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
+        //     },
+        //     'Zone[2]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': [],
+        //     },
+        //   },
+        //   zoneList: [
+        //     { _code: 1, left: 80, top: 87, itemType: 'any' },
+        //     { _code: 2, left: 280, top: 87, itemType: 'any' },
+        //   ],
+        //   portList: [
+        //     {
+        //       _code: 1,
+        //       left: 150,
+        //       top: 0,
+        //       direct: { top: true },
+        //       links: ['Zone[1].ZoneSide[2]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //   ],
+        // },
+        // {
+        //   _code: 21,
+        //   price: 100,
+        //   width: 500,
+        //   height: 250,
+        //   zoneLinks: {
+        //     'Zone[1]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
+        //     },
+        //     'Zone[2]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': [],
+        //     },
+        //   },
+        //   zoneList: [
+        //     { _code: 1, left: 80, top: 87, itemType: 'any' },
+        //     { _code: 2, left: 280, top: 87, itemType: 'any' },
+        //   ],
+        //   portList: [
+        //     {
+        //       _code: 1,
+        //       left: 150,
+        //       top: 0,
+        //       direct: { top: true },
+        //       links: ['Zone[1].ZoneSide[2]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //   ],
+        // },
+        // {
+        //   _code: 31,
+        //   price: 100,
+        //   width: 500,
+        //   height: 250,
+        //   zoneLinks: {
+        //     'Zone[1]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
+        //     },
+        //     'Zone[2]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': [],
+        //     },
+        //   },
+        //   zoneList: [
+        //     { _code: 1, left: 80, top: 87, itemType: 'any' },
+        //     { _code: 2, left: 280, top: 87, itemType: 'any' },
+        //   ],
+        //   portList: [
+        //     {
+        //       _code: 1,
+        //       left: 150,
+        //       top: 0,
+        //       direct: { top: true },
+        //       links: ['Zone[1].ZoneSide[2]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //   ],
+        // },
+        // {
+        //   _code: 41,
+        //   price: 100,
+        //   width: 500,
+        //   height: 250,
+        //   zoneLinks: {
+        //     'Zone[1]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': ['Zone[2].ZoneSide[1]'],
+        //     },
+        //     'Zone[2]': {
+        //       'ZoneSide[1]': [],
+        //       'ZoneSide[2]': [],
+        //     },
+        //   },
+        //   zoneList: [
+        //     { _code: 1, left: 80, top: 87, itemType: 'any' },
+        //     { _code: 2, left: 280, top: 87, itemType: 'any' },
+        //   ],
+        //   portList: [
+        //     {
+        //       _code: 1,
+        //       left: 150,
+        //       top: 0,
+        //       direct: { top: true },
+        //       links: ['Zone[1].ZoneSide[2]'],
+        //       t: 'any',
+        //       s: 'core',
+        //     },
+        //   ],
+        // },
         {
           _code: 51,
           price: 100,

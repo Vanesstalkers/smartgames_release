@@ -4,15 +4,15 @@
     :id="plane._id"
     :class="[
       'plane',
-      selectable ? 'selectable' : '',
-      plane.eventData.moveToHand ? 'move-to-hand' : '',
-      plane.eventData.extraPlane ? 'extra' : '',
+      isSelectable ? 'selectable' : '',
+      isPlacementRequired ? 'placement-required' : '',
+      isExtraPlane ? 'extra' : '',
       game.merged ? 'source-game-merged' : '',
       ...plane.customClass,
       ...Object.values(customClass),
     ]"
     :style="customStyle"
-    v-on:click.stop="(e) => (selectable ? choosePlane() : selectPlane(e))"
+    v-on:click.stop="(e) => (isSelectable ? choosePlane() : selectPlane(e))"
     :code="plane.code"
   >
     <div class="price">{{ (plane.price * 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽</div>
@@ -125,8 +125,17 @@ export default {
     portIds() {
       return Object.keys(this.plane.portMap || {});
     },
-    selectable() {
-      return this.sessionPlayerIsActive() && this.plane.eventData.selectable;
+    planeEventData() {
+      return this.sessionPlayerIsActive() && this.sessionPlayer().eventData.plane?.[this.planeId];
+    },
+    isSelectable() {
+      return this.planeEventData?.selectable;
+    },
+    isPlacementRequired() {
+      return this.planeEventData?.mustBePlaced;
+    },
+    isExtraPlane() {
+      return this.planeEventData?.extraPlane;
     },
   },
   methods: {
@@ -198,23 +207,31 @@ export default {
     z-index: -1 !important;
     box-shadow: 0 0 10px 10px #f4e205 !important;
   }
-  &.selectable:not(.card-plane) {
-    box-shadow: none !important;
+  &.selectable {
+    &:not(.card-plane) {
+      box-shadow: none !important;
+    }
+
+    &:after {
+      box-shadow: inset 0 0 0px 10px yellow;
+    }
   }
-  &.selectable:after {
-    box-shadow: inset 0 0 0px 10px yellow;
+  &.placement-required {
+    &:after {
+      box-shadow: inset 0 0 0px 10px orange;
+    }
+
+    &.card-plane {
+      box-shadow: inset 0 0 20px 8px orange !important;
+    }
   }
-  &.move-to-hand:after {
-    box-shadow: inset 0 0 0px 10px orange;
+  &.extra {
+    &:after {
+      box-shadow: inset 0 0 0px 10px greenyellow;
+    }
   }
   &.one-of-many:after {
     box-shadow: inset 0 0 0px 10px blue;
-  }
-  &.card-plane.move-to-hand {
-    box-shadow: inset 0 0 20px 8px orange !important;
-  }
-  &.extra:after {
-    box-shadow: inset 0 0 0px 10px greenyellow;
   }
 }
 

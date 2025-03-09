@@ -137,11 +137,15 @@
     }
     return moveResult;
   }
-  removeFromTable({ target }) {
+  removeFromTableToHand({ player }) {
     const game = this.game();
+    const deck = player.find('Deck[plane]');
 
-    this.moveToTarget(target);
-    this.set({ left: 0, top: 0, eventData: { selectable: null } });
+    this.moveToTarget(deck);
+    this.set({ left: 0, top: 0 });
+
+    const eventData = { plane: {} };
+    eventData.plane[this.id()] = { selectable: null };
 
     const linkedBridges = this.getLinkedBridges();
     for (const bridge of linkedBridges) {
@@ -150,10 +154,12 @@
       if (!this.cardPlane && bridge.bridgeToCardPlane) {
         const cardPlaneId = bridge.linkedPlanesIds.find((id) => id !== this.id());
         const cardPlane = game.get(cardPlaneId);
-        cardPlane.moveToTarget(target);
-        cardPlane.set({ left: 0, top: 0, eventData: { selectable: null } });
+        cardPlane.moveToTarget(deck);
+        cardPlane.set({ left: 0, top: 0 });
+        eventData.plane[cardPlane.id()] = { selectable: null };
       }
     }
+    player.set({ eventData });
   }
   getLinkedBridges() {
     const game = this.game();

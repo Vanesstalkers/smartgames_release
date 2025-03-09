@@ -33,8 +33,11 @@ async (context, { round } = {}) => {
 
     for (const player of players) {
       const { userId, userName, _id: playerId } = player;
+      // !!!! доделать viewerId
       const joinData = { userId, userName, playerId /* , viewerId */ };
       await restoredGame.playerJoin(joinData);
+      // if (viewerId) await game.viewerJoin(joinData);
+      // else await game.playerJoin(joinData);
 
       const user = lib.store('user').get(userId);
       user.subscribe(`game-${gameId}`, { rule: 'actions-only' });
@@ -56,7 +59,6 @@ async (context, { round } = {}) => {
       eventName: 'alert',
       data: { message: err.message, stack: err.stack },
     });
-
     return err;
   }
 };

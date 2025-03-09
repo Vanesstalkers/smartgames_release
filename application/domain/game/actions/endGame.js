@@ -2,9 +2,9 @@
   this.run('lib.endGame', { winningPlayer, canceledByUser, customFinalize: true, message });
 
   // игра может завершиться после автодобавления новых plane, алгоритм которого навешивает соответствующие атрибуты
-  this.decks.table.updateAllItems({
-    eventData: { selectable: null, moveToHand: null, extraPlane: null },
-  });
+  for (const player of this.players()) {
+    player.set({ eventData: { plane: null } });
+  }
 
   this.checkCrutches();
   this.broadcastAction('gameFinished', {

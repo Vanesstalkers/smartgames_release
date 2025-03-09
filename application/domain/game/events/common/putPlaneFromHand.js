@@ -6,17 +6,17 @@
     RESET: function () {
       const { game, player } = this.eventContext();
 
-      player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null } });
+      player.set({
+        eventData: {
+          showNoAvailablePortsBtn: null,
+          fakePlaneAddBtn: null,
+          plane: null
+        }
+      });
 
       const gameDeck = game.find('Deck[plane]');
       const playerPlaneDeck = player.find('Deck[plane]');
 
-      game.decks.table.updateAllItems({
-        eventData: { selectable: null, moveToHand: null, extraPlane: null },
-      });
-      playerPlaneDeck.updateAllItems({
-        eventData: { selectable: null, moveToHand: null, extraPlane: null },
-      });
       playerPlaneDeck.moveAllItems({ target: gameDeck });
 
       this.destroy();
@@ -27,12 +27,15 @@
       const playerPlaneDeck = player.find('Deck[plane]');
       const planeList = playerPlaneDeck.select('Plane');
 
-      const requiredPlanes = planeList.filter((plane) => plane.eventData.moveToHand);
+      const requiredPlanes = planeList.filter((planeItem) =>
+        player.eventData.plane?.[planeItem.id()]?.mustBePlaced
+      );
+
       if (requiredPlanes.length === 0) {
         game.checkDiceResource();
         this.emit('RESET');
       } else {
-        if (plane.eventData.extraPlane) {
+        if (player.eventData.plane?.[plane.id()]?.extraPlane) {
           for (const extraPlane of this.data.extraPlanes) {
             if (extraPlane === plane) continue;
             extraPlane.moveToTarget(gamePlaneDeck);
@@ -59,17 +62,26 @@
         this.putPlaneOnEmptyField = true;
         joinPlane.moveToTarget(game.decks.table);
       } else {
+        const eventData = { plane: {} };
+
         for (const plane of game.decks.table.getAllItems()) {
           const linkedPlanes = plane.getLinkedPlanes();
-          const linkedCardPlanes = linkedPlanes.filter(({ cardPlane }) => cardPlane);
-          const eventData =
-            linkedPlanes.length - linkedCardPlanes.length < 2
-              ? { selectable: true, moveToHand: true }
-              : { selectable: null, moveToHand: null };
-          plane.set({ eventData });
+          const linkedCardPlanes = linkedPlanes.filter((p) => p.cardPlane);
+
+          const canBeRemovedFromField = linkedPlanes.length - linkedCardPlanes.length < 2;
+          eventData.plane[plane.id()] = canBeRemovedFromField ? {
+            selectable: true,
+            mustBePlaced: true
+          } : null;
         }
 
-        player.set({ eventData: { showNoAvailablePortsBtn: true, fakePlaneAddBtn: true } });
+        player.set({
+          eventData: {
+            ...eventData,
+            showNoAvailablePortsBtn: true,
+            fakePlaneAddBtn: true
+          }
+        });
       }
 
       return { preventListenerRemove: true };
@@ -80,9 +92,7 @@
 
       if (!plane) return;
 
-      plane.removeFromTable({
-        target: player.find('Deck[plane]'),
-      });
+      plane.removeFromTableToHand({ player });
 
       game.set({ availablePorts: [] });
       this.emit('NO_AVAILABLE_PORTS');
@@ -100,7 +110,11 @@
       this.data.extraPlanes.push(plane);
 
       plane.moveToTarget(deck);
-      plane.set({ eventData: { extraPlane: true } });
+
+      player.set({
+        eventData: { plane: { [plane.id()]: { extraPlane: true } } }
+      });
+
       plane.markNew(); // у игроков в хранилище нет данных об этом plane
 
       return { preventListenerRemove: true };

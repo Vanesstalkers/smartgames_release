@@ -6,14 +6,15 @@
     // 'dream',
     // 'take_project',
     // 'water',
-    // 'req_tax', 'req_legal',
-    // 'pilot',
+    'req_legal', //'req_tax', 
+    'pilot',
     // 'refactoring',
     // 'give_project',
     // 'time'
+    // 'superman',
   ]).length
     ? (() =>
-        Array(5)
+        Array(10)
           .fill(null)
           .reduce((__) => __.concat(domain.custom_cards.map((name) => ({ name, playOneTime: false }))), []))()
     : [

@@ -1,23 +1,31 @@
 (async function ({ planes = [], minFreePorts = 0, fromHand = false }) {
   const deckOwner = this.roundActivePlayer() || this;
   const planeDeck = deckOwner.matches({ className: 'Game' })
-    ? deckOwner.find('Deck[plane_hand]')
+    ? deckOwner.find('Deck[plane_hand]') // фиктивная рука, в которую возвращаются блоки, которые не удалось разместить при создании поля на старте игры
     : deckOwner.find('Deck[plane]');
   if (fromHand) planes = planeDeck.items();
 
   const movePlaneFromTableToHand = () => {
     // аналог NO_AVAILABLE_PORTS из events/card/pilot
+    let eventData = { plane: {} };
+
     for (const plane of this.decks.table.getAllItems()) {
       const linkedPlanes = plane.getLinkedPlanes();
-      const linkedCardPlanes = linkedPlanes.filter(({ cardPlane }) => cardPlane);
-      const eventData =
-        linkedPlanes.length - linkedCardPlanes.length < 2
-          ? { selectable: true, moveToHand: true }
-          : { selectable: null, moveToHand: null };
-      plane.set({ eventData });
+      const linkedCardPlanes = linkedPlanes.filter((p) => p.cardPlane);
+
+      const canBeRemovedFromField = linkedPlanes.length - linkedCardPlanes.length < 2;
+      eventData.plane[plane.id()] = canBeRemovedFromField ? {
+        selectable: true,
+        mustBePlaced: true
+      } : null;
     }
 
-    const selectablePlanes = this.decks.table.getAllItems().filter(({ eventData }) => eventData.selectable);
+    deckOwner.set({ eventData });
+
+    const selectablePlanes = this.decks.table.getAllItems().filter((plane) =>
+      deckOwner.eventData.plane?.[plane.id()]?.selectable
+    );
+
     // !!! сомнительная логика - все равно не учитывает свободные, но заблокированные порты
     selectablePlanes.sort(({ portMap: a }, { portMap: b }) => {
       const portsA = Object.keys(a).map((id) => this.get(id));
@@ -29,8 +37,8 @@
           ? -1
           : 1
         : freePortsA.length < freePortsB.length
-        ? -1
-        : 1;
+          ? -1
+          : 1;
     });
     const plane = selectablePlanes[0]; // наименьшее количество port-ов
 
@@ -38,6 +46,7 @@
       return;
     }
 
+    eventData = { plane: {} };
     const linkedBridges = plane.getLinkedBridges();
     for (const bridge of linkedBridges) {
       try {
@@ -50,12 +59,16 @@
         const cardPlaneId = bridge.linkedPlanesIds.find((id) => id !== plane.id());
         const cardPlane = this.get(cardPlaneId);
         cardPlane.moveToTarget(planeDeck);
-        cardPlane.set({ left: 0, top: 0, eventData: { selectable: null } });
+        cardPlane.set({ left: 0, top: 0 });
+        eventData.plane[cardPlane.id()] = { selectable: null };
       }
     }
 
     plane.moveToTarget(planeDeck);
-    plane.set({ left: 0, top: 0, eventData: { selectable: null } });
+    plane.set({ left: 0, top: 0 });
+
+    eventData.plane[plane.id()] = { selectable: null };
+    deckOwner.set({ eventData });
   };
 
   const addExtraPlane = () => {
@@ -63,7 +76,9 @@
     const extraPlane = this.getSmartRandomPlaneFromDeck();
 
     extraPlane.moveToTarget(gamePlaneDeck);
-    extraPlane.set({ eventData: { moveToHand: true } });
+    deckOwner.set({
+      eventData: { plane: { [extraPlane.id()]: { mustBePlaced: true } } }
+    });
 
     planes.push(extraPlane);
   };
@@ -75,11 +90,13 @@
     return this.isCoreGame() && freePortsCount < minFreePorts;
   };
 
-  let attempts = 20;
   let requireExtraPlane = false;
+  let attempts = 20;
   while (planes.length || freePortsNotEnough()) {
     if (--attempts === 0) {
-        return this.run('endGame', { message: 'Возникла рекурсия, израсходовавшая все ресурсы. Продолжение игры не возможно.' });
+      return this.run('endGame', {
+        message: 'Возникла рекурсия, израсходовавшая все ресурсы. Продолжение игры не возможно.',
+      });
     }
 
     // freePortsNotEnough
@@ -126,9 +143,7 @@
 
     // делаем в конце, т.к. может прийти массив во входящих аргументах
     planes = planeDeck.items();
-
-    this.decks.table.updateAllItems({
-      eventData: { selectable: null, moveToHand: null },
-    });
   }
+
+  deckOwner.set({ eventData: { plane: null } });
 });

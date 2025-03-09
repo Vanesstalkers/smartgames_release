@@ -5,10 +5,12 @@
     const { game, player, source: card } = this.eventContext();
 
     const plane = game.addCardPlane(card);
-
     plane.moveToTarget(player.find('Deck[plane]'));
-    plane.set({ eventData: { moveToHand: true } });
-    
+
+    player.set({
+      eventData: { plane: { [plane.id()]: { mustBePlaced: true } } }
+    });
+
     game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, player);
   };
 

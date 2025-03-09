@@ -20,10 +20,16 @@
         const player = game.selectNextActivePlayer();
         const hand = player.find('Deck[plane]');
 
+        // const eventData = { plane: {} };
         for (let j = 0; j < game.settings.planesToChoose; j++) {
           const plane = deck.getRandomItem();
-          if (plane) plane.moveToTarget(hand);
+          if (plane) {
+            plane.moveToTarget(hand);
+            plane.addCustomClass('one-of-many');
+            // eventData.plane[plane.id()] = { mustBePlaced: true };
+          }
         }
+        // player.set({ eventData });
 
         player.activate();
         lib.timers.timerRestart(game, { time: game.settings.timeToPlaceStartPlane });
@@ -54,27 +60,40 @@
           const { game } = this.eventContext();
           const deck = game.find('Deck[plane]');
           const player = game.roundActivePlayer();
+          const eventPlanes = player.eventData.plane || {};
           const hand = player.find('Deck[plane]');
           const handPlanes = hand.getAllItems();
+          const planeId = plane.id();
 
-          if (!plane.eventData.moveToHand && !plane.eventData.extraPlane) {
+          plane.removeCustomClass('one-of-many');
+
+          if (!eventPlanes[planeId]?.mustBePlaced && !eventPlanes[planeId]?.extraPlane) {
             // один из блоков для размещения на выбор - остальные можно убрать
-            const planes = handPlanes.filter(({ eventData: { moveToHand, extraPlane } }) => !moveToHand && !extraPlane);
-            for (const plane of planes) plane.moveToTarget(deck);
-          }
-
-          if (plane.eventData.extraPlane) {
-            plane.set({ eventData: { extraPlane: null } });
-
-            // дополнительные блоки не обязательны к размещению - убираем из руки, чтобы не мешались
-            const planes = handPlanes.filter((plane) => plane.eventData.extraPlane);
+            const planes = handPlanes.filter((p) => {
+              const planeData = eventPlanes[p.id()];
+              return !planeData?.mustBePlaced && !planeData?.extraPlane;
+            });
             for (const plane of planes) {
               plane.moveToTarget(deck);
-              plane.set({ eventData: { extraPlane: null } });
+              plane.removeCustomClass('one-of-many');
             }
           }
 
-          const remainPlanes = hand.getAllItems().find((plane) => !plane.eventData.extraPlane);
+          if (eventPlanes[planeId]?.extraPlane) {
+            const eventData = { plane: {} };
+            eventData.plane[planeId] = { extraPlane: null };
+
+            // дополнительные блоки не обязательны к размещению - убираем из руки, чтобы не мешались
+            const planes = handPlanes.filter((p) => eventPlanes[p.id()]?.extraPlane);
+            for (const plane of planes) {
+              plane.moveToTarget(deck);
+              eventData.plane[plane.id()] = { extraPlane: null };
+            }
+
+            player.set({ eventData });
+          }
+
+          const remainPlanes = hand.getAllItems().find((p) => !eventPlanes[p.id()]?.extraPlane);
           if (remainPlanes) {
             // еще остались обязательные к размещению блоки
             this.emit('NO_AVAILABLE_PORTS');
@@ -82,11 +101,8 @@
           }
 
           player.deactivate();
-          player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null } });
+          player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, plane: null } });
           hand.moveAllItems({ target: deck });
-          hand.updateAllItems({
-            eventData: { selectable: null, moveToHand: null, extraPlane: null },
-          });
 
           if (game.settings.planesNeedToStart > game.decks.table.itemsCount()) {
             this.initPrepareStartFieldStep();
@@ -116,20 +132,14 @@
           return { preventListenerRemove: true };
         },
         RESET() {
-          const { game } = this.eventContext();
+          const { game, player } = this.eventContext();
           const deck = game.find('Deck[plane]');
 
-          game.decks.table.updateAllItems({
-            eventData: { selectable: null, moveToHand: null, extraPlane: null },
-          });
-
           for (const player of game.players()) {
-            const hand = player.find('Deck[plane]');
-            hand.updateAllItems({
-              eventData: { selectable: null, moveToHand: null, extraPlane: null },
-            });
-            hand.moveAllItems({ target: deck });
+            player.find('Deck[plane]').moveAllItems({ target: deck });
           }
+
+          player.set({ eventData: { plane: null } });
 
           for (const player of game.players()) {
             player.removeEventWithTriggerListener();

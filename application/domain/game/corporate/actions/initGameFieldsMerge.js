@@ -44,13 +44,20 @@
           if (!hasAvailablePorts) {
             // проверка на пустое поле, когда все блоки в руке
             if (playerPlaneDeck.itemsCount() === 0) {
-              const gamePlanesInDeck = game.find('Deck[plane]').items();
-              let maxPortPlanes = gamePlanesInDeck.filter(({ portMap }) => Object.keys(portMap).length === 4);
-              if (maxPortPlanes.length === 0)
-                maxPortPlanes = gamePlanesInDeck.filter(({ portMap }) => Object.keys(portMap).length === 3);
+              const planes = game.find('Deck[plane]').items();
+              planes.sort((p1, p2) => (Object.keys(p1.portMap).length < Object.keys(p2.portMap).length ? -1 : 1));
+              let maxPortPlanes = planes.filter((p) => Object.keys(p.portMap).length === 4);
+              if (maxPortPlanes.length === 0) maxPortPlanes = planes.filter((p) => Object.keys(p.portMap).length === 3);
+              if (maxPortPlanes.length === 0) maxPortPlanes = planes.filter((p) => Object.keys(p.portMap).length === 2);
+
+              if (maxPortPlanes.length === 0) {
+                return game.run('endGame', {
+                  message: 'Недостаточно ресурсов для интеграции. Продолжение игры не возможно.',
+                });
+              }
 
               const extraPlanes = [];
-              while (extraPlanes.length < 2) {
+              while (extraPlanes.length < maxPortPlanes.length) {
                 const extraPlane = maxPortPlanes[Math.floor(maxPortPlanes.length * Math.random())];
                 if (!extraPlanes.includes(extraPlane)) {
                   extraPlanes.push(extraPlane);
@@ -62,7 +69,7 @@
             game.logs(`У центрального поля не найдено доступных портов для присоединения игрового поля команды.`);
             lib.store.broadcaster.publishAction(`user-${player.userId}`, 'broadcastToSessions', {
               data: {
-                message: `У центрального поля не найдено доступных портов для присоединения игрового поля команды. Либо добавьте дополнительный блок к своему полю, либо одна из команд должна вернуть свое присоединенное в центру игровое поле в руку.`,
+                message: `У центрального поля не найдено доступных портов для присоединения игрового поля команды. Либо добавьте дополнительный блок к своему полю, либо одна из команд должна вернуть свое присоединенное к центру игровое поле в руку.`,
               },
               config: { hideTime: 0 },
             });
@@ -76,16 +83,12 @@
           const gameDeck = game.find('Deck[plane]');
           const playerPlaneDeck = player.find('Deck[plane]');
 
-          player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null } });
+          player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, plane: null } });
           playerPlaneDeck.moveAllItems({ target: gameDeck });
-          game.decks.table.updateAllItems({
-            eventData: { selectable: null, moveToHand: null, extraPlane: null },
-          });
 
           // привязка связанных plane еще не произошло
           const planes = [].concat(game.decks.table.items()).concat(superGame.decks.table.items());
           for (const plane of planes) {
-            plane.set({ eventData: { selectable: null } });
             plane.updatePorts({ eventData: { selectable: null } });
           }
 
@@ -114,27 +117,11 @@
             case 'plane':
               const plane = target;
 
-              const remainPlaneOnTable = game.decks.table
-                .items()
-                .find((item) => item.id() !== plane.id() && !item.cardPlane);
-              if (!remainPlaneOnTable) throw new Error('Нельзя убирать все блоки с игрового поле.');
+              if (!game.decks.table.items().find((p) => p.id() !== plane.id() && !p.cardPlane))
+                throw new Error('Нельзя убирать все блоки с игрового поле.');
 
               game.set({ availablePorts: [] });
-              plane.moveToTarget(playerPlaneDeck);
-              plane.set({ left: 0, top: 0, eventData: { selectable: null, moveToHand: true } }); // !!! проверить moveToHand
-              plane.updatePorts({ eventData: { selectable: null } });
-
-              const linkedBridges = plane.getLinkedBridges();
-              for (const bridge of linkedBridges) {
-                game.run('removeBridge', { bridge });
-
-                if (!plane.cardPlane && bridge.bridgeToCardPlane) {
-                  const cardPlaneId = bridge.linkedPlanesIds.find((id) => id !== plane.id());
-                  const cardPlane = game.get(cardPlaneId);
-                  cardPlane.moveToTarget(playerPlaneDeck);
-                  cardPlane.set({ left: 0, top: 0, eventData: { selectable: null } });
-                }
-              }
+              plane.removeFromTableToHand({ player });
 
               break;
           }
@@ -146,16 +133,19 @@
           const playerPlaneDeck = player.find('Deck[plane]');
           const planeList = playerPlaneDeck.getAllItems();
 
-          if (plane.eventData.extraPlane) {
-            const extraPlanes = planeList.filter((plane) => plane.eventData.extraPlane);
+          const eventPlanes = player.eventData.plane || {};
+          const planeId = plane.id();
+
+          if (eventPlanes[planeId]?.extraPlane) {
+            const extraPlanes = planeList.filter((p) => eventPlanes[p.id()]?.extraPlane);
             if (extraPlanes.length) {
               for (const plane of extraPlanes) {
                 plane.moveToTarget(gamePlaneDeck);
               }
             }
-          } else if (!plane.eventData.moveToHand) {
+          } else if (!eventPlanes[planeId]?.mustBePlaced) {
             // один из новых блоков для размещения на выбор - остальные можно убрать
-            const remainPlane = planeList.find(() => !plane.eventData.moveToHand);
+            const remainPlane = planeList.find((p) => !eventPlanes[p.id()]?.mustBePlaced);
             if (remainPlane) {
               // в колоде мог остаться всего один блок на выбор
               remainPlane.moveToTarget(gamePlaneDeck);
@@ -165,10 +155,28 @@
           const mergeFinished = plane.game().isSuperGame;
           if (mergeFinished) {
             this.emit('RESET');
+
+            this.mergeGame(plane);
+
+            const superGame = plane.game();
+            const currentRound = superGame.round;
+            game.run('updateRoundStep');
+            if (superGame.allGamesMerged()) {
+              if (currentRound !== superGame.round) {
+                // раунд обновился, т.к. это была последняя игра с roundReady == false - принудительно завершать раунды в других играх не нужно, т.к. это будет уже завершение нового раунда
+                return;
+              }
+
+              // принудительно завершаем раунды всех игр, чтобы переключиться на чередование раундов между играми
+              for (const game of superGame.getAllGames()) {
+                if (!game.roundReady) game.run('updateRoundStep');
+              }
+            }
+
             return;
           }
 
-          const extraPlanes = playerPlaneDeck.items().filter((plane) => plane.eventData.extraPlane);
+          const extraPlanes = playerPlaneDeck.items().filter((p) => eventPlanes[p.id()]?.extraPlane);
           // plane-ы в руке кончились
           if (playerPlaneDeck.itemsCount() - extraPlanes.length === 0) {
             this.emit('RESET');
@@ -198,6 +206,52 @@
           this.emit('RESET');
           game.run('initGameProcessEvents');
         },
+      },
+      mergeGame(plane) {
+        const { game } = this.eventContext();
+        const gameId = game.id();
+        const superGame = plane.game();
+        const bridges = plane.getLinkedBridges();
+        const mergedBridge = bridges.find((b) => b.game() === superGame);
+
+        // переносим все связанные plane-ы
+        const processedBridges = [mergedBridge];
+        const processBridges = (plane) => {
+          const bridges = plane.getLinkedBridges().filter((bridge) => !processedBridges.includes(bridge));
+          for (const bridge of bridges) {
+            const ports = bridge.getLinkedPorts();
+            const [joinPort, targetPort] = ports.sort((a, b) => (a.parent() !== plane ? -1 : 1));
+            const joinPlane = joinPort.parent();
+
+            const { targetLinkPoint } = game.run('updatePlaneCoordinates', { joinPort, targetPort });
+
+            joinPlane.game(superGame);
+            joinPlane.moveToTarget(superGame.decks.table);
+
+            bridge.updateParent(superGame);
+            bridge.set({ left: targetLinkPoint.left, top: targetLinkPoint.top });
+            bridge.updateRotation();
+
+            processedBridges.push(bridge);
+            processBridges(joinPlane);
+          }
+        };
+        processBridges(plane);
+
+        game.set({ merged: true });
+        plane.set({ mergedPlane: true });
+        mergedBridge.set({ mergedGameId: gameId });
+
+        let turnOrder = superGame.turnOrder.filter((id) => id !== gameId);
+        turnOrder.push(gameId);
+        superGame.set({ turnOrder });
+
+        const gameCommonDominoDeck = game.find('Deck[domino_common]');
+        const gameCommonCardDeck = game.find('Deck[card_common]');
+        for (const player of game.players()) {
+          player.find('Deck[domino]').moveAllItems({ target: gameCommonDominoDeck, markNew: true });
+          player.find('Deck[card]').moveAllItems({ target: gameCommonCardDeck, markNew: true });
+        }
       },
     },
     { player }
