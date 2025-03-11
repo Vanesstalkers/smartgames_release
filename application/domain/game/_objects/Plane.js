@@ -141,9 +141,6 @@
     const game = this.game();
     const deck = player.find('Deck[plane]');
 
-    this.moveToTarget(deck);
-    this.set({ left: 0, top: 0 });
-
     const eventData = { plane: {} };
     eventData.plane[this.id()] = { selectable: null };
 
@@ -160,6 +157,9 @@
       }
     }
     player.set({ eventData });
+
+    this.moveToTarget(deck);
+    this.set({ left: 0, top: 0 });
   }
   getLinkedBridges() {
     const game = this.game();

@@ -57,7 +57,7 @@
               }
 
               const extraPlanes = [];
-              while (extraPlanes.length < maxPortPlanes.length) {
+              while (extraPlanes.length < 2) {
                 const extraPlane = maxPortPlanes[Math.floor(maxPortPlanes.length * Math.random())];
                 if (!extraPlanes.includes(extraPlane)) {
                   extraPlanes.push(extraPlane);

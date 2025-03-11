@@ -15,6 +15,8 @@
   }
   initPlayer.set({ eventData });
 
+  if (this.merged) this.run('initGameProcessEvents'); // иначе не будет обрабатываться RELEASE с пследующим initGameFieldsMerge
+
   this.set({ merged: null, roundReady: false });
   superGame.set({
     turnOrder: superGame.turnOrder.filter((gameId) => gameId !== this.id()),

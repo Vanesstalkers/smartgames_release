@@ -1,132 +1,114 @@
 (async function ({ planes = [], minFreePorts = 0, fromHand = false }) {
+  const MAX_ATTEMPTS = 20;
   const deckOwner = this.roundActivePlayer() || this;
   const planeDeck = deckOwner.matches({ className: 'Game' })
-    ? deckOwner.find('Deck[plane_hand]') // фиктивная рука, в которую возвращаются блоки, которые не удалось разместить при создании поля на старте игры
+    ? deckOwner.find('Deck[plane_hand]')
     : deckOwner.find('Deck[plane]');
+
   if (fromHand) planes = planeDeck.items();
 
-  const movePlaneFromTableToHand = () => {
-    // аналог NO_AVAILABLE_PORTS из events/card/pilot
-    let eventData = { plane: {} };
+  const sortPlanesByPorts = (a, b) => Object.keys(a.portMap).length < Object.keys(b.portMap).length ? -1 : 1;
 
-    for (const plane of this.decks.table.getAllItems()) {
-      const linkedPlanes = plane.getLinkedPlanes();
-      const linkedCardPlanes = linkedPlanes.filter((p) => p.cardPlane);
+  const getPlaneFreePorts = plane => {
+    const ports = Object.keys(plane.portMap).map(id => this.get(id));
+    return ports.filter(port => !port.linkedBridgeCode);
+  };
 
-      const canBeRemovedFromField = linkedPlanes.length - linkedCardPlanes.length < 2;
-      eventData.plane[plane.id()] = canBeRemovedFromField ? {
-        selectable: true,
-        mustBePlaced: true
-      } : null;
-    }
+  const sortSelectablePlanes = (a, b) => {
+    const portsA = getPlaneFreePorts(a);
+    const portsB = getPlaneFreePorts(b);
+    return portsA.length === portsB.length
+      ? sortPlanesByPorts(a, b)
+      : portsA.length < portsB.length ? -1 : 1;
+  };
 
-    deckOwner.set({ eventData });
-
-    const selectablePlanes = this.decks.table.getAllItems().filter((plane) =>
-      deckOwner.eventData.plane?.[plane.id()]?.selectable
-    );
-
-    // !!! сомнительная логика - все равно не учитывает свободные, но заблокированные порты
-    selectablePlanes.sort(({ portMap: a }, { portMap: b }) => {
-      const portsA = Object.keys(a).map((id) => this.get(id));
-      const freePortsA = portsA.filter((port) => !port.linkedBridgeCode);
-      const portsB = Object.keys(b).map((id) => this.get(id));
-      const freePortsB = portsB.filter((port) => !port.linkedBridgeCode);
-      return freePortsA.length === freePortsB.length
-        ? portsA.length < portsB.length
-          ? -1
-          : 1
-        : freePortsA.length < freePortsB.length
-          ? -1
-          : 1;
-    });
-    const plane = selectablePlanes[0]; // наименьшее количество port-ов
-
-    if (!plane) {
-      return;
-    }
-
-    eventData = { plane: {} };
+  const removeBridgesAndUpdateState = (plane, eventData) => {
     const linkedBridges = plane.getLinkedBridges();
     for (const bridge of linkedBridges) {
-      try {
-        this.run('removeBridge', { bridge });
-      } catch (err) {
-        const e = err;
-        throw err;
-      }
+      this.run('removeBridge', { bridge });
       if (!plane.cardPlane && bridge.bridgeToCardPlane) {
-        const cardPlaneId = bridge.linkedPlanesIds.find((id) => id !== plane.id());
-        const cardPlane = this.get(cardPlaneId);
+        const cardPlane = this.get(bridge.linkedPlanesIds.find(id => id !== plane.id()));
         cardPlane.moveToTarget(planeDeck);
         cardPlane.set({ left: 0, top: 0 });
         eventData.plane[cardPlane.id()] = { selectable: null };
       }
     }
+  };
 
+  const movePlaneFromTableToHand = () => {
+    const planeStates = this.decks.table.getAllItems().reduce((acc, plane) => {
+      const linkedPlanes = plane.getLinkedPlanes();
+      const nonCardPlanes = linkedPlanes.length - linkedPlanes.filter(p => p.cardPlane).length;
+      acc[plane.id()] = nonCardPlanes < 2 ? { selectable: true, mustBePlaced: true } : null;
+      return acc;
+    }, {});
+
+    deckOwner.set({ eventData: { plane: planeStates } });
+
+    const selectablePlanes = this.decks.table.getAllItems()
+      .filter(plane => deckOwner.eventData.plane?.[plane.id()]?.selectable)
+      .sort(sortSelectablePlanes);
+
+    if (selectablePlanes.length === 0) return;
+
+    const eventData = { plane: {} };
+    const plane = selectablePlanes[0];
+
+    removeBridgesAndUpdateState(plane, eventData);
     plane.moveToTarget(planeDeck);
     plane.set({ left: 0, top: 0 });
-
     eventData.plane[plane.id()] = { selectable: null };
     deckOwner.set({ eventData });
   };
 
   const addExtraPlane = () => {
-    const gamePlaneDeck = this.find('Deck[plane]');
     const extraPlane = this.getSmartRandomPlaneFromDeck();
-
-    extraPlane.moveToTarget(gamePlaneDeck);
-    deckOwner.set({
-      eventData: { plane: { [extraPlane.id()]: { mustBePlaced: true } } }
-    });
-
+    extraPlane.moveToTarget(this.find('Deck[plane]'));
+    deckOwner.set({ eventData: { plane: { [extraPlane.id()]: { mustBePlaced: true } } } });
     planes.push(extraPlane);
   };
 
   const freePortsNotEnough = () => {
     const plane = this.getSmartRandomPlaneFromDeck();
     this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
-    const freePortsCount = new Set(this.availablePorts.map((item) => item.targetPortId)).size;
-    return this.isCoreGame() && freePortsCount < minFreePorts;
+    const uniqueFreePorts = new Set(this.availablePorts.map(item => item.targetPortId)).size;
+    return this.isCoreGame() && uniqueFreePorts < minFreePorts;
+  };
+
+  const putPlaneOnAvailablePort = () => {
+    const port = this.availablePorts.sort((a, b) => a.priority > b.priority ? -1 : 1)[0];
+    this.run('putPlaneOnField', port);
   };
 
   let requireExtraPlane = false;
-  let attempts = 20;
+  let attempts = MAX_ATTEMPTS;
+
   while (planes.length || freePortsNotEnough()) {
     if (--attempts === 0) {
       return this.run('endGame', {
-        message: 'Возникла рекурсия, израсходовавшая все ресурсы. Продолжение игры не возможно.',
+        message: 'Возникла рекурсия, израсходовавшая все ресурсы. Продолжение игры не возможно.'
       });
     }
 
-    // freePortsNotEnough
-    if (planes.length === 0) {
-      addExtraPlane();
-    }
+    if (planes.length === 0) addExtraPlane();
 
-    planes.sort(({ portMap: a }, { portMap: b }) => {
-      return Object.keys(a).length < Object.keys(b).length ? -1 : 1;
-    });
+    planes.sort(sortPlanesByPorts);
     const plane = planes.pop();
-    const joinPlaneId = plane.id();
+    this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
 
-    this.run('showPlanePortsAvailability', { joinPlaneId });
     if (this.availablePorts.length) {
-      const port = this.availablePorts.sort((a, b) => (a.priority > b.priority ? -1 : 1))[0];
-      this.run('putPlaneOnField', port);
+      putPlaneOnAvailablePort();
     } else {
-      const freePortsCount = this.decks.table.getFreePorts().length;
+      const initialFreePorts = this.decks.table.getFreePorts().length;
       movePlaneFromTableToHand();
 
-      this.run('showPlanePortsAvailability', { joinPlaneId });
+      this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
       if (this.availablePorts.length) {
-        const port = this.availablePorts.sort((a, b) => (a.priority > b.priority ? -1 : 1))[0];
-        this.run('putPlaneOnField', port);
+        putPlaneOnAvailablePort();
       }
-      if (freePortsCount + planeDeck.itemsCount() > this.decks.table.getFreePorts().length) {
-        while (this.decks.table.itemsCount() > 0) {
-          movePlaneFromTableToHand();
-        }
+
+      if (initialFreePorts + planeDeck.itemsCount() > this.decks.table.getFreePorts().length) {
+        while (this.decks.table.itemsCount() > 0) movePlaneFromTableToHand();
 
         planes = planeDeck.items();
         if (requireExtraPlane) {
@@ -134,14 +116,11 @@
         } else {
           requireExtraPlane = true;
         }
-        planes.sort(({ portMap: a }, { portMap: b }) => {
-          return Object.keys(a).length < Object.keys(b).length ? -1 : 1;
-        });
+        planes.sort(sortPlanesByPorts);
         planes.pop().moveToTarget(this.decks.table);
       }
     }
 
-    // делаем в конце, т.к. может прийти массив во входящих аргументах
     planes = planeDeck.items();
   }
 

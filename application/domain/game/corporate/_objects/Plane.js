@@ -4,10 +4,12 @@
     let { sourceGameId, anchorGameId, mergedPlane } = data;
     if (!sourceGameId) sourceGameId = this.game().id();
 
-    if (anchorGameId) this.game(lib.store('game').get(anchorGameId));
-    else anchorGameId = sourceGameId;
-
-    if (this.game().merged) this.game(this.game().game());
+    if (anchorGameId) {
+      const game = lib.store('game').get(anchorGameId)
+      this.game(game.merged ? game.game() : game);
+    } else {
+      anchorGameId = sourceGameId;
+    }
 
     this.set({ sourceGameId, anchorGameId, mergedPlane });
     this.broadcastableFields(['sourceGameId', 'anchorGameId']);
