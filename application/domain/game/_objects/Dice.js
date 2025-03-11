@@ -6,44 +6,58 @@
     const { deleted, visible, locked, placedAtRound } = data;
     this.set({ deleted, visible, locked, placedAtRound });
 
+    const store = this.game().getStore();
     const DiceSide = this.game().defaultClasses()['DiceSide'];
+
     if (data.sideList) {
-      const store = this.game().getStore();
-      this.set({
-        sideList: [
-          new DiceSide(store.diceside[data.sideList[0]._id], { parent: this }),
-          new DiceSide(store.diceside[data.sideList[1]._id], { parent: this }),
-        ],
-      });
+      new DiceSide(store.diceside[data.sideList[0]], { parent: this });
+      new DiceSide(store.diceside[data.sideList[1]], { parent: this });
+      this.set({ sideList: data.sideList });
     } else {
-      this.set({
-        sideList: [
-          new DiceSide({ _code: 1, value: data[0] }, { parent: this }),
-          new DiceSide({ _code: 2, value: data[1] }, { parent: this }),
-        ],
-      });
-      if (Math.random() > 0.5) this.sideList.reverse(); // code останется в первичном виде
+      const side0 = new DiceSide({ _code: 1, value: data[0] }, { parent: this });
+      const side1 = new DiceSide({ _code: 2, value: data[1] }, { parent: this });
+      this.set({ sideList: [side0.id(), side1.id()] });
+      if (Math.random() > 0.5) this.set({ sideList: [...this.sideList.reverse()] }); // code останется в первичном виде
     }
   }
+
+  /**
+   * Возвращает объекты DiceSide из store
+   * @param {number} [index] - если указан, возвращает конкретную сторону по индексу
+   * @returns {Array|Object} массив сторон или конкретную сторону
+   */
+  getSides(index) {
+    const store = this.game().getStore();
+    const sides = this.sideList.map(id => store.diceside[id]);
+    return typeof index === 'number' ? sides[index] : sides;
+  }
+
   customObjectCode({ codeTemplate, replacementFragment }, data) {
     return codeTemplate.replace(replacementFragment, '' + data[0] + data[1]);
   }
+
   markNew(config) {
     super.markNew(config);
     if (!this.sideList) return; // при создании объекта markNew из GameObject отрабатывает раньше добавления sideList
-    this.sideList[0].markNew(config);
-    this.sideList[1].markNew(config);
+    const [side0, side1] = this.getSides();
+    side0.markNew(config);
+    side1.markNew(config);
   }
+
   markDelete(config) {
     super.markDelete(config);
-    this.sideList[0].markDelete(config);
-    this.sideList[1].markDelete(config);
+    const [side0, side1] = this.getSides();
+    side0.markDelete(config);
+    side1.markDelete(config);
   }
+
   updateFakeId(config) {
     super.updateFakeId(config);
-    this.sideList[0].updateFakeId(config);
-    this.sideList[1].updateFakeId(config);
+    const [side0, side1] = this.getSides();
+    side0.updateFakeId(config);
+    side1.updateFakeId(config);
   }
+
   prepareBroadcastData({ data, player, viewerMode }) {
     let visibleId = this._id;
     let preparedData = {};
@@ -60,24 +74,28 @@
     if (!fake) {
       for (const [key, value] of Object.entries(data)) {
         if (bFields.includes(key)) {
-          if (key === 'sideList') preparedData[key] = value.map(({ _id }) => ({ _id }));
+          if (key === 'sideList') preparedData[key] = value;
           else preparedData[key] = value;
         }
       }
     }
     return { visibleId, preparedData };
   }
+
   getRotation() {
-    return '' + this.sideList[0].value + this.sideList[1].value;
+    const [side0, side1] = this.getSides();
+    return '' + side0.value + side1.value;
   }
+
   rotate() {
     this.set({ sideList: [...this.sideList.reverse()] });
     this.parent().updateValues();
   }
 
   getTitle() {
-    return this.sideList.map((side) => side.value).join('-');
+    return this.getSides().map(side => side.value).join('-');
   }
+
   moveToTarget(target, { markDelete = false } = {}) {
     const currentParent = this.parent();
     currentParent.removeItem(this); // сначала удаляем, чтобы не помешать размещению на соседней зоне

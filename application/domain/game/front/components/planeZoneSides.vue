@@ -37,7 +37,7 @@ export default {
       return this.getStore();
     },
     filledSideList() {
-      return this.sideList.map(({ _id }) => this.store.zoneside?.[_id] || {});
+      return this.sideList.map(id => this.store.zoneside?.[id] || {});
     },
   },
   methods: {

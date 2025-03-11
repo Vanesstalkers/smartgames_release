@@ -90,9 +90,9 @@ export default {
       return this.store.dice?.[this.diceId];
     },
     sideList() {
-      const sideList = this.dice.sideList || [{}, {}];
-      return sideList.map(({ _id }) => {
-        const side = this.store.diceside?.[_id];
+      const sideList = this.dice.sideList || ['', ''];
+      return sideList.map(id => {
+        const side = this.store.diceside?.[id];
         return side?._id ? side : { eventData: {} };
       });
     },

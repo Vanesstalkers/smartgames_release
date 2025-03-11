@@ -49,7 +49,7 @@
         updatedMap[diceSideId] = null;
         continue;
       }
-      const parentZoneSide = parentZone.sideList.find(({ diceSideCode }) => diceSideCode === diceSide.code);
+      const parentZoneSide = parentZone.getSides().find(({ diceSideCode }) => diceSideCode === diceSide.code);
 
       let hasCrutch = false;
       if (parentZoneSide?.expectedValues) {

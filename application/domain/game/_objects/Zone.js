@@ -8,22 +8,17 @@
     const { left = 0, top = 0, vertical, double } = data;
     this.set({ left, top, vertical, double });
 
+    const store = this.game().getStore();
     const ZoneSide = this.game().defaultClasses()['ZoneSide'];
+
     if (data.sideList) {
-      const store = this.game().getStore();
-      this.set({
-        sideList: [
-          new ZoneSide(store.zoneside[data.sideList[0]._id], { parent: this }),
-          new ZoneSide(store.zoneside[data.sideList[1]._id], { parent: this }),
-        ],
-      });
+      new ZoneSide(store.zoneside[data.sideList[0]], { parent: this });
+      new ZoneSide(store.zoneside[data.sideList[1]], { parent: this });
+      this.set({ sideList: data.sideList });
     } else {
-      this.set({
-        sideList: [
-          new ZoneSide({ _code: 1, value: data[0] }, { parent: this }),
-          new ZoneSide({ _code: 2, value: data[1] }, { parent: this }),
-        ],
-      });
+      const side0 = new ZoneSide({ _code: 1, value: data[0] }, { parent: this });
+      const side1 = new ZoneSide({ _code: 2, value: data[1] }, { parent: this });
+      this.set({ sideList: [side0.id(), side1.id()] });
     }
 
     const itemMap = {};
@@ -34,9 +29,6 @@
       }
     }
     for (let item of data.itemList || []) {
-      const itemClass = this.getItemClass();
-      // !!! странная конструкция (с присваиванием item) - надо перепроверить
-      if (item.constructor != itemClass) item = new itemClass(item, { parent: this });
       itemMap[item._id] = {};
     }
     this.set({ itemMap });
@@ -69,9 +61,9 @@
    */
   updateValues() {
     const item = this.getItem();
-    this.sideList.forEach((side, sideIndex) => {
+    this.getSides().forEach((side, sideIndex) => {
       if (item) {
-        const itemSide = item.sideList[sideIndex];
+        const itemSide = item.getSides(sideIndex);
         side.set({ value: itemSide.value, diceSideCode: itemSide.code });
       } else {
         side.set({ value: null, diceSideCode: null });
@@ -85,7 +77,7 @@
   getNearZones() {
     const game = this.game();
     const zones = [];
-    for (const side of this.sideList) {
+    for (const side of this.getSides()) {
       for (const linkCode of Object.values(side.links)) {
         zones.push(game.find(linkCode).getParent());
       }
@@ -108,9 +100,10 @@
     if (this.findParent({ className: 'Player' }) !== null)
       return { status: false, msg: 'Нельзя заполнять блоки в руке.' };
 
-    const expectedValues0 = this.sideList[0].expectedValues;
+    const [side0, side1] = this.getSides();
+    const expectedValues0 = side0.expectedValues;
     const sizeOfExpectedValues0 = Object.keys(expectedValues0).length;
-    const expectedValues1 = this.sideList[1].expectedValues;
+    const expectedValues1 = side1.expectedValues;
     const sizeOfExpectedValues1 = Object.keys(expectedValues1).length;
 
     const bridgeParent = this.findParent({ className: 'Bridge' });
@@ -125,23 +118,25 @@
 
     if (!sizeOfExpectedValues0 && !sizeOfExpectedValues1) return { status: true }; // соседние zone свободны
 
+    const [diceSide0, diceSide1] = dice.getSides();
     if (
-      (!sizeOfExpectedValues0 || (expectedValues0[dice.sideList[0].value] && sizeOfExpectedValues0 === 1)) &&
-      (!sizeOfExpectedValues1 || (expectedValues1[dice.sideList[1].value] && sizeOfExpectedValues1 === 1))
+      (!sizeOfExpectedValues0 || (expectedValues0[diceSide0.value] && sizeOfExpectedValues0 === 1)) &&
+      (!sizeOfExpectedValues1 || (expectedValues1[diceSide1.value] && sizeOfExpectedValues1 === 1))
     )
       return { status: true };
     if (
-      (!sizeOfExpectedValues0 || (expectedValues0[dice.sideList[1].value] && sizeOfExpectedValues0 === 1)) &&
-      (!sizeOfExpectedValues1 || (expectedValues1[dice.sideList[0].value] && sizeOfExpectedValues1 === 1))
+      (!sizeOfExpectedValues0 || (expectedValues0[diceSide1.value] && sizeOfExpectedValues0 === 1)) &&
+      (!sizeOfExpectedValues1 || (expectedValues1[diceSide0.value] && sizeOfExpectedValues1 === 1))
     )
       return { status: 'rotate' };
 
     return { status: false };
   }
   checkItemCanBeRotated() {
-    const expectedValues0 = this.sideList[0].expectedValues;
+    const [side0, side1] = this.getSides();
+    const expectedValues0 = side0.expectedValues;
     const sizeOfExpectedValues0 = Object.keys(expectedValues0).length;
-    const expectedValues1 = this.sideList[1].expectedValues;
+    const expectedValues1 = side1.expectedValues;
     const sizeOfExpectedValues1 = Object.keys(expectedValues1).length;
 
     if (this.isBridgeZone()) return false;
@@ -150,5 +145,16 @@
   }
   isBridgeZone() {
     return this.parent().matches({ className: 'Bridge' });
+  }
+  
+  /**
+   * Возвращает объекты ZoneSide из store
+   * @param {number} [index] - если указан, возвращает конкретную сторону по индексу
+   * @returns {Array|Object} массив сторон или конкретную сторону
+   */
+  getSides(index) {
+    const store = this.game().getStore();
+    const sides = this.sideList.map(id => store.zoneside[id]);
+    return typeof index === 'number' ? sides[index] : sides;
   }
 });
