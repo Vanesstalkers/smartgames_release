@@ -1,4 +1,4 @@
-(async function ({ planes = [], minFreePorts = 0, fromHand = false }) {
+(async function ({ planes = [], minFreePorts = 0, fromHand = false }, initPlayer) {
   const MAX_ATTEMPTS = 20;
   const deckOwner = this.roundActivePlayer() || this;
   const planeDeck = deckOwner.matches({ className: 'Game' })
@@ -70,7 +70,7 @@
 
   const freePortsNotEnough = () => {
     const plane = this.getSmartRandomPlaneFromDeck();
-    this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
+    this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
     const uniqueFreePorts = new Set(this.availablePorts.map(item => item.targetPortId)).size;
     return this.isCoreGame() && uniqueFreePorts < minFreePorts;
   };
@@ -86,7 +86,7 @@
   while (planes.length || freePortsNotEnough()) {
     if (--attempts === 0) {
       return this.run('endGame', {
-        message: 'Возникла рекурсия, израсходовавшая все ресурсы. Продолжение игры не возможно.'
+        msg: { lose: 'Возникла рекурсия, израсходовавшая все ресурсы. Продолжение игры не возможно.' },
       });
     }
 
@@ -94,7 +94,7 @@
 
     planes.sort(sortPlanesByPorts);
     const plane = planes.pop();
-    this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
+    this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
 
     if (this.availablePorts.length) {
       putPlaneOnAvailablePort();
@@ -102,7 +102,7 @@
       const initialFreePorts = this.decks.table.getFreePorts().length;
       movePlaneFromTableToHand();
 
-      this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
+      this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
       if (this.availablePorts.length) {
         putPlaneOnAvailablePort();
       }
@@ -125,4 +125,5 @@
   }
 
   deckOwner.set({ eventData: { plane: null } });
+  this.set({ availablePorts: [] });
 });

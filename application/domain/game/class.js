@@ -85,7 +85,7 @@
       })
       .pop();
 
-    if (!plane) this.run('endGame', { message: 'В колоде закончились блоки игрового поля' }); // проиграли все
+    if (!plane) this.run('endGame', { msg: { lose: 'В колоде закончились блоки игрового поля' } }); // проиграли все
 
     return plane;
   }
@@ -116,7 +116,7 @@
 
     if (availableZonesCount > dicesInDeck + dicesInHandCount) {
       return this.run('endGame', {
-        message: 'Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля',
+        msg: { lose: 'Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля' },
       });
     }
   }
@@ -142,6 +142,8 @@
   addCardPlane(card) {
     const deck = this.find('Deck[plane]');
 
+    // const codeSfx = (card.sourceGameId || Math.random().toString()).slice(-4);
+    const codeSfx = Math.random().toString().slice(-4);
     const plane = deck.addItem({
       sourceGameId: card.sourceGameId,
       _code: `event_${card.name}_${codeSfx}`,

@@ -12,6 +12,7 @@
 
   const event = this.initEvent(
     {
+      name: 'initPrepareGameEvents',
       data,
       initPrepareStartFieldStep() {
         const { game } = this.eventContext();
@@ -147,7 +148,7 @@
             player.find('Deck[plane]').moveAllItems({ target: deck });
           }
 
-          player.set({ eventData: { plane: null } });
+          game.set({ availablePorts: [] });
 
           for (const player of game.players()) {
             player.removeEventWithTriggerListener();

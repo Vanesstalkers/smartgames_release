@@ -10,8 +10,8 @@
         title: 'Блиц',
         timer: 60,
         timerReleasePremium: 20,
-        planesAtStart: 2,
-        planesNeedToStart: 2,
+        planesAtStart: 0,
+        planesNeedToStart: 3,
         roundStartCardAddToPlayerHand: true,
         allowedAutoCardPlayRoundStart: false,
         style: { order: 1 },
@@ -42,7 +42,7 @@
       planesAtStart: 3, // изначальное количество блоков на поле
       planesNeedToStart: 3, // нужно для начала игры (будут добавляться игроками)
       planesToChoose: 2, // блоков на выбор игроку для добавления на поле
-      timeToPlaceStartPlane: 10, // время на размещение стартового блока
+      timeToPlaceStartPlane: 1000, // время на размещение стартового блока
       roundStartCardAddToPlayerHand: false,
       allowedAutoCardPlayRoundStart: false,
       cardsToRemove: ['audit', 'coffee', 'weekend'],
@@ -75,6 +75,7 @@
         title: 'Блиц',
         timer: 60,
         timerReleasePremium: 20,
+        timeToPlaceStartPlane: 1000,
         playerHandStart: 0,
         planesAtStart: 0, // изначальное количество блоков на поле
         planesNeedToStart: 2, // нужно для начала игры (будут добавляться игроками)
@@ -225,16 +226,16 @@
       timerReleasePremium: 20,
       playerHandStart: 3,
       playerHandLimit: 3,
-      planesAtStart: 3, // изначальное количество блоков на поле (для core-игры количество соответствует количеству игр)
-      planesNeedToStart: 3, // нужно для начала игры (будут добавляться игроками)
+      planesAtStart: 0, // изначальное количество блоков на поле (для core-игры количество соответствует количеству игр)
+      planesNeedToStart: 2, // нужно для начала игры (будут добавляться игроками)
       planesToChoose: 2, // блоков на выбор игроку для добавления на поле
-      timeToPlaceStartPlane: 10, // время на размещение стартового блока
+      timeToPlaceStartPlane: 1000, // время на размещение стартового блока
       roundStartCardAddToPlayerHand: true,
       allowedAutoCardPlayRoundStart: false,
       autoFinishAfterRoundsOverdue: 10,
 
-      playerCount: '2-8',
-      maxPlayersInGame: '1-4',
+      playerCount: '2-2',
+      maxPlayersInGame: '1-1',
       playerTemplates: {
         default: {
           deckList: [{ type: 'domino', itemType: 'any' }, { type: 'card', itemType: 'event' }, { type: 'plane' }],

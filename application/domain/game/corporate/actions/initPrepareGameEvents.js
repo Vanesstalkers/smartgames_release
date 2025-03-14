@@ -2,6 +2,7 @@
   if (!this.isCoreGame()) return this.run('domain.initPrepareGameEvents');
 
   const event = {
+    name: 'initPrepareGameEvents',
     init() {
       const { game, player } = this.eventContext();
 

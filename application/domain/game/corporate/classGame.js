@@ -169,7 +169,8 @@
     return false;
   }
   fieldIsBlocked() {
-    return this.roundReady || this.mergeStatus() === 'freezed';
+    const mergeStatus = this.mergeStatus();
+    return (this.roundReady && mergeStatus !== 'merged') || mergeStatus === 'freezed';
   }
   mergeStatus() {
     const superGame = this.game();

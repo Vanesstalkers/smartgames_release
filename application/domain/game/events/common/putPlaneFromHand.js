@@ -1,10 +1,12 @@
 () => ({
+  name: 'putPlaneFromHand',
   data: {
     extraPlanes: [],
   },
   handlers: {
     RESET() {
       const { game, player } = this.eventContext();
+      game.set({ availablePorts: [] });
       player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, plane: null } });
       player.find('Deck[plane]').moveAllItems({ target: game.find('Deck[plane]') });
       this.destroy();
@@ -45,9 +47,8 @@
       }
 
       const planeStates = game.decks.table.getAllItems().reduce((acc, plane) => {
-        const linkedPlanes = plane.getLinkedPlanes();
-        const canRemove = linkedPlanes.length - linkedPlanes.filter(p => p.cardPlane).length < 2;
-        acc[plane.id()] = canRemove ? { selectable: true, mustBePlaced: true } : null;
+        const canBeRemoved = plane.canBeRemovedFromTable({ player });
+        acc[plane.id()] = canBeRemoved ? { selectable: true, mustBePlaced: true } : null;
         return acc;
       }, {});
 

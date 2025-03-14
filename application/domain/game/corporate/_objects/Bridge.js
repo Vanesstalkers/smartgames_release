@@ -2,11 +2,10 @@
   constructor(data) {
     super(...arguments);
     let { mergedGameId, anchorGameId } = data;
+    const game = this.game();
+    if (!anchorGameId) anchorGameId = game.id();
 
-    if (anchorGameId) this.game(lib.store('game').get(anchorGameId));
-    else anchorGameId = this.game().id();
-
-    if (this.game().merged) this.game(this.game().game());
+    if (game.merged) this.game(game.game());
 
     this.set({ mergedGameId, anchorGameId });
     this.broadcastableFields(['anchorGameId']);

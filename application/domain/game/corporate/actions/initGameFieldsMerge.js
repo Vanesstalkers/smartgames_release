@@ -12,6 +12,7 @@
 
   this.initEvent(
     {
+      name: 'initGameFieldsMerge',
       data,
       init() {
         const { game } = this.eventContext();
@@ -52,7 +53,7 @@
 
               if (maxPortPlanes.length === 0) {
                 return game.run('endGame', {
-                  message: 'Недостаточно ресурсов для интеграции. Продолжение игры не возможно.',
+                  msg: { lose: 'Недостаточно ресурсов для интеграции. Продолжение игры не возможно.' },
                 });
               }
 

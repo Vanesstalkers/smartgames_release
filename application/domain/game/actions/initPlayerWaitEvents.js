@@ -1,6 +1,7 @@
 (function () {
   this.initEvent(
     {
+      name: 'initPlayerWaitEvents',
       init: function () {
         const { game, player } = this.eventContext();
         game.set({ statusLabel: 'Ожидание игроков', status: 'WAIT_FOR_PLAYERS' });
