@@ -33,6 +33,7 @@
 
         <div v-if="!hasPlaneInHand" class="hand-dices-list">
           <div v-for="deck in dominoDecks" :key="deck._id" class="hand-dices-list-content">
+            <!-- ??? как viewer видит эти deck`s -->
             <div
               v-if="iam || showDecks || !state.isPortrait"
               class="hand-dices"

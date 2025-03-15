@@ -22,5 +22,8 @@
     };
   }
 
-  return this.initEvent(event, { allowedPlayers });
+  return this.initEvent({
+    name: 'initGameProcessEvents',
+    ...event
+  }, { allowedPlayers });
 });

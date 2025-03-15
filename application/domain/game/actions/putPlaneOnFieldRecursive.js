@@ -1,6 +1,8 @@
-(async function ({ planes = [], minFreePorts = 0, fromHand = false }) {
+(async function ({ planes = [], minFreePorts = 0, fromHand = false }, initPlayer) {
   const MAX_ATTEMPTS = 20;
-  const deckOwner = this.roundActivePlayer() || this;
+  const game = this.merged ? this.game() : this; // !!!! если что-то капитально сломается, то game заменить обратно на this
+  const superGame = initPlayer.game().game();
+  const deckOwner = game.roundActivePlayer() || game;
   const planeDeck = deckOwner.matches({ className: 'Game' })
     ? deckOwner.find('Deck[plane_hand]')
     : deckOwner.find('Deck[plane]');
@@ -10,7 +12,7 @@
   const sortPlanesByPorts = (a, b) => Object.keys(a.portMap).length < Object.keys(b.portMap).length ? -1 : 1;
 
   const getPlaneFreePorts = plane => {
-    const ports = Object.keys(plane.portMap).map(id => this.get(id));
+    const ports = Object.keys(plane.portMap).map(id => game.get(id));
     return ports.filter(port => !port.linkedBridgeCode);
   };
 
@@ -25,9 +27,9 @@
   const removeBridgesAndUpdateState = (plane, eventData) => {
     const linkedBridges = plane.getLinkedBridges();
     for (const bridge of linkedBridges) {
-      this.run('removeBridge', { bridge });
+      game.run('removeBridge', { bridge });
       if (!plane.cardPlane && bridge.bridgeToCardPlane) {
-        const cardPlane = this.get(bridge.linkedPlanesIds.find(id => id !== plane.id()));
+        const cardPlane = game.get(bridge.linkedPlanesIds.find(id => id !== plane.id()));
         cardPlane.moveToTarget(planeDeck);
         cardPlane.set({ left: 0, top: 0 });
         eventData.plane[cardPlane.id()] = { selectable: null };
@@ -35,17 +37,18 @@
     }
   };
 
-  const movePlaneFromTableToHand = () => {
-    const planeStates = this.decks.table.getAllItems().reduce((acc, plane) => {
+  const movePlaneFromTableToHand = async () => {
+    const planeStates = game.decks.table.getAllItems().reduce((acc, plane) => {
       const linkedPlanes = plane.getLinkedPlanes();
       const nonCardPlanes = linkedPlanes.length - linkedPlanes.filter(p => p.cardPlane).length;
-      acc[plane.id()] = nonCardPlanes < 2 ? { selectable: true, mustBePlaced: true } : null;
+      if (plane.anchorGameId === initPlayer.gameId)
+        acc[plane.id()] = nonCardPlanes < 2 ? { selectable: true, mustBePlaced: true } : null;
       return acc;
     }, {});
 
     deckOwner.set({ eventData: { plane: planeStates } });
 
-    const selectablePlanes = this.decks.table.getAllItems()
+    const selectablePlanes = game.decks.table.getAllItems()
       .filter(plane => deckOwner.eventData.plane?.[plane.id()]?.selectable)
       .sort(sortSelectablePlanes);
 
@@ -59,25 +62,28 @@
     plane.set({ left: 0, top: 0 });
     eventData.plane[plane.id()] = { selectable: null };
     deckOwner.set({ eventData });
+
+    await this.saveChanges();
   };
 
   const addExtraPlane = () => {
-    const extraPlane = this.getSmartRandomPlaneFromDeck();
-    extraPlane.moveToTarget(this.find('Deck[plane]'));
+    const extraPlane = game.getSmartRandomPlaneFromDeck();
+    extraPlane.moveToTarget(game.find('Deck[plane]'));
     deckOwner.set({ eventData: { plane: { [extraPlane.id()]: { mustBePlaced: true } } } });
     planes.push(extraPlane);
   };
 
   const freePortsNotEnough = () => {
-    const plane = this.getSmartRandomPlaneFromDeck();
-    this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
-    const uniqueFreePorts = new Set(this.availablePorts.map(item => item.targetPortId)).size;
-    return this.isCoreGame() && uniqueFreePorts < minFreePorts;
+    const plane = game.getSmartRandomPlaneFromDeck();
+    game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
+    const uniqueFreePorts = new Set(game.availablePorts.map(item => item.targetPortId)).size;
+    return game.isCoreGame() && uniqueFreePorts < minFreePorts;
   };
 
-  const putPlaneOnAvailablePort = () => {
-    const port = this.availablePorts.sort((a, b) => a.priority > b.priority ? -1 : 1)[0];
-    this.run('putPlaneOnField', port);
+  const putPlaneOnAvailablePort = async () => {
+    const port = game.availablePorts.sort((a, b) => a.priority > b.priority ? -1 : 1)[0];
+    game.run('putPlaneOnField', port);
+    await this.saveChanges();
   };
 
   let requireExtraPlane = false;
@@ -85,8 +91,8 @@
 
   while (planes.length || freePortsNotEnough()) {
     if (--attempts === 0) {
-      return this.run('endGame', {
-        message: 'Возникла рекурсия, израсходовавшая все ресурсы. Продолжение игры не возможно.'
+      return game.run('endGame', {
+        msg: { lose: 'Возникла рекурсия, израсходовавшая все ресурсы. Продолжение игры не возможно.' },
       });
     }
 
@@ -94,21 +100,36 @@
 
     planes.sort(sortPlanesByPorts);
     const plane = planes.pop();
-    this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
+    game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
 
-    if (this.availablePorts.length) {
-      putPlaneOnAvailablePort();
+    const availablePorts = game.availablePorts.filter((placementConfig) => {
+      const targetPlane = superGame.get(placementConfig.targetPlaneId);
+      return targetPlane.anchorGameId === initPlayer.gameId;
+    });
+    game.set({ availablePorts });
+
+    if (game.availablePorts.length) {
+      await putPlaneOnAvailablePort();
     } else {
-      const initialFreePorts = this.decks.table.getFreePorts().length;
-      movePlaneFromTableToHand();
+      const initialFreePorts = game.decks.table.getFreePorts().length;
+      await movePlaneFromTableToHand();
 
-      this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
-      if (this.availablePorts.length) {
-        putPlaneOnAvailablePort();
+      game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
+      const availablePorts = game.availablePorts.filter((placementConfig) => {
+        const targetPlane = superGame.get(placementConfig.targetPlaneId);
+        return targetPlane.anchorGameId === initPlayer.gameId;
+      });
+      game.set({ availablePorts });
+      
+      if (game.availablePorts.length) {
+        await putPlaneOnAvailablePort();
       }
 
-      if (initialFreePorts + planeDeck.itemsCount() > this.decks.table.getFreePorts().length) {
-        while (this.decks.table.itemsCount() > 0) movePlaneFromTableToHand();
+      if (initialFreePorts + planeDeck.itemsCount() > game.decks.table.getFreePorts().length) {
+        const n = initPlayer.game().merged ? 1 : 0; // точку привязки не трогаем
+        while (game.decks.table.items().filter(p => p.anchorGameId === initPlayer.gameId).length > n) {
+          await movePlaneFromTableToHand();
+        }
 
         planes = planeDeck.items();
         if (requireExtraPlane) {
@@ -117,12 +138,14 @@
           requireExtraPlane = true;
         }
         planes.sort(sortPlanesByPorts);
-        planes.pop().moveToTarget(this.decks.table);
+        planes.pop().moveToTarget(game.decks.table);
       }
     }
 
+    await this.saveChanges();
     planes = planeDeck.items();
   }
 
   deckOwner.set({ eventData: { plane: null } });
+  game.set({ availablePorts: [] });
 });

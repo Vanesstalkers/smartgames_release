@@ -13,7 +13,8 @@
   const gamePlaneDeck = this.find('Deck[plane]');
   const skipArray = this.isCoreGame() ? skipStartPlanes.map((code) => this.find(code)?.id()) : [];
   for (let i = 0; i < planesAtStart; i++) {
-    let plane = gamePlaneDeck.getRandomItem({ skipArray });
+    // let plane = gamePlaneDeck.getRandomItem({ skipArray });
+    let plane = gamePlaneDeck.find('Plane[15]');
     if (plane) {
       skipArray.push(plane.id());
       if (i === 0) {

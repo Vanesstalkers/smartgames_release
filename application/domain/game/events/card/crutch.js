@@ -21,6 +21,7 @@
     },
     DEACTIVATE: function () {
       const { player } = this.eventContext();
+      player.removeEventWithTriggerListener(); // без этого будут срабатывать проверки player.triggerEventEnabled
 
       for (const deck of player.select('Deck')) {
         if (deck.type !== 'domino') continue;

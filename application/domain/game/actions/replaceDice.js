@@ -3,7 +3,7 @@
   const zone = this.get(zoneId);
   const diceIsInHand = dice.parent().access[player.id()] ? true : false;
 
-  if (zone.game().roundReady) {
+  if (zone.game().fieldIsBlocked()) {
     throw new Error('Действия с этим полем недоступны до следующего раунда.');
   }
 

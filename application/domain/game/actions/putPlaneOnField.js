@@ -4,7 +4,9 @@
   const targetPort = this.get(targetPortId);
   const targetPlane = targetPort.parent();
   const joinGame = joinPort.game();
-  const targetGame = targetPort.game();
+  // const targetGame = targetPort.game();
+  let targetGame = targetPort.game();
+  if (targetGame.merged) targetGame = targetGame.game();
   const targetTable = targetGame.decks.table;
 
   let targetPortIsAvailable = false;

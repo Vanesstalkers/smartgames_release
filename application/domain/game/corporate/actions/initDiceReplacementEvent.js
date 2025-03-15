@@ -9,7 +9,10 @@
     superGame.broadcastEvent('DICES_DISABLED', { parent });
   };
 
-  return this.initEvent(event, {
+  return this.initEvent({
+    name: 'initDiceReplacementEvent',
+    ...event
+  }, {
     allowedPlayers: this.hasSuperGame ? this.game().players() : this.players(),
   });
 });

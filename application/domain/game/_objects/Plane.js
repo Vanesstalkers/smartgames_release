@@ -137,6 +137,10 @@
     }
     return moveResult;
   }
+  canBeRemovedFromTable() {
+    const linkedPlanes = this.getLinkedPlanes();
+    return linkedPlanes.length - linkedPlanes.filter(p => p.cardPlane).length < 2;
+  }
   removeFromTableToHand({ player }) {
     const game = this.game();
     const deck = player.find('Deck[plane]');
