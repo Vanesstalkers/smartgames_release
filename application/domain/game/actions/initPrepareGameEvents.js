@@ -12,6 +12,7 @@
 
   const event = this.initEvent(
     {
+      name: 'initPrepareGameEvents',
       data,
       initPrepareStartFieldStep() {
         const { game } = this.eventContext();
@@ -19,7 +20,7 @@
         const hand = player.find('Deck[plane]');
         const deck = game.find('Deck[plane]');
 
-        player.set({ eventData: { plane: null, showNoAvailablePortsBtn: null, fakePlaneAddBtn: null } });
+        player.set({ eventData: { plane: null, showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, roundBtn: { label: 'Помочь выложить' } } });
 
         const eventData = { plane: {} };
         for (let j = 0; j < game.settings.planesToChoose; j++) {
@@ -147,7 +148,8 @@
             player.find('Deck[plane]').moveAllItems({ target: deck });
           }
 
-          player.set({ eventData: { plane: null } });
+          player.set({ eventData: { roundBtn: null } })
+          game.set({ availablePorts: [] });
 
           for (const player of game.players()) {
             player.removeEventWithTriggerListener();

@@ -105,11 +105,12 @@
     this.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${this.round}` });
     this.run('initGameProcessEvents');
 
-    const roundActiveGame = this.allGamesMerged() ? this.roundActiveGame() : null;
+    const allGamesMerged = this.allGamesMerged();
+    const roundActiveGame = allGamesMerged ? this.roundActiveGame() : null;
 
     for (const game of this.getAllGames()) {
       game.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${game.round}` });
-      game.run('initGameProcessEvents');
+      if (allGamesMerged || !game.merged) game.run('initGameProcessEvents');
 
       if (roundActiveGame && game !== roundActiveGame) continue;
 
@@ -323,5 +324,9 @@
     for (const game of this.getAllGames()) {
       game.toggleEventHandlers(handler, data, game.roundActivePlayer());
     }
+  }
+
+  mergeStatus() {
+    return null;
   }
 });

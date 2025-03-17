@@ -15,7 +15,12 @@
   }
   initPlayer.set({ eventData });
 
-  if (this.merged) this.run('initGameProcessEvents'); // иначе не будет обрабатываться RELEASE с пследующим initGameFieldsMerge
+  if (this.merged) {
+    // // иначе не будет обрабатываться RELEASE с последующим initGameFieldsMerge
+    // const gameProcessEvent = this.eventData.activeEvents.find(event => event.name == 'gameProcess');
+    // if(gameProcessEvent) gameProcessEvent.destroy(); // может не быть (???)
+    this.run('initGameProcessEvents');
+  }
 
   this.set({ merged: null, roundReady: false });
   superGame.set({
@@ -38,5 +43,8 @@
   initPlayer.activate();
 
   const event = domain.game.events.common.putPlaneFromHand();
-  this.initEvent(event, { allowedPlayers: [initPlayer] });
+  this.initEvent({
+    name: 'returnFieldToHand',
+    ...event
+  }, { allowedPlayers: [initPlayer] });
 });

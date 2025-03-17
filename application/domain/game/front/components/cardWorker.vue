@@ -1,22 +1,14 @@
 <template>
-  <div
-    v-if="player._id || viewer._id"
-    :id="player._id"
-    :class="[
-      'card-worker',
-      'card-worker-' + player.code,
-      player.active ? 'active' : '',
-      selectable ? 'selectable' : '',
-      showEndRoundBtn || showLeaveBtn || showCustomActionBtn ? 'has-action' : '',
-      controlActionDisabled ? 'disabled' : '',
-    ]"
-    :style="customStyle"
-    @click="controlAction"
-  >
-    <div
-      v-if="showControls && player.active && player.timerEndTime && game.status != 'WAIT_FOR_PLAYERS'"
-      class="end-round-timer"
-    >
+  <div v-if="player._id || viewer._id" :id="player._id" :class="[
+    'card-worker',
+    'card-worker-' + player.code,
+    player.active ? 'active' : '',
+    selectable ? 'selectable' : '',
+    showEndRoundBtn || showLeaveBtn || showCustomActionBtn ? 'has-action' : '',
+    controlActionDisabled ? 'disabled' : '',
+  ]" :style="customStyle" @click="controlAction">
+    <div v-if="showControls && player.active && player.timerEndTime && game.status != 'WAIT_FOR_PLAYERS'"
+      class="end-round-timer">
       {{ this.localTimer }}
     </div>
     <div v-if="!iam && game.status != 'WAIT_FOR_PLAYERS'" class="domino-dice">
@@ -27,7 +19,7 @@
         {{ cardDeckCount }}
       </div>
     </div>
-    <div v-if="showEndRoundBtn" class="action-btn end-round-btn">Закончить раунд</div>
+    <div v-if="showEndRoundBtn" class="action-btn end-round-btn"> {{ roundBtn.label || 'Закончить раунд' }}</div>
     <div v-if="showLeaveBtn" class="action-btn leave-game-btn">Выйти из игры</div>
     <div v-if="showCustomActionBtn && !showLeaveBtn" class="action-btn" :style="customAction.style || {}">
       {{ customAction.label }}
@@ -134,6 +126,9 @@ export default {
         this.showControls && this.iam && this.sessionPlayerIsActive() && !this.showLeaveBtn && !this.showCustomActionBtn
       );
     },
+    roundBtn() {
+      return this.player.eventData.roundBtn || {};
+    },
     showLeaveBtn() {
       return (this.gameFinished() && this.iam) || this.viewerId;
     },
@@ -193,7 +188,7 @@ export default {
         .catch(prettyAlert);
     },
   },
-  mounted() {},
+  mounted() { },
 };
 </script>
 
@@ -216,6 +211,7 @@ export default {
   }
 
   &.selectable {
+
     .end-round-btn,
     .end-round-timer {
       display: none;
@@ -285,9 +281,10 @@ export default {
     justify-content: center;
     align-content: center;
 
-    > div {
+    >div {
       z-index: 1;
     }
+
     &::after {
       content: '';
       position: absolute;
@@ -328,6 +325,7 @@ export default {
     left: auto;
     right: 0px;
   }
+
   .domino-dice {
     visibility: visible;
   }

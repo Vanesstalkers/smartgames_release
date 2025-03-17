@@ -11,7 +11,8 @@
       eventData: { plane: { [plane.id()]: { mustBePlaced: true } } }
     });
 
-    game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, player);
+    // поиск должен идти только внутри исходной игры (для корпоративного режима)
+    player.game().run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, player);
   };
 
   return event;
