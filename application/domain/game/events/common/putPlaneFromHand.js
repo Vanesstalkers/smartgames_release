@@ -1,10 +1,12 @@
 () => ({
+  name: 'putPlaneFromHand',
   data: {
     extraPlanes: [],
   },
   handlers: {
     RESET() {
       const { game, player } = this.eventContext();
+      game.set({ availablePorts: [] });
       player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, plane: null } });
       player.find('Deck[plane]').moveAllItems({ target: game.find('Deck[plane]') });
       this.destroy();
@@ -41,13 +43,13 @@
             .pop();
         }
         this.putPlaneOnEmptyField = true;
-        return joinPlane.moveToTarget(game.decks.table);
+        joinPlane.moveToTarget(game.decks.table);
+        return { preventListenerRemove: true };
       }
 
       const planeStates = game.decks.table.getAllItems().reduce((acc, plane) => {
-        const linkedPlanes = plane.getLinkedPlanes();
-        const canRemove = linkedPlanes.length - linkedPlanes.filter(p => p.cardPlane).length < 2;
-        acc[plane.id()] = canRemove ? { selectable: true, mustBePlaced: true } : null;
+        const canBeRemoved = plane.canBeRemovedFromTable({ player });
+        acc[plane.id()] = canBeRemoved ? { selectable: true, mustBePlaced: true } : null;
         return acc;
       }, {});
 
@@ -64,8 +66,8 @@
       return { preventListenerRemove: true };
     },
     TRIGGER_EXTRA_PLANE({ initPlayer: player }) {
-      const { game } = this.eventContext();
-      const plane = game.find('Deck[plane]').getRandomItem();
+      // можно класть блоки только на исходные игры (без этого выставиться некорректный anchorGameId)
+      const plane = player.game().find('Deck[plane]').getRandomItem();
       if (!plane) throw new Error('В колоде закончились блоки');
 
       this.data.extraPlanes.push(plane);
@@ -76,9 +78,9 @@
       return { preventListenerRemove: true };
     },
     CHECK_PLANES_IN_HANDS() {
-      const { game } = this.eventContext();
+      const { game, player } = this.eventContext();
       if (game.status === 'FINISHED') return;
-      game.run('putPlaneOnFieldRecursive', { fromHand: true });
+      game.run('putPlaneOnFieldRecursive', { fromHand: true }, player);
       return { preventListenerRemove: true };
     },
     END_ROUND() {

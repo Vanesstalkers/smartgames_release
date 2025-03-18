@@ -169,7 +169,10 @@
     return false;
   }
   fieldIsBlocked() {
-    return this.roundReady || this.mergeStatus() === 'freezed';
+    const mergeStatus = this.mergeStatus();
+    return (this.roundReady && mergeStatus !== 'merged')
+      || mergeStatus === 'freezed'
+      || this.eventData.activeEvents.find(e => e.name === 'initGameFieldsMerge')
   }
   mergeStatus() {
     const superGame = this.game();

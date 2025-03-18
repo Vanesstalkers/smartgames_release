@@ -1,14 +1,15 @@
 (function ({ diceId, zoneId }, player) {
+  if (player.triggerEventEnabled())
+    throw new Error('Игрок не может совершить это действие, пока не завершит активное событие.');
+
   const dice = this.get(diceId);
   const zone = this.get(zoneId);
   const diceIsInHand = dice.parent().access[player.id()] ? true : false;
 
-  if (zone.game().roundReady) {
+  if (zone.game().fieldIsBlocked()) {
     throw new Error('Действия с этим полем недоступны до следующего раунда.');
   }
 
-  if (player.triggerEventEnabled())
-    throw new Error('Игрок не может совершить это действие, пока не завершит активное событие.');
   if (!player.eventData.availableZones?.includes(zoneId)) throw new Error('Данная зона запрещена для размещения');
   if (!diceIsInHand) throw new Error('Костяшка должна находиться в руке.');
   if (dice.locked) throw new Error('Костяшка не может быть сыграна на этом ходу.');
@@ -33,12 +34,11 @@
   // у других игроков в хранилище нет данных об этом dice
   dice.markNew();
 
+  this.toggleEventHandlers('DICE_PLACED', { dice }, player);
   if (
-    // есть активное событие замены dice на игровом поле - checkForRelease отработает после завершения события
-    this.eventData.activeEvents.find((e) => e.name === 'diceReplacementEvent')
+    // checkForRelease отработает после завершения события DICE_PLACED в diceReplacementEvent
+    !this.eventData.activeEvents.find((e) => e.name === 'diceReplacementEvent')
   ) {
-    this.toggleEventHandlers('DICE_PLACED', { dice }, player);
-  } else {
     this.checkForRelease({
       zoneParent: zone.parent(),
       player, // для корпоративных игр обязательно указываем player, иначе инициатором будет считаться активный игрок из игры-владельца field-а

@@ -1,5 +1,4 @@
-(function ({ diceId }) {
-  const player = this.roundActivePlayer();
+(function ({ diceId }, player) {
   if (player.triggerEventEnabled())
     throw new Error('Игрок не может совершить это действие, пока не завершит активное событие.');
 

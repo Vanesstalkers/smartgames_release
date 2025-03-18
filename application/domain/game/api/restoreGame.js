@@ -12,7 +12,7 @@ async (context, { round } = {}) => {
 
     round = parseInt(round);
     if (!round > 0) round = game.round;
-    
+
     const query = { _gameid: db.mongo.ObjectID(game.id()), round };
     const [
       dumpData, // берем первый элемент, т.к. в ответе массив
@@ -23,6 +23,7 @@ async (context, { round } = {}) => {
     for (const [subscriberChannel] of subscribers) {
       await lib.store.broadcaster.publishData(subscriberChannel, game.wrapPublishData(null));
     }
+    game.clearChanges(); // внутри removeGame вызовется saveChanges, так что очищаем лишнее, чтобы не поломать state на фронте
     await game.removeGame();
 
     const restoredGame = await domain.game.load({
@@ -33,8 +34,9 @@ async (context, { round } = {}) => {
 
     for (const player of players) {
       const { userId, userName, _id: playerId } = player;
-      const joinData = { userId, userName, playerId /* , viewerId */ };
-      await restoredGame.playerJoin(joinData);
+      const joinData = { userId, userName, playerId , viewerId };
+      if (viewerId) await game.viewerJoin(joinData);
+      else await restoredGame.playerJoin(joinData);
 
       const user = lib.store('user').get(userId);
       user.subscribe(`game-${gameId}`, { rule: 'actions-only' });
@@ -56,7 +58,6 @@ async (context, { round } = {}) => {
       eventName: 'alert',
       data: { message: err.message, stack: err.stack },
     });
-
     return err;
   }
 };

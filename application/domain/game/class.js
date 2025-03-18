@@ -6,16 +6,6 @@
       ...lib.game.decorators['@hasDeck'].decorate(),
     });
 
-    /* 
-    !!!! добавить в release\node_modules\impress\lib\place.js 
-      const files = await node.fsp.readdir(targetPath, { withFileTypes: true });
-
-      files.sort((a, b) => {
-        if (a.isFile() && !b.isFile()) return -1; // Если 'a' файл, а 'b' нет, то 'a' идет раньше
-        if (!a.isFile() && b.isFile()) return 1; // Если 'a' не файл, а 'b' файл, то 'b' идет раньше
-        return a.name.localeCompare(b.name);
-      });
-    */
     const { Bridge, Dice, DiceSide, Plane, Player, Port, Table, Zone, ZoneSide } = domain.game._objects;
     this.defaultClasses({ Bridge, Dice, DiceSide, Plane, Player, Port, Table, Zone, ZoneSide });
 
@@ -85,7 +75,7 @@
       })
       .pop();
 
-    if (!plane) this.run('endGame', { message: 'В колоде закончились блоки игрового поля' }); // проиграли все
+    if (!plane) this.run('endGame', { msg: { lose: 'В колоде закончились блоки игрового поля' } }); // проиграли все
 
     return plane;
   }
@@ -116,7 +106,7 @@
 
     if (availableZonesCount > dicesInDeck + dicesInHandCount) {
       return this.run('endGame', {
-        message: 'Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля',
+        msg: { lose: 'Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля' },
       });
     }
   }
@@ -179,5 +169,9 @@
       card.moveToTarget(this.decks.drop);
       // card.markDelete();
     }
+  }
+
+  fieldIsBlocked() {
+    return false;
   }
 });

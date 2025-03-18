@@ -29,6 +29,10 @@
       }
     }
     for (let item of data.itemList || []) {
+      const itemClass = this.getItemClass();
+      const newObjectCreation = item.constructor != itemClass ? true : false;
+      // dice может быть либо в колоде, либо выложен на игровое поле - создание нового объекта актуально при восстановлении игры
+      if (newObjectCreation) item = new itemClass(item, { parent: this });
       itemMap[item._id] = {};
     }
     this.set({ itemMap });
@@ -146,7 +150,7 @@
   isBridgeZone() {
     return this.parent().matches({ className: 'Bridge' });
   }
-  
+
   /**
    * Возвращает объекты ZoneSide из store
    * @param {number} [index] - если указан, возвращает конкретную сторону по индексу

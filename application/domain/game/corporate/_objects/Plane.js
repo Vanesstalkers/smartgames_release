@@ -3,13 +3,7 @@
     super(...arguments);
     let { sourceGameId, anchorGameId, mergedPlane } = data;
     if (!sourceGameId) sourceGameId = this.game().id();
-
-    if (anchorGameId) {
-      const game = lib.store('game').get(anchorGameId)
-      this.game(game.merged ? game.game() : game);
-    } else {
-      anchorGameId = sourceGameId;
-    }
+    if (!anchorGameId) anchorGameId = sourceGameId;
 
     this.set({ sourceGameId, anchorGameId, mergedPlane });
     this.broadcastableFields(['sourceGameId', 'anchorGameId']);
@@ -53,5 +47,11 @@
     const bridges = ports.map((port) => superGame.find(port.linkedBridgeCode)).filter((bridge) => bridge);
 
     return bridges;
+  }
+  canBeRemovedFromTable({ player }) {
+    const linkedPlanes = this.getLinkedPlanes();
+    const canRemove = linkedPlanes.length - linkedPlanes.filter(p => p.cardPlane).length < 2;
+    const anchorGame = this.anchorGameId === player.gameId ? true : false;
+    return canRemove && anchorGame;
   }
 });

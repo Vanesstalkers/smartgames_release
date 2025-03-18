@@ -1,69 +1,42 @@
 <template>
-  <div
-    v-if="player._id || viewer._id"
-    :class="[
-      'player',
-      ...customClass,
-      iam ? 'iam' : '',
-      player.active ? 'active' : '',
-    ]"
-  >
+  <div v-if="player._id || viewer._id" :class="[
+    'player',
+    ...customClass,
+    iam ? 'iam' : '',
+    player.active ? 'active' : '',
+  ]">
     <div class="inner-content" :style="{ justifyContent: 'flex-end' }">
-      <div
-        class="player-hands"
-        v-if="game.status != 'WAIT_FOR_PLAYERS'"
-        :style="{ justifyContent: 'flex-end', maxWidth: state.innerWidth / 2 + 'px' }"
-      >
+      <div class="player-hands" v-if="game.status != 'WAIT_FOR_PLAYERS'"
+        :style="{ justifyContent: 'flex-end', maxWidth: state.innerWidth / 2 + 'px' }">
         <div v-if="hasPlaneInHand" class="hand-planes">
-          <plane
-            v-if="iam && player.eventData?.fakePlaneAddBtn"
-            :key="'fake'"
-            :planeId="'fake'"
-            :inHand="true"
-            :class="['in-hand', 'add-block-action']"
-          />
-          <plane
-            v-for="id in planeInHandIds"
-            :key="id"
-            :planeId="iam ? id : 'fake'"
-            :inHand="true"
-            :class="['in-hand']"
-          />
+          <plane v-if="iam && player.eventData?.fakePlaneAddBtn" :key="'fake'" :planeId="'fake'" :inHand="true"
+            :class="['in-hand', 'add-block-action']" />
+          <plane v-for="id in planeInHandIds" :key="id" :planeId="iam ? id : 'fake'" :inHand="true"
+            :class="['in-hand']" />
         </div>
 
         <div v-if="!hasPlaneInHand" class="hand-dices-list">
           <div v-for="deck in dominoDecks" :key="deck._id" class="hand-dices-list-content">
-            <div
-              v-if="iam || showDecks || !state.isPortrait"
-              class="hand-dices"
-              :style="
-                iam || (state.isMobile && state.isPortrait)
-                  ? {
-                      position: 'absolute',
-                      right: '0px',
-                      bottom: '0px',
-                      height: '0px',
-                      width: 'auto',
-                      transformOrigin: 'right bottom',
-                    }
-                  : {
-                      position: 'absolute',
-                      left: '0px',
-                      bottom: '0px',
-                      height: '0px',
-                      width: 'auto',
-                      transformOrigin: 'left bottom',
-                    }
-              "
-            >
-              <dice
-                v-for="id in Object.keys(deck.itemMap)"
-                :key="id"
-                :diceId="id"
-                :inHand="true"
-                :iam="iam"
-                :gameId="player.gameId"
-              />
+            <div v-if="iam || showDecks || !state.isPortrait" class="hand-dices" :style="iam || (state.isMobile && state.isPortrait)
+                ? {
+                  position: 'absolute',
+                  right: '0px',
+                  bottom: '0px',
+                  height: '0px',
+                  width: 'auto',
+                  transformOrigin: 'right bottom',
+                }
+                : {
+                  position: 'absolute',
+                  left: '0px',
+                  bottom: '0px',
+                  height: '0px',
+                  width: 'auto',
+                  transformOrigin: 'left bottom',
+                }
+              ">
+              <dice v-for="id in Object.keys(deck.itemMap)" :key="id" :diceId="id" :inHand="true" :iam="iam"
+                :gameId="player.gameId" />
               <card v-if="iam && deck.subtype === 'teamlead'" :cardData="{ name: 'teamlead' }" />
               <card v-if="iam && deck.subtype === 'flowstate'" :cardData="{ name: 'flowstate' }" />
             </div>
@@ -71,24 +44,14 @@
         </div>
         <div v-if="(iam || gameState.viewerMode) && !hasPlaneInHand" class="hand-cards-list" ref="scrollbar">
           <div v-for="deck in cardDecks" :key="deck._id" class="hand-cards" :style="{ width: handCardsWidth }">
-            <card
-              v-for="id in Object.keys(deck.itemMap)"
-              :key="id"
-              :cardId="id"
-              :canPlay="iam && sessionPlayerIsActive()"
-            />
+            <card v-for="id in Object.keys(deck.itemMap)" :key="id" :cardId="id"
+              :canPlay="iam && sessionPlayerIsActive()" />
           </div>
         </div>
       </div>
       <div class="workers">
-        <card-worker
-          :playerId="playerId"
-          :viewerId="viewerId"
-          :iam="iam"
-          :showControls="showControls"
-          :dominoDeckCount="mainDominoDeckItemsCount"
-          :cardDeckCount="mainCardDeckItemsCount"
-        />
+        <card-worker :playerId="playerId" :viewerId="viewerId" :iam="iam" :showControls="showControls"
+          :dominoDeckCount="mainDominoDeckItemsCount" :cardDeckCount="mainCardDeckItemsCount" />
       </div>
     </div>
   </div>
@@ -206,8 +169,8 @@ export default {
       return !state.isMobile
         ? `${Math.ceil(this.mainCardDeckItemsCount / maxCardStack) * cardWidth}px`
         : this.mainCardDeckItemsCount > 0
-        ? `${cardWidth}px`
-        : 'auto';
+          ? `${cardWidth}px`
+          : 'auto';
     },
   },
   methods: {},
@@ -219,7 +182,7 @@ export default {
   position: relative;
   margin-top: 10px;
 
-  > .inner-content {
+  >.inner-content {
     display: flex;
     align-items: flex-end;
     flex-direction: row-reverse;
@@ -229,11 +192,12 @@ export default {
     }
   }
 }
-#game.mobile-view.portrait-view .player:not(.iam) > .inner-content {
+
+#game.mobile-view.portrait-view .player:not(.iam)>.inner-content {
   flex-direction: row;
 }
 
-.player.iam > .inner-content {
+.player.iam>.inner-content {
   display: flex;
   align-items: flex-end;
   position: absolute;
@@ -241,10 +205,12 @@ export default {
   bottom: 0px;
   height: 0px;
 }
-#game.mobile-view .player.iam > .inner-content > .player-hands {
+
+#game.mobile-view .player.iam>.inner-content>.player-hands {
   flex-wrap: nowrap;
 }
-#game.mobile-view .player.iam > .hand-planes {
+
+#game.mobile-view .player.iam>.hand-planes {
   transform: scale(0.5);
   width: 200%;
   height: 50%;
@@ -254,7 +220,8 @@ export default {
 }
 
 .workers {
-  z-index: 1; /* карточка воркера должна быть видна при размещении игровых зон из руки */
+  z-index: 1;
+  /* карточка воркера должна быть видна при размещении игровых зон из руки */
 }
 
 .player-hands {
@@ -273,30 +240,35 @@ export default {
     }
   }
 
-  > .ps {
-    > .ps__rail-y {
+  >.ps {
+    >.ps__rail-y {
       display: none !important;
     }
   }
 }
+
 #game.mobile-view.portrait-view .player-hands {
   justify-content: flex-start;
   height: initial;
 }
+
 #game:not(.mobile-view) .hand-cards-list {
   .hand-cards {
     max-height: 250px;
     flex-direction: column;
   }
 }
+
 #game.mobile-view .hand-cards-list {
   overflow-y: auto;
   overflow-x: hidden;
   max-height: 400px;
+
   .hand-cards {
     margin-top: 130px;
   }
 }
+
 #game.mobile-view.landscape-view .hand-cards-list {
   @media only screen and (max-height: 360px) {
     max-height: 300px;
@@ -307,7 +279,8 @@ export default {
   display: flex;
   flex-wrap: wrap;
 }
-.hand-cards > .card-event {
+
+.hand-cards>.card-event {
   margin-top: -130px;
 }
 
@@ -318,16 +291,19 @@ export default {
   height: auto;
   width: auto;
 }
-.hand-dices-list > .hand-dices-list-content {
+
+.hand-dices-list>.hand-dices-list-content {
   width: 0px;
   height: 150px;
   position: relative;
 }
-#game.viewer-mode .hand-dices-list > .hand-dices-list-content {
+
+#game.viewer-mode .hand-dices-list>.hand-dices-list-content {
   z-index: 1;
   transform: scale(0.7);
   transform-origin: bottom left;
 }
+
 .hand-dices {
   display: flex;
   flex-direction: row;
@@ -338,14 +314,17 @@ export default {
   padding: 0px;
   width: 0px;
 }
+
 .hand-dices .domino-dice {
   height: 140px;
   width: 70px;
 }
+
 .hand-dices .card-event {
   scale: 0.7;
   transform-origin: bottom;
 }
+
 #game.mobile-view.portrait-view .hand-dices .card-event {
   display: none;
 }
@@ -353,7 +332,8 @@ export default {
 .player .plane .domino-dice {
   opacity: 0.5;
   cursor: pointer !important;
-  > .controls {
+
+  >.controls {
     display: none !important;
   }
 }
@@ -380,7 +360,7 @@ export default {
     flex-shrink: 1;
   }
 
-  > .plane {
+  >.plane {
     flex-shrink: 2;
 
     &.card-plane {
@@ -392,15 +372,17 @@ export default {
     }
   }
 
-  > .ps__rail-x {
+  >.ps__rail-x {
     left: auto !important;
     right: 0px;
   }
 }
+
 #game.mobile-view.portrait-view .hand-planes {
   flex-wrap: wrap;
   align-items: flex-end;
 }
+
 .player.iam .hand-planes {
   height: 0px;
   width: 100%;
@@ -419,12 +401,15 @@ export default {
   height: initial;
   margin-bottom: 0px;
 }
+
 .hand-planes .plane {
   position: relative;
 }
-.hand-planes .plane > .price {
+
+.hand-planes .plane>.price {
   display: block !important;
 }
+
 .player.iam .hand-planes .plane:hover {
   cursor: pointer;
 }
@@ -438,6 +423,7 @@ export default {
   bottom: 0px;
   text-align: right;
 }
+
 .deck-counters b {
   font-size: 42px;
 }

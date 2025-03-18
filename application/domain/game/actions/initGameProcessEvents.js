@@ -1,5 +1,8 @@
 (function () {
-  return this.initEvent(domain.game.events.common.gameProcess(), {
+  return this.initEvent({
+    name: 'initGameProcessEvents',
+    ...domain.game.events.common.gameProcess()
+  }, {
     allowedPlayers: this.players(),
   });
 });

@@ -1,6 +1,6 @@
 () =>
   class ReleaseGameUser extends lib.game.userClass() {
-    async gameFinished({ gameId, gameType, playerEndGameStatus, fullPrice, roundCount, crutchCount }) {
+    async gameFinished({ gameId, gameType, playerEndGameStatus, fullPrice, roundCount, crutchCount, msg = {} }) {
       const {
         helper: { getTutorial },
         utils: { structuredClone: clone },
@@ -51,6 +51,10 @@
       if (penaltySum > 0)
         incomeText += ` (с учетом штрафа ${penaltySum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}₽ за костыли)`;
       tutorial[endGameStatus].text = tutorial[endGameStatus].text.replace('[[win-money]]', incomeText);
+
+      // кастомное сообщение для пользователя
+      for (const key in msg) tutorial[key].text = msg[key];
+
       this.set({ money: (this.money || 0) + income, helper: tutorial[endGameStatus], rankings });
       await this.saveChanges();
     }

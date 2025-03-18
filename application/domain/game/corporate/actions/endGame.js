@@ -1,6 +1,6 @@
-(function ({ winningPlayer, canceledByUser, message } = {}) {
+(function ({ winningPlayer, canceledByUser, msg } = {}) {
   const superGame = this.game();
-  superGame.run('lib.endGame', { winningPlayer, canceledByUser, customFinalize: true });
+  superGame.run('lib.endGame', { winningPlayer, canceledByUser, customFinalize: true, msg });
 
   for (const game of superGame.getAllGames()) {
     lib.timers.timerDelete(game);
@@ -17,6 +17,7 @@
     fullPrice: superGame.gamesMap ? 0 : superGame.getFullPrice(),
     roundCount: superGame.round,
     crutchCount: superGame.crutchCount(),
+    msg,
   });
 
   throw new lib.game.endGameException();
