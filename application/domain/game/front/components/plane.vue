@@ -1,53 +1,29 @@
 <template>
-  <div
-    v-if="plane._id || this.planeId === 'fake'"
-    :id="plane._id"
-    :class="[
-      'plane',
-      isSelectable ? 'selectable' : '',
-      isOneOfMany ? 'one-of-many' : '',
-      isExtraPlane ? 'extra' : '',
-      isPlacementRequired ? 'placement-required' : '',
-      game.merged ? 'source-game-merged' : '',
-      ...plane.customClass,
-      ...Object.values(customClass),
-    ]"
-    :style="customStyle"
-    v-on:click.stop="(e) => (isSelectable ? choosePlane() : selectPlane(e))"
-    :code="plane.code"
-  >
+  <div v-if="plane._id || this.planeId === 'fake'" :id="plane._id" :class="[
+    'plane',
+    isSelectable ? 'selectable' : '',
+    isOneOfMany ? 'one-of-many' : '',
+    isExtraPlane ? 'extra' : '',
+    isPlacementRequired ? 'placement-required' : '',
+    game.merged ? 'source-game-merged' : '',
+    ...plane.customClass,
+    ...Object.values(customClass),
+  ]" :style="customStyle" v-on:click.stop="(e) => (isSelectable ? choosePlane() : selectPlane(e))" :code="plane.code">
     <div class="price">{{ (plane.price * 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽</div>
     <div class="zone-wraper">
-      <plane-zone
-        v-for="id in zoneIds"
-        :key="id"
-        v-bind:zoneId="id"
-        :linkLines="linkLines"
-        :gameId="plane.anchorGameId"
-      />
+      <plane-zone v-for="id in zoneIds" :key="id" v-bind:zoneId="id" :linkLines="linkLines"
+        :gameId="plane.anchorGameId" />
     </div>
     <div class="port-wraper">
       <plane-port v-for="id in portIds" :key="id" v-bind:portId="id" :linkLines="linkLines" />
     </div>
     <div v-if="!isCardPlane" div class="custom-bg">
-      <span
-        v-for="item in customBG(plane._id)"
-        :key="item.code"
-        :style="`background-position-x: ${item.x}; background-position-y: ${item.y}`"
-      />
+      <span v-for="item in customBG(plane._id)" :key="item.code"
+        :style="`background-position-x: ${item.x}; background-position-y: ${item.y}`" />
     </div>
     <svg v-if="!isCardPlane">
-      <line
-        v-for="[key, line] in Object.entries(linkLines)"
-        :key="key"
-        :x1="line.x1"
-        :y1="line.y1"
-        :x2="line.x2"
-        :y2="line.y2"
-        fill="none"
-        stroke="yellow"
-        stroke-width="10"
-      />
+      <line v-for="[key, line] in Object.entries(linkLines)" :key="key" :x1="line.x1" :y1="line.y1" :x2="line.x2"
+        :y2="line.y2" fill="none" stroke="yellow" stroke-width="10" />
     </svg>
   </div>
 </template>
@@ -89,7 +65,7 @@ export default {
       return this.getStore();
     },
     game() {
-      return this.getGame(this.plane.sourceGameId);
+      return this.getGame(this.plane.anchorGameId || this.plane.sourceGameId);
     },
     plane() {
       return this.store.plane?.[this.planeId] || { eventData: {}, customClass: [] };
@@ -211,6 +187,7 @@ export default {
     z-index: -1 !important;
     box-shadow: 0 0 10px 10px #f4e205 !important;
   }
+
   &.selectable {
     &:not(.card-plane) {
       box-shadow: none !important;
@@ -220,14 +197,17 @@ export default {
       box-shadow: inset 0 0 0px 10px yellow;
     }
   }
+
   &.one-of-many:after {
     box-shadow: inset 0 0 0px 10px blue;
   }
+
   &.extra {
     &:after {
       box-shadow: inset 0 0 0px 10px greenyellow;
     }
   }
+
   &.placement-required {
     &:after {
       box-shadow: inset 0 0 0px 10px orange;
@@ -251,12 +231,14 @@ export default {
   border-radius: 20px;
   background: url(../assets/plane.png);
 }
+
 .plane:not(.card-plane):before {
   background: none;
   display: none;
 }
-.plane > .zone-wraper,
-.plane > .port-wraper {
+
+.plane>.zone-wraper,
+.plane>.port-wraper {
   z-index: 1;
   position: relative;
 }
@@ -276,18 +258,20 @@ export default {
   --filter: grayscale(75%);
   --filter: grayscale(100%) brightness(200%) blur(2px);
 }
-.plane .custom-bg > span {
+
+.plane .custom-bg>span {
   width: 80px;
   height: 80px;
   background-image: url(../assets/tiles.png);
   background-size: 1120px;
   background-repeat: no-repeat;
 }
+
 .plane.core .custom-bg {
   filter: grayscale(100%) brightness(200%) blur(2px);
 }
 
-.plane > svg {
+.plane>svg {
   position: absolute;
   left: 0px;
   top: 0px;
@@ -299,9 +283,11 @@ export default {
 .plane.rotate90 {
   transform: rotate(90deg);
 }
+
 .plane.rotate180 {
   transform: rotate(180deg);
 }
+
 .plane.rotate270 {
   transform: rotate(270deg);
 }
@@ -323,18 +309,21 @@ export default {
   transform-origin: top right;
   margin: 25px 0px -75px 0px;
 }
+
 .plane.in-hand:hover {
   z-index: 2;
   opacity: 1;
   margin-bottom: 40px;
 }
+
 .plane.in-hand.card-plane {
   order: 0;
   z-index: 1;
   transform: scale(0.5);
   transform-origin: center left;
   margin: 210px -70px 0px 0px;
-  > .price {
+
+  >.price {
     font-size: 24px;
   }
 
@@ -342,6 +331,7 @@ export default {
     margin-bottom: 40px;
   }
 }
+
 .plane.in-hand.add-block-action {
   &::before {
     content: '+';
@@ -356,10 +346,12 @@ export default {
     height: 250px;
     line-height: 100px;
   }
-  > .price {
+
+  >.price {
     display: none !important;
   }
 }
+
 .plane.in-hand.add-block-action:hover {
   &::before {
     content: 'Добавить блок';
@@ -370,7 +362,7 @@ export default {
   }
 }
 
-.plane > .price {
+.plane>.price {
   display: none;
   color: gold;
   font-size: 54px;

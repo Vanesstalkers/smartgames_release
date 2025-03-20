@@ -132,6 +132,8 @@
   addCardPlane(card) {
     const deck = this.find('Deck[plane]');
 
+    // const codeSfx = (card.sourceGameId || Math.random().toString()).slice(-4);
+    const codeSfx = Math.random().toString().slice(-4);
     const plane = deck.addItem({
       sourceGameId: card.sourceGameId,
       _code: `event_${card.name}_${codeSfx}`,

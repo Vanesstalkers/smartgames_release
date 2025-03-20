@@ -1,5 +1,5 @@
 (function ({ count }) {
-  return;
+  // return;
   const player = this.roundActivePlayer();
   const playerHand = player.find('Deck[domino]');
   const deck = this.find('Deck[domino]');

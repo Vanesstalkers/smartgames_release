@@ -16,11 +16,15 @@
   },
   handlers: {
     RESET: function () {
+
+      // !!!! НЕ РАБОТАЕТ ВОССТАНОВЛЕНИЕ СОСТОЯНИЯ В КОРПОРАТИВНОЙ ИГРЕ
+
       this.emit('DEACTIVATE');
       this.destroy();
     },
     DEACTIVATE: function () {
       const { player } = this.eventContext();
+      player.removeEventWithTriggerListener(); // без этого будут срабатывать проверки player.triggerEventEnabled
 
       for (const deck of player.select('Deck')) {
         if (deck.type !== 'domino') continue;
