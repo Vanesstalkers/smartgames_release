@@ -12,6 +12,11 @@
             return { resetEvent: true };
         }
         originalInit.call(this);
+
+        for (const planeId of Object.keys(player.eventData.plane)) {
+            const plane = game.get(planeId);
+            plane.set({ anchorGameId: player.game().id() }); // иначе с фронта для всех событий plane-а будет приходить его sourceGameId (зависит от колоды-источника, а не от игрока)
+        }
     };
     return event;
 }

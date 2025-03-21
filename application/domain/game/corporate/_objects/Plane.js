@@ -3,7 +3,7 @@
     super(...arguments);
     let { sourceGameId, anchorGameId, mergedPlane } = data;
     if (!sourceGameId) sourceGameId = this.game().id();
-    if (!anchorGameId) anchorGameId = sourceGameId;
+    // if (!anchorGameId) anchorGameId = sourceGameId;         // !!!! проверить, что можно без 
 
     this.set({ sourceGameId, anchorGameId, mergedPlane });
     this.broadcastableFields(['sourceGameId', 'anchorGameId']);

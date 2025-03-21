@@ -9,12 +9,11 @@
     attr: { anchorGameId: this.id() },
   });
 
-  const eventData = { plane: {} };
   for (const plane of gamePlanes) {
     plane.removeFromTableToHand({ player: initPlayer });
     if (this.merged) plane.game(this);
   }
-  initPlayer.set({ eventData });
+  initPlayer.set({ eventData: { plane: {}, availableZones: [] } });
 
   if (this.merged) {
     // // иначе не будет обрабатываться RELEASE с последующим initGameFieldsMerge

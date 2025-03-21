@@ -3,19 +3,21 @@
     super(...arguments);
     let { sourceGameId, anchorGameId } = data;
     if (!sourceGameId) sourceGameId = this.game().id();
-    if (anchorGameId) this.game(lib.store('game').get(anchorGameId));
-    this.set({ sourceGameId, anchorGameId });
-    this.broadcastableFields(['sourceGameId', 'anchorGameId']);
+    this.set({ sourceGameId });
+    this.broadcastableFields(['sourceGameId']);
+    // if (anchorGameId) this.game(lib.store('game').get(anchorGameId));
+    // this.set({ sourceGameId, anchorGameId });
+    // this.broadcastableFields(['sourceGameId', 'anchorGameId']);
   }
   sourceGame() {
     return lib.store('game').get(this.sourceGameId);
   }
-  setAnchorGame(game) {
-    if (game) {
-      this.set({ anchorGameId: game.id() });
-      this.game(game);
-    }
-  }
+  // setAnchorGame(game) {
+  //   if (game) {
+  //     this.set({ anchorGameId: game.id() });
+  //     this.game(game);
+  //   }
+  // }
   moveToTarget(target) {
     const sourceGame = this.sourceGame();
     const targetGame = target.game();
@@ -24,7 +26,7 @@
     const targetParent = target.parent();
     const targetCode = target.shortCode();
 
-    if (targetGame !== sourceGame) this.setAnchorGame(targetGame);
+    // if (targetGame !== sourceGame) this.setAnchorGame(targetGame);
 
     if (targetParent.is('Game')) {
       if (targetCode === 'Deck[card_drop]') {
