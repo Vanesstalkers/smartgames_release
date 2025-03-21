@@ -1,147 +1,92 @@
 <template>
   <game :debug="false" :planeScaleMin="0.2" :planeScaleMax="1">
-    <template #gameplane="{} = {}">
-      <div
-        v-for="game in planeViewGames"
-        :key="game.gameId"
-        :gameId="game.gameId"
+    <template #gameplane="{ } = {}">
+      <div v-for="game in planeViewGames" :key="game.gameId" :gameId="game.gameId"
         :class="['gp', game.roundReady ? 'round-ready' : '', allGamesMerged ? 'all-games-merged' : '']"
-        :style="{ ...gamePlaneStyle(game.gameId) }"
-      >
+        :style="{ ...gamePlaneStyle(game.gameId) }">
         <div class="gp-content" :style="{ ...gamePlaneContentControlStyle(game.gameId) }">
           <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" />
           <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
           <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
 
           <div>
-            <div
-              v-for="position in possibleAddPlanePositions(game)"
-              :key="position.code"
-              :joinPortId="position.joinPortId"
-              :joinPortDirect="position.joinPortDirect"
-              :targetPortId="position.targetPortId"
-              :targetPortDirect="position.targetPortDirect"
+            <div v-for="position in possibleAddPlanePositions(game)" :key="position.code"
+              :joinPortId="position.joinPortId" :joinPortDirect="position.joinPortDirect"
+              :targetPortId="position.targetPortId" :targetPortDirect="position.targetPortDirect"
               :style="position.style"
               :class="['fake-plane', position.code === selectedFakePlanePosition ? 'hidden' : '']"
-              @click="previewPlaneOnField($event, position)"
-              @mouseenter="zIndexDecrease($event, position.code)"
-              @mouseleave="zIndexRestore($event, position.code)"
-            />
-            <plane
-              v-for="[_id, style] of Object.entries(gameCustom.selectedFakePlanes[game.gameId] || {})"
-              :key="_id + '_preview'"
-              :planeId="_id"
-              :viewStyle="style"
-              :class="['preview']"
-            />
+              @click="previewPlaneOnField($event, position)" @mouseenter="zIndexDecrease($event, position.code)"
+              @mouseleave="zIndexRestore($event, position.code)" />
+            <plane v-for="[_id, style] of Object.entries(gameCustom.selectedFakePlanes[game.gameId] || {})"
+              :key="_id + '_preview'" :planeId="_id" :viewStyle="style" :class="['preview']" />
           </div>
         </div>
       </div>
     </template>
 
-    <template #gameinfo="{} = {}">
+    <template #gameinfo="{ } = {}">
       <div :class="['wrapper decks ', allGamesMerged ? 'show-super' : '']">
         <div class="game-status-label">
           {{ superGame.statusLabel }}
           <small v-if="selectedGame.roundReady">Ожидание других команд</small>
         </div>
-        <div
-          v-for="deck in deckList"
-          :key="deck._id"
+        <div v-for="deck in deckList" :key="deck._id"
           :class="['deck', 'template-' + (selectedGame.templates.dice || 'default')]"
-          :code="deck.code.replace(selectedGame.code, '')"
-        >
+          :code="deck.code.replace(selectedGame.code, '')">
           <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[domino]`" class="hat" v-on:click="takeDice">
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div
-            v-if="deck._id && deck.code === `${selectedGame.code}Deck[card]`"
-            class="card-event"
-            :style="cardEventCustomStyle[selectedGame._id]"
-            v-on:click="takeCard"
-          >
+          <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[card]`" class="card-event"
+            :style="cardEventCustomStyle[selectedGame._id]" v-on:click="takeCard">
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div
-            v-if="deck._id && deck.code === `${selectedGame.code}Deck[card_drop]`"
-            class="card-event"
-            :style="cardEventCustomStyle[selectedGame._id]"
-          >
+          <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[card_drop]`" class="card-event"
+            :style="cardEventCustomStyle[selectedGame._id]">
             {{ Object.keys(deck.itemMap).length }}
           </div>
           <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[card_active]`" class="deck-active">
             <!-- активная карта всегда первая - для верстки она должна стать последней -->
-            <card
-              v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"
-              :key="_id"
-              :cardId="_id"
-              :canPlay="!played && sessionPlayerIsActive() && showPlayerControls"
-            />
+            <card v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))" :key="_id" :cardId="_id"
+              :canPlay="!played && sessionPlayerIsActive() && showPlayerControls" />
           </div>
-          <div
-            v-if="deck._id && deck.code === `SuperDeck[card]`"
-            class="card-event"
-            :style="cardEventCustomStyle[superGame._id]"
-            v-on:click="takeCard"
-          >
+          <div v-if="deck._id && deck.code === `SuperDeck[card]`" class="card-event"
+            :style="cardEventCustomStyle[superGame._id]" v-on:click="takeCard">
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div
-            v-if="deck._id && deck.code === `SuperDeck[card_drop]`"
-            class="card-event"
-            :style="cardEventCustomStyle[superGame._id]"
-          >
+          <div v-if="deck._id && deck.code === `SuperDeck[card_drop]`" class="card-event"
+            :style="cardEventCustomStyle[superGame._id]">
             {{ Object.keys(deck.itemMap).length }}
           </div>
           <div v-if="deck._id && deck.code === `SuperDeck[card_active]`" class="deck-active">
             <!-- активная карта всегда первая - для верстки она должна стать последней -->
-            <card
-              v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"
-              :key="_id"
-              :cardId="_id"
-              :canPlay="!played && sessionPlayerIsActive() && showPlayerControls"
-            />
+            <card v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))" :key="_id" :cardId="_id"
+              :canPlay="!played && sessionPlayerIsActive() && showPlayerControls" />
           </div>
         </div>
       </div>
     </template>
 
-    <template #player="{} = {}">
-      <player
-        :playerId="gameState.sessionPlayerId"
-        :viewerId="gameState.sessionViewerId"
-        :customClass="[`scale-${state.guiScale}`]"
-        :iam="true"
-        :showControls="showPlayerControls"
-      />
+    <template #player="{ } = {}">
+      <player :playerId="gameState.sessionPlayerId" :viewerId="gameState.sessionViewerId"
+        :customClass="[`scale-${state.guiScale}`]" :iam="true" :showControls="showPlayerControls" />
     </template>
-    <template #opponents="{} = {}">
+    <template #opponents="{ } = {}">
       <div class="games">
         <div v-if="player.teamlead" class="config-btn helper-avatar" v-on:click="openTeamleadMenu"></div>
-        <div
-          v-for="game in sortedGames"
-          :key="game.gameId"
-          :class="[
-            'game-item',
-            game.selected ? 'selected' : '',
-            game.super ? 'super' : '',
-            game.my ? 'my' : '',
-            game.roundReady ? 'round-ready' : '',
-            game.merged && !allGamesMerged ? 'disable-field' : '',
-          ]"
-          v-on:click="selectGame(game.gameId)"
-        >
+        <div v-for="game in sortedGames" :key="game.gameId" :class="[
+          'game-item',
+          game.selected ? 'selected' : '',
+          game.super ? 'super' : '',
+          game.my ? 'my' : '',
+          game.roundReady ? 'round-ready' : '',
+          game.merged && !allGamesMerged ? 'disable-field' : '',
+        ]" v-on:click="selectGame(game.gameId)">
           {{ game.title }}
         </div>
       </div>
 
-      <player
-        v-for="(id, index) in playerIds"
-        :key="id"
-        :playerId="id"
-        :customClass="[`idx-${index}`]"
-        :showControls="playerGamesReady[id] ? false : true"
-      />
+      <player v-for="(id, index) in playerIds" :key="id" :playerId="id" :customClass="[`idx-${index}`]"
+        :showControls="playerGamesReady[id] ? false : true" />
     </template>
   </game>
 </template>
@@ -219,6 +164,8 @@ export default {
               args: [{ name: 'putPlaneOnFieldRecursive', data: { fromHand: true } }],
             },
           };
+        } else {
+          this.gameState.cardWorkerAction = null;
         }
       });
     },
@@ -238,6 +185,8 @@ export default {
               args: [{ name: 'putPlaneOnFieldRecursive', data: { fromHand: true } }],
             },
           };
+        } else {
+          this.gameState.cardWorkerAction = null;
         }
       });
     },
@@ -581,6 +530,7 @@ export default {
 <style lang="scss">
 #gamePlane {
   transform-origin: left top !important;
+
   .gp-content {
     position: absolute;
   }
@@ -594,12 +544,13 @@ export default {
 .gp:not(.all-games-merged) .bridge.anchor-game-merged .domino-dice {
   opacity: 0.5;
   cursor: default !important;
-  > .controls {
+
+  >.controls {
     display: none !important;
   }
 }
 
-.deck > .card-event {
+.deck>.card-event {
   width: 60px;
   height: 90px;
   border: none;
@@ -611,7 +562,8 @@ export default {
   text-shadow: 1px 1px 0 #fff;
   background-image: url(./assets/back-side.jpg);
 }
-.deck > .card-event:hover {
+
+.deck>.card-event:hover {
   box-shadow: inset 0 0 0 1000px rgba(255, 255, 255, 0.5);
   color: black !important;
 }
@@ -635,20 +587,24 @@ export default {
   background: url(./assets/dices/deck.png);
   background-size: cover;
 }
+
 .deck[code='Deck[domino]'].template-team1:after {
   filter: hue-rotate(200deg);
 }
+
 .deck[code='Deck[domino]'].template-team2:after {
   filter: hue-rotate(320deg);
 }
+
 .deck[code='Deck[domino]'].template-team3:after {
   filter: hue-rotate(80deg);
 }
+
 .deck[code='Deck[domino]'].template-team4:after {
   filter: hue-rotate(10deg);
 }
 
-.deck[code='Deck[domino]'] > .hat {
+.deck[code='Deck[domino]']>.hat {
   color: white;
   font-size: 36px;
   padding: 14px;
@@ -674,10 +630,11 @@ export default {
   right: -10px;
   cursor: default;
 
-  > .card-event {
+  >.card-event {
     color: #ccc;
   }
 }
+
 .deck[code='Deck[card_active]'],
 .deck[code='SuperDeck[card_active]'] {
   position: absolute;
@@ -693,6 +650,7 @@ export default {
     }
   }
 }
+
 .deck-active {
   display: flex;
   flex-direction: column;
@@ -703,7 +661,9 @@ export default {
 .deck[code='SuperDeck[card_drop]'] {
   display: none;
 }
+
 .decks.show-super {
+
   .deck[code='SuperDeck[card]'],
   .deck[code='SuperDeck[card_active]'],
   .deck[code='SuperDeck[card_drop]'] {
@@ -716,12 +676,15 @@ export default {
     right: 30px;
     cursor: default;
   }
+
   .deck[code='Deck[domino]'] {
     right: 200px;
   }
+
   .deck[code='Deck[card]'] {
     right: 130px;
   }
+
   .deck[code='Deck[card_drop]'] {
     right: 90px;
   }
@@ -740,11 +703,12 @@ export default {
   white-space: nowrap;
   text-shadow: black 1px 0 10px;
 
-  > small {
+  >small {
     display: block;
     font-size: 50%;
   }
 }
+
 #game.mobile-view .game-status-label {
   font-size: 1.5em;
 }
@@ -753,10 +717,12 @@ export default {
   position: absolute;
   transform-origin: 0 0;
 }
+
 .plane.card-event {
   display: block;
   margin: 0px;
 }
+
 .plane.preview {
   opacity: 0.5;
 }
@@ -772,6 +738,7 @@ export default {
     z-index: 1;
     cursor: pointer;
   }
+
   &.low-zindex {
     z-index: -1;
   }
@@ -784,6 +751,7 @@ export default {
 .player {
   margin-left: 60px;
 }
+
 .games {
   z-index: 1;
   position: absolute;
@@ -816,14 +784,17 @@ export default {
     &.selected {
       box-shadow: 0px 10px 2px 0px green;
     }
+
     &.super {
       display: none;
       background: gold;
       color: black;
     }
+
     &:not(.round-ready) {
       background: orange;
     }
+
     &.my {
       background: #3f51b5;
     }
@@ -850,6 +821,7 @@ export default {
       margin-left: 0px;
       margin-right: 60px;
     }
+
     .games {
       position: absolute;
       left: 100%;
@@ -864,9 +836,11 @@ export default {
         transform: rotate(-90deg);
       }
     }
+
     .deck-active {
       flex-direction: row-reverse;
     }
+
     .deck[code='Deck[card_active]'] {
       .card-event {
         margin-top: 0px;

@@ -1,7 +1,7 @@
 (class Table extends domain.game._objects.Table {
   afterAddItem(item) {
     const game = this.game();
-    const itemGame = game.getAllGames().find((game) => game.id() === item.sourceGameId);
+    const itemGame = game.getAllGames().find((game) => game.id() === item.anchorGameId);
     const targetId = item.id();
     let initPlayer;
     if (itemGame) {

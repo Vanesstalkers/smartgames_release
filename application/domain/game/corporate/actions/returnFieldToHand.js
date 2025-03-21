@@ -4,19 +4,16 @@
 
   const superGame = this.game();
   const currentTable = this.merged ? superGame.decks.table : this.decks.table;
-  const playerDeck = initPlayer.find('Deck[plane]');
   const gamePlanes = currentTable.select({
     className: 'Plane',
     attr: { anchorGameId: this.id() },
   });
 
-  const eventData = { plane: {} };
   for (const plane of gamePlanes) {
     plane.removeFromTableToHand({ player: initPlayer });
-    eventData.plane[plane.id()] = { mustBePlaced: true };
     if (this.merged) plane.game(this);
   }
-  initPlayer.set({ eventData });
+  initPlayer.set({ eventData: { plane: {}, availableZones: [] } });
 
   if (this.merged) {
     // // иначе не будет обрабатываться RELEASE с последующим initGameFieldsMerge
