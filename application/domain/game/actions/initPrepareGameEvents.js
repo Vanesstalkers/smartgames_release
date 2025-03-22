@@ -20,7 +20,7 @@
         const hand = player.find('Deck[plane]');
         const deck = game.find('Deck[plane]');
 
-        player.set({ eventData: { plane: null, showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, roundBtn: { label: 'Помочь выложить' } } });
+        player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, roundBtn: { label: 'Помочь выложить' } } });
 
         const eventData = { plane: {} };
         for (let j = 0; j < game.settings.planesToChoose; j++) {
@@ -76,8 +76,9 @@
             }
           }
 
+          const eventData = { plane: {} };
+
           if (eventPlanes[planeId]?.extraPlane) {
-            const eventData = { plane: {} };
             eventData.plane[planeId] = { extraPlane: null };
 
             // дополнительные блоки не обязательны к размещению - убираем из руки, чтобы не мешались
@@ -87,9 +88,7 @@
               eventData.plane[plane.id()] = { extraPlane: null };
             }
 
-            player.set({ eventData });
           } else if (eventPlanes[planeId]?.oneOfMany) {
-            const eventData = { plane: {} };
             eventData.plane[planeId] = { oneOfMany: null };
 
             // убираем остальные блоки из группы "один из многих"
@@ -99,8 +98,8 @@
               eventData.plane[plane.id()] = { oneOfMany: null };
             }
 
-            player.set({ eventData });
           }
+          player.set({ eventData });
 
           const remainPlanes = hand.getAllItems().find((p) => !eventPlanes[p.id()]?.extraPlane && !eventPlanes[p.id()]?.oneOfMany);
           if (remainPlanes) {
@@ -110,7 +109,7 @@
           }
 
           player.deactivate();
-          player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, plane: null } });
+          player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null } });
           hand.moveAllItems({ target: deck });
 
           if (game.settings.planesNeedToStart > game.decks.table.itemsCount()) {
@@ -118,11 +117,24 @@
             return { preventListenerRemove: true };
           }
 
-          this.emit('RESET');
-
-          game.run('startGame');
-          return { preventListenerRemove: true }; // без этого удалится обработчик ADD_PLANE из startGame
+          if (!this.addPlaneRecursiveMode) {
+            this.emit('RESET');
+            game.run('startGame');
+            return;
+          }
+          return { preventListenerRemove: true };
         },
+
+        ADD_PLANE_RECURSIVE_STARTED() {
+          // без этого события не решить, т.к. ADD_PLANE будет частью рекурсии, которая заберет в обработку plane-ы, добавленные в playRoundStartCards
+          this.addPlaneRecursiveMode = true;
+        },
+        ADD_PLANE_RECURSIVE_ENDED() {
+          const { game } = this.eventContext();
+          this.emit('RESET');
+          game.run('startGame');
+        },
+
         // глобальный PLAYER_TIMER_END появится только в initGameProcessEvents
         PLAYER_TIMER_END() {
           this.emit('END_ROUND');
@@ -141,19 +153,26 @@
           return { preventListenerRemove: true };
         },
         RESET() {
-          const { game, player } = this.eventContext();
+          const { game } = this.eventContext();
           const deck = game.find('Deck[plane]');
 
-          for (const player of game.players()) {
-            player.find('Deck[plane]').moveAllItems({ target: deck });
-          }
-
-          player.set({ eventData: { roundBtn: null } })
           game.set({ availablePorts: [] });
 
           for (const player of game.players()) {
+            player.set({ eventData: { roundBtn: null } })
             player.removeEventWithTriggerListener();
+
+            if (!player.eventData.plane) continue;
+
+            const eventData = { plane: {} };
+            for (const [planeId, { initPlane }] of Object.entries(player.eventData.plane)) {
+              if (!initPlane) continue; // возможно тут будут plane-ы, добавленные картами событий, иницированными на старте раунда (pilot, req_*)
+              player.get(planeId).moveToTarget(deck);
+              eventData.plane[planeId] = null;
+            }
+            player.set({ eventData });
           }
+
           this.destroy();
         },
       },

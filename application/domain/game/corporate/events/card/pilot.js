@@ -13,11 +13,6 @@
             return { resetEvent: true };
         }
         originalInit.call(this);
-
-        for (const planeId of Object.keys(player.eventData.plane)) {
-            const plane = game.get(planeId);
-            plane.set({ anchorGameId1: null });
-        }
     };
 
     return event;

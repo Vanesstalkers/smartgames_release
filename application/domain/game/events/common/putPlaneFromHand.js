@@ -7,7 +7,7 @@
     RESET() {
       const { game, player } = this.eventContext();
       game.set({ availablePorts: [] });
-      player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, plane: null } });
+      player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null } });
       player.find('Deck[plane]').moveAllItems({ target: game.find('Deck[plane]') });
       this.destroy();
     },
@@ -20,6 +20,19 @@
 
       if (requiredPlanes.length === 0) {
         game.checkDiceResource();
+
+        /* 
+          1. не делаем этого в RESET, потому что им позульзуются другие события, которым может помешать сброс состояния
+          2. не делаем сброс в ADD_PLANE для каждого отдельного plane-а, потому что в NO_AVAILABLE_PORTS они буду перезаписаны (автоматическая подстветка при добавлении новых полей в режиме исправления конфликта интеграции)
+        */
+        const eventData = { plane: {} };
+        for (const plane of game.decks.table.items()) {
+          eventData.plane[plane.id()] = {
+            selectable: null, oneOfMany: null, mustBePlaced: null, extraPlane: null
+          };
+        }
+        player.set({ eventData });
+
         return this.emit('RESET');
       }
 

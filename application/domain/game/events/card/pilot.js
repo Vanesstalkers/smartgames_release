@@ -26,9 +26,9 @@
     const playerPlaneDeck = player.find('Deck[plane]');
     const planeList = playerPlaneDeck.select('Plane');
 
-    const eventData = { plane: {} };
-    eventData.plane[plane.id()] = { oneOfMany: null };
-    player.set({ eventData });
+    player.set({
+      eventData: { plane: { [plane.id()]: { selectable: null, oneOfMany: null, mustBePlaced: null, extraPlane: null } } }
+    });
 
     const requiredPlanes = planeList.filter((planeItem) =>
       player.eventData.plane?.[planeItem.id()]?.mustBePlaced

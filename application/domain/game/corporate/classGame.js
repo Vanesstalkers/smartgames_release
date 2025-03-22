@@ -184,4 +184,17 @@
     if (remove) this.#relatedEvents.delete(remove);
     return this.#relatedEvents;
   }
+
+  playRoundStartCards() {
+    if (!this.settings.allowedAutoCardPlayRoundStart) return;
+
+    const deck = this.merged ? this.game().decks.active : this.decks.active;
+    const card = deck.items()[0];
+    if (!card) return;
+
+    card.play({
+      player: this.roundActivePlayer(),
+    });
+    this.logs(`Активировано ежедневное событие "${card.title}".`);
+  }
 });

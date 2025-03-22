@@ -11,6 +11,9 @@
             });
             return { resetEvent: true };
         }
+
+        player.set({ eventData: { plane: null } }); // внутри много мусора и ниже for отработает с ошибкой
+
         originalInit.call(this);
 
         for (const planeId of Object.keys(player.eventData.plane)) {

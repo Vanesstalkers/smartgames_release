@@ -37,7 +37,7 @@
   };
 
   const movePlaneFromTableToHand = () => {
-    const planeStates = game.decks.table.getAllItems().reduce((acc, plane) => {
+    const planeStates = game.decks.table.items().reduce((acc, plane) => {
       const linkedPlanes = plane.getLinkedPlanes();
       const nonCardPlanes = linkedPlanes.length - linkedPlanes.filter(p => p.cardPlane).length;
       if (plane.anchorGameId === initPlayer.gameId)
@@ -47,7 +47,7 @@
 
     deckOwner.set({ eventData: { plane: planeStates } });
 
-    const selectablePlanes = game.decks.table.getAllItems()
+    const selectablePlanes = game.decks.table.items()
       .filter(plane => deckOwner.eventData.plane?.[plane.id()]?.selectable)
       .sort(sortSelectablePlanes);
 
@@ -81,6 +81,8 @@
     const port = game.availablePorts.sort((a, b) => a.priority > b.priority ? -1 : 1)[0];
     game.run('putPlaneOnField', port);
   };
+
+  game.toggleEventHandlers('ADD_PLANE_RECURSIVE_STARTED');
 
   let requireExtraPlane = false;
   let attempts = MAX_ATTEMPTS;
@@ -142,6 +144,13 @@
     planes = planeDeck.items();
   }
 
-  deckOwner.set({ eventData: { plane: null } });
   game.set({ availablePorts: [] });
+
+  const eventData = { plane: {} };
+  for (const plane of game.decks.table.items()) {
+    eventData.plane[plane.id()] = { selectable: null, oneOfMany: null, mustBePlaced: null, extraPlane: null };
+  }
+  deckOwner.set({ eventData });
+
+  game.toggleEventHandlers('ADD_PLANE_RECURSIVE_ENDED');
 });

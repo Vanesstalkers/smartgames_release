@@ -115,6 +115,8 @@
       if (roundActiveGame && game !== roundActiveGame) continue;
 
       lib.timers.timerRestart(game, game.lastRoundTimerConfig);
+
+      game.playRoundStartCards();
     }
   }
 
@@ -246,6 +248,12 @@
 
     for (const [gameId, gameDump] of Object.entries(this.#dumps)) {
       clone.store.game[gameId] = gameDump;
+      // store super-игры хранит в себе сущности всех игр, которые могли поменяться после создания dump-а (например, в playRoundStartCards)
+      for (const [entityType, entities] of Object.entries(gameDump.store)) {
+        for (const [entityId, entityData] of Object.entries(entities)) {
+          clone.store[entityType][entityId] = entityData;
+        }
+      }
     }
     clone._gameid = db.mongo.ObjectID(clone._id);
     clone._dumptime = Date.now();
