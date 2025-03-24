@@ -5,7 +5,7 @@
     if (!sourceGameId) sourceGameId = this.game().id();
 
     this.set({ sourceGameId, anchorGameId, mergedPlane });
-    this.broadcastableFields(['sourceGameId', 'anchorGameId']);
+    this.broadcastableFields(['sourceGameId', 'anchorGameId', 'release']);
   }
   game(game) {
     const currentGame = super.game();

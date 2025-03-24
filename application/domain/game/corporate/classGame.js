@@ -197,4 +197,13 @@
     });
     this.logs(`Активировано ежедневное событие "${card.title}".`);
   }
+
+  /**
+   * Проверяет наличие активного события замены костяшек
+   * @returns {boolean} true если есть активное событие замены костяшек
+   */
+  hasDiceReplacementEvent() {
+    const game = this.merged ? this.game() : this;
+    return game.eventData.activeEvents.some(event => event.name === 'diceReplacementEvent');
+  }
 });

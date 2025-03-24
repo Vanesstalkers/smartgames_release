@@ -6,6 +6,7 @@
     isExtraPlane ? 'extra' : '',
     isPlacementRequired ? 'placement-required' : '',
     game.merged ? 'source-game-merged' : '',
+    plane.release ? 'release' : '',
     ...plane.customClass,
     ...Object.values(customClass),
   ]" :style="customStyle" v-on:click.stop="(e) => (isSelectable ? choosePlane() : selectPlane(e))" :code="plane.code">
@@ -205,6 +206,12 @@ export default {
   &.extra {
     &:after {
       box-shadow: inset 0 0 0px 10px greenyellow;
+    }
+  }
+
+  &.release {
+    &:after {
+      box-shadow: inset 0 0 0px 10px gold;
     }
   }
 

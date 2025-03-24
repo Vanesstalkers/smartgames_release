@@ -34,12 +34,14 @@ async (context, { round } = {}) => {
 
     for (const player of players) {
       const { userId, userName, _id: playerId } = player;
-      const joinData = { userId, userName, playerId , viewerId };
-      if (viewerId) await game.viewerJoin(joinData);
-      else await restoredGame.playerJoin(joinData);
-
+      const joinData = { userId, userName, playerId };
+      
       const user = lib.store('user').get(userId);
       user.subscribe(`game-${gameId}`, { rule: 'actions-only' });
+
+      if (user.viewerId) await restoredGame.viewerJoin(joinData);
+      else await restoredGame.playerJoin(joinData);
+      
       for (const session of user.sessions()) {
         session.subscribe(`game-${gameId}`, {
           rule: 'vue-store',

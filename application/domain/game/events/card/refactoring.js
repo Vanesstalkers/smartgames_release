@@ -4,14 +4,16 @@
 
     const eventData = { dice: {} };
     let diceFound = false;
-    for (const plane of game.decks.table.getAllItems()) {
+    for (const plane of game.decks.table.items()) {
       for (const dice of plane.select({ className: 'Dice', directParent: false })) {
+        if (dice.deleted) continue;
         eventData.dice[dice.id()] = { selectable: true };
         diceFound = true;
       }
     }
     for (const bridge of game.select('Bridge')) {
       for (const dice of bridge.select({ className: 'Dice', directParent: false })) {
+        if (dice.deleted) continue;
         eventData.dice[dice.id()] = { selectable: true };
         diceFound = true;
       }
@@ -29,7 +31,10 @@
     DEACTIVATE: function () {
       const { player } = this.eventContext();
 
-      player.set({ eventData: { dice: null } });
+      // выставить просто {dice: null}, нельзя т.к. если дальше в событиях будут добавляться новые dice, то сохраняемый объект не будет содержать информацию о тех, с которых нужно снять флаги
+      for (const diceId in player.eventData.dice) {
+        player.set({ eventData: { dice: { [diceId]: null } } });
+      }
       player.removeEventWithTriggerListener(); // иначе сохранится блокировка на другие действия
     },
     TRIGGER: function ({ target: dice }) {
@@ -54,7 +59,7 @@
 
       if (!this.targetDice) {
         // ищем первый попавшийся dice
-        for (const plane of game.decks.table.getAllItems()) {
+        for (const plane of game.decks.table.items()) {
           for (const dice of plane.select({ className: 'Dice', directParent: false })) {
             this.emit('TRIGGER', { target: dice });
             if (this.targetDice) break;

@@ -1,10 +1,15 @@
 import * as _Game from 'application/lib/game/types';
-import { GameObject, GameObjectData, GameObjectConfig, objects as _objects } from 'application/lib/game/types';
+import { GameObject, GameObjectData, GameObjectConfig, PlayerBase, objects as _objects } from 'application/lib/game/types';
+import * as _game_release_corporate from './corporate/types';
 import { ObjectId } from 'mongodb';
 
-export default class Game extends _Game {
+/**
+ * Release Game
+ */
+export class ReleaseGame extends _Game {
   checkCrutches(): void;
   crutchCount(): number;
+  addPlayer(): objects.Player;
 }
 interface PlaneData extends GameObjectData {
   width: number;
@@ -45,8 +50,36 @@ interface DiceSideData extends GameObjectData {
   value: number;
 }
 
-export namespace objects {
-  class Player extends _objects.Player {}
+export namespace _objects {
+  
+  class Player extends PlayerBase<ReleaseGame> implements _objects.Player {
+    constructor(data: any, config?: { parent?: any });
+      /**
+     * asdasd123
+     */
+    game(game?: ReleaseGame, test?: boolean): ReleaseGame;
+    prepareBroadcastData(data: any, player: any, viewerMode: any): { visibleId: string; preparedData: any };
+    triggerEventEnabled(rrr: boolean): void;
+    test(t: number, z:bigint): boolean;
+  }
+
+  class Test {
+    ttttest(t: number, z:bigint): boolean;
+  }
+
+  // declare class Player extends _objects.Player {
+  //   constructor(data: any, config?: { parent?: any });
+  //   game(game?: Game, test: boolean): Game;
+  //   prepareBroadcastData(data: any, player: any, viewerMode: any): { visibleId: string; preparedData: any };
+  //   triggerEventEnabled(): boolean;
+  // }
+  // declare class Player extends lib.game.objects.Player {
+  //   constructor(data: any, config?: { parent?: any });
+  
+  //   prepareBroadcastData(data: any, player: any, viewerMode: any): { visibleId: string; preparedData: any };
+  //   triggerEventEnabled(test?: boolean): boolean;
+  // }
+  
   class Table extends objects.Deck {}
   class Plane extends GameObject {
     constructor(data: PlaneData, config: GameObjectConfig);
@@ -60,7 +93,7 @@ export namespace objects {
   }
   class Zone extends GameObject {
     constructor(data: ZoneData, config: GameObjectConfig);
-    sideList: ZoneSide[];
+    sideList: string[];
     itemMap: { [key: string]: object };
     /**
      * устанавливает value зоны в соответствии с размещенным в нем dice
@@ -76,7 +109,7 @@ export namespace objects {
   }
   class Dice extends GameObject {
     constructor(data: DiceData, config: GameObjectConfig);
-    sideList: DiceSide[];
+    sideList: string[];
     moveToTarget(target: objects.Deck | objects.Zone): boolean;
   }
   class DiceSide extends GameObject {

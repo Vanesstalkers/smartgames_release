@@ -110,7 +110,8 @@
 
     for (const game of this.getAllGames()) {
       game.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${game.round}` });
-      if (!game.merged) game.run('initGameProcessEvents');
+      // if (!game.merged) game.run('initGameProcessEvents');
+      game.run('initGameProcessEvents');
 
       if (roundActiveGame && game !== roundActiveGame) continue;
 
