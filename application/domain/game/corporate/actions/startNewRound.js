@@ -23,4 +23,5 @@
   }
 
   this.dumpState();
+  if (allGamesMerged) this.playRoundStartCards();
 });

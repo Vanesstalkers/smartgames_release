@@ -6,4 +6,15 @@
     this.set({ sourceGameId });
     this.broadcastableFields(['sourceGameId']);
   }
+  getNearZones() {
+    let game = this.game();
+    if (game.hasSuperGame) game = game.game();
+    const zones = [];
+    for (const side of this.getSides()) {
+      for (const linkCode of Object.values(side.links)) {
+        zones.push(game.find(linkCode).getParent());
+      }
+    }
+    return zones;
+  }
 });

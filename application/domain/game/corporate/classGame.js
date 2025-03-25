@@ -186,15 +186,26 @@
   }
 
   playRoundStartCards() {
-    if (!this.settings.allowedAutoCardPlayRoundStart) return;
+    if (this.merged) return; // проверка на allGamesMerged не обязательна , так как после merge карта будет добавляться в руку
+    super.playRoundStartCards();
+    // if (!this.settings.allowedAutoCardPlayRoundStart) return;
 
-    const deck = this.merged ? this.game().decks.active : this.decks.active;
-    const card = deck.items()[0];
-    if (!card) return;
+    // const deck = this.merged ? this.game().decks.active : this.decks.active;
+    // const card = deck.items()[0];
+    // if (!card) return;
 
-    card.play({
-      player: this.roundActivePlayer(),
-    });
-    this.logs(`Активировано ежедневное событие "${card.title}".`);
+    // card.play({
+    //   player: this.roundActivePlayer(),
+    // });
+    // this.logs(`Активировано ежедневное событие "${card.title}".`);
+  }
+
+  /**
+   * Проверяет наличие активного события замены костяшек
+   * @returns {boolean} true если есть активное событие замены костяшек
+   */
+  hasDiceReplacementEvent() {
+    const game = this.merged ? this.game() : this;
+    return game.eventData.activeEvents.some(event => event.name === 'diceReplacementEvent');
   }
 });

@@ -128,6 +128,8 @@
   addCardPlane(card) {
     const deck = this.find('Deck[plane]');
 
+    // const codeSfx = (card.sourceGameId || Math.random().toString()).slice(-4);
+    const codeSfx = Math.random().toString().slice(-4);
     const plane = deck.addItem({
       sourceGameId: card.sourceGameId,
       _code: `event_${card.name}_${codeSfx}`,
@@ -169,5 +171,13 @@
 
   fieldIsBlocked() {
     return false;
+  }
+
+  /**
+   * Проверяет наличие активного события замены костяшек
+   * @returns {boolean} true если есть активное событие замены костяшек
+   */
+  hasDiceReplacementEvent() {
+    return this.eventData.activeEvents.some(event => event.name === 'diceReplacementEvent');
   }
 });

@@ -187,13 +187,12 @@
           const mergeFinished = plane.game().isSuperGame;
           if (mergeFinished) {
             this.emit('RESET');
-
+            
+            const superGame = plane.game(); // после mergeGame установится anchorGame
             this.mergeGame(plane);
 
-            const superGame = plane.game();
             const currentRound = superGame.round;
-
-            if(game.round !== currentRound) game.run('updateRoundStep'); // проверка на то, что событие вызвано выкладыванием plane, а не ащвергением раунда
+            if (game.round !== currentRound) game.run('updateRoundStep'); // проверка на то, что событие вызвано выкладыванием plane, а не ащвергением раунда
 
             if (superGame.allGamesMerged()) {
               if (currentRound !== superGame.round) {
@@ -248,6 +247,10 @@
         const bridges = plane.getLinkedBridges();
         const mergedBridge = bridges.find((b) => b.game() === superGame);
 
+        game.set({ merged: true });
+        plane.set({ mergedPlane: true });
+        mergedBridge.set({ mergedGameId: gameId });
+
         // переносим все связанные plane-ы
         const processedBridges = [mergedBridge];
         const processBridges = (plane) => {
@@ -259,7 +262,7 @@
 
             const { targetLinkPoint } = game.run('updatePlaneCoordinates', { joinPort, targetPort });
 
-            joinPlane.game(superGame);
+            // joinPlane.game(superGame);
             joinPlane.moveToTarget(superGame.decks.table);
 
             bridge.updateParent(superGame);
@@ -271,10 +274,6 @@
           }
         };
         processBridges(plane);
-
-        game.set({ merged: true });
-        plane.set({ mergedPlane: true });
-        mergedBridge.set({ mergedGameId: gameId });
 
         let turnOrder = superGame.turnOrder.filter((id) => id !== gameId);
         turnOrder.push(gameId);

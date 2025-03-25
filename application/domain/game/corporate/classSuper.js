@@ -110,14 +110,16 @@
 
     for (const game of this.getAllGames()) {
       game.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${game.round}` });
-      if (!game.merged) game.run('initGameProcessEvents');
+      game.run('initGameProcessEvents'); // из "лишних" событий ADD_PLANE отключится при первом же вызове
 
       if (roundActiveGame && game !== roundActiveGame) continue;
 
       lib.timers.timerRestart(game, game.lastRoundTimerConfig);
 
-      game.playRoundStartCards();
+      if (!allGamesMerged) game.playRoundStartCards();
     }
+
+    if (allGamesMerged) this.playRoundStartCards();
   }
 
   prepareBroadcastData({ data = {}, userId, viewerMode }) {

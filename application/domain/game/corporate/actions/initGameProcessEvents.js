@@ -14,11 +14,21 @@
       game.logs(`Игрок {{player}} инициировал РЕЛИЗ, за что получает дополнительную карту-события в руку.`);
 
       if (game.checkFieldIsReady() && !game.merged) {
-        this.emit('RESET');
-        return game.run('initGameFieldsMerge');
+        // this.emit('RESET');
+        // game.removeEventListener({ handler: 'ADD_PLANE', eventToRemove: this });
+        game.run('initGameFieldsMerge');
       }
 
       return { preventListenerRemove: true };
+    };
+
+    const addPlaneHandler = event.handlers['ADD_PLANE'];
+    event.handlers['ADD_PLANE'] = function () {
+      const { game, player } = this.eventContext();
+
+      if (game.merged) return; // будет добавляться после восстановления игры
+      
+      return addPlaneHandler.call(this, ...arguments);
     };
   }
 
