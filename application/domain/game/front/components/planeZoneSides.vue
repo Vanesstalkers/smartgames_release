@@ -44,6 +44,7 @@ export default {
     paintLinks() {
       for (const side of this.filledSideList) {
         const sideEl = document.getElementById(side._id);
+        console.log("side.links=", side.links);
         for (const link of Object.keys(side.links)) {
           const linkEl = document.getElementById(link);
           if (sideEl?.closest('.plane') && linkEl?.closest('.plane')) {

@@ -1,5 +1,5 @@
 <template>
-  <game :debug="false" :planeScaleMin="0.2" :planeScaleMax="1">
+  <game :debug="true" :planeScaleMin="0.2" :planeScaleMax="1">
     <template #gameplane="{ } = {}">
       <div v-for="game in planeViewGames" :key="game.gameId" :gameId="game.gameId"
         :class="['gp', game.roundReady ? 'round-ready' : '', allGamesMerged ? 'all-games-merged' : '']"
@@ -28,7 +28,8 @@
       <div :class="['wrapper decks ', allGamesMerged ? 'show-super' : '']">
         <div class="game-status-label">
           {{ superGame.statusLabel }}
-          <small v-if="selectedGame.roundReady">Ожидание других команд</small>
+          <small v-if="selectedGame.roundReady">{{ allGamesMerged ? 'Ход другой команды' : 'Ожидание других команд'
+          }}</small>
         </div>
         <div v-for="deck in deckList" :key="deck._id"
           :class="['deck', 'template-' + (selectedGame.templates.dice || 'default')]"

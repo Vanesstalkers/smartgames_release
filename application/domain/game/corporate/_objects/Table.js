@@ -1,13 +1,22 @@
 (class Table extends domain.game._objects.Table {
-  afterAddItem(item) {
+  addItem(item) {
+    const result = super.addItem(item);
+
     const game = this.game();
-    const itemGame = game.getAllGames().find((game) => game.id() === item.anchorGameId);
-    const targetId = item.id();
-    let initPlayer;
-    if (itemGame) {
-      initPlayer = itemGame.roundActivePlayer();
-      itemGame.toggleEventHandlers('ADD_PLANE', { targetId });
+    game.store[result._col][result._id] = result;
+    for (const obj of result.getAllObjects({ directParent: false })) {
+      game.store[obj._col][obj._id] = obj;
     }
-    game.toggleEventHandlers('ADD_PLANE', { targetId }, initPlayer);
+
+    return result
+  }
+  removeItem(itemToRemove) {
+    super.removeItem(itemToRemove);
+
+    const game = this.game();
+    delete game.store[itemToRemove._col][itemToRemove._id];
+    for (const obj of itemToRemove.getAllObjects({ directParent: false })) {
+      delete game.store[obj._col][obj._id];
+    }
   }
 });

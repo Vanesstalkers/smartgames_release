@@ -5,8 +5,8 @@
 
   constructor() {
     super(...arguments);
-    const { Bridge, Card, Dice, Plane, Player, Table, Zone, ZoneSide } = domain.game.corporate._objects;
-    this.defaultClasses({ Bridge, Card, Dice, Plane, Player, Table, Zone, ZoneSide });
+    const { Bridge, Card, Dice, Plane, Player, TableSuper, Zone, ZoneSide } = domain.game.corporate._objects;
+    this.defaultClasses({ Bridge, Card, Dice, Plane, Player, Table: TableSuper, Zone, ZoneSide });
   }
 
   select(query = {}) {
@@ -110,14 +110,16 @@
 
     for (const game of this.getAllGames()) {
       game.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${game.round}` });
-      if (!game.merged) game.run('initGameProcessEvents');
+      game.run('initGameProcessEvents'); // из "лишних" событий ADD_PLANE отключится при первом же вызове
 
       if (roundActiveGame && game !== roundActiveGame) continue;
 
       lib.timers.timerRestart(game, game.lastRoundTimerConfig);
 
-      game.playRoundStartCards();
+      if (!allGamesMerged) game.playRoundStartCards();
     }
+
+    if (allGamesMerged) this.playRoundStartCards();
   }
 
   prepareBroadcastData({ data = {}, userId, viewerMode }) {
@@ -175,7 +177,12 @@
       lib.store.broadcaster.publishAction(`gameuser-${userId}`, 'logout'); // инициирует hideGameIframe
     }
   }
-
+  async removeGame() {
+    for (const game of this.getAllGames()) {
+      await game.removeGame();
+    }
+    await super.removeGame();
+  }
   async playerLeave({ userId, viewerId }) {
     if (this.status !== 'FINISHED' && !viewerId) {
       this.logs({ msg: `Игрок {{player}} вышел из игры.`, userId });
@@ -254,6 +261,7 @@
           clone.store[entityType][entityId] = entityData;
         }
       }
+      Object.assign(clone.store.game[gameId], { eventData: {}, eventListeners: {} });
     }
     clone._gameid = db.mongo.ObjectID(clone._id);
     clone._dumptime = Date.now();

@@ -14,17 +14,7 @@ async ({ gameType, gameId, lobbyId, round }) => {
           ).load({ fromData: gameData }, { initStore: true });
           game.restorationMode = true;
           game.run('fillGameData', gameData);
-          game.clearEvents(); // тут сохраненные в БД eventListeners (пустые объекты) - у corporateGame их нет, т.к. там отрабатывает preventSaveFields
           gamesMap[gameId] = game;
-        }
-        {
-          // при создании super-игры, к которой привязаны plane-ы и bridge-ы из смердженных игр, эти игры еще не созданы (не получится прокинуть ссылку на них)
-          for (const plane of corporateGame.decks.table.items()) {
-            if (plane.anchorGameId) plane.game(gamesMap[plane.anchorGameId]);
-          }
-          for (const bridge of corporateGame.getObjects({ className: 'Bridge', directParent: false })) {
-            if (bridge.anchorGameId) bridge.game(gamesMap[bridge.anchorGameId]);
-          }
         }
       }
       : function (loadedData) {
