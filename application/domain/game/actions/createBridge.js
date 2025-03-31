@@ -3,8 +3,8 @@
   const targetPlane = targetPort.getParent();
   const bridgeToCardPlane = joinPlane.isCardPlane();
   // ! zoneLinks может быть несколько (links[...]) - пока что не актуально (нет таких Plane)
-  const targetPortLinks = Object.values(targetPort.links);
-  const joinPortLinks = Object.values(joinPort.links);
+  const targetPortLinks = Object.keys(targetPort.links);
+  const joinPortLinks = Object.keys(joinPort.links);
   const { DIRECTIONS } = joinPort.constructor;
   const targetPortDirect = DIRECTIONS[targetPort.getDirect()];
   const { reverse: reverseLinks, vertical: verticalZone } = targetPortDirect.bridge;
@@ -12,17 +12,11 @@
   const bridgeZoneLinks = {};
   const zs = [null, 'ZoneSide[1]', 'ZoneSide[2]'];
   if (bridgeToCardPlane) {
-    bridgeZoneLinks[reverseLinks ? zs[2] : zs[1]] = targetPortLinks.map(
-      (zoneSideCode) => targetPlane.code + zoneSideCode // получится корректный Plane[XXX]Zone[YYY]
-    );
+    bridgeZoneLinks[reverseLinks ? zs[2] : zs[1]] = targetPortLinks;
     // у card-plane отсутствует связанная zone
   } else {
-    bridgeZoneLinks[reverseLinks ? zs[2] : zs[1]] = targetPortLinks.map(
-      (zoneSideCode) => targetPlane.code + zoneSideCode // получится корректный Plane[XXX]Zone[YYY]
-    );
-    bridgeZoneLinks[reverseLinks ? zs[1] : zs[2]] = joinPortLinks.map(
-      (zoneSideCode) => joinPlane.code + zoneSideCode // получится корректный Plane[XXX]Zone[YYY]
-    );
+    bridgeZoneLinks[reverseLinks ? zs[2] : zs[1]] = targetPortLinks;
+    bridgeZoneLinks[reverseLinks ? zs[1] : zs[2]] = joinPortLinks;
   }
 
   const { targetLinkPoint } = this.run('updatePlaneCoordinates', { joinPort, targetPort });

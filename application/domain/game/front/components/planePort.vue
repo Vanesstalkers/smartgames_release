@@ -2,7 +2,7 @@
   <div
     v-if="port._id"
     :class="['port', selectable ? 'selectable' : '']"
-    :id="port.code"
+    :id="port._id"
     :style="{ left: port.left + 'px', top: port.top + 'px', opacity: port.linkedBridgeCode ? 0 : 1 }"
     :x="port.left + 37.5"
     :y="port.top + 37.5"

@@ -73,8 +73,8 @@
         side.set({ value: null, diceSideCode: null });
       }
       // обновляем expectedValues у всех соседей
-      for (const linkId of Object.keys(side.links)) {
-        this.game().get(linkId).updateExpectedValues();
+      for (const linkSideId of Object.keys(side.links)) {
+        this.game().get(linkSideId).updateExpectedValues();
       }
     });
   }
@@ -82,8 +82,8 @@
     const game = this.game();
     const zones = [];
     for (const side of this.getSides()) {
-      for (const linkCode of Object.values(side.links)) {
-        zones.push(game.find(linkCode).getParent());
+      for (const linkSideId of Object.keys(side.links)) {
+        zones.push(game.get(linkSideId).getParent());
       }
     }
     return zones;

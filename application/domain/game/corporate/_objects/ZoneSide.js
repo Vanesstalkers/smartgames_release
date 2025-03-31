@@ -3,11 +3,10 @@
    * (используется в zone.checkIsAvailable)
    */
   updateExpectedValues() {
-    // !!!! что-то с поиском в средней зоне
     const expectedValues = lib.utils.keysToNull(this.expectedValues);
-    for (const linkCode of Object.values(this.links)) {
-      let link = this.game().find(linkCode);
-      if (!link) link = this.game().game?.().find(linkCode);
+    for (const linkSideId of Object.keys(this.links)) {
+      let link = this.game().get(linkSideId);
+      if (!link) link = this.game().game?.().get(linkSideId);
       if (link?.value != null) {
         // "!= null" === "a !== null && a !== undefined"
         expectedValues[link.value] = true;

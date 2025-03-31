@@ -16,12 +16,11 @@
   if (data.zoneLinks) {
     for (const [zoneCode, sideList] of Object.entries(data.zoneLinks)) {
       for (const [sideCode, links] of Object.entries(sideList)) {
-        for (const link of links) {
-          const [linkZoneCode, linkSideCode] = link.split('.');
+        for (const linkSideId of links) {
           const zone = bridge.find(zoneCode);
           const side = zone.find(sideCode);
-          const linkZone = bridge.game().find(linkZoneCode);
-          const linkSide = linkZone.find(linkSideCode);
+          const linkSide = bridge.game().get(linkSideId);
+          const linkZone = linkSide.parent();
           side.addLink(linkSide);
           linkSide.addLink(side);
           linkZone.updateValues();
