@@ -98,7 +98,7 @@
     },
     END_ROUND() {
       this.emit('CHECK_PLANES_IN_HANDS');
-      this.emit('RESET');
+      // this.emit('RESET');
     }
   }
 });

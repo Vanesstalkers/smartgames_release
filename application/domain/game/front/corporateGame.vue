@@ -28,7 +28,8 @@
       <div :class="['wrapper decks ', allGamesMerged ? 'show-super' : '']">
         <div class="game-status-label">
           {{ superGame.statusLabel }}
-          <small v-if="selectedGame.roundReady">Ожидание других команд</small>
+          <small v-if="selectedGame.roundReady">{{ allGamesMerged ? 'Ход другой команды' : 'Ожидание других команд'
+          }}</small>
         </div>
         <div v-for="deck in deckList" :key="deck._id"
           :class="['deck', 'template-' + (selectedGame.templates.dice || 'default')]"

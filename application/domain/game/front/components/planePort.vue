@@ -46,7 +46,7 @@ export default {
       await this.handleGameApi({ name: 'eventTrigger', data: { eventData: { targetId: this.portId } } });
     },
     paintLinks() {
-      const portEl = document.getElementById(this.port.code);
+      const portEl = document.getElementById(this.port._id);
       for (const link of Object.keys(this.port.links)) {
         const linkEl = document.getElementById(link);
         if (portEl?.closest('.plane') && linkEl?.closest('.plane')) {

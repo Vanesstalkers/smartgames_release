@@ -9,6 +9,7 @@
     :class="['zone', zone.vertical ? 'vertical' : '', zone.double ? 'double' : '', zone.available ? 'available' : '']"
     v-on:click="putDice"
     :code="zone.code"
+    :_id="zone._id"
   >
     <div class="wraper">
       <plane-zone-sides

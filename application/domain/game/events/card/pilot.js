@@ -48,20 +48,18 @@
             extraPlane.moveToTarget(gamePlaneDeck);
           }
         }
-      } else if (!player.eventData.plane?.[plane.id()]?.mustBePlaced) {
-        // один из новых блоков для размещения на выбор - остальные можно убрать
-        const remainPlane = planeList.find((planeItem) =>
-          !player.eventData.plane?.[planeItem.id()]?.mustBePlaced
+      } else if (player.eventData.plane?.[plane.id()]?.oneOfMany) {
+        // один из новых блоков для размещения на выбор - остальные можно убрать ("остальных" может быть несколько, в зависимости от настроек игры)
+        const remainPlanes = planeList.filter((planeItem) =>
+          player.eventData.plane?.[planeItem.id()]?.oneOfMany
         );
-        if (remainPlane) {
-          remainPlane.moveToTarget(gamePlaneDeck);
-          player.set({
-            eventData: {
-              plane: {
-                [remainPlane.id()]: { oneOfMany: null }
-              }
-            }
-          });
+        if (remainPlanes.length > 0) {
+          const eventData = { plane: {} };
+          for (const remainPlane of remainPlanes) {
+            remainPlane.moveToTarget(gamePlaneDeck);
+            eventData.plane[remainPlane.id()] = { oneOfMany: null };
+          }
+          player.set({ eventData });
         }
       }
 

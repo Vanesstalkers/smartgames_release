@@ -15,12 +15,13 @@
     )
   ) {
     const superGame = game;
+    const superGameId = superGame.id();
     const playerGame = initPlayer.game();
     availablePorts = game.availablePorts.filter((placementConfig) => {
       const targetPlane = superGame.get(placementConfig.targetPlaneId);
 
       const isAnchorGame = targetPlane.anchorGameId === initPlayer.gameId;
-      const mergeModeActivated = playerGame.merged !== true && targetPlane.game() === superGame;
+      const mergeModeActivated = playerGame.merged !== true && targetPlane.game() === superGame && targetPlane.anchorGameId === superGameId;
       return isAnchorGame || mergeModeActivated;
     });
   }
