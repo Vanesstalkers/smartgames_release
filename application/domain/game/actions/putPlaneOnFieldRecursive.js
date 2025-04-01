@@ -1,5 +1,5 @@
-(function ({ planes = [], minFreePorts = 0, fromHand = false }, initPlayer) {
-  const MAX_ATTEMPTS = 20;
+(/* async */ function ({ planes = [], minFreePorts = 0, fromHand = false }, initPlayer) {
+  const MAX_ATTEMPTS = 50;
   const game = this.merged ? this.game() : this;
   const deckOwner = game.roundActivePlayer() || game;
   const planeDeck = deckOwner.matches({ className: 'Game' })
@@ -7,6 +7,11 @@
     : deckOwner.find('Deck[plane]');
 
   if (fromHand) planes = planeDeck.items();
+
+  // async function debug(data) {
+  //   await game.saveChanges();
+  //   const t = 1;
+  // }
 
   const sortPlanesByPorts = (a, b) => Object.keys(a.portMap).length < Object.keys(b.portMap).length ? -1 : 1;
 
@@ -40,7 +45,8 @@
     const planeStates = game.decks.table.items().reduce((acc, plane) => {
       const linkedPlanes = plane.getLinkedPlanes();
       const nonCardPlanes = linkedPlanes.length - linkedPlanes.filter(p => p.cardPlane).length;
-      if (plane.anchorGameId === initPlayer.gameId)
+      if (!plane.anchorGameId // НЕ корпоративная игра
+        || plane.anchorGameId === initPlayer.gameId) // корпоративная игра
         acc[plane.id()] = nonCardPlanes < 2 ? { selectable: true, mustBePlaced: true } : null;
       return acc;
     }, {});
@@ -48,7 +54,7 @@
     deckOwner.set({ eventData: { plane: planeStates } });
 
     const selectablePlanes = game.decks.table.items()
-      .filter(plane => deckOwner.eventData.plane?.[plane.id()]?.selectable)
+      .filter(p => deckOwner.eventData.plane?.[p.id()]?.selectable && !p.mergedPlane)
       .sort(sortSelectablePlanes);
 
     if (selectablePlanes.length === 0) return;
@@ -88,6 +94,7 @@
   let attempts = MAX_ATTEMPTS;
 
   while (planes.length || freePortsNotEnough()) {
+    // await debug()
     if (--attempts === 0) {
       return game.run('endGame', {
         msg: { lose: 'Возникла рекурсия, израсходовавшая все ресурсы. Продолжение игры не возможно.' },
@@ -95,36 +102,44 @@
     }
 
     if (planes.length === 0) addExtraPlane();
-
+    // await debug()
     planes.sort(sortPlanesByPorts);
     const plane = planes.pop();
     game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
-
+    // await debug()
     if (game.availablePorts.length) {
       putPlaneOnAvailablePort();
+      // await debug()
     } else if (game.decks.table.itemsCount() === 1) {
       // был добавлен plane на пустое поле (через вызов NO_AVAILABLE_PORTS внутри showPlanePortsAvailability)
     } else {
       const initialFreePorts = game.decks.table.getFreePorts().length;
       movePlaneFromTableToHand();
-
+      // await debug()
       game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
-
+      // await debug()
       if (game.availablePorts.length) {
         putPlaneOnAvailablePort();
+        // await debug()
       }
 
+      // делаем через initialFreePorts, чтобы не пришлось проверять фактическую доступность каждого port-а (может быть заблокирован plane-ами на игровом поле)
       if (initialFreePorts + planeDeck.itemsCount() > game.decks.table.getFreePorts().length) {
         while (game.decks.table.items().filter(
-          p => p.anchorGameId === initPlayer.gameId &&
-            !p.mergedPlane // точку привязки не трогаем
+          p => !p.anchorGameId // НЕ корпоративная игра
+            || ( // корпоративная игра
+              p.anchorGameId === initPlayer.gameId &&
+              !p.mergedPlane // точку привязки не трогаем
+            )
         ).length > 0) {
           movePlaneFromTableToHand();
+          // await debug()
         }
 
         planes = planeDeck.items();
         if (requireExtraPlane) {
           addExtraPlane();
+          // await debug()
         } else {
           requireExtraPlane = true;
         }
@@ -133,10 +148,13 @@
         if (this.merged) {
           // цепляемся к оставшемуся на поле mergedPlane
           game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
+          // await debug()
           if (game.availablePorts.length) putPlaneOnAvailablePort();
+          // await debug()
         } else {
           // выкладываем на пустое поле
           plane.moveToTarget(game.decks.table);
+          // await debug()
         }
       }
     }

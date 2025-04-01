@@ -8,7 +8,7 @@
     this.set({ merged, roundReady });
     this.defaultClasses({
       ...this.game().defaultClasses(),
-      Table: domain.game._objects.Table,
+      Table: domain.game.corporate._objects.Table,
     });
   }
 
@@ -186,15 +186,12 @@
   }
 
   playRoundStartCards() {
-    if (!this.settings.allowedAutoCardPlayRoundStart) return;
+    if (this.merged) return; // проверка на allGamesMerged не обязательна , так как после merge карта будет добавляться в руку
+    super.playRoundStartCards();
+  }
 
-    const deck = this.merged ? this.game().decks.active : this.decks.active;
-    const card = deck.items()[0];
-    if (!card) return;
-
-    card.play({
-      player: this.roundActivePlayer(),
-    });
-    this.logs(`Активировано ежедневное событие "${card.title}".`);
+  hasDiceReplacementEvent() {
+    const game = this.merged ? this.game() : this;
+    return game.eventData.activeEvents.some(event => event.name === 'diceReplacementEvent');
   }
 });

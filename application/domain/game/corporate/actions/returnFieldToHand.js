@@ -15,13 +15,6 @@
   }
   initPlayer.set({ eventData: { plane: {}, availableZones: [] } });
 
-  if (this.merged) {
-    // // иначе не будет обрабатываться RELEASE с последующим initGameFieldsMerge
-    // const gameProcessEvent = this.eventData.activeEvents.find(event => event.name == 'gameProcess');
-    // if(gameProcessEvent) gameProcessEvent.destroy(); // может не быть (???)
-    this.run('initGameProcessEvents');
-  }
-
   this.set({ merged: null, roundReady: false });
   superGame.set({
     turnOrder: superGame.turnOrder.filter((gameId) => gameId !== this.id()),

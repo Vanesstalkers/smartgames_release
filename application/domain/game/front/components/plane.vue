@@ -6,9 +6,11 @@
     isExtraPlane ? 'extra' : '',
     isPlacementRequired ? 'placement-required' : '',
     game.merged ? 'source-game-merged' : '',
+    plane.release ? 'release' : '',
     ...plane.customClass,
     ...Object.values(customClass),
-  ]" :style="customStyle" v-on:click.stop="(e) => (isSelectable ? choosePlane() : selectPlane(e))" :code="plane.code">
+  ]" :style="customStyle" v-on:click.stop="(e) => (isSelectable ? choosePlane() : selectPlane(e))" :code="plane.code"
+    :anchorGameId="plane.anchorGameId">
     <div class="price">{{ (plane.price * 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽</div>
     <div class="zone-wraper">
       <plane-zone v-for="id in zoneIds" :key="id" v-bind:zoneId="id" :linkLines="linkLines"
@@ -175,6 +177,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+#game.debug {
+  .plane:before {
+    content: attr(anchorGameId) !important;
+    display: block !important;
+    color: white;
+    font-size: 24px;
+    position: absolute;
+    z-index: -1;
+    top: -30px;
+    left: 0px;
+  }
+}
+
 .plane {
   position: relative;
   position: absolute;
@@ -205,6 +220,12 @@ export default {
   &.extra {
     &:after {
       box-shadow: inset 0 0 0px 10px greenyellow;
+    }
+  }
+
+  &.release {
+    &:after {
+      box-shadow: inset 0 0 0px 10px gold;
     }
   }
 

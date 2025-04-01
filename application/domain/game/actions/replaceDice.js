@@ -35,9 +35,10 @@
   dice.markNew();
 
   this.toggleEventHandlers('DICE_PLACED', { dice }, player);
+  
   if (
     // checkForRelease отработает после завершения события DICE_PLACED в diceReplacementEvent
-    !this.eventData.activeEvents.find((e) => e.name === 'diceReplacementEvent')
+    !this.hasDiceReplacementEvent()
   ) {
     this.checkForRelease({
       zoneParent: zone.parent(),

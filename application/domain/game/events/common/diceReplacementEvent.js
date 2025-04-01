@@ -11,7 +11,13 @@
     dice.set({ deleted: true });
     deletedDices.add(dice);
 
-    this.disableZoneParent(dice.parent().parent());
+    const zone = dice.parent();
+    this.disableZoneParent(zone.parent());
+    if (zone.isBridgeZone()) {
+      for (const nearZone of zone.getNearZones()) {
+        this.disableZoneParent(nearZone.parent());
+      }
+    }
 
     const observeDices = [dice, ...dice.getNearestDices()];
     for (const dice of observeDices) {

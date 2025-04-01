@@ -42,70 +42,70 @@
               }
             }
           }
-          if (!hasAvailablePorts) {
-            // если поле пустое (сработает !hasAvailablePorts), тогда в руку ничего не добавляем
-            if (playerPlaneDeck.itemsCount() === 0) {
-              const planes = game.find('Deck[plane]').items();
-              planes.sort((p1, p2) => (Object.keys(p2.portMap).length - Object.keys(p1.portMap).length));
+          if (hasAvailablePorts) return { preventListenerRemove: true };
+          // если поле пустое (сработает !hasAvailablePorts), тогда в руку ничего не добавляем
+          if (playerPlaneDeck.itemsCount() === 0) {
+            const planes = game.find('Deck[plane]').items();
+            planes.sort((p1, p2) => (Object.keys(p2.portMap).length - Object.keys(p1.portMap).length));
 
-              const extraPlanes = [];
-              // Сначала берем все доступные plane с 4 портами
-              const planesWithFourPorts = planes.filter((p) => Object.keys(p.portMap).length === 4);
-              if (planesWithFourPorts.length > 0) {
-                while (extraPlanes.length < Math.min(2, planesWithFourPorts.length)) {
-                  const extraPlane = planesWithFourPorts[Math.floor(Math.random() * planesWithFourPorts.length)];
-                  if (!extraPlanes.includes(extraPlane)) {
-                    extraPlanes.push(extraPlane);
-                  }
+            const extraPlanes = [];
+            // Сначала берем все доступные plane с 4 портами
+            const planesWithFourPorts = planes.filter((p) => Object.keys(p.portMap).length === 4);
+            if (planesWithFourPorts.length > 0) {
+              while (extraPlanes.length < Math.min(2, planesWithFourPorts.length)) {
+                const extraPlane = planesWithFourPorts[Math.floor(Math.random() * planesWithFourPorts.length)];
+                if (!extraPlanes.includes(extraPlane)) {
+                  extraPlanes.push(extraPlane);
                 }
               }
-
-              // Если нужно добрать plane с 3 портами
-              if (extraPlanes.length < 2) {
-                const planesWithThreePorts = planes.filter((p) => Object.keys(p.portMap).length === 3);
-                while (extraPlanes.length < 2 && planesWithThreePorts.length > 0) {
-                  const extraPlane = planesWithThreePorts[Math.floor(Math.random() * planesWithThreePorts.length)];
-                  if (!extraPlanes.includes(extraPlane)) {
-                    extraPlanes.push(extraPlane);
-                  }
-                }
-              }
-
-              // Если все еще не хватает, добираем plane с 2 портами
-              if (extraPlanes.length < 2) {
-                const planesWithTwoPorts = planes.filter((p) => Object.keys(p.portMap).length === 2);
-                while (extraPlanes.length < 2 && planesWithTwoPorts.length > 0) {
-                  const extraPlane = planesWithTwoPorts[Math.floor(Math.random() * planesWithTwoPorts.length)];
-                  if (!extraPlanes.includes(extraPlane)) {
-                    extraPlanes.push(extraPlane);
-                  }
-                }
-              }
-
-              if (extraPlanes.length === 0) {
-                return game.run('endGame', {
-                  msg: { lose: 'Недостаточно ресурсов для интеграции. Продолжение игры не возможно.' },
-                });
-              }
-
-              const eventData = { plane: {} };
-              for (const plane of extraPlanes) {
-                plane.moveToTarget(playerPlaneDeck);
-                eventData.plane[plane.id()] = { oneOfMany: true };
-              }
-              player.set({ eventData });
             }
 
-            game.logs(`У центрального поля не найдено доступных портов для присоединения игрового поля команды.`);
-            lib.store.broadcaster.publishAction(`user-${player.userId}`, 'broadcastToSessions', {
-              data: {
-                message: `У центрального поля не найдено доступных портов для присоединения игрового поля команды. Либо добавьте дополнительный блок к своему полю, либо одна из команд должна вернуть свое присоединенное к центру игровое поле в руку.`,
-              },
-              config: { hideTime: 0 },
-            });
+            // Если нужно добрать plane с 3 портами
+            if (extraPlanes.length < 2) {
+              const planesWithThreePorts = planes.filter((p) => Object.keys(p.portMap).length === 3);
+              while (extraPlanes.length < 2 && planesWithThreePorts.length > 0) {
+                const extraPlane = planesWithThreePorts[Math.floor(Math.random() * planesWithThreePorts.length)];
+                if (!extraPlanes.includes(extraPlane)) {
+                  extraPlanes.push(extraPlane);
+                }
+              }
+            }
 
-            this.emit('NO_AVAILABLE_PORTS');
+            // Если все еще не хватает, добираем plane с 2 портами
+            if (extraPlanes.length < 2) {
+              const planesWithTwoPorts = planes.filter((p) => Object.keys(p.portMap).length === 2);
+              while (extraPlanes.length < 2 && planesWithTwoPorts.length > 0) {
+                const extraPlane = planesWithTwoPorts[Math.floor(Math.random() * planesWithTwoPorts.length)];
+                if (!extraPlanes.includes(extraPlane)) {
+                  extraPlanes.push(extraPlane);
+                }
+              }
+            }
+
+            if (extraPlanes.length === 0) {
+              return game.run('endGame', {
+                msg: { lose: 'Недостаточно ресурсов для интеграции. Продолжение игры не возможно.' },
+              });
+            }
+
+            const eventData = { plane: {} };
+            for (const plane of extraPlanes) {
+              plane.moveToTarget(playerPlaneDeck);
+              eventData.plane[plane.id()] = { oneOfMany: true };
+            }
+            player.set({ eventData });
           }
+
+          game.logs(`У центрального поля не найдено доступных портов для присоединения игрового поля команды.`);
+          lib.store.broadcaster.publishAction(`user-${player.userId}`, 'broadcastToSessions', {
+            data: {
+              message: `У центрального поля не найдено доступных портов для присоединения игрового поля команды. Либо добавьте дополнительный блок к своему полю, либо одна из команд должна вернуть свое присоединенное к центру игровое поле в руку.`,
+            },
+            config: { hideTime: 0 },
+          });
+
+          this.emit('NO_AVAILABLE_PORTS');
+          return { preventListenerRemove: true };
         },
         RESET() {
           const { game, player } = this.eventContext();
@@ -192,8 +192,7 @@
 
             const superGame = plane.game();
             const currentRound = superGame.round;
-
-            if(game.round !== currentRound) game.run('updateRoundStep'); // проверка на то, что событие вызвано выкладыванием plane, а не ащвергением раунда
+            if (game.round !== currentRound) game.run('updateRoundStep'); // проверка на то, что событие вызвано выкладыванием plane, а не завершением раунда
 
             if (superGame.allGamesMerged()) {
               if (currentRound !== superGame.round) {
@@ -213,9 +212,7 @@
           const extraPlanes = playerPlaneDeck.items().filter((p) => eventPlanes[p.id()]?.extraPlane);
           // plane-ы в руке кончились
           if (playerPlaneDeck.itemsCount() - extraPlanes.length === 0) {
-            this.emit('RESET');
-            game.run('initGameProcessEvents');
-            return;
+            return this.emit('RESET');
           }
 
           // на всякий случай подсвечиваем, какие еще plane-ы можно убрать с поля
@@ -238,7 +235,6 @@
 
           this.emit('CHECK_PLANES_IN_HANDS');
           this.emit('RESET');
-          game.run('initGameProcessEvents');
         },
       },
       mergeGame(plane) {
@@ -247,6 +243,10 @@
         const superGame = plane.game();
         const bridges = plane.getLinkedBridges();
         const mergedBridge = bridges.find((b) => b.game() === superGame);
+
+        game.set({ merged: true });
+        plane.set({ mergedPlane: true });
+        mergedBridge.set({ mergedGameId: gameId });
 
         // переносим все связанные plane-ы
         const processedBridges = [mergedBridge];
@@ -271,10 +271,6 @@
           }
         };
         processBridges(plane);
-
-        game.set({ merged: true });
-        plane.set({ mergedPlane: true });
-        mergedBridge.set({ mergedGameId: gameId });
 
         let turnOrder = superGame.turnOrder.filter((id) => id !== gameId);
         turnOrder.push(gameId);

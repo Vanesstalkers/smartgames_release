@@ -28,12 +28,14 @@
       let diceFound = false;
       for (const plane of planes) {
         for (const dice of plane.select({ className: 'Dice', directParent: false })) {
+          if (dice.deleted) continue;
           eventData.dice[dice.id()] = { selectable: true };
           diceFound = true;
         }
       }
       for (const bridge of bridges) {
         for (const dice of bridge.select({ className: 'Dice', directParent: false })) {
+          if (dice.deleted) continue;
           eventData.dice[dice.id()] = { selectable: true };
           diceFound = true;
         }
