@@ -9,7 +9,7 @@ async ({ gameType, gameId, lobbyId, round }) => {
         for (const gameId of Object.keys(loadedData.gamesMap)) {
           const gameData = loadedData.store.game[gameId];
           const game = await new domain.game.corporate.classGame(
-            { _id: gameData._id, _code: gameData.code }, // data
+            { id: gameData._id, _code: gameData.code }, // data
             { parent: corporateGame } // config
           ).load({ fromData: gameData }, { initStore: true });
           game.restorationMode = true;

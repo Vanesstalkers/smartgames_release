@@ -33,7 +33,7 @@
       if (targetCode === 'Deck[card]') {
         // рука игрока
 
-        if (sourceGame.merged || sourceGame.isSuperGame) {
+        if (targetGame.merged || sourceGame.isSuperGame) {
           // активирована общая рука команды
 
           if (targetGame !== sourceGame) {
