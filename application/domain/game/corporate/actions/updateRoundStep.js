@@ -39,7 +39,7 @@
   if (!superGame.allGamesRoundReady()) return;
 
   for (const game of superGame.getAllGames()) {
-    game.run('lib.updateRoundStep', { preventHandDiceLimitCheck: true });
+    game.run('domain.updateRoundStep');
   }
-  superGame.run('lib.updateRoundStep');
+  superGame.run('domain.updateRoundStep');
 });

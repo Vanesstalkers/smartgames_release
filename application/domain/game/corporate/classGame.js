@@ -172,7 +172,7 @@
     const mergeStatus = this.mergeStatus();
     return (this.roundReady && mergeStatus !== 'merged')
       || mergeStatus === 'freezed'
-      || this.eventData.activeEvents.find(e => e.name === 'initGameFieldsMerge')
+      || this.eventData.activeEvents?.find(e => e.name === 'initGameFieldsMerge')
   }
   mergeStatus() {
     const superGame = this.game();

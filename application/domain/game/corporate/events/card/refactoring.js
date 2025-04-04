@@ -1,6 +1,5 @@
 () => {
   const {
-    init,
     handlers: { RESET, DEACTIVATE, END_ROUND },
   } = domain.game.events.card.refactoring();
 
@@ -13,9 +12,9 @@
         game.isSuperGame && game.allGamesMerged()
           ? [game]
           : game
-              .game()
-              .getAllGames()
-              .filter((g) => !g.merged);
+            .game()
+            .getAllGames()
+            .filter((g) => !g.merged);
 
       for (const game of games) {
         if (game.fieldIsBlocked()) continue;
@@ -112,5 +111,27 @@
         }
       },
     },
+    getRandomDice() {
+      const { game, player } = this.eventContext();
+      const playerGameId = player.gameId;
+
+      if (!this.targetDice) {
+        const planes = game.decks.table.items();
+        const bridges = game.select('Bridge');
+        const items = [
+          ...planes.filter(p => p.anchorGameId === playerGameId),
+          ...bridges.filter(b => b.anchorGameId === playerGameId),
+          ...planes.filter(p => p.anchorGameId !== playerGameId),
+          ...bridges.filter(b => b.anchorGameId !== playerGameId),
+        ];
+
+        for (const item of items) {
+          for (const dice of item.select({ className: 'Dice', directParent: false })) {
+            this.emit('TRIGGER', { target: dice });
+            if (this.targetDice) return;
+          }
+        }
+      }
+    }
   };
 };

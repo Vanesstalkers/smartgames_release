@@ -170,4 +170,8 @@
   fieldIsBlocked() {
     return false;
   }
+
+  hasDiceReplacementEvent() {
+    return this.eventData.activeEvents.some(event => event.name === 'diceReplacementEvent');
+  }
 });
