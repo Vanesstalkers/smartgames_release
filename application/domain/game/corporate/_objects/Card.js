@@ -54,7 +54,7 @@
       domain.game.events?.card?.[eventName] ||
       lib.game.events?.card?.[eventName];
     if (!event) return null;
-    return event();
+    return event.call(this);
   }
   play({ player, logMsg } = {}) {
     if (this.played) return;

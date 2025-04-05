@@ -2,17 +2,18 @@
   init: function () {
     const { game, player } = this.eventContext();
 
-    let diceFound = false;
+    const eventData = { dside: {} };
     for (const deck of player.select('Deck')) {
       if (deck.type !== 'domino') continue;
       for (const dice of deck.select('Dice')) {
         for (const dside of dice.select('DiceSide')) {
-          dside.set({ eventData: { selectable: true } });
-          diceFound = true;
+          eventData.dside[dside.id()] = { selectable: true };
         }
       }
     }
-    if (!diceFound) return { resetEvent: true };
+    if (Object.keys(eventData.dside).length === 0) return { resetEvent: true };
+
+    player.set({ eventData });
   },
   handlers: {
     RESET: function () {
@@ -21,16 +22,13 @@
     },
     DEACTIVATE: function () {
       const { player } = this.eventContext();
+      player.removeEventWithTriggerListener(); // без этого будут срабатывать проверки player.triggerEventEnabled
 
-      for (const deck of player.select('Deck')) {
-        if (deck.type !== 'domino') continue;
-        
-        for (const dice of deck.select('Dice')) {
-          for (const dside of dice.select('DiceSide')) {
-            dside.set({ eventData: { selectable: null } });
-          }
-        }
+      const eventData = { dside: {} };
+      for (const sideId in player.eventData.dside) {
+        eventData.dside[sideId] = null;
       }
+      player.set({ eventData });
     },
     TRIGGER: function ({ target, fakeValue = 0, skipFakeValueSet }) {
       const { game, player } = this.eventContext();
@@ -41,6 +39,8 @@
         const realValue = target.eventData.fakeValue?.realValue ?? target.value;
         target.set({ eventData: { fakeValue: { realValue } }, value: fakeValue });
         game.set({ crutchMap: { [target.id()]: true } });
+
+        this.targetSide = target;
       }
 
       this.emit('DEACTIVATE');
@@ -48,24 +48,20 @@
     END_ROUND: function () {
       const { game, player } = this.eventContext();
 
-      const restoredDices = {};
-      for (const dside of game.select('DiceSide')) {
-        if (dside.eventData.fakeValue) {
-          dside.set({
-            value: dside.eventData.fakeValue.realValue,
-            eventData: { fakeValue: null },
-          });
-          const zoneParent = dside.findParent({ className: 'Zone' });
-          if (zoneParent) {
-            zoneParent.updateValues();
-            // не пишем в лог сообщение о костяшках в руке, чтобы соперники не узнали об их наличии
-            const dice = dside.getParent();
-            restoredDices[dice._id] = dice;
-          }
+      if (this.targetSide) {
+        const dside = this.targetSide;
+        dside.set({
+          value: dside.eventData.fakeValue?.realValue ?? dside.value,
+          eventData: { fakeValue: null },
+        });
+
+        const zoneParent = dside.findParent({ className: 'Zone' });
+        if (zoneParent) {
+          // не пишем в лог сообщение о костяшках в руке, чтобы соперники не узнали об их наличии
+          game.logs(`Костяшка "${dside.getParent().getTitle()}" восстановила свои значения, измененные событием "Костыль".`);
+
+          zoneParent.updateValues();
         }
-      }
-      for (const dice of Object.values(restoredDices)) {
-        game.logs(`Костяшка "${dice.getTitle()}" восстановила свои значения, измененные событием "Костыль".`);
       }
 
       this.emit('RESET');
