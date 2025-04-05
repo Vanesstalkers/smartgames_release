@@ -198,6 +198,12 @@ export default {
   margin-bottom: 10px;
   transform-origin: 0 0;
 
+  &.release {
+    &:after {
+      box-shadow: inset 0 0 0px 10px green;
+    }
+  }
+
   &.tutorial-active {
     z-index: -1 !important;
     box-shadow: 0 0 10px 10px #f4e205 !important;
@@ -220,12 +226,6 @@ export default {
   &.extra {
     &:after {
       box-shadow: inset 0 0 0px 10px greenyellow;
-    }
-  }
-
-  &.release {
-    &:after {
-      box-shadow: inset 0 0 0px 10px gold;
     }
   }
 

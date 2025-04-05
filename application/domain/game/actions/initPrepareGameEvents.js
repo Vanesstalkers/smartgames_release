@@ -131,6 +131,8 @@
         },
         ADD_PLANE_RECURSIVE_ENDED() {
           const { game } = this.eventContext();
+          if (game.settings.planesNeedToStart > game.decks.table.itemsCount()) return { preventListenerRemove: true };
+
           this.emit('RESET');
           game.run('startGame');
         },
@@ -168,9 +170,9 @@
             for (const [planeId, { initPlane }] of Object.entries(player.eventData.plane)) {
               if (!initPlane) continue; // возможно тут будут plane-ы, добавленные картами событий, иницированными на старте раунда (pilot, req_*)
               player.get(planeId).moveToTarget(deck);
-              eventData.plane[planeId] = null;
+              eventData.plane[planeId] = { oneOfMany: null };
             }
-            player.set({ eventData });
+            player.set({ eventData }); // не удаляем через {eventData: {plane: null}}, потому что при авторозыгрыше dream на фронт придет {selectable: true}, а об {oneOfMany: null} он не узнает
           }
 
           this.destroy();

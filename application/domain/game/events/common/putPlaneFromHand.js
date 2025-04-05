@@ -7,7 +7,7 @@
     RESET() {
       const { game, player } = this.eventContext();
       game.set({ availablePorts: [] });
-      player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null } });
+      player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, plane: null } });
       player.find('Deck[plane]').moveAllItems({ target: game.find('Deck[plane]') });
       this.destroy();
     },

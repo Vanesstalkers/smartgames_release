@@ -86,6 +86,9 @@
         eventGame.removeEventListener({ handler: 'DICES_DISABLED', eventToRemove: this }); // пока раунд не завершен этот handler могут вызвать события, например удаление костяшки
         game.game().broadcastEvent('DICES_DISABLED', { ids: [dice.id()] }); // если у кто тоже активирован refactoring
       },
+      DICES_REMOVED: function ({ parent, ids = [] }) {
+        this.emit('DICES_DISABLED', { parent, ids });
+      },
       DICES_DISABLED: function ({ parent, ids = [] }) {
         const { game, player } = this.eventContext();
 

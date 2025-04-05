@@ -1,21 +1,24 @@
 () => ({
   init: function () {
     const { game, player } = this.eventContext();
+
+    const eventData = { plane: {} };
     for (const plane of game.decks.table.getAllItems()) {
       if (plane.isCardPlane()) continue;
-      plane.set({ eventData: { selectable: true } });
+      eventData.plane[plane.id()] = { selectable: true };
     }
+    player.set({ eventData });
   },
   handlers: {
     RESET: function () {
-      const { game } = this.eventContext();
+      const { game, player } = this.eventContext();
 
-      game.decks.table.updateAllItems({ eventData: { selectable: null } });
-
+      player.set({ eventData: { plane: null } });
       this.destroy();
     },
     TRIGGER: function ({ target }) {
       if (!target) return;
+
       const { game, player } = this.eventContext();
 
       const deck = game.find('Deck[domino]');
@@ -28,8 +31,8 @@
     },
     END_ROUND: function () {
       const { game, player } = this.eventContext();
-      const planes = game.decks.table.getAllItems();
-      const target = planes.find((plane) => !plane.isCardPlane());
+      const targetId = Object.entries(player.eventData.plane).find(([id, p]) => p.selectable)[0];
+      const target = game.get(targetId);
       this.emit('TRIGGER', { target });
     },
   },
