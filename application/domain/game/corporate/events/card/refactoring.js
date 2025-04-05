@@ -24,23 +24,20 @@
       }
 
       const eventData = { dice: {} };
-      let diceFound = false;
       for (const plane of planes) {
         for (const dice of plane.select({ className: 'Dice', directParent: false })) {
           if (dice.deleted) continue;
           eventData.dice[dice.id()] = { selectable: true };
-          diceFound = true;
         }
       }
       for (const bridge of bridges) {
         for (const dice of bridge.select({ className: 'Dice', directParent: false })) {
           if (dice.deleted) continue;
           eventData.dice[dice.id()] = { selectable: true };
-          diceFound = true;
         }
       }
 
-      if (!diceFound) return { resetEvent: true };
+      if (Object.keys(eventData.dice).length === 0) return { resetEvent: true };
 
       player.set({ eventData });
     },

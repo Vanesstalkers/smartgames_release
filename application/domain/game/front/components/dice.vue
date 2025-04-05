@@ -1,17 +1,12 @@
 <template>
-  <div
-    v-if="dice"
-    :code="dice.code"
-    :class="[
-      'domino-dice',
-      dice.deleted ? 'deleted' : '',
-      locked ? 'locked' : '',
-      selectable ? 'selectable' : '',
-      hide ? 'hide' : '',
-      isPicked ? 'picked' : '',
-    ]"
-    v-on:click="(e) => (selectable ? chooseDice() : pickDice())"
-  >
+  <div v-if="dice" :code="dice.code" :class="[
+    'domino-dice',
+    dice.deleted ? 'deleted' : '',
+    locked ? 'locked' : '',
+    selectable ? 'selectable' : '',
+    hide ? 'hide' : '',
+    isPicked ? 'picked' : '',
+  ]" v-on:click="(e) => (selectable ? chooseDice() : pickDice())">
     <div v-if="!locked && !zone?.available && !this.gameState.viewerMode" class="controls">
       <div :class="['control rotate', dice.deleted ? 'hidden' : '']" v-on:click.stop="rotateDice">
         <font-awesome-icon :icon="['fas', 'rotate']" size="2xl" style="color: #f4e205" />
@@ -30,25 +25,16 @@
       </div>
     </div>
     <template>
-      <div
-        v-for="side in sideList"
-        :key="side._id"
-        :value="side.value"
-        :class="[
-          'el',
-          'template-' + (sourceGame.templates.dice || 'default'),
-          side.eventData.selectable ? 'selectable' : '',
-          side.eventData.fakeValue ? 'fake-value' : '',
-        ]"
-        v-on:click="
-          (e) => (side.eventData.selectable ? (e.stopPropagation(), openDiceSideValueSelect(side._id)) : null)
-        "
-      >
-        <dice-side-value-select
-          v-if="gameCustom.selectedDiceSideId === side._id"
-          v-on:select="pickActiveEventDiceSide"
-          :templateClass="'template-' + (sourceGame.templates.dice || 'default')"
-        />
+      <div v-for="side in sideList" :key="side._id" :value="side.value" :class="[
+        'el',
+        'template-' + (sourceGame.templates.dice || 'default'),
+        side.eventData.selectable ? 'selectable' : '',
+        side.eventData.fakeValue ? 'fake-value' : '',
+      ]" v-on:click="
+        (e) => (side.eventData.selectable ? (e.stopPropagation(), openDiceSideValueSelect(side._id)) : null)
+      ">
+        <dice-side-value-select v-if="gameCustom.selectedDiceSideId === side._id" v-on:select="pickActiveEventDiceSide"
+          :templateClass="'template-' + (sourceGame.templates.dice || 'default')" />
       </div>
     </template>
   </div>
@@ -83,6 +69,9 @@ export default {
     game() {
       return this.getGame(this.gameId || this.dice.sourceGameId);
     },
+    sessionPlayerEventData() {
+      return this.sessionPlayer().eventData;
+    },
     sourceGame() {
       return this.getGame(this.dice.sourceGameId);
     },
@@ -91,16 +80,23 @@ export default {
     },
     sideList() {
       const sideList = this.dice.sideList || ['', ''];
-      return sideList.map(id => {
-        const side = this.store.diceside?.[id];
-        return side?._id ? side : { eventData: {} };
+      const result = sideList.map(id => {
+        let side = this.store.diceside?.[id];
+        const sideId = side?._id;
+        if (!sideId) side = { eventData: {} };
+
+        side.eventData.selectable = this.sessionPlayerEventData.dside?.[sideId] ? true : false;
+
+        return side;
       });
+      console.log({ result })
+      return result;
     },
     locked() {
       return this.dice.locked || this.actionsDisabled();
     },
     selectable() {
-      return this.sessionPlayerIsActive() && this.sessionPlayer().eventData.dice?.[this.diceId]?.selectable;
+      return this.sessionPlayerIsActive() && this.sessionPlayerEventData.dice?.[this.diceId]?.selectable;
     },
     hide() {
       return this.inHand && !this.iam && !this.dice.visible && !this.gameState.viewerMode;
@@ -187,10 +183,12 @@ export default {
     box-shadow: 0 0 10px 10px #f4e205 !important;
   }
 }
+
 .domino-dice.deleted {
   transform: scale(0.5);
 }
-.domino-dice.hide > .el {
+
+.domino-dice.hide>.el {
   background-image: none;
   background: black !important;
 }
@@ -199,15 +197,17 @@ export default {
 .player.iam .hand-dices .domino-dice {
   cursor: pointer;
 }
+
 #game.viewer-mode .domino-dice {
   cursor: default;
 }
+
 .domino-dice.locked {
   opacity: 0.5;
   cursor: default !important;
 }
 
-.domino-dice > .controls {
+.domino-dice>.controls {
   display: none;
   position: absolute;
   width: 100%;
@@ -218,56 +218,66 @@ export default {
   z-index: 1;
   border-radius: 16px;
 }
-.zone.vertical .domino-dice > .controls {
+
+.zone.vertical .domino-dice>.controls {
   flex-wrap: wrap;
 }
-.zone.vertical .domino-dice > .controls > .control {
+
+.zone.vertical .domino-dice>.controls>.control {
   height: 33.333%;
 }
 
-.plane .domino-dice:hover:not(.selectable) > .controls,
-.bridge .domino-dice:hover:not(.selectable) > .controls {
+.plane .domino-dice:hover:not(.selectable)>.controls,
+.bridge .domino-dice:hover:not(.selectable)>.controls {
   display: flex;
   align-items: center;
   justify-content: space-around;
 }
-.domino-dice > .controls > .control {
+
+.domino-dice>.controls>.control {
   width: 100%;
   height: 100%;
 }
-.domino-dice > .controls > .control > svg {
+
+.domino-dice>.controls>.control>svg {
   width: 50%;
   height: 100%;
 }
-.domino-dice > .controls > .control:not(.disabled):hover > svg {
+
+.domino-dice>.controls>.control:not(.disabled):hover>svg {
   color: white !important;
 }
 
-.rotate180 .domino-dice > .controls {
+.rotate180 .domino-dice>.controls {
   transform: rotate(180deg);
 }
-.rotate90 .domino-dice > .controls > .control {
+
+.rotate90 .domino-dice>.controls>.control {
   transform: rotate(270deg);
 }
-.rotate270 .domino-dice > .controls > .control {
+
+.rotate270 .domino-dice>.controls>.control {
   transform: rotate(90deg);
 }
 
-.domino-dice > .controls > .control.disabled {
+.domino-dice>.controls>.control.disabled {
   cursor: default;
 }
-.domino-dice > .controls > .control.fake-rotate,
-.domino-dice > .controls > .control.hidden {
-  display: none;
-}
-.bridge .domino-dice > .controls > .control.fake-rotate:not(.hidden) {
-  display: block;
-}
-.bridge .domino-dice > .controls > .control.rotate {
+
+.domino-dice>.controls>.control.fake-rotate,
+.domino-dice>.controls>.control.hidden {
   display: none;
 }
 
-.domino-dice > .el {
+.bridge .domino-dice>.controls>.control.fake-rotate:not(.hidden) {
+  display: block;
+}
+
+.bridge .domino-dice>.controls>.control.rotate {
+  display: none;
+}
+
+.domino-dice>.el {
   position: relative;
   flex-shrink: 0;
   float: left;
@@ -279,60 +289,74 @@ export default {
   &.template-team1 {
     background-image: url(../assets/dices/team1.png);
   }
+
   &.template-team2 {
     background-image: url(../assets/dices/team2.png);
   }
+
   &.template-team3 {
     background-image: url(../assets/dices/team3.png);
   }
+
   &.template-team4 {
     background-image: url(../assets/dices/team4.png);
   }
 }
 
-.player.iam .hand-dices .domino-dice.picked > .el,
-.player.iam .hand-dices .domino-dice:not(.locked):hover > .el {
+.player.iam .hand-dices .domino-dice.picked>.el,
+.player.iam .hand-dices .domino-dice:not(.locked):hover>.el {
   box-shadow: inset 0 0 20px 8px lightgreen;
 }
-.domino-dice > .el.selectable:hover {
+
+.domino-dice>.el.selectable:hover {
   box-shadow: inset 0 0 20px 8px lightgreen !important;
 }
 
 .domino-dice.selectable {
   box-shadow: none !important;
 }
-.domino-dice.selectable > .el {
+
+.domino-dice.selectable>.el {
   box-shadow: inset 0 0 20px 8px yellow;
 }
-.domino-dice.selectable:hover > .el {
+
+.domino-dice.selectable:hover>.el {
   opacity: 0.7;
 }
 
-.domino-dice > .el.fake-value {
+.domino-dice>.el.fake-value {
   box-shadow: inset 0 0 20px 8px orange;
 }
-.domino-dice > .el {
+
+.domino-dice>.el {
   background-position: -497px !important;
 }
-.domino-dice > .el[value='0'] {
+
+.domino-dice>.el[value='0'] {
   background-position: -0px !important;
 }
-.domino-dice > .el[value='1'] {
+
+.domino-dice>.el[value='1'] {
   background-position: -71px !important;
 }
-.domino-dice > .el[value='2'] {
+
+.domino-dice>.el[value='2'] {
   background-position: -142px !important;
 }
-.domino-dice > .el[value='3'] {
+
+.domino-dice>.el[value='3'] {
   background-position: -213px !important;
 }
-.domino-dice > .el[value='4'] {
+
+.domino-dice>.el[value='4'] {
   background-position: -284px !important;
 }
-.domino-dice > .el[value='5'] {
+
+.domino-dice>.el[value='5'] {
   background-position: -355px !important;
 }
-.domino-dice > .el[value='6'] {
+
+.domino-dice>.el[value='6'] {
   background-position: -426px !important;
 }
 
