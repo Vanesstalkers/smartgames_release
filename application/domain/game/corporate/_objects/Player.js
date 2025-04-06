@@ -22,7 +22,7 @@
   toggleEventWithTriggerListener(data = {}) {
     if (data.targetId) {
       data.target = this.game().game().get(data.targetId);
-      delete data.targetId;
+      // не удаляем data.targetId, т.к. внутри может быть fakeId
     }
     return super.toggleEventWithTriggerListener(data);
   }

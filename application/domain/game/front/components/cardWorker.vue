@@ -119,7 +119,7 @@ export default {
       return this.gameState.cardWorkerAction || {};
     },
     selectable() {
-      return this.sessionPlayer().eventData.canSelectWorkers && this.player.eventData.selectable;
+      return this.sessionPlayer().eventData.player?.[this.playerId]?.selectable;
     },
     showEndRoundBtn() {
       return (

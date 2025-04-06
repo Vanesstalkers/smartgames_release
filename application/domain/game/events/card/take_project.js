@@ -1,4 +1,5 @@
 () => ({
+  fakeIdMapping: {},
   init: function () {
     const { game, player: activePlayer } = this.eventContext();
 
@@ -10,34 +11,32 @@
 
       return { resetEvent: true };
     } else {
-      let diceFound = false;
+      const eventData = { dice: {}, player: {} };
       for (const player of game.players()) {
         if (player === activePlayer) continue;
 
         const deck = player.find('Deck[domino]');
         for (const dice of deck.select('Dice')) {
-          dice.set({ eventData: { selectable: true } });
-          diceFound = true;
+          const diceId = dice.id();
+          let visibleDiceId = diceId;
+          if (!dice.visible) {
+            const fakeId = dice.fakeId[deck.id()];
+            visibleDiceId = fakeId;
+            this.fakeIdMapping[fakeId] = diceId;
+          }
+          eventData.dice[visibleDiceId] = { selectable: true };
         }
-        player.set({ eventData: { showDecks: true } });
+        eventData.player[player.id()] = { showDecks: true };
       }
+      activePlayer.set({ eventData });
 
-      if (!diceFound) return { resetEvent: true };
+      if (Object.keys(eventData.dice).length === 0) return { resetEvent: true };
     }
   },
   handlers: {
     RESET: function () {
       const { game, player: activePlayer } = this.eventContext();
-
-      for (const player of game.players()) {
-        if (player === activePlayer) continue;
-        const deck = player.find('Deck[domino]');
-        for (const dice of deck.select('Dice')) {
-          dice.set({ eventData: { selectable: null } });
-        }
-        player.set({ eventData: { showDecks: null } });
-      }
-
+      activePlayer.set({ eventData: { dice: null, player: null } });
       this.destroy();
     },
     TRIGGER: function ({ targetId: fakeId, targetPlayerId }) {
@@ -45,20 +44,16 @@
 
       if (!fakeId || !targetPlayerId) return this.emit('RESET');
 
-      const targetPlayer = game.get(targetPlayerId);
+      const { targetPlayer, targetPlayerHand, handId } = this.getTargetPlayer({ targetPlayerId });
       if (!targetPlayer) return this.emit('RESET');
 
       const playerHand = activePlayer.find('Deck[domino]');
-      const targetPlayerHand = targetPlayer.find('Deck[domino]');
-      const handId = targetPlayerHand.id();
 
       const dice = targetPlayerHand
         .select('Dice')
         .find((dice) => dice.fakeId[handId] === fakeId || dice.id() === fakeId);
       if (!dice) return this.emit('RESET');
 
-      // !!! взятая и выложенная на поле костяшка будет selectable для старого хозяина (в его ход)
-      dice.set({ eventData: { selectable: null } });
       dice.moveToTarget(playerHand);
 
       game.logs({
@@ -69,17 +64,7 @@
       this.emit('RESET');
     },
     END_ROUND: function () {
-      const { game, player: activePlayer } = this.eventContext();
-
-      const players = game.players();
-      const activePlayerIdx = players.indexOf(activePlayer);
-      const sortedPlayers = players.slice(activePlayerIdx + 1).concat(players.slice(0, activePlayerIdx));
-      const dices = sortedPlayers.reduce((arr, player) => {
-        const sameTeam = false;
-        if (sameTeam) return arr; // тут будет проверка на однокомандника
-        return arr.concat(player.find('Deck[domino]').select('Dice'));
-      }, []);
-      const dice = dices[0];
+      const dice = this.getRandomDice();
       if (!dice) return this.emit('RESET');
 
       const playerHand = dice.parent();
@@ -90,4 +75,16 @@
       });
     },
   },
+  getTargetPlayer({ targetPlayerId }) {
+    const { game } = this.eventContext();
+    const targetPlayer = game.get(targetPlayerId);
+    const targetPlayerHand = targetPlayer?.find('Deck[domino]');
+    const handId = targetPlayerHand?.id();
+    return { targetPlayer, targetPlayerHand, handId };
+  },
+  getRandomDice() {
+    const { game, player: activePlayer } = this.eventContext();
+    const diceId = Object.keys(activePlayer.eventData.dice)[0];
+    return game.get(this.fakeIdMapping[diceId] || diceId);
+  }
 });

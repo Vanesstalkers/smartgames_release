@@ -2,7 +2,8 @@
     const event = domain.game.events.card.crutch();
 
     const game = this.game();
-    if (!(game.merged || game.isSuperGame)) return event;
+    const commonHandActive = game.merged || game.isSuperGame;
+    if (!commonHandActive) return event;
 
     event.init = function () {
         const { game, player } = this.eventContext();
