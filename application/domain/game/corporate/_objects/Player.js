@@ -26,4 +26,26 @@
     }
     return super.toggleEventWithTriggerListener(data);
   }
+
+  checkHandDiceLimit() {
+    const game = this.game();
+    if (!game.merged) {
+      super.checkHandDiceLimit();
+    } else {
+      const gameCommonDominoDeck = game.find('Deck[domino_common]');
+
+      if (gameCommonDominoDeck.itemsCount() > game.settings.playerHandLimit * game.players().length) {
+        // слишком много доминошек в руке
+        if (player.eventData.disablePlayerHandLimit) {
+          player.set({ eventData: { disablePlayerHandLimit: null } });
+        } else {
+          gameCommonDominoDeck.moveAllItems({ target: game.find('Deck[domino]') });
+
+          game.logs({
+            msg: `У команды превышено максимальное количество костяшек в руке на конец хода. Все костяшки сброшены в колоду.`,
+          });
+        }
+      }
+    }
+  }
 });

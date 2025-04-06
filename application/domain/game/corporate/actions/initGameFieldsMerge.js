@@ -192,7 +192,9 @@
 
             const superGame = plane.game();
             const currentRound = superGame.round;
-            if (game.round !== currentRound) game.run('updateRoundStep'); // проверка на то, что событие вызвано выкладыванием plane, а не завершением раунда
+
+            // проверка на то, что событие вызвано выкладыванием plane, а не завершением раунда
+            if (game.round !== currentRound) game.run('roundEnd');
 
             if (superGame.allGamesMerged()) {
               if (currentRound !== superGame.round) {
@@ -202,7 +204,7 @@
 
               // принудительно завершаем раунды всех игр, чтобы переключиться на чередование раундов между играми
               for (const game of superGame.getAllGames()) {
-                if (!game.roundReady) game.run('updateRoundStep');
+                if (!game.roundReady) game.run('roundEnd');
               }
             }
 

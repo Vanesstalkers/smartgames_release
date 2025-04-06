@@ -172,7 +172,7 @@ export default {
       this.gameCustom.pickedDiceId = '';
 
       await this.handleGameApi(
-        { name: 'updateRoundStep' },
+        { name: 'roundEnd' },
         {
           onSuccess: () => (this.controlActionDisabled = false),
           onError: () => (this.controlActionDisabled = false),

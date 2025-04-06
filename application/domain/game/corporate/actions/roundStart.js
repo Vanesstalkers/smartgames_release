@@ -14,12 +14,12 @@
 
   for (const game of games) {
     if (allGamesMerged && roundActiveGame && game !== roundActiveGame) {
-      game.set({ round: newRoundNumber }); // иначе иначе будет рассинхрон раундов, которые обновляются в domain.startNewRound
+      game.set({ round: newRoundNumber }); // иначе иначе будет рассинхрон раундов, которые обновляются в domain.roundStart
       game.dumpState();
       continue;
     }
-    game.set({ roundReady: false }); // активируем действия пользователя на фронте (вызываем до startNewRound, чтобы попало в dumpState)
-    game.run('domain.startNewRound');
+    game.set({ roundReady: false }); // активируем действия пользователя на фронте (вызываем до roundStart, чтобы попало в dumpState)
+    game.run('domain.roundStart');
   }
 
   this.dumpState();

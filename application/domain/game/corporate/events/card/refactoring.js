@@ -92,7 +92,7 @@
       DICES_DISABLED: function ({ parent, ids = [] }) {
         const { game, player } = this.eventContext();
 
-        if (parent === game) return; // тут roundReady, следом вызовется END_ROUND из updateRoundStep
+        if (parent === game) return; // тут roundReady, следом вызовется END_ROUND из roundEnd
 
         if (player.eventData.dice) {
           const eventData = { dice: {} };

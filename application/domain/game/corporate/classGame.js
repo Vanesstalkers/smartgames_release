@@ -92,7 +92,7 @@
       else if (
         player.eventData.actionsDisabled &&
         !disableActionsDisabledCheck &&
-        eventName !== 'updateRoundStep' &&
+        eventName !== 'roundEnd' &&
         eventName !== 'leaveGame'
       )
         throw new Error('Игрок не может совершать действия в этот ход.');
