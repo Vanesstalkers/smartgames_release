@@ -36,8 +36,8 @@
 
       if (gameCommonDominoDeck.itemsCount() > game.settings.playerHandLimit * game.players().length) {
         // слишком много доминошек в руке
-        if (player.eventData.disablePlayerHandLimit) {
-          player.set({ eventData: { disablePlayerHandLimit: null } });
+        if (this.eventData.disablePlayerHandLimit) {
+          this.set({ eventData: { disablePlayerHandLimit: null } });
         } else {
           gameCommonDominoDeck.moveAllItems({ target: game.find('Deck[domino]') });
 

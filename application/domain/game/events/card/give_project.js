@@ -1,30 +1,21 @@
 () => ({
   init: function () {
     const { game, player } = this.eventContext();
-
-    let diceFound = false;
     const deck = player.find('Deck[domino]');
+
     const eventData = { dice: {} };
     for (const dice of deck.select('Dice')) {
       eventData.dice[dice.id()] = { selectable: true };
-      diceFound = true;
     }
-    if (!diceFound) return { resetEvent: true };
+    if (Object.keys(eventData.dice).length === 0) return { resetEvent: true };
 
     player.set({ eventData });
   },
   handlers: {
     RESET: function () {
       const { game, player: activePlayer } = this.eventContext();
-
       this.emit('DEACTIVATE');
-
-      for (const player of game.players()) {
-        if (player === activePlayer) continue;
-        player.set({ eventData: { selectable: null } });
-      }
-      activePlayer.set({ eventData: { canSelectWorkers: null } });
-
+      activePlayer.set({ eventData: { player: null } });
       this.destroy();
     },
     DEACTIVATE: function () {
@@ -34,7 +25,7 @@
     TRIGGER: function ({ target }) {
       const { game, player: activePlayer } = this.eventContext();
 
-      if (!target) return;
+      if (!target) return this.emit('RESET');
 
       if (!this.targetDice) {
         this.targetDice = target;
@@ -51,41 +42,41 @@
           const target = players.find((p) => p !== activePlayer);
           return this.emit('TRIGGER', { target });
         } else {
+          const eventData = { player: {} };
           for (const player of game.players()) {
             if (player === activePlayer) continue;
-            player.set({ eventData: { selectable: true } });
+            eventData.player[player.id()] = { selectable: true };
           }
-          activePlayer.set({ eventData: { canSelectWorkers: true } });
+          activePlayer.set({ eventData });
         }
 
         return { preventListenerRemove: true };
       }
 
-      const targetDeck = target.find('Deck[domino]');
-      this.targetDice.moveToTarget(targetDeck);
+      this.targetDice.moveToTarget(target.find('Deck[domino]'));
 
-      const isPlayer = target.matches({ className: 'Player' }); // тут может быть game
-      if (isPlayer) {
-        game.logs({
-          msg: `Игрок {{player}} стал целью события "${this.getTitle()}".`,
-          userId: target.userId,
-        });
-      }
+      game.logs({
+        msg: `Игрок {{player}} стал целью события "${this.getTitle()}".`,
+        userId: target.userId,
+      });
 
-      this.targetPlayer = target;
       this.emit('RESET');
     },
     END_ROUND: function () {
       const { game, player } = this.eventContext();
+      const players = game.players();
 
       if (!this.targetDice) {
-        const dice = player.find('Deck[domino]').select('Dice')[0];
-        if (game.isSinglePlayer()) return this.emit('TRIGGER', { target: dice });
-        this.targetDice = dice;
+        const targetDice = player.find('Deck[domino]').select('Dice')[0];
+        if (game.isSinglePlayer()) return this.emit('TRIGGER', { target: targetDice });
+        this.targetDice = targetDice; // иначе внутри TRIGGER не попадет в  if(game.isSinglePlayer()){...}
       }
 
+      const activePlayerIndex = players.findIndex(p => p === player);
+      const nextPlayerIndex = (activePlayerIndex + 1) % players.length;
+
       this.emit('TRIGGER', {
-        target: game.select('Player').find((p) => p !== player),
+        target: players[nextPlayerIndex],
       });
     },
   },

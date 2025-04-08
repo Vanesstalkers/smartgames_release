@@ -174,4 +174,19 @@
   hasDiceReplacementEvent() {
     return this.eventData.activeEvents.some(event => event.name === 'diceReplacementEvent');
   }
+
+  updateTimerOverdueCounter(timerOverdue) {
+    let timerOverdueCounter = this.timerOverdueCounter || 0;
+    if (timerOverdue) {
+      timerOverdueCounter++;
+      // если много ходов было завершено по таймауту, то скорее всего все игроки вышли и ее нужно завершать
+      if (timerOverdueCounter > this.settings.autoFinishAfterRoundsOverdue) {
+        console.error('endGame <- timerOverdue');
+        this.run('endGame');
+      }
+    } else {
+      timerOverdueCounter = 0;
+    }
+    this.set({ timerOverdueCounter });
+  }
 });
