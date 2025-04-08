@@ -6,21 +6,17 @@
       this.emit('TRIGGER', { target: player });
       return { resetEvent: true };
     } else {
+      const eventData = { player: {} };
       for (const player of game.players()) {
-        player.set({ eventData: { selectable: true } });
+        eventData.player[player.id()] = { selectable: true };
       }
-      player.set({ eventData: { canSelectWorkers: true } });
+      player.set({ eventData });
     }
   },
   handlers: {
     RESET: function () {
       const { game, player } = this.eventContext();
-
-      for (const player of game.players()) {
-        player.set({ eventData: { selectable: null } });
-      }
-      player.set({ eventData: { canSelectWorkers: null } });
-
+      player.set({ eventData: { player: null } });
       this.destroy();
     },
     TRIGGER: function ({ target: targetPlayer }) {
