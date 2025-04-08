@@ -194,7 +194,7 @@
             const currentRound = superGame.round;
 
             // проверка на то, что событие вызвано выкладыванием plane, а не завершением раунда
-            if (game.round !== currentRound) game.run('roundEnd');
+            if (!this.endRoundTriggered) game.run('roundEnd');
 
             if (superGame.allGamesMerged()) {
               if (currentRound !== superGame.round) {
@@ -225,6 +225,8 @@
         END_ROUND() {
           const { game, source: plane } = this.eventContext();
           const superGame = game.game();
+
+          this.endRoundTriggered = true;
 
           for (const port of game.decks.table.getFreePorts()) {
             this.emit('TRIGGER', { target: port });

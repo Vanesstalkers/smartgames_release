@@ -1,11 +1,11 @@
 () => ({
   init: function () {
     const { game, player } = this.eventContext();
-    const deck = game.find('Deck[domino]');
+    const deck = this.getDeck();
 
     if (deck.itemsCount() == 0) return { resetEvent: true };
 
-    const newPlayerHand = player.addDeck(
+    this.eventDeck = player.addDeck(
       {
         type: 'domino',
         subtype: 'flowstate',
@@ -15,17 +15,17 @@
       },
       { deckItemClass: game.defaultClasses()['Dice'] }
     );
-    deck.moveRandomItems({ count: newPlayerHand.settings.itemsStartCount, target: newPlayerHand });
-    this.extraCardCount = newPlayerHand.itemsCount(); // в колоде могло остаться меньше itemsStartCount карт
+    deck.moveRandomItems({ count: this.eventDeck.settings.itemsStartCount, target: this.eventDeck });
+    this.extraCardCount = this.eventDeck.itemsCount(); // в колоде могло остаться меньше itemsStartCount карт
   },
   handlers: {
     RESET: function () {
       const { game, player } = this.eventContext();
 
-      const deck = player.find('Deck[domino_flowstate]');
+      const deck = this.eventDeck;
       if (deck) {
         // deck еще не удален - не было сыграно достаточное количество dice
-        const gameDominoDeck = game.find('Deck[domino]');
+        const gameDominoDeck = this.getDeck();
         for (const itemId of Object.keys(deck.itemMap)) {
           game.getStore().dice[itemId].moveToTarget(gameDominoDeck);
         }
@@ -37,7 +37,7 @@
     DICE_PLACED: function () {
       const { game, player } = this.eventContext();
 
-      const deck = player.find('Deck[domino_flowstate]');
+      const deck = this.eventDeck;
       const itemsCount = deck.itemsCount();
       const { itemsUsageLimit } = deck.settings;
       if (itemsCount > 0 && itemsCount > this.extraCardCount - itemsUsageLimit) {
@@ -49,5 +49,10 @@
     END_ROUND: function () {
       this.emit('RESET');
     },
+  },
+  getDeck() {
+    const { game, player } = this.eventContext();
+    const deck = game.find('Deck[domino]');
+    return deck;
   },
 });

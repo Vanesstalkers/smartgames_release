@@ -26,9 +26,14 @@
   const activePlayer = superGame.roundActivePlayer();
   superGame.toggleEventHandlers('END_ROUND', {}, activePlayer); // когда все игры смерджены, то события карт навешиваются на супер-игру
 
+  const allGamesMerged = superGame.allGamesMerged();
+  const roundActiveGame = superGame.roundActiveGame();
   for (const game of superGame.getAllGames()) {
-
-    if (superGame.allGamesMerged() && game !== superGame.roundActiveGame()) continue; // могут добавить костяшку в руку в чужой ход
+    if (
+      allGamesMerged
+      && roundActiveGame // будет null, если только что смерджили последнюю игру
+      && game !== roundActiveGame // могут добавить костяшку в руку в ход другой игры
+    ) continue;
 
     const activePlayer = game.roundActivePlayer();
     if (game.round > 0 && activePlayer) {
