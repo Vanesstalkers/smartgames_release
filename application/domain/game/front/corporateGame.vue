@@ -96,7 +96,7 @@
 import { provide, reactive } from 'vue';
 
 import { prepareGameGlobals } from '~/lib/game/front/gameGlobals.mjs';
-import releaseGameGlobals from '~/domain/game/front/releaseGameGlobals.mjs';
+import releaseGameGlobals, { gameCustomArgs } from '~/domain/game/front/releaseGameGlobals.mjs';
 import corporateGameGlobals from '~/domain/game/front/corporateGameGlobals.mjs';
 import Game from '~/lib/game/front/Game.vue';
 
@@ -122,7 +122,10 @@ export default {
   },
   setup() {
     const gameGlobals = prepareGameGlobals({
-      gameCustomArgs: { gamePlaneTransformOrigin: {}, gamePlaneRotations: {} },
+      gameCustomArgs: {
+        ...gameCustomArgs,
+        gamePlaneRotations: {}
+      },
     });
 
     Object.assign(gameGlobals, releaseGameGlobals);
@@ -227,9 +230,7 @@ export default {
       return ['IN_PROCESS', 'PREPARE_START'].includes(this.game.status) && !this.game.roundReady;
     },
     playerIds() {
-      // !!!! переделать на отдельный блок для superGame
-      if (this.gameState.viewerMode)
-        return Object.keys(this.game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
+      if (this.gameState.viewerMode && !this.gameCustom.selectedGameId) return [];
 
       const game = this.getStore().game[this.gameCustom.selectedGameId || this.playerGameId()];
 
@@ -259,11 +260,9 @@ export default {
       return Math.floor(baseSum * timerMod * configMod);
     },
     deckList() {
-      return (
-        Object.keys(this.selectedGame.deckMap)
-          .map((id) => this.store.deck?.[id])
-          .concat(this.superGameCardDeck) || []
-      );
+      let resultDeckList = Object.keys(this.selectedGame.deckMap).map((id) => this.store.deck?.[id]);
+      if (this.selectedGame._id !== this.gameState.gameId) resultDeckList = resultDeckList.concat(this.superGameCardDeck) || [];
+      return resultDeckList;
     },
     superGameCardDeck() {
       return (

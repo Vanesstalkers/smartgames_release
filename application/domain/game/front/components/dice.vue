@@ -89,7 +89,6 @@ export default {
 
         return side;
       });
-      console.log({ result })
       return result;
     },
     locked() {

@@ -44,3 +44,16 @@ function hidePreviewPlanes() {
   this.gameCustom.selectedFakePlanes = {};
 }
 export default { zoneAvailable, hideZonesAvailability, calcGamePlaneCustomStyleData, hidePreviewPlanes };
+
+export const gameCustomArgs = {
+  pickedDiceId: '',
+  selectedDiceSideId: '',
+  selectedCard: '',
+  selectedPlane: '',
+  selectedFakePlanes: {},
+  gamePlaneTranslateX: 0,
+  gamePlaneTranslateY: 0,
+  gamePlaneRotation: 0,
+  gamePlaneTransformOrigin: {},
+  viewerState: { showCards: {} },
+}

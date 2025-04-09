@@ -14,7 +14,8 @@
     <div v-if="!iam && game.status != 'WAIT_FOR_PLAYERS'" class="domino-dice">
       {{ dominoDeckCount }}
     </div>
-    <div v-if="!iam && game.status != 'WAIT_FOR_PLAYERS'" class="card-event" :style="cardEventCustomStyle">
+    <div v-if="!iam && game.status != 'WAIT_FOR_PLAYERS'" class="card-event" :style="cardEventCustomStyle"
+      @click="toggleViewerShowCards">
       <div>
         {{ cardDeckCount }}
       </div>
@@ -187,6 +188,11 @@ export default {
         })
         .catch(prettyAlert);
     },
+    toggleViewerShowCards() {
+      if (!this.gameState.viewerMode) return;
+      this.$set(this.gameCustom.viewerState.showCards, this.playerId, !this.gameCustom.viewerState.showCards[this.playerId]);
+      console.log('toggleViewerShowCards', { playerId: this.playerId, viewerState: this.gameCustom.viewerState.showCards[this.playerId] });
+    },
   },
   mounted() { },
 };
@@ -328,6 +334,18 @@ export default {
 
   .domino-dice {
     visibility: visible;
+  }
+}
+
+.viewer-mode {
+  .card-worker {
+    .card-event {
+      cursor: pointer;
+
+      &:hover {
+        color: green;
+      }
+    }
   }
 }
 </style>

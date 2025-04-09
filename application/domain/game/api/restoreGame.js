@@ -1,62 +1,57 @@
 async (context, { round } = {}) => {
   const { sessionId } = context.session.state;
-  const session = lib.store('session').get(sessionId);
-  const { gameId, lobbyId } = session;
+  const { gameId, lobbyId } = lib.store('session').get(sessionId);
   const game = lib.store('game').get(gameId);
 
   if (!game) throw new Error('Не участвует в игре');
 
   try {
     const { gameType } = game;
-    const players = Object.values(game.store.player);
+    const [dumpData] = await db.mongo.find(
+      game.col() + '_dump',
+      { _gameid: db.mongo.ObjectID(game.id()), round: parseInt(round) || game.round },
+      { limit: 1 }
+    );
 
-    round = parseInt(round);
-    if (!round > 0) round = game.round;
-
-    const query = { _gameid: db.mongo.ObjectID(game.id()), round };
-    const [
-      dumpData, // берем первый элемент, т.к. в ответе массив
-    ] = await db.mongo.find(game.col() + '_dump', query, { limit: 1 });
     if (!dumpData) throw new Error('Копия для восстановления не найдена.');
 
-    const subscribers = game.channel().subscribers.entries();
-    for (const [subscriberChannel] of subscribers) {
-      await lib.store.broadcaster.publishData(subscriberChannel, game.wrapPublishData(null));
+    // Очистка текущей игры
+    for (const [channel] of game.channel().subscribers.entries()) {
+      await lib.store.broadcaster.publishData(channel, game.wrapPublishData(null));
     }
     game.clearChanges(); // внутри removeGame вызовется saveChanges, так что очищаем лишнее, чтобы не поломать state на фронте
     await game.removeGame();
 
-    const restoredGame = await domain.game.load({
-      ...{ gameType, gameId, lobbyId },
-      round,
-    });
+    // Восстановление игры
+    const restoredGame = await domain.game.load({ gameType, gameId, lobbyId, round: parseInt(round) || game.round });
     restoredGame.restorationMode = true;
 
-    for (const player of players) {
-      const { userId, userName, _id: playerId } = player;
-      const joinData = { userId, userName, playerId , viewerId };
-      if (viewerId) await game.viewerJoin(joinData);
-      else await restoredGame.playerJoin(joinData);
-
+    // Восстановление игроков и зрителей
+    for (const player of [...Object.values(game.store.player), ...Object.values(game.store.viewer)]) {
+      const { userId, userName, _id: id } = player;
       const user = lib.store('user').get(userId);
       user.subscribe(`game-${gameId}`, { rule: 'actions-only' });
+
+      await (player.isViewer ?
+        restoredGame.viewerJoin({ userId, userName, viewerId: id }) :
+        restoredGame.playerJoin({ userId, userName, playerId: id }));
+
       for (const session of user.sessions()) {
         session.subscribe(`game-${gameId}`, {
           rule: 'vue-store',
           userId,
-          viewerMode: user.viewerId ? true : false,
+          ...(player.isViewer && { viewerMode: true })
         });
-        session.onClose.push(async () => {
-          session.unsubscribe(`game-${gameId}`);
-        });
+        session.onClose.push(async () => session.unsubscribe(`game-${gameId}`));
       }
     }
+
     return { status: 'ok' };
   } catch (err) {
     console.log(err);
     context.client.emit('action/emit', {
       eventName: 'alert',
-      data: { message: err.message, stack: err.stack },
+      data: { message: err.message, stack: err.stack }
     });
     return err;
   }

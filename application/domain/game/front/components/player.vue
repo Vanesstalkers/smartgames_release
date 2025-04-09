@@ -18,22 +18,22 @@
         <div v-if="!hasPlaneInHand" class="hand-dices-list">
           <div v-for="deck in dominoDecks" :key="deck._id" class="hand-dices-list-content">
             <div v-if="iam || showDecks || !state.isPortrait" class="hand-dices" :style="iam || (state.isMobile && state.isPortrait)
-                ? {
-                  position: 'absolute',
-                  right: '0px',
-                  bottom: '0px',
-                  height: '0px',
-                  width: 'auto',
-                  transformOrigin: 'right bottom',
-                }
-                : {
-                  position: 'absolute',
-                  left: '0px',
-                  bottom: '0px',
-                  height: '0px',
-                  width: 'auto',
-                  transformOrigin: 'left bottom',
-                }
+              ? {
+                position: 'absolute',
+                right: '0px',
+                bottom: '0px',
+                height: '0px',
+                width: 'auto',
+                transformOrigin: 'right bottom',
+              }
+              : {
+                position: 'absolute',
+                left: '0px',
+                bottom: '0px',
+                height: '0px',
+                width: 'auto',
+                transformOrigin: 'left bottom',
+              }
               ">
               <dice v-for="id in Object.keys(deck.itemMap)" :key="id" :diceId="id" :inHand="true" :iam="iam"
                 :gameId="player.gameId" />
@@ -42,7 +42,11 @@
             </div>
           </div>
         </div>
-        <div v-if="(iam || gameState.viewerMode) && !hasPlaneInHand" class="hand-cards-list" ref="scrollbar">
+        <div
+          v-if="(iam || (gameState.viewerMode && gameCustom.viewerState.showCards[player._id] === true)) && !hasPlaneInHand"
+          class="hand-cards-list"
+          :style="gameState.viewerMode ? { width: handCardsWidth !== 'auto' ? parseInt(handCardsWidth) * 0.5 + 'px' : 'auto' } : {}"
+          ref="scrollbar">
           <div v-for="deck in cardDecks" :key="deck._id" class="hand-cards" :style="{ width: handCardsWidth }">
             <card v-for="id in Object.keys(deck.itemMap)" :key="id" :cardId="id"
               :canPlay="iam && sessionPlayerIsActive()" />
@@ -187,10 +191,24 @@ export default {
     align-items: flex-end;
     flex-direction: row-reverse;
 
+    .player-hands {
+      justify-content: flex-start !important;
+    }
+
     .hand-planes {
       flex-direction: row-reverse;
     }
+
+    .hand-cards-list {
+      order: -1;
+
+      .hand-cards {
+        scale: 0.5;
+        transform-origin: left bottom;
+      }
+    }
   }
+
 }
 
 #game.mobile-view.portrait-view .player:not(.iam)>.inner-content {

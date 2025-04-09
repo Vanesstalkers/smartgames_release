@@ -27,10 +27,9 @@ function getGame(gameId) {
   if (!gameId) gameId = this.playerGameId();
 
   const superGame = this.getSuperGame();
-  if (this.gameState.viewerMode) return superGame;
   if (gameId === superGame._id) return superGame;
 
-  return superGame.store?.game[gameId] || {};
+  return superGame.store?.game?.[gameId] || {};
 }
 function gameFinished() {
   return this.getSuperGame().status === 'FINISHED';
