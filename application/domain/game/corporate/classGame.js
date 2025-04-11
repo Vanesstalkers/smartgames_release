@@ -194,4 +194,12 @@
     const game = this.merged ? this.game() : this;
     return game.eventData.activeEvents.some(event => event.name === 'diceReplacementEvent');
   }
+
+  logs(data, config = {}) {
+    if (!data) return super.logs(data, config);
+
+    if (typeof data === 'string') data = { msg: data };
+    if (!data.userId) data.userId = this.roundActivePlayer()?.userId;
+    return this.game().logs(data, config);
+  }
 });

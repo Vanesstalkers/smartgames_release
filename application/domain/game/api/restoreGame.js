@@ -27,7 +27,7 @@ async (context, { round } = {}) => {
     restoredGame.restorationMode = true;
 
     // Восстановление игроков и зрителей
-    for (const player of [...Object.values(game.store.player), ...Object.values(game.store.viewer)]) {
+    for (const player of [...Object.values(game.store.player), ...Object.values(game.store.viewer || {})]) {
       const { userId, userName, _id: id } = player;
       const user = lib.store('user').get(userId);
       user.subscribe(`game-${gameId}`, { rule: 'actions-only' });

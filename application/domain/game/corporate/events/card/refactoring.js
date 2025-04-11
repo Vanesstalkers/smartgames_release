@@ -76,8 +76,10 @@
         dice.set({ visible: true, locked: true });
         zoneParent.set({ release: null });
 
-        game.logs({
-          msg: `Игрок {{player}} забрал со стола костяшку "${dice.getTitle()}".`,
+        const anchorGame = lib.store('game').get(zoneParent.anchorGameId);
+        const tableTitle = `<team team="${anchorGame.templates.code || 'super'}">стола</team>`;
+        anchorGame.logs({
+          msg: `Игрок {{player}} забрал со ${tableTitle} костяшку "${dice.getTitle()}".`,
           userId: player.userId,
         });
 

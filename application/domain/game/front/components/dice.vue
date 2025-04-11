@@ -27,14 +27,14 @@
     <template>
       <div v-for="side in sideList" :key="side._id" :value="side.value" :class="[
         'el',
-        'template-' + (sourceGame.templates.dice || 'default'),
+        'template-' + (sourceGame.templates.code || 'default'),
         side.eventData.selectable ? 'selectable' : '',
         side.eventData.fakeValue ? 'fake-value' : '',
       ]" v-on:click="
         (e) => (side.eventData.selectable ? (e.stopPropagation(), openDiceSideValueSelect(side._id)) : null)
       ">
         <dice-side-value-select v-if="gameCustom.selectedDiceSideId === side._id" v-on:select="pickActiveEventDiceSide"
-          :templateClass="'template-' + (sourceGame.templates.dice || 'default')" />
+          :templateClass="'template-' + (sourceGame.templates.code || 'default')" />
       </div>
     </template>
   </div>

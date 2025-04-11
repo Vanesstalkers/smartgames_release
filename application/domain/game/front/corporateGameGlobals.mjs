@@ -166,6 +166,18 @@ async function handleGameApi(data, { onSuccess, onError } = {}) {
     .catch(onError);
 }
 
+function logItems() {
+  const items = Object.entries(this.getSuperGame().logs || {})
+    .map(([id, item]) => {
+      item.msg = item.msg
+        .replace(/<team\s*([^>]*)>([\S\s]+?)<\/team>/g, '<a $1>$2</a>')
+        .replace(/<player\s*([^>]*)>([\S\s]+?)<\/player>/g, '<a $1>$2</a>');
+      return [id, item];
+    })
+    .reverse();
+  return items || [];
+}
+
 export default {
   getSuperGame,
   getStore,
@@ -179,4 +191,5 @@ export default {
   getGamePlaneOffsets,
   resetPlanePosition,
   handleGameApi,
+  logItems,
 };

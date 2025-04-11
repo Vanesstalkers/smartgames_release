@@ -67,6 +67,6 @@
     if (event !== null && player) player.addEvent(event);
     this.set({ played: Date.now() });
 
-    this.game().logs(logMsg || `Разыграна карта "${this.title}"`);
+    player.game().logs(logMsg || `Разыграна карта "<a>${this.title}</a>"`);
   }
 });

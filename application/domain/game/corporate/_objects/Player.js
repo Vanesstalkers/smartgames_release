@@ -35,14 +35,14 @@
       const gameCommonDominoDeck = game.find('Deck[domino_common]');
 
       if (gameCommonDominoDeck.itemsCount() > game.settings.playerHandLimit * game.players().length) {
-        // слишком много доминошек в руке
+        // слишком много dice в руке
         if (this.eventData.disablePlayerHandLimit) {
           this.set({ eventData: { disablePlayerHandLimit: null } });
         } else {
           gameCommonDominoDeck.moveAllItems({ target: game.find('Deck[domino]') });
 
           game.logs({
-            msg: `У команды превышено максимальное количество костяшек в руке на конец хода. Все костяшки сброшены в колоду.`,
+            msg: `У команды <team team="${game.templates.code}">${game.title}</team> превышено максимальное количество костяшек в руке на конец хода. Все костяшки сброшены в колоду.`,
           });
         }
       }

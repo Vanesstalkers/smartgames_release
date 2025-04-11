@@ -32,7 +32,7 @@
           }}</small>
         </div>
         <div v-for="deck in deckList" :key="deck._id"
-          :class="['deck', 'template-' + (selectedGame.templates.dice || 'default')]"
+          :class="['deck', 'template-' + (selectedGame.templates.code || 'default')]"
           :code="deck.code.replace(selectedGame.code, '')">
           <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[domino]`" class="hat" v-on:click="takeDice">
             {{ Object.keys(deck.itemMap).length }}
@@ -851,6 +851,27 @@ export default {
 
   .game-status-label {
     font-size: 1.5em;
+  }
+
+}
+
+#game .log-content .log-item {
+  a {
+    &[team='team1'] {
+      color: rgb(255, 128, 128);
+    }
+
+    &[team='team2'] {
+      color: rgb(128, 128, 255);
+    }
+
+    &[team='team3'] {
+      color: rgb(128, 255, 128);
+    }
+
+    &[team='team4'] {
+      color: rgb(255, 255, 128);
+    }
   }
 }
 </style>

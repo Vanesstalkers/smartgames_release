@@ -62,7 +62,7 @@
       ).create(
         {
           ...{ deckType, gameType, gameConfig, gameTimer },
-          templates: { card: usedTemplates[0], dice: `team${_code}` },
+          templates: { card: usedTemplates[0], code: `team${_code}` },
         },
         { initPlayerWaitEvents: false }
       );
@@ -344,5 +344,22 @@
 
   mergeStatus() {
     return null;
+  }
+
+  logs(data, config = {}) {
+    if (!data) return super.logs(data, config);
+
+    if (typeof data === 'string') data = { msg: data };
+    if (!data.msg) {
+      console.error('log msg is required', { data });
+      return;
+    }
+
+    if (data.msg.includes('{{player}}')) {
+      const player = this.getPlayerByUserId(data.userId);
+      const game = player?.game();
+      data.msg = data.msg.replace(/{{player}}/g, `<player team="${game.templates.code || "central"}">${player?.userName || ''}</player>`);
+    }
+    return super.logs(data, config);
   }
 });
