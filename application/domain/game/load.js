@@ -30,7 +30,7 @@ async ({ gameType, gameId, lobbyId, round }) => {
     .then(async (game) => {
       const { deckType, gameType, gameConfig, gameTimer, playerMap } = game;
       await lib.store.broadcaster.publishAction(`lobby-${lobbyId}`, 'addGame', {
-        ...{ id: gameId, gameTimer, playerMap },
+        ...{ gameId, gameTimer, playerMap },
         ...{ deckType, gameType, gameConfig },
       });
 
