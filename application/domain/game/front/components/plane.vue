@@ -1,7 +1,7 @@
 <template>
-  <div v-if="plane._id || this.planeId === 'fake'" :id="plane._id" :class="[
+  <div v-if="plane._id || fakeId" :id="plane._id" :class="[
     'plane',
-    this.planeId === 'fake' ? 'fake' : '',
+    fakeId ? 'fake' : '',
     isSelectable ? 'selectable' : '',
     isOneOfMany ? 'one-of-many' : '',
     isExtraPlane ? 'extra' : '',
@@ -12,7 +12,8 @@
     ...Object.values(customClass),
   ]" :style="customStyle" v-on:click.stop="(e) => (isSelectable ? choosePlane() : selectPlane(e))" :code="plane.code"
     :anchorGameId="plane.anchorGameId">
-    <div v-if="plane._id && !gameState.viewerMode" class="price">{{ (plane.price * 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽
+    <div v-if="plane._id && !gameState.viewerMode" class="price">{{ (plane.price *
+      1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽
     </div>
     <div v-if="plane._id" class="zone-wraper">
       <plane-zone v-for="id in zoneIds" :key="id" v-bind:zoneId="id" :linkLines="linkLines"
@@ -74,6 +75,9 @@ export default {
     plane() {
       return this.store.plane?.[this.planeId] || { eventData: {}, customClass: [] };
     },
+    fakeId() {
+      return this.planeId.startsWith('fake');
+    },
     customStyle() {
       const { game, plane, inHand, viewStyle, customClass, state: { serverOrigin } = {} } = this;
       const style = { ...plane, ...viewStyle } || {};
@@ -94,7 +98,7 @@ export default {
         const rootPath = `${serverOrigin}/img/cards/${sourceGame.templates.card}`;
         const cardName = plane.code.includes('event_req_legal') ? 'req_legal' : 'req_tax';
         style.backgroundImage = `url(${rootPath}/${cardName}.jpg), url(empty-card.jpg)`;
-      } else if (this.planeId === 'fake') {
+      } else if (this.fakeId) {
         style.backgroundImage = `url(${serverOrigin}/img/planes/back-side.jpg)`;
       }
       return style;
@@ -130,7 +134,7 @@ export default {
       if ($plane.closest('.player.iam')) {
         this.gameCustom.selectedPlane = this.planeId;
         this.hidePreviewPlanes();
-        if (this.planeId === 'fake' && this.inHand) {
+        if (this.fakeId && this.inHand) {
           await this.handleGameApi({ name: 'takePlane', data: {} });
         } else {
           await this.handleGameApi({ name: 'showPlanePortsAvailability', data: { joinPlaneId: this.planeId } });
@@ -217,8 +221,10 @@ export default {
   height: $height;
   margin-bottom: 10px;
   transform-origin: 0 0;
+  background-size: contain;
 
   &:not(.card-plane) {
+
     &:after,
     &:before {
       content: '';
@@ -234,6 +240,10 @@ export default {
 
     &:before {
       background: none;
+      display: none;
+    }
+
+    &.fake:after {
       display: none;
     }
   }
@@ -281,8 +291,8 @@ export default {
     }
   }
 
-  > .zone-wraper,
-  > .port-wraper {
+  >.zone-wraper,
+  >.port-wraper {
     z-index: 1;
     position: relative;
   }
@@ -302,7 +312,7 @@ export default {
     --filter: grayscale(75%);
     --filter: grayscale(100%) brightness(200%) blur(2px);
 
-    > span {
+    >span {
       width: 80px;
       height: 80px;
       background-image: url(../assets/tiles.png);
@@ -317,7 +327,7 @@ export default {
     }
   }
 
-  > svg {
+  >svg {
     position: absolute;
     left: 0px;
     top: 0px;
@@ -326,11 +336,19 @@ export default {
     z-index: 0;
   }
 
-  &.rotate90 { transform: rotate(90deg); }
-  &.rotate180 { transform: rotate(180deg); }
-  &.rotate270 { transform: rotate(270deg); }
+  &.rotate90 {
+    transform: rotate(90deg);
+  }
 
-  > .price {
+  &.rotate180 {
+    transform: rotate(180deg);
+  }
+
+  &.rotate270 {
+    transform: rotate(270deg);
+  }
+
+  >.price {
     display: none;
     color: gold;
     font-size: 54px;

@@ -76,7 +76,7 @@ const init = async () => {
     if (path && args) {
       const result = await api.action.call({ path, args }).catch((err) => prettyAlert(err));
 
-      if (result.status === 'error' && result.logout === true) {
+      if (result?.logout === true) {
         return await api.action.call({ path: 'lobby.api.logout' }).catch(prettyAlert);
       }
       return result;

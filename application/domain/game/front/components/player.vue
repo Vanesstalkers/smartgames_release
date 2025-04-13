@@ -12,8 +12,7 @@
           :style="{ ...(iam ? { marginRight: (100 * planeInHandIds.length) + 'px' } : { marginLeft: (Math.max(250, 50 * planeInHandIds.length)) + 'px' }) }">
           <plane v-if="iam && player.eventData?.fakePlaneAddBtn" :key="'fake'" :planeId="'fake'" :inHand="true"
             :class="['in-hand', 'add-block-action']" />
-          <plane v-for="id in planeInHandIds" :key="id" :planeId="iam || gameState.viewerMode ? id : 'fake'"
-            :inHand="true" :class="['in-hand']" />
+          <plane v-for="id in planeInHandIds" :key="id" :planeId="id" :inHand="true" :class="['in-hand']" />
         </div>
 
         <div v-if="!hasPlaneInHand" class="hand-dices-list">
@@ -159,7 +158,7 @@ export default {
     planeInHandIds() {
       return Object.keys(
         this.deckIds.map((id) => this.store.deck?.[id]).find((deck) => deck.type === 'plane')?.itemMap || {}
-      );
+      ).map((id) => this.store.plane?.[id] ? id : 'fake' + id);
     },
     hasPlaneInHand() {
       return this.planeInHandIds.length > 0;
@@ -287,7 +286,6 @@ export default {
       display: flex;
       align-items: flex-end;
       flex-direction: row-reverse;
-      height: 0px;
 
       .player-hands {
         justify-content: flex-start !important;
@@ -314,12 +312,6 @@ export default {
       // margin-right: -450px !important;
       // margin-bottom: -50px !important;
 
-      // @for $i from 1 through 10 {
-      //   &:nth-child(#{$i}) {
-      //     margin-bottom: calc(-50px + (20px * ($i - 1))) !important;
-      //   }
-      // }
-
       &:not(.card-plane) {
         box-shadow: inset 0px 0px 20px 10px black;
         margin: 0px 0px 150px -450px;
@@ -332,14 +324,38 @@ export default {
         }
       }
 
+      &.fake>.custom-bg {
+        display: none;
+      }
+
+      @for $i from 1 through 10 {
+        &:nth-child(#{$i}) {
+          margin-bottom: calc(150px + (30px * ($i - 1))) !important;
+
+          &:hover {
+            margin-bottom: calc(190px + (30px * ($i - 1))) !important;
+          }
+
+          &.card-plane {
+            order: 0;
+            z-index: 2;
+            margin: 180px 0px 260px -160px !important;
+          }
+        }
+      }
+
       &.card-plane {
         order: 0;
         z-index: 2;
         margin: 180px 0px 260px -160px;
 
-        // &:hover {
-        //   margin-bottom: 300px !important;
-        // }
+        >.price {
+          display: none;
+        }
+
+        &:hover {
+          margin-bottom: 300px !important;
+        }
       }
     }
   }
@@ -374,14 +390,14 @@ export default {
         &.card-plane {
           order: -1;
           z-index: 2;
-          margin: 180px 0px 300px -160px;
+          margin: 180px 0px 260px -160px;
 
           >.price {
             font-size: 24px;
           }
 
           &:hover {
-            margin-bottom: 340px !important;
+            margin-bottom: 300px !important;
             cursor: pointer;
           }
         }
@@ -447,6 +463,10 @@ export default {
           >.price {
             display: none !important;
           }
+        }
+
+        &:hover>.price {
+          display: block;
         }
       }
     }
@@ -583,7 +603,7 @@ export default {
     }
 
     >.price {
-      display: block !important;
+      display: none;
     }
   }
 

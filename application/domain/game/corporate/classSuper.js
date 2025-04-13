@@ -71,7 +71,7 @@
       players[0].set({ teamlead: true });
 
       let active = true;
-      const playerMap = {};
+      const playerMap = Object.fromEntries(players.map(p=>[p._id, {}]));
       for (const player of players) {
         player.updateParent(game);
         player.game(game);
@@ -79,9 +79,8 @@
           player.set({ active });
           active = false;
         }
-        playerMap[player.id()] = {};
+        player.find('Deck[plane]').set({ access: playerMap });
       }
-
       game.set({ playerMap, title: `Команда №${_code}` });
 
       if (players.length === 1) game.set({ settings: { singlePlayer: true } });

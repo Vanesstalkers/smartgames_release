@@ -5,6 +5,7 @@
     const { game, player, source: card } = this.eventContext();
 
     const plane = game.addCardPlane(card);
+    plane.set({ visible: true }); // чтобы на фронт приходил не фейковый id, и в интерфейсы отображалась корректная карта
     plane.moveToTarget(player.find('Deck[plane]'));
 
     player.set({

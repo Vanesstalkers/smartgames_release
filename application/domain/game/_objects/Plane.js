@@ -10,8 +10,8 @@
     ]);
 
     const { price, width, height, left = 0, top = 0, rotation = 0 } = data;
-    const { release = false, customClass = [], cardPlane = false } = data;
-    this.set({ price, width, height, left, top, rotation, release, customClass, cardPlane });
+    const { release = false, customClass = [], cardPlane = false, visible } = data;
+    this.set({ price, width, height, left, top, rotation, release, customClass, cardPlane, visible });
 
     if (data.zoneMap) {
       data.zoneList = [];
