@@ -73,9 +73,14 @@ const init = async () => {
 
   window.addEventListener('message', async function (e) {
     const { path, args, routeTo, emit } = e.data;
-
     if (path && args) {
-      return await api.action.call({ path, args }).catch((err) => prettyAlert(err));
+      const result = await api.action.call({ path, args }).catch((err) => prettyAlert(err));
+
+      if (result.status === 'error' && result.logout === true) {
+        return await api.action.call({ path: 'lobby.api.logout' }).catch(prettyAlert);
+      }
+      return result;
+
     }
 
     if (routeTo) {
@@ -89,7 +94,7 @@ const init = async () => {
       const event = state.emit[eventName];
 
       if (!event) return console.error(`event "${eventName}" not found`);
-      
+
       return await event(data, config);
     }
   });

@@ -2,7 +2,13 @@ async (context, { deckType, gameType, gameId, needLoadGame }) => {
   const { sessionId } = context.session.state;
   const session = lib.store('session').get(sessionId);
   const user = session.user();
-  if (user.gameId && user.gameId !== gameId) throw new Error('Уже подключен к другой игре');
+
+  if (user.gameId && user.gameId !== gameId) {
+    lib.store.broadcaster.publishAction(`user-${userId}`, 'broadcastToSessions', {
+      data: { message: 'Попытка восстановления завершенной игры.' },
+    });
+    return { status: 'error', logout: true };
+  }
 
   const { playerId, viewerId } = user;
   const { lobbyId } = session;
