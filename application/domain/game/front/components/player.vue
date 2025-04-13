@@ -7,12 +7,13 @@
   ]">
     <div class="inner-content" :style="{ justifyContent: 'flex-end' }">
       <div class="player-hands" v-if="game.status != 'WAIT_FOR_PLAYERS'"
-        :style="{ justifyContent: 'flex-end', maxWidth: state.innerWidth / 2 + 'px' }">
-        <div v-if="hasPlaneInHand" class="hand-planes">
+        :style="{ justifyContent: 'flex-end', maxWidth: (state.innerWidth - 200) + 'px' }">
+        <div v-if="hasPlaneInHand" class="hand-planes"
+          :style="{ ...(iam ? { marginRight: (100 * planeInHandIds.length) + 'px' } : { marginLeft: (Math.max(250, 50 * planeInHandIds.length)) + 'px' }) }">
           <plane v-if="iam && player.eventData?.fakePlaneAddBtn" :key="'fake'" :planeId="'fake'" :inHand="true"
             :class="['in-hand', 'add-block-action']" />
-          <plane v-for="id in planeInHandIds" :key="id" :planeId="iam ? id : 'fake'" :inHand="true"
-            :class="['in-hand']" />
+          <plane v-for="id in planeInHandIds" :key="id" :planeId="iam || gameState.viewerMode ? id : 'fake'"
+            :inHand="true" :class="['in-hand']" />
         </div>
 
         <div v-if="!hasPlaneInHand" class="hand-dices-list">
@@ -182,64 +183,312 @@ export default {
 </script>
 
 <style lang="scss">
-.player:not(.iam) {
-  position: relative;
-  margin-top: 10px;
+#game {
+  $card-width: 130px;
+  $max-card-stack: 4;
+  $plane-height: 250px;
+  $plane-width: 500px;
 
-  >.inner-content {
-    display: flex;
-    align-items: flex-end;
-    flex-direction: row-reverse;
-
-    .player-hands {
-      justify-content: flex-start !important;
-    }
-
-    .hand-planes {
-      flex-direction: row-reverse;
-    }
-
-    .hand-cards-list {
-      order: -1;
-
-      .hand-cards {
-        scale: 0.5;
-        transform-origin: left bottom;
+  &.debug {
+    .player.iam {
+      .hand-planes {
+        max-width: 1000px;
       }
     }
   }
 
+  &.mobile-view {
+    .player.iam {
+      >.inner-content {
+        >.player-hands {
+          flex-wrap: nowrap;
+        }
+      }
+    }
+
+    .hand-cards-list {
+      overflow-y: auto;
+      overflow-x: hidden;
+      max-height: 400px;
+
+      .hand-cards {
+        margin-top: 130px;
+      }
+    }
+
+    &.portrait-view {
+      .player {
+        &:not(.iam) {
+          >.inner-content {
+            flex-direction: row;
+          }
+        }
+
+        .hand-planes {
+          flex-wrap: wrap;
+          align-items: flex-end;
+        }
+
+        &.iam {
+          .hand-planes {
+            height: initial;
+            margin-bottom: 0px;
+          }
+        }
+      }
+
+      .player-hands {
+        justify-content: flex-start;
+        height: initial;
+      }
+
+      .hand-dices {
+        .card-event {
+          display: none;
+        }
+      }
+    }
+
+    &.landscape-view {
+      .hand-cards-list {
+        @media only screen and (max-height: 360px) {
+          max-height: 300px;
+        }
+      }
+    }
+  }
+
+  &:not(.mobile-view) {
+    .hand-cards-list {
+      .hand-cards {
+        max-height: 250px;
+        flex-direction: column;
+      }
+    }
+  }
+
+  &.viewer-mode {
+    .hand-dices-list {
+      >.hand-dices-list-content {
+        z-index: 1;
+        transform: scale(0.7);
+        transform-origin: bottom left;
+      }
+    }
+  }
 }
 
-#game.mobile-view.portrait-view .player:not(.iam)>.inner-content {
-  flex-direction: row;
-}
+.player {
+  &:not(.iam) {
+    position: relative;
+    margin-top: 10px;
 
-.player.iam>.inner-content {
-  display: flex;
-  align-items: flex-end;
-  position: absolute;
-  right: 0px;
-  bottom: 0px;
-  height: 0px;
-}
+    >.inner-content {
+      display: flex;
+      align-items: flex-end;
+      flex-direction: row-reverse;
+      height: 0px;
 
-#game.mobile-view .player.iam>.inner-content>.player-hands {
-  flex-wrap: nowrap;
-}
+      .player-hands {
+        justify-content: flex-start !important;
 
-#game.mobile-view .player.iam>.hand-planes {
-  transform: scale(0.5);
-  width: 200%;
-  height: 50%;
-  transform-origin: top;
-  left: -50%;
-  bottom: -25%;
-}
+        .hand-planes {
+          height: 0px;
+          margin-left: 200px;
+        }
+      }
 
-.workers {
-  z-index: 1;
-  /* карточка воркера должна быть видна при размещении игровых зон из руки */
+      .hand-cards-list {
+        order: -1;
+
+        .hand-cards {
+          scale: 0.5;
+          transform-origin: left bottom;
+        }
+      }
+    }
+
+    .plane.in-hand {
+      z-index: 1;
+      flex-shrink: 0;
+      // margin-right: -450px !important;
+      // margin-bottom: -50px !important;
+
+      // @for $i from 1 through 10 {
+      //   &:nth-child(#{$i}) {
+      //     margin-bottom: calc(-50px + (20px * ($i - 1))) !important;
+      //   }
+      // }
+
+      &:not(.card-plane) {
+        box-shadow: inset 0px 0px 20px 10px black;
+        margin: 0px 0px 150px -450px;
+        order: -1;
+
+        &:hover {
+          margin-bottom: 190px !important;
+          cursor: pointer;
+          z-index: 4;
+        }
+      }
+
+      &.card-plane {
+        order: 0;
+        z-index: 2;
+        margin: 180px 0px 260px -160px;
+
+        // &:hover {
+        //   margin-bottom: 300px !important;
+        // }
+      }
+    }
+  }
+
+  &.iam {
+    >.inner-content {
+      display: flex;
+      align-items: flex-end;
+      position: absolute;
+      right: 0px;
+      bottom: 0px;
+      height: 0px;
+    }
+
+    .plane {
+      &.in-hand {
+        z-index: 1;
+        background-size: contain;
+
+        &:not(.card-plane) {
+          order: 0;
+          margin: 125px -180px 300px -400px;
+
+          &:hover {
+            z-index: 4;
+            opacity: 1;
+            margin-bottom: 340px;
+            cursor: pointer;
+          }
+        }
+
+        &.card-plane {
+          order: -1;
+          z-index: 2;
+          margin: 180px 0px 300px -160px;
+
+          >.price {
+            font-size: 24px;
+          }
+
+          &:hover {
+            margin-bottom: 340px !important;
+            cursor: pointer;
+          }
+        }
+
+        &.add-block-action {
+          background-size: cover;
+          transform-origin: center;
+          flex-shrink: 0;
+          position: absolute;
+          z-index: 0;
+          width: 200px;
+          height: 100px;
+          bottom: 70px;
+          left: -220px;
+          border-radius: 10px;
+          margin: 0px !important;
+
+          &::after {
+            display: none;
+          }
+
+          >.custom-bg {
+            display: none;
+          }
+
+          &::before {
+            content: '+';
+            background: rgb(0 255 0 / 40%);
+            display: block;
+            z-index: 1;
+            font-size: 100px;
+            color: white;
+            text-align: left;
+            padding-left: 20px;
+            width: 180px;
+            height: 100%;
+            line-height: 100px;
+            border-radius: 10px;
+          }
+
+          &:hover {
+            // right: -50px;
+            left: -280px;
+            width: 500px;
+            height: 250px;
+            bottom: -36px;
+
+            &::after {
+              display: block;
+            }
+
+            >.custom-bg {
+              display: flex;
+            }
+
+            &::before {
+              content: "+";
+              padding-left: 8px;
+              width: 100%;
+            }
+          }
+
+          >.price {
+            display: none !important;
+          }
+        }
+      }
+    }
+
+    .hand-planes {
+      height: 0px;
+      width: 100%;
+      justify-content: flex-end;
+
+      &::before {
+        // content: '';
+        width: 100%;
+        position: absolute;
+        bottom: 0px;
+        height: 70px;
+        background: #00000099;
+        z-index: 2;
+      }
+    }
+  }
+
+  .plane {
+    .domino-dice {
+      opacity: 0.5;
+      cursor: pointer !important;
+
+      >.controls {
+        display: none !important;
+      }
+    }
+
+    &.in-hand {
+      transform: scale(0.5);
+      transform-origin: center right;
+    }
+
+    // &:hover {
+    // z-index: 4 !important;
+    // opacity: 1;
+    // cursor: pointer;
+    // }
+  }
 }
 
 .player-hands {
@@ -265,41 +514,13 @@ export default {
   }
 }
 
-#game.mobile-view.portrait-view .player-hands {
-  justify-content: flex-start;
-  height: initial;
-}
-
-#game:not(.mobile-view) .hand-cards-list {
-  .hand-cards {
-    max-height: 250px;
-    flex-direction: column;
-  }
-}
-
-#game.mobile-view .hand-cards-list {
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: 400px;
-
-  .hand-cards {
-    margin-top: 130px;
-  }
-}
-
-#game.mobile-view.landscape-view .hand-cards-list {
-  @media only screen and (max-height: 360px) {
-    max-height: 300px;
-  }
-}
-
 .hand-cards {
   display: flex;
   flex-wrap: wrap;
-}
 
-.hand-cards>.card-event {
-  margin-top: -130px;
+  >.card-event {
+    margin-top: -130px;
+  }
 }
 
 .hand-dices-list {
@@ -308,18 +529,12 @@ export default {
   flex-direction: column;
   height: auto;
   width: auto;
-}
 
-.hand-dices-list>.hand-dices-list-content {
-  width: 0px;
-  height: 150px;
-  position: relative;
-}
-
-#game.viewer-mode .hand-dices-list>.hand-dices-list-content {
-  z-index: 1;
-  transform: scale(0.7);
-  transform-origin: bottom left;
+  >.hand-dices-list-content {
+    width: 0px;
+    height: 150px;
+    position: relative;
+  }
 }
 
 .hand-dices {
@@ -331,28 +546,15 @@ export default {
   width: 100%;
   padding: 0px;
   width: 0px;
-}
 
-.hand-dices .domino-dice {
-  height: 140px;
-  width: 70px;
-}
+  .domino-dice {
+    height: 140px;
+    width: 70px;
+  }
 
-.hand-dices .card-event {
-  scale: 0.7;
-  transform-origin: bottom;
-}
-
-#game.mobile-view.portrait-view .hand-dices .card-event {
-  display: none;
-}
-
-.player .plane .domino-dice {
-  opacity: 0.5;
-  cursor: pointer !important;
-
-  >.controls {
-    display: none !important;
+  .card-event {
+    scale: 0.7;
+    transform-origin: bottom;
   }
 }
 
@@ -360,26 +562,17 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-
-  //  решает проблему мерцация при наведении на нижнюю часть plane-а
-  &::before {
-    content: '';
-    width: 100%;
-    position: absolute;
-    bottom: 0px;
-    height: 70px;
-    background: #00000099;
-    // background-image: linear-gradient(to bottom, #00000000, #000000);
-  }
+  // margin-right: 540px;
 
   &::after {
-    content: '';
-    width: 320px;
-    flex-shrink: 1;
+    // content: '';
+    width: 540px;
+    flex-shrink: 0;
   }
 
   >.plane {
     flex-shrink: 2;
+    position: relative;
 
     &.card-plane {
       flex-shrink: 0;
@@ -387,6 +580,10 @@ export default {
       .port-wraper {
         display: none;
       }
+    }
+
+    >.price {
+      display: block !important;
     }
   }
 
@@ -396,40 +593,8 @@ export default {
   }
 }
 
-#game.mobile-view.portrait-view .hand-planes {
-  flex-wrap: wrap;
-  align-items: flex-end;
-}
-
-.player.iam .hand-planes {
-  height: 0px;
-  width: 100%;
-  margin-bottom: 175px;
-  margin-left: 20px;
-  padding-top: 20px;
-}
-
-#game.debug {
-  .player.iam .hand-planes {
-    max-width: 1000px;
-  }
-}
-
-#game.mobile-view.portrait-view .player.iam .hand-planes {
-  height: initial;
-  margin-bottom: 0px;
-}
-
-.hand-planes .plane {
-  position: relative;
-}
-
-.hand-planes .plane>.price {
-  display: block !important;
-}
-
-.player.iam .hand-planes .plane:hover {
-  cursor: pointer;
+.workers {
+  z-index: 3;
 }
 
 .deck-counters {
@@ -440,9 +605,9 @@ export default {
   right: 0px;
   bottom: 0px;
   text-align: right;
-}
 
-.deck-counters b {
-  font-size: 42px;
+  b {
+    font-size: 42px;
+  }
 }
 </style>

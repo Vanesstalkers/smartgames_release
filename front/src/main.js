@@ -195,8 +195,8 @@ const init = async () => {
   const checkDevice = () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
-    state.innerWidth = width;
-    state.innerHeight = height;
+    state.innerWidth = screen.width;
+    state.innerHeight = screen.height;
     state.isMobile = isMobile() ? true : false;
     state.isLandscape = height < width;
     state.isPortrait = !state.isLandscape;

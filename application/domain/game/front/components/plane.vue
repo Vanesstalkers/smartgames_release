@@ -1,6 +1,7 @@
 <template>
   <div v-if="plane._id || this.planeId === 'fake'" :id="plane._id" :class="[
     'plane',
+    this.planeId === 'fake' ? 'fake' : '',
     isSelectable ? 'selectable' : '',
     isOneOfMany ? 'one-of-many' : '',
     isExtraPlane ? 'extra' : '',
@@ -11,19 +12,20 @@
     ...Object.values(customClass),
   ]" :style="customStyle" v-on:click.stop="(e) => (isSelectable ? choosePlane() : selectPlane(e))" :code="plane.code"
     :anchorGameId="plane.anchorGameId">
-    <div class="price">{{ (plane.price * 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽</div>
-    <div class="zone-wraper">
+    <div v-if="plane._id && !gameState.viewerMode" class="price">{{ (plane.price * 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}₽
+    </div>
+    <div v-if="plane._id" class="zone-wraper">
       <plane-zone v-for="id in zoneIds" :key="id" v-bind:zoneId="id" :linkLines="linkLines"
         :gameId="plane.anchorGameId" />
     </div>
-    <div class="port-wraper">
+    <div v-if="plane._id" class="port-wraper">
       <plane-port v-for="id in portIds" :key="id" v-bind:portId="id" :linkLines="linkLines" />
     </div>
     <div v-if="!isCardPlane" div class="custom-bg">
       <span v-for="item in customBG(plane._id)" :key="item.code"
         :style="`background-position-x: ${item.x}; background-position-y: ${item.y}`" />
     </div>
-    <svg v-if="!isCardPlane">
+    <svg v-if="plane._id && !isCardPlane">
       <line v-for="[key, line] in Object.entries(linkLines)" :key="key" :x1="line.x1" :y1="line.y1" :x2="line.x2"
         :y2="line.y2" fill="none" stroke="yellow" stroke-width="10" />
     </svg>
@@ -92,6 +94,8 @@ export default {
         const rootPath = `${serverOrigin}/img/cards/${sourceGame.templates.card}`;
         const cardName = plane.code.includes('event_req_legal') ? 'req_legal' : 'req_tax';
         style.backgroundImage = `url(${rootPath}/${cardName}.jpg), url(empty-card.jpg)`;
+      } else if (this.planeId === 'fake') {
+        style.backgroundImage = `url(${serverOrigin}/img/planes/back-side.jpg)`;
       }
       return style;
     },
@@ -177,26 +181,62 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#game.debug {
-  .plane:before {
-    content: attr(anchorGameId) !important;
-    display: block !important;
-    color: white;
-    font-size: 24px;
-    position: absolute;
-    z-index: -1;
-    top: -30px;
-    left: 0px;
+#game {
+  &.debug {
+    .plane {
+      &:before {
+        content: attr(anchorGameId) !important;
+        display: block !important;
+        color: white;
+        font-size: 24px;
+        position: absolute;
+        z-index: -1;
+        top: -30px;
+        left: 0px;
+      }
+    }
+  }
+
+  &.mobile-view.portrait-view {
+    .plane.in-hand:not(.card-plane) {
+      transform: scale(0.7);
+      transform-origin: top right;
+      margin: 25px 0px -75px 0px;
+    }
   }
 }
 
 .plane {
+  $width: 500px;
+  $height: 250px;
+  $border-radius: 20px;
+
   position: relative;
   position: absolute;
-  width: 500px;
-  height: 250px;
+  width: $width;
+  height: $height;
   margin-bottom: 10px;
   transform-origin: 0 0;
+
+  &:not(.card-plane) {
+    &:after,
+    &:before {
+      content: '';
+      z-index: -1;
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      width: $width;
+      height: $height;
+      border-radius: $border-radius;
+      background: url(../assets/plane.png);
+    }
+
+    &:before {
+      background: none;
+      display: none;
+    }
+  }
 
   &.release {
     &:after {
@@ -219,8 +259,10 @@ export default {
     }
   }
 
-  &.one-of-many:after {
-    box-shadow: inset 0 0 0px 10px blue;
+  &.one-of-many {
+    &:after {
+      box-shadow: inset 0 0 0px 10px blue;
+    }
   }
 
   &.extra {
@@ -238,163 +280,69 @@ export default {
       box-shadow: inset 0 0 20px 8px orange !important;
     }
   }
-}
 
-.plane:not(.card-plane):after,
-.plane:not(.card-plane):before {
-  content: '';
-  z-index: -1;
-  position: absolute;
-  left: 0px;
-  top: 0px;
-  width: 500px;
-  height: 250px;
-  border-radius: 20px;
-  background: url(../assets/plane.png);
-}
-
-.plane:not(.card-plane):before {
-  background: none;
-  display: none;
-}
-
-.plane>.zone-wraper,
-.plane>.port-wraper {
-  z-index: 1;
-  position: relative;
-}
-
-.plane .custom-bg {
-  display: flex;
-  flex-wrap: wrap;
-  border-radius: 20px;
-  overflow: hidden;
-  position: absolute;
-  left: 10px;
-  top: 5px;
-  width: 480px;
-  height: 240px;
-  z-index: 0;
-  filter: blur(2px);
-  --filter: grayscale(75%);
-  --filter: grayscale(100%) brightness(200%) blur(2px);
-}
-
-.plane .custom-bg>span {
-  width: 80px;
-  height: 80px;
-  background-image: url(../assets/tiles.png);
-  background-size: 1120px;
-  background-repeat: no-repeat;
-}
-
-.plane.core .custom-bg {
-  filter: grayscale(100%) brightness(200%) blur(2px);
-}
-
-.plane>svg {
-  position: absolute;
-  left: 0px;
-  top: 0px;
-  width: 500px;
-  height: 250px;
-  z-index: 0;
-}
-
-.plane.rotate90 {
-  transform: rotate(90deg);
-}
-
-.plane.rotate180 {
-  transform: rotate(180deg);
-}
-
-.plane.rotate270 {
-  transform: rotate(270deg);
-}
-
-.plane.in-hand:not(.card-plane) {
-  order: -1;
-  transform: scale(0.5);
-  transform-origin: center left;
-  margin: 125px -250px -50px 0px;
-}
-
-.player:not(.am) .plane.in-hand:not(.card-plane) {
-  transform-origin: center right;
-  // margin: 125px -250px -50px 0px;
-}
-
-#game.mobile-view.portrait-view .plane.in-hand:not(.card-plane) {
-  transform: scale(0.7);
-  transform-origin: top right;
-  margin: 25px 0px -75px 0px;
-}
-
-.plane.in-hand:hover {
-  z-index: 2;
-  opacity: 1;
-  margin-bottom: 40px;
-}
-
-.plane.in-hand.card-plane {
-  order: 0;
-  z-index: 1;
-  transform: scale(0.5);
-  transform-origin: center left;
-  margin: 210px -70px 0px 0px;
-
-  >.price {
-    font-size: 24px;
-  }
-
-  &:hover {
-    margin-bottom: 40px;
-  }
-}
-
-.plane.in-hand.add-block-action {
-  &::before {
-    content: '+';
-    background: rgb(0 255 0 / 40%);
-    display: block;
+  > .zone-wraper,
+  > .port-wraper {
     z-index: 1;
-    font-size: 100px;
-    color: white;
-    text-align: left;
-    padding-left: 20px;
+    position: relative;
+  }
+
+  .custom-bg {
+    display: flex;
+    flex-wrap: wrap;
+    border-radius: $border-radius;
+    overflow: hidden;
+    position: absolute;
+    left: 10px;
+    top: 5px;
     width: 480px;
-    height: 250px;
-    line-height: 100px;
+    height: 240px;
+    z-index: 0;
+    filter: blur(2px);
+    --filter: grayscale(75%);
+    --filter: grayscale(100%) brightness(200%) blur(2px);
+
+    > span {
+      width: 80px;
+      height: 80px;
+      background-image: url(../assets/tiles.png);
+      background-size: 1120px;
+      background-repeat: no-repeat;
+    }
   }
 
-  >.price {
-    display: none !important;
+  &.core {
+    .custom-bg {
+      filter: grayscale(100%) brightness(200%) blur(2px);
+    }
   }
-}
 
-.plane.in-hand.add-block-action:hover {
-  &::before {
-    content: 'Добавить блок';
-    font-size: 32px;
-    line-height: 32px;
-    padding-top: 20px;
-    height: 230px;
+  > svg {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: $width;
+    height: $height;
+    z-index: 0;
   }
-}
 
-.plane>.price {
-  display: none;
-  color: gold;
-  font-size: 54px;
-  position: absolute;
-  z-index: 2;
-  top: 0px;
-  left: 0px;
-  background: #00000090;
-  width: 100%;
-  padding: 10px 0px;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
+  &.rotate90 { transform: rotate(90deg); }
+  &.rotate180 { transform: rotate(180deg); }
+  &.rotate270 { transform: rotate(270deg); }
+
+  > .price {
+    display: none;
+    color: gold;
+    font-size: 54px;
+    position: absolute;
+    z-index: 2;
+    top: 0px;
+    left: 0px;
+    background: #00000090;
+    width: 100%;
+    padding: 10px 0px;
+    border-top-left-radius: $border-radius;
+    border-top-right-radius: $border-radius;
+  }
 }
 </style>
