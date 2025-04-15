@@ -71,7 +71,7 @@
       players[0].set({ teamlead: true });
 
       let active = true;
-      const playerMap = Object.fromEntries(players.map(p=>[p._id, {}]));
+      const playerMap = Object.fromEntries(players.map(p => [p._id, {}]));
       for (const player of players) {
         player.updateParent(game);
         player.game(game);
@@ -176,17 +176,24 @@
       lib.store.broadcaster.publishAction(`gameuser-${userId}`, 'logout'); // инициирует hideGameIframe
     }
   }
-  async removeGame() {
+  async removeGame(config) {
     for (const game of this.getAllGames()) {
-      await game.removeGame();
+      await game.removeGame(config);
     }
-    await super.removeGame();
+    await super.removeGame(config);
   }
   async playerLeave({ userId, viewerId }) {
+
+    // !!!! проверить почему не удаляется игра при выходе на стадии WAIT_FOR_PLAYERS и PREPARE_START
+
     if (this.status !== 'FINISHED' && !viewerId) {
       this.logs({ msg: `Игрок {{player}} вышел из игры.`, userId });
       try {
-        this.run('endGame', { canceledByUser: userId });
+
+        const player = this.getPlayerByUserId(userId);
+        this.run('processPlayerLeave', {}, player);
+
+        await this.saveChanges();
       } catch (exception) {
         if (exception instanceof lib.game.endGameException) {
           await this.removeGame();

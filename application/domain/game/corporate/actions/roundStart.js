@@ -13,6 +13,9 @@
   for (const game of games) game.dropPlayedCards();
 
   for (const game of games) {
+    const activePlayers = game.players().filter(p => !p.removed); // могли выйти из игры
+    if (activePlayers.length === 0) continue;
+    
     if (allGamesMerged && roundActiveGame && game !== roundActiveGame) {
       game.set({ round: newRoundNumber }); // иначе иначе будет рассинхрон раундов, которые обновляются в domain.roundStart
       game.dumpState();

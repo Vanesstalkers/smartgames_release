@@ -20,7 +20,7 @@ async (context, { round } = {}) => {
       await lib.store.broadcaster.publishData(channel, game.wrapPublishData(null));
     }
     game.clearChanges(); // внутри removeGame вызовется saveChanges, так что очищаем лишнее, чтобы не поломать state на фронте
-    await game.removeGame();
+    await game.removeGame({ preventDeleteDumps: true });
 
     // Восстановление игры
     const restoredGame = await domain.game.load({ gameType, gameId, lobbyId, round: parseInt(round) || game.round });
