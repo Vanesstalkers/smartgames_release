@@ -1,6 +1,6 @@
 () =>
   class ReleaseGameUser extends lib.game.userClass() {
-    async gameFinished({ gameId, gameType, playerEndGameStatus, fullPrice, roundCount, crutchCount, msg = {} }) {
+    async gameFinished({ gameId, gameType, playerEndGameStatus, fullPrice, roundCount, crutchCount, msg = {}, preventCalcStats = false } = {}) {
       const {
         helper: { getTutorial },
         utils: { structuredClone: clone },
@@ -22,6 +22,8 @@
         await this.saveChanges();
         return;
       }
+
+      if (preventCalcStats) return;
 
       const endGameStatus = playerEndGameStatus[this.id()];
 

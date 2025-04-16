@@ -101,6 +101,7 @@ export default {
       }
       if (this.player.avatarCode) avatarCode = this.player.avatarCode;
 
+      if (this.player.removed) avatarCode = `_default/${gender}_empty`;
       style.backgroundImage = `url(${this.state.lobbyOrigin}/img/workers/${avatarCode}.png)`;
 
       return style;

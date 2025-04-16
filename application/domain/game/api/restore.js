@@ -1,50 +1,75 @@
 async (context, { deckType, gameType, gameId, needLoadGame }) => {
+
+  const handleError = async (user, message) => {
+    user.set({
+      gameId: null, playerId: null,
+      helper: {
+        text: 'Действие отменено (попытка восстановления завершенной игры).',
+        buttons: [{ text: 'Понятно, спасибо', action: 'exit' }],
+      },
+    });
+
+    await user.saveChanges();
+
+    return { status: 'error', logout: true };
+  };
+
+  const joinGame = async (game, user, playerId, viewerId) => {
+    const joinData = {
+      userId: user.id(),
+      userName: user.name || user.login,
+      playerId,
+      viewerId
+    };
+
+    if (viewerId) {
+      await game.viewerJoin(joinData);
+    } else {
+      await game.playerJoin(joinData);
+    }
+  };
+
+  const loadAndJoinGame = async (gameType, gameId, lobbyId, user, playerId, viewerId) => {
+    try {
+      const game = await domain.game.load({ gameType, gameId, lobbyId });
+      await joinGame(game, user, playerId, viewerId);
+      return { status: 'ok' };
+    } catch (err) {
+      if (err === 'not_found') {
+        return handleError(user);
+      }
+      throw err;
+    }
+  };
+
   const { sessionId } = context.session.state;
   const session = lib.store('session').get(sessionId);
   const user = session.user();
 
   if (user.gameId && user.gameId !== gameId) {
-    lib.store.broadcaster.publishAction(`user-${userId}`, 'broadcastToSessions', {
-      data: { message: 'Попытка восстановления завершенной игры.' },
-    });
-    return { status: 'error', logout: true };
+    return handleError(user);
   }
 
   const { playerId, viewerId } = user;
   const { lobbyId } = session;
 
   if (needLoadGame) {
-    try {
-      const game = await domain.game.load({ gameType, gameId, lobbyId });
-
-      const joinData = { userId: user.id(), userName: user.name || user.login, playerId, viewerId };
-      if (viewerId) await game.viewerJoin(joinData);
-      else await game.playerJoin(joinData);
-    } catch (err) {
-      if (err === 'not_found') {
-        user.set({ gameId: null, playerId: null });
-        await user.saveChanges();
-      } else {
-        throw err;
-      }
-    }
-
-    return { status: 'ok' };
+    return loadAndJoinGame(gameType, gameId, lobbyId, user, playerId, viewerId);
   }
 
-  const { restorationMode } = await db.redis.hget('games', gameId, { json: true });
+  const redisData = await db.redis.hget('games', gameId, { json: true });
+  const { id, restorationMode, notFound } = redisData;
+
+  if (notFound) {
+    return handleError(user, 'Попытка восстановления удаленной игры.');
+  }
+
   if (restorationMode) {
     const game = lib.store('game').get(gameId);
-    const joinData = { userId: user.id(), userName: user.name || user.login, playerId, viewerId };
-
-    if (viewerId) await game.viewerJoin(joinData);
-    else await game.playerJoin(joinData);
-
+    await joinGame(game, user, playerId, viewerId);
     return { status: 'ok' };
   }
 
-  // сообщаем игроку о возврате в игру после обновления страницы в браузере
   await user.joinGame({ gameId, playerId, viewerId, deckType, gameType });
-
   return { status: 'ok' };
 };
