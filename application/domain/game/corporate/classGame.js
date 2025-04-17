@@ -202,4 +202,8 @@
     if (!data.userId) data.userId = this.roundActivePlayer()?.userId;
     return this.game().logs(data, config);
   }
+
+  renameTeam({ title }) {
+    this.set({ title });
+  }
 });

@@ -1,5 +1,10 @@
 <template>
   <game :debug="false" :planeScaleMin="0.2" :planeScaleMax="1">
+
+    <template #helper-guru="{ } = {}">
+      <tutorial :inGame="true" class="scroll-off" :defaultMenu="defaultTutorialMenu" />
+    </template>
+
     <template #gameplane="{ } = {}">
       <div v-for="game in planeViewGames" :key="game.gameId" :gameId="game.gameId"
         :class="['gp', game.roundReady ? 'round-ready' : '', allGamesMerged ? 'all-games-merged' : '']"
@@ -99,6 +104,7 @@ import { prepareGameGlobals } from '~/lib/game/front/gameGlobals.mjs';
 import releaseGameGlobals, { gameCustomArgs } from '~/domain/game/front/releaseGameGlobals.mjs';
 import corporateGameGlobals from '~/domain/game/front/corporateGameGlobals.mjs';
 import Game from '~/lib/game/front/Game.vue';
+import tutorial from '~/lib/helper/front/helper.vue';
 
 import card from './components/card.vue';
 import player from './components/player.vue';
@@ -108,6 +114,7 @@ import bridge from './components/bridge.vue';
 export default {
   components: {
     Game,
+    tutorial,
     player,
     card,
     plane,
@@ -344,6 +351,103 @@ export default {
     },
     allGamesMerged() {
       return this.games.every((game) => game.super || game.merged);
+    },
+    defaultTutorialMenu() {
+      return {
+        text: 'Чем могу помочь?',
+        bigControls: true,
+        buttons: [
+          { text: 'Спасибо, ничего не нужно', action: 'exit', exit: true },
+          !this.player.teamlead ? null : {
+            text: 'Покажи действия тимлида',
+            action: {
+              text: 'Выбери действие:',
+              showList: [
+                {
+                  title: 'Переименовать команду', action: { tutorial: 'game-tutorial-teamleadMenu', step: 'renameTeam' }
+                },
+                {
+                  title: 'Передать руководство',
+                  action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
+                }
+              ],
+              buttons: [
+                { text: 'Назад в меню', action: 'init' },
+                { text: 'Спасибо', action: 'exit', exit: true },
+              ],
+            },
+          },
+          {
+            text: 'Покажи доступные обучения',
+            action: {
+              text: 'Нажмите на нужное обучение в списке, чтобы запустить его повторно:',
+              showList: [
+                { title: 'Стартовое приветствие игры', action: { tutorial: 'game-tutorial-start' } },
+                { title: 'Управление игровым полем', action: { tutorial: 'game-tutorial-gameControls' } },
+              ],
+              buttons: [
+                { text: 'Назад в меню', action: 'init' },
+                { text: 'Спасибо', action: 'exit', exit: true },
+              ],
+            },
+          },
+          {
+            text: 'Активировать подсказки', action: async function () {
+              await api.action
+                .call({
+                  path: 'helper.api.restoreLinks',
+                  args: [{ inGame: true }],
+                })
+                .then(() => {
+                  this.menu = null;
+                  {
+                    // перерисовываем helper-а, чтобы отобразились подсказки
+                    this.resetFlag = true;
+                    setTimeout(() => {
+                      this.resetFlag = false;
+                    }, 100);
+                  }
+                })
+                .catch(prettyAlert);
+            }
+          },
+          {
+            text: 'Восстановить игру',
+            action: {
+              text: 'Какой раунд игры восстановить?',
+              pos: 'bottom-left',
+              html: (game) => `
+                <div class="input">
+                  <input value="${game.round}" placeholder="${game.round}" name="restoreGameInput" type="number" min="1" max="${game.round}" />
+                </div>
+              `,
+              buttons: [
+                { text: 'Назад в меню', action: 'init' },
+                {
+                  text: 'Выполнить', action: async function () {
+                    await api.action
+                      .call({
+                        path: 'game.api.restoreGame',
+                        args: [{ round: this.inputData['restoreGameInput'] }],
+                      })
+                      .catch(prettyAlert);
+                  }
+                },
+              ],
+            },
+          },
+          {
+            text: 'Закончить игру', action: async function () {
+              await api.action
+                .call({
+                  path: 'game.api.leave',
+                  args: [],
+                })
+                .catch(prettyAlert);
+            }
+          },
+        ],
+      };
     },
   },
   methods: {

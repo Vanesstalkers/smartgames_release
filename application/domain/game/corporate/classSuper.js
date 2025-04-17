@@ -220,7 +220,7 @@
   async handleAction({ name: eventName, gameId, data: eventData = {}, sessionUserId: userId }) {
     const player = this.getPlayerByUserId(userId);
     if (!player) throw new Error('player not found');
-    if (eventData.teamleadAction) {
+    if (player.teamlead) {
       player.set({ eventData: { disableActivePlayerCheck: true, disableActionsDisabledCheck: true } });
     }
 

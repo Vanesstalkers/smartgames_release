@@ -3,11 +3,11 @@
     renameTeam: {
       pos: 'bottom-left',
       text: 'Необходимо указать новое имя команды.',
-      input: { placeholder: 'Имя команды' },
+      input: { placeholder: 'Имя команды', name: 'title' },
       actions: {
-        submit: (async (self, name) => {
+        submit: (async ({ title }, self) => {
           await api.action
-            .call({ path: 'game.corporate.api.action', args: [{ action: 'renameTeam', data: { name } }] })
+            .call({ path: 'game.corporate.api.action', args: [{ name: 'renameTeam', data: { title } }] })
             .catch(prettyAlert);
           return { exit: true };
         }).toString(),
@@ -23,13 +23,13 @@
       actions: {
         before: (async (inputData, self) => {
           await api.action
-            .call({
-              path: 'game.corporate.api.action',
-              args: [{ teamleadAction: true, name: 'changeTeamlead' }],
-            })
+            .call({ path: 'game.corporate.api.action', args: [{ name: 'changeTeamlead' }] })
             .catch(prettyAlert);
         }).toString(),
         reset: (async (inputData, self) => {
+
+          // !!!! тут проблема как для одного игрока в команде, так и для двух
+
           // так как target пустой, то вызовется только this.emit('RESET');
           await api.action.call({ path: 'game.api.action', args: [{ name: 'eventTrigger' }] }).catch(prettyAlert);
           return { exit: true };
@@ -43,7 +43,7 @@
       actions: {
         submit: (async (inputData, self) => {
           await api.action
-            .call({ path: 'game.api.action', args: [{ name: 'returnFieldToHand', data: { teamleadAction: true } }] })
+            .call({ path: 'game.api.action', args: [{ name: 'returnFieldToHand' }] })
             .catch(prettyAlert);
           return { exit: true };
         }).toString(),

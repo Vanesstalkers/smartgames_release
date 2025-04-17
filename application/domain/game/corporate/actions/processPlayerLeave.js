@@ -45,6 +45,9 @@
     }
 
 
+    if (player.teamlead) {
+      /// changeTeamlead
+    }
   }
   if (player === game.roundActivePlayer()) game.run('roundEnd');
 });
