@@ -7,7 +7,7 @@
         if (game.mergeStatus() === 'freezed') {
             const message = `Карта "${card.title}" не имеет эффекта в текущем статусе игры.`;
             game.logs(message);
-            lib.store.broadcaster.publishAction(`user-${player.userId}`, 'broadcastToSessions', {
+            lib.store.broadcaster.publishAction(`gameuser-${player.userId}`, 'broadcastToSessions', {
                 data: { message },
             });
             return { resetEvent: true };

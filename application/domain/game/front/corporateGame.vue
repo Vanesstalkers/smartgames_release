@@ -1,5 +1,10 @@
 <template>
   <game :debug="false" :planeScaleMin="0.2" :planeScaleMax="1">
+
+    <template #helper-guru="{ } = {}">
+      <tutorial :inGame="true" class="scroll-off" :defaultMenu="defaultTutorialMenu" />
+    </template>
+
     <template #gameplane="{ } = {}">
       <div v-for="game in planeViewGames" :key="game.gameId" :gameId="game.gameId"
         :class="['gp', game.roundReady ? 'round-ready' : '', allGamesMerged ? 'all-games-merged' : '']"
@@ -73,7 +78,6 @@
     </template>
     <template #opponents="{ } = {}">
       <div class="games">
-        <div v-if="player.teamlead" class="config-btn helper-avatar" v-on:click="openTeamleadMenu"></div>
         <div v-for="game in sortedGames" :key="game.gameId" :class="[
           'game-item',
           game.selected ? 'selected' : '',
@@ -99,6 +103,7 @@ import { prepareGameGlobals } from '~/lib/game/front/gameGlobals.mjs';
 import releaseGameGlobals, { gameCustomArgs } from '~/domain/game/front/releaseGameGlobals.mjs';
 import corporateGameGlobals from '~/domain/game/front/corporateGameGlobals.mjs';
 import Game from '~/lib/game/front/Game.vue';
+import tutorial from '~/lib/helper/front/helper.vue';
 
 import card from './components/card.vue';
 import player from './components/player.vue';
@@ -108,6 +113,7 @@ import bridge from './components/bridge.vue';
 export default {
   components: {
     Game,
+    tutorial,
     player,
     card,
     plane,
@@ -345,29 +351,86 @@ export default {
     allGamesMerged() {
       return this.games.every((game) => game.super || game.merged);
     },
+    defaultTutorialMenu() {
+      return {
+        text: 'Чем могу помочь?',
+        bigControls: true,
+        buttons: [
+          { text: 'Спасибо, ничего не нужно', action: 'exit', exit: true },
+          {
+            text: 'Покажи доступные обучения',
+            action: {
+              text: 'Нажмите на нужное обучение в списке, чтобы запустить его повторно:',
+              showList: [
+                { title: 'Стартовое приветствие игры', action: { tutorial: 'game-tutorial-start' } },
+                { title: 'Управление игровым полем', action: { tutorial: 'game-tutorial-gameControls' } },
+              ],
+              buttons: [
+                { text: 'Назад в меню', action: 'init' },
+                { text: 'Спасибо', action: 'exit', exit: true },
+              ],
+            },
+          },
+          {
+            text: 'Активировать подсказки', action: async function () {
+              await api.action
+                .call({
+                  path: 'helper.api.restoreLinks',
+                  args: [{ inGame: true }],
+                })
+                .then(() => {
+                  this.menu = null;
+                  {
+                    // перерисовываем helper-а, чтобы отобразились подсказки
+                    this.resetFlag = true;
+                    setTimeout(() => {
+                      this.resetFlag = false;
+                    }, 100);
+                  }
+                })
+                .catch(prettyAlert);
+            }
+          },
+          !this.player.teamlead ? null : {
+            text: 'Покажи действия тимлида',
+            style: { boxShadow: 'inset 0px 0px 20px #f4e205' },
+            action: {
+              text: 'Выбери действие:',
+              showList: [
+                {
+                  title: 'Вернуть игровой стол команды',
+                  action: { tutorial: 'game-tutorial-teamleadMenu', step: 'transferTable' },
+                },
+                { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-restoreGame' } },
+                {
+                  title: 'Переименовать команду', action: { tutorial: 'game-tutorial-teamleadMenu', step: 'renameTeam' }
+                },
+                this.playerIds.length > 0 ? {
+                  title: 'Передать руководство',
+                  action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
+                } : null
+              ],
+              buttons: [
+                { text: 'Назад в меню', action: 'init' },
+                { text: 'Спасибо', action: 'exit', exit: true },
+              ],
+            },
+          },
+          {
+            text: 'Закончить игру', action: async function () {
+              await api.action
+                .call({
+                  path: 'game.api.leave',
+                  args: [],
+                })
+                .catch(prettyAlert);
+            }
+          },
+        ],
+      };
+    },
   },
   methods: {
-    openTeamleadMenu() {
-      this.$set(this.state.store.user?.[this.state.currentUser], 'helper', {
-        menu: {
-          text: 'Что необходимо сделать?',
-          pos: 'bottom-left',
-          showList: [
-            { title: 'Переименовать команду', action: { tutorial: 'game-tutorial-teamleadMenu', step: 'renameTeam' } },
-            {
-              title: 'Передать руководство',
-              action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
-            },
-            { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-restoreGame' } },
-            {
-              title: 'Вернуть игровой стол команды',
-              action: { tutorial: 'game-tutorial-teamleadMenu', step: 'transferTable' },
-            },
-          ],
-          buttons: [{ text: 'Спасибо, ничего не нужно', action: 'exit', exit: true }],
-        },
-      });
-    },
     gamePlaneContentControlStyle(gameId) {
       const transformOrigin = this.gameCustom.gamePlaneTransformOrigin[gameId] ?? 'center center';
 
@@ -799,20 +862,6 @@ export default {
       background: #3f51b5;
     }
   }
-
-  .config-btn {
-    margin-top: 8px;
-    margin-right: 10px;
-    width: 42px;
-    height: 42px;
-    background-size: cover;
-    transform: rotate(90deg);
-
-    &:hover {
-      cursor: pointer;
-      opacity: 0.7;
-    }
-  }
 }
 
 #game.mobile-view {
@@ -831,10 +880,6 @@ export default {
       flex-direction: row;
       transform: rotate(90deg);
       transform-origin: top left;
-
-      .config-btn {
-        transform: rotate(-90deg);
-      }
     }
 
     .deck-active {

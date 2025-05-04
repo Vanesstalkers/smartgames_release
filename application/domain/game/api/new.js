@@ -44,7 +44,7 @@ async (context, { deckType, gameType, gameConfig, gameTimer, playerCount, maxPla
           buttons: [{ text: 'Понятно, спасибо', action: 'exit' }],
         },
       });
-      await user.saveChanges();
+      await user.saveChanges({ saveToLobbyUser: true });
     }
     return { status: 'error', logout: true };
   }

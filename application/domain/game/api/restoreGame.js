@@ -13,7 +13,7 @@ async (context, { round } = {}) => {
       { limit: 1 }
     );
 
-    if (!dumpData) throw new Error('Копия для восстановления не найдена.');
+    if (!dumpData) throw new Error('Копия для восстановления не найдена');
 
     // Очистка текущей игры
     for (const [channel] of game.channel().subscribers.entries()) {

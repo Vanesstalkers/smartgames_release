@@ -140,7 +140,7 @@
 
   async playerJoin({ userId, userName }) {
     try {
-      if (this.status === 'FINISHED') throw new Error('Игра уже завершена.');
+      if (this.status === 'FINISHED') throw new Error('Игра уже завершена');
 
       const player = this.restorationMode ? this.getPlayerByUserId(userId) : this.getFreePlayerSlot();
       if (!player) throw new Error('Свободных мест не осталось');
@@ -220,7 +220,7 @@
   async handleAction({ name: eventName, gameId, data: eventData = {}, sessionUserId: userId }) {
     const player = this.getPlayerByUserId(userId);
     if (!player) throw new Error('player not found');
-    if (eventData.teamleadAction) {
+    if (player.teamlead) {
       player.set({ eventData: { disableActivePlayerCheck: true, disableActionsDisabledCheck: true } });
     }
 
@@ -332,7 +332,7 @@
           message:
             'Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля. Попробуйте восстановить более ранние раунды игры.',
         };
-        lib.store.broadcaster.publishAction(`user-${player.userId}`, 'broadcastToSessions', { data });
+        lib.store.broadcaster.publishAction(`gameuser-${player.userId}`, 'broadcastToSessions', { data });
       }
     }
   }

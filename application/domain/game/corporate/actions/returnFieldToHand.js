@@ -1,6 +1,9 @@
-(function ({ }, initPlayer) {
-  if (initPlayer.triggerEventEnabled())
-    throw new Error('Нельзя вернуть поле в руку, пока не завершено активное событие');
+(function ({ }) {
+
+  const player = this.roundActivePlayer();
+
+  if (player.triggerEventEnabled())
+    throw new Error('Нельзя вернуть поле в руку, пока у игрока команды не завершено активное событие');
 
   const superGame = this.game();
   const currentTable = this.merged ? superGame.decks.table : this.decks.table;
@@ -10,10 +13,10 @@
   });
 
   for (const plane of gamePlanes) {
-    plane.removeFromTableToHand({ player: initPlayer });
+    plane.removeFromTableToHand({ player });
     if (this.merged) plane.game(this);
   }
-  initPlayer.set({ eventData: { plane: {}, availableZones: [] } });
+  player.set({ eventData: { plane: {}, availableZones: [] } });
 
   this.set({ merged: null, roundReady: false });
   superGame.set({
@@ -30,14 +33,11 @@
   }
 
   const gameCommonCardDeck = this.find('Deck[card_common]');
-  gameCommonCardDeck.moveAllItems({ target: initPlayer.find('Deck[card]'), markNew: true });
-
-  this.roundActivePlayer(initPlayer);
-  initPlayer.activate();
+  gameCommonCardDeck.moveAllItems({ target: player.find('Deck[card]'), markNew: true });
 
   const event = domain.game.events.common.putPlaneFromHand();
   this.initEvent({
     name: 'returnFieldToHand',
     ...event
-  }, { allowedPlayers: [initPlayer] });
+  }, { allowedPlayers: [player] });
 });

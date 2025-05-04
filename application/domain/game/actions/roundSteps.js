@@ -11,7 +11,7 @@
 
   const newRoundNumber = this.round + 1;
   const newRoundLogEvents = [];
-  newRoundLogEvents.push(`Начало раунда №${newRoundNumber}.`);
+  newRoundLogEvents.push(`<a>Начало раунда №${newRoundNumber}.</a>`);
 
   const smartMoveRandomCardTarget = this.settings.roundStartCardAddToPlayerHand
     ? player.find('Deck[card]')

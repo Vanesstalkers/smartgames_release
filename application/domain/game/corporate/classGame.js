@@ -88,14 +88,14 @@
       const activePlayers = this.game().getActivePlayers();
       const { disableActivePlayerCheck, disableActionsDisabledCheck } = player.eventData;
       if (!activePlayers.includes(player) && eventName !== 'leaveGame' && !disableActivePlayerCheck)
-        throw new Error('Игрок не может совершить это действие, так как сейчас не его ход.');
+        throw new Error('Игрок не может совершить это действие, так как сейчас не его ход');
       else if (
         player.eventData.actionsDisabled &&
         !disableActionsDisabledCheck &&
         eventName !== 'roundEnd' &&
         eventName !== 'leaveGame'
       )
-        throw new Error('Игрок не может совершать действия в этот ход.');
+        throw new Error('Игрок не может совершать действия в этот ход');
 
       if (disableActivePlayerCheck || disableActionsDisabledCheck) {
         player.set({ eventData: { disableActivePlayerCheck: null, disableActionsDisabledCheck: null } });
@@ -201,5 +201,9 @@
     if (typeof data === 'string') data = { msg: data };
     if (!data.userId) data.userId = this.roundActivePlayer()?.userId;
     return this.game().logs(data, config);
+  }
+
+  renameTeam({ title }) {
+    this.set({ title });
   }
 });

@@ -58,6 +58,6 @@
       for (const key in msg) tutorial[key].text = msg[key];
 
       this.set({ money: (this.money || 0) + income, helper: tutorial[endGameStatus], rankings });
-      await this.saveChanges();
+      await this.saveChanges({ saveToLobbyUser: true });
     }
   };

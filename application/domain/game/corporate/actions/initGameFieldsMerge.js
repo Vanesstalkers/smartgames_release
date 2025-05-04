@@ -97,7 +97,7 @@
           }
 
           game.logs(`У центрального поля не найдено доступных портов для присоединения игрового поля команды.`);
-          lib.store.broadcaster.publishAction(`user-${player.userId}`, 'broadcastToSessions', {
+          lib.store.broadcaster.publishAction(`gameuser-${player.userId}`, 'broadcastToSessions', {
             data: {
               message: `У центрального поля не найдено доступных портов для присоединения игрового поля команды. Либо добавьте дополнительный блок к своему полю, либо одна из команд должна вернуть свое присоединенное к центру игровое поле в руку.`,
             },
@@ -132,7 +132,7 @@
 
           switch (target._col) {
             case 'port':
-              if (playerPlaneDeck.itemsCount()) throw new Error('Должны быть размещены все блоки из руки.');
+              if (playerPlaneDeck.itemsCount()) throw new Error('Должны быть размещены все блоки из руки');
 
               const port = target;
               const superGame = game.game();
@@ -150,7 +150,7 @@
               const plane = target;
 
               if (!game.decks.table.items().find((p) => p.id() !== plane.id() && !p.cardPlane))
-                throw new Error('Нельзя убирать все блоки с игрового поле.');
+                throw new Error('Нельзя убирать все блоки с игрового поле');
 
               game.set({ availablePorts: [] });
               plane.removeFromTableToHand({ player });

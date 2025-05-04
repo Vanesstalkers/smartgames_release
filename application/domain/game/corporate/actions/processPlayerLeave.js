@@ -45,6 +45,17 @@
     }
 
 
+    if (player.teamlead) {
+      player.set({ teamlead: null });
+
+      const targetPlayer = remainPlayers[0];
+      targetPlayer.set({ teamlead: true });
+
+      game.logs({
+        msg: `Игрок {{player}} стал новым тимлидом команды.`,
+        userId: targetPlayer.userId,
+      });
+    }
   }
   if (player === game.roundActivePlayer()) game.run('roundEnd');
 });

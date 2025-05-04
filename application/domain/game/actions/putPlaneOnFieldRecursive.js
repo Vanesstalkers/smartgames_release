@@ -8,11 +8,6 @@
 
   if (fromHand) planes = planeDeck.items();
 
-  // async function debug(data) {
-  //   await game.saveChanges();
-  //   const t = 1;
-  // }
-
   const sortPlanesByPorts = (a, b) => Object.keys(a.portMap).length < Object.keys(b.portMap).length ? -1 : 1;
 
   const getPlaneFreePorts = plane => {

@@ -1,6 +1,6 @@
 (function ({ diceId, zoneId }, player) {
   const fieldGame = this.merged ? this.game() : this;
-  if (fieldGame.fieldIsBlocked()) throw new Error('Нельзя изменять игровое поле в текущем статусе.');
+  if (fieldGame.fieldIsBlocked()) throw new Error('Нельзя изменять игровое поле в текущем статусе');
   const playerGame = player.game();
 
   fieldGame.run('domain.replaceDice', { diceId, zoneId }, player);

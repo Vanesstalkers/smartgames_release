@@ -3,6 +3,7 @@
     'card-worker',
     'card-worker-' + player.code,
     player.active ? 'active' : '',
+    player.teamlead ? 'teamlead' : '',
     selectable ? 'selectable' : '',
     showEndRoundBtn || showLeaveBtn || showCustomActionBtn ? 'has-action' : '',
     controlActionDisabled ? 'disabled' : '',
@@ -212,6 +213,17 @@ export default {
   border-radius: 10px;
   margin: 0px 0px 0px 5px;
   box-shadow: inset 0px 20px 20px 0px black;
+
+  &.teamlead:before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    background-image: url(../assets/teamlead.png);
+    background-size: contain;
+  }
 
   &.active {
     outline: 4px solid green;

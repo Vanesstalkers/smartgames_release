@@ -14,7 +14,7 @@
 
   const newRoundNumber = this.round + 1;
   const newRoundLogEvents = [];
-  newRoundLogEvents.push(`Начало раунда №${newRoundNumber}.`);
+  newRoundLogEvents.push(`<team team="${this.templates.code || 'super'}">Начало раунда №${newRoundNumber}.</team>`);
 
   const smartMoveRandomCardTarget =
     this.settings.roundStartCardAddToPlayerHand || this.mergeStatus() === 'freezed'
