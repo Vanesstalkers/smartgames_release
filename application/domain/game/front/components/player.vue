@@ -370,6 +370,12 @@ export default {
       height: 0px;
     }
 
+    .card-worker {
+      .user-name {
+        display: none !important;
+      }
+    }
+
     .plane {
       &.in-hand {
         z-index: 1;

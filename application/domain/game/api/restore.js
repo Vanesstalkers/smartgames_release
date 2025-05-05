@@ -15,12 +15,7 @@ async (context, { deckType, gameType, gameId, needLoadGame }) => {
   };
 
   const joinGame = async (game, user, playerId, viewerId) => {
-    const joinData = {
-      userId: user.id(),
-      userName: user.name || user.login,
-      playerId,
-      viewerId
-    };
+    const joinData = { userId: user.id(), playerId, viewerId };
 
     if (viewerId) {
       await game.viewerJoin(joinData);

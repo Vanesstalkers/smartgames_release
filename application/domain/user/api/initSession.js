@@ -2,10 +2,18 @@
   access: 'public',
   method: async (context, { token, windowTabId, userId, lobbyId }) => {
     const userClass = domain.user.class();
-    const user = new userClass();
-    await user.load({ fromDB: { id: userId } }).catch((err) => {
-      throw err;
-    });
+    let user = lib.store('user').get(userId);
+    if (!user) {
+      user = new userClass();
+      await user.load({ fromDB: { id: userId } }).catch((err) => {
+        throw err;
+      });
+    }
+
+    if (user.removeTimeout) {
+      clearTimeout(user.removeTimeout);
+      user.removeTimeout = null;
+    }
 
     const sessionClass = domain.user.session();
     let session = new sessionClass({ client: context.client });
@@ -49,9 +57,12 @@
       // удаляем из store и broadcaster
       session.removeStore();
       session.removeChannel();
-      if (user && user.sessions().length === 0) {
-        user.removeStore();
-        user.removeChannel();
+      if (user && !user.sessions().length) {
+        // может быть просто перезагрузка страницы/браузера - нет смысла удалять состояние gameuser (там могут быть несохраняемыв в БД данные - например, helper и currentTutorial)
+        user.removeTimeout = setTimeout(() => {
+          user.removeStore();
+          user.removeChannel();
+        }, 30000);
       }
 
       console.log(`session disconnected (token=${session.token}, windowTabId=${windowTabId}`);

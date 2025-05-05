@@ -1,5 +1,5 @@
 (function () {
-  const players = this.players().filter(p => !p.removed);
+  const players = this.players().filter(p => p.ready);
 
   if (!this.restorationMode) {
     const deck = this.find('Deck[domino]');

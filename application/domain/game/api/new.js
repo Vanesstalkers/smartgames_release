@@ -22,11 +22,7 @@ async (context, { deckType, gameType, gameConfig, gameTimer, playerCount, maxPla
       session.set({ gameId });
     }
 
-    lib.store.broadcaster.publishAction(`game-${gameId}`, 'playerJoin', {
-      userId,
-      userName: user.name || user.login,
-      userAvatar: user.avatarCode,
-    });
+    lib.store.broadcaster.publishAction(`game-${gameId}`, 'playerJoin', { userId });
 
     lib.store.broadcaster.publishAction(`lobby-${lobbyId}`, 'addGame', {
       gameId,

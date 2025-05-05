@@ -8,6 +8,9 @@
     showEndRoundBtn || showLeaveBtn || showCustomActionBtn ? 'has-action' : '',
     controlActionDisabled ? 'disabled' : '',
   ]" :style="customStyle" @click="controlAction">
+    <div class="user-name">
+      {{ player.userName }}
+    </div>
     <div v-if="showControls && player.active && player.timerEndTime && game.status != 'WAIT_FOR_PLAYERS'"
       class="end-round-timer">
       {{ this.localTimer }}
@@ -65,7 +68,7 @@ export default {
       return this.getStore();
     },
     userData() {
-      return this.state.store?.user?.[this.state.currentUser] || {};
+      return this.sessionUserData();
     },
     player() {
       const player = this.store.player?.[this.playerId] || {};
@@ -102,7 +105,6 @@ export default {
       }
       if (this.player.avatarCode) avatarCode = this.player.avatarCode;
 
-      if (this.player.removed) avatarCode = `_default/${gender}_empty`;
       style.backgroundImage = `url(${this.state.lobbyOrigin}/img/workers/${avatarCode}.png)`;
 
       return style;
@@ -145,10 +147,11 @@ export default {
       this.controlActionDisabled = true;
       this.hidePreviewPlanes();
       if (this.selectable) {
+        const teamleadAction = this.sessionPlayer().teamlead ? true : null;
         await this.handleGameApi(
           {
             name: 'eventTrigger',
-            data: { eventData: { targetId: this.playerId } },
+            data: { eventData: { targetId: this.playerId }, teamleadAction },
           },
           {
             onSuccess: () => (this.controlActionDisabled = false),
@@ -336,6 +339,24 @@ export default {
     background-repeat: no-repeat;
     background-position: center;
     visibility: hidden;
+  }
+
+  .user-name {
+    display: none;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    color: white;
+    width: calc(100% - 8px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 4px;
+    box-shadow: inset 0px 20px 20px 0px black;
+    border-radius: 10px;
+  }
+
+  &:hover>.user-name {
+    display: block;
   }
 }
 

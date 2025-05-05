@@ -242,7 +242,7 @@ export default {
     },
     defaultTutorialMenu() {
       return {
-        text: 'Чем могу помочь?',
+        text: `Чем могу помочь, ${this.sessionUserData().name || this.sessionUserData().login}?`,
         bigControls: true,
         buttons: [
           { text: 'Спасибо, ничего не нужно', action: 'exit', exit: true },

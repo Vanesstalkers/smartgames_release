@@ -1,7 +1,7 @@
 (function ({ }, player) {
     try {
         this.initEvent({
-            name: 'changeTeamlead',
+            name: 'removePlayer',
             init() {
                 const { game, player } = this.eventContext();
 
@@ -34,18 +34,16 @@
                     if (!targetPlayer) return this.emit('RESET');
                     if (!targetPlayer.ready) {
                         lib.store.broadcaster.publishAction(`gameuser-${player.userId}`, 'broadcastToSessions', {
-                            data: { message: 'Игрок не может быть тимлидом, т.к. он вышел из игры.' },
+                            data: { message: 'Игрок не может быть удален, т.к. он вышел из игры.' },
                         });
                         return this.emit('RESET');
                     }
 
-                    game.logs({
-                        msg: `Игрок {{player}} стал новым тимлидом команды.`,
-                        userId: targetPlayer.userId,
-                    });
+                    const superGame = game.game();
+                    const userId = targetPlayer.userId;
 
-                    targetPlayer.set({ teamlead: true });
-                    player.set({ teamlead: null });
+                    game.logs({ msg: `Игрок {{player}} удален из команды.`, userId });
+                    lib.store.broadcaster.publishAction(`game-${superGame.id()}`, 'playerLeave', { userId });
 
                     this.emit('RESET');
                 },

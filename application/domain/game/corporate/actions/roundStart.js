@@ -13,7 +13,7 @@
   for (const game of games) game.dropPlayedCards();
 
   for (const game of games) {
-    const activePlayers = game.players().filter(p => !p.removed); // могли выйти из игры
+    const activePlayers = game.players().filter(p => p.ready); // могли выйти из игры
     if (activePlayers.length === 0) continue;
     
     if (allGamesMerged && roundActiveGame && game !== roundActiveGame) {

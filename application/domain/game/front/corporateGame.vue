@@ -353,7 +353,7 @@ export default {
     },
     defaultTutorialMenu() {
       return {
-        text: 'Чем могу помочь?',
+        text: `Чем могу помочь, ${this.sessionUserData().name || this.sessionUserData().login}?`,
         bigControls: true,
         buttons: [
           { text: 'Спасибо, ничего не нужно', action: 'exit', exit: true },
@@ -408,7 +408,15 @@ export default {
                 this.playerIds.length > 0 ? {
                   title: 'Передать руководство',
                   action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
-                } : null
+                } : null,
+                this.playerIds.length > 0 ? {
+                  title: 'Удалить игрока из команды',
+                  action: { tutorial: 'game-tutorial-teamleadMenu', step: 'removePlayer' },
+                } : null,
+                this.playerIds.length > 0 ? {
+                  title: 'Завершить текущий раунд',
+                  action: { tutorial: 'game-tutorial-teamleadMenu', step: 'endRound' },
+                } : null,
               ],
               buttons: [
                 { text: 'Назад в меню', action: 'init' },

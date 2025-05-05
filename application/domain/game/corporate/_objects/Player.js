@@ -19,12 +19,12 @@
       deck.game(game);
     }
   }
-  toggleEventWithTriggerListener(data = {}) {
+  handleEventWithTriggerListener(handler, data = {}) {
     if (data.targetId) {
       data.target = this.game().game().get(data.targetId);
       // не удаляем data.targetId, т.к. внутри может быть fakeId
     }
-    return super.toggleEventWithTriggerListener(data);
+    return super.handleEventWithTriggerListener(handler, data);
   }
 
   checkHandDiceLimit() {
