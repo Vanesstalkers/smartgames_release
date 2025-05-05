@@ -42,8 +42,8 @@
 
       const user = session.user();
       if (user) {
-        user.unsubscribe(`user-${user.id()}`);
-        user.unlinkSession(session);
+        await user.unsubscribe(`user-${user.id()}`);
+        await user.unlinkSession(session);
       }
 
       // удаляем из store и broadcaster
