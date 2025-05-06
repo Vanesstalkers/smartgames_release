@@ -14,7 +14,10 @@
         game.run('smartMoveRandomCard', { target: playerCardDeck });
 
         lib.timers.timerRestart(game, { extraTime: game.settings.timerReleasePremium });
-        game.logs(`Игрок {{player}} инициировал РЕЛИЗ, за что получает дополнительную карту-события в руку.`);
+        game.logs({
+          msg: `Игрок {{player}} инициировал РЕЛИЗ, за что получает дополнительную карту-события в руку.`,
+          userId: player.userId
+        });
 
         return { preventListenerRemove: true };
       },

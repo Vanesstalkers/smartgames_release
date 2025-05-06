@@ -359,9 +359,10 @@
     }
 
     if (data.msg.includes('{{player}}')) {
+      if (!data.userId) data.userId = this.roundActiveGame()?.roundActivePlayer()?.userId;
       const player = this.getPlayerByUserId(data.userId);
       const game = player?.game();
-      data.msg = data.msg.replace(/{{player}}/g, `<player team="${game.templates.code || "central"}">${player?.userName || ''}</player>`);
+      data.msg = data.msg.replace(/{{player}}/g, `<player team="${game?.templates?.code || "central"}">${player?.userName || ''}</player>`);
     }
     return super.logs(data, config);
   }

@@ -15,6 +15,9 @@
 
       if (game.checkFieldIsReady() && !game.merged) {
         game.run('initGameFieldsMerge');
+      } else {
+        const superGame = game.game();
+        superGame.toggleEventHandlers('RELEASE', {}, initPlayer);
       }
 
       return { preventListenerRemove: true };
