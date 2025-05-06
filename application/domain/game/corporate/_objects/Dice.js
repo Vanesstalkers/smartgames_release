@@ -21,11 +21,18 @@
       // чтобы не мешать расчету для соседних зон при перемещении из одной зоны в другую (ниже вернем состояние)
       this.getParent().removeItem(this);
 
-      const allGamesMerged = superGame.allGamesMerged();
-      const games = superGame.getAllGames({ roundReady: false }).filter(
-        (g) => (allGamesMerged ? true : !g.merged) // с интегрированными в ядро играми можно взаимодействовать только после allGamesMerged
-      );
-      if (allGamesMerged) games.push(superGame);
+      const games = [];
+      if (superGame.gameConfig === 'cooperative') {
+        const allGamesMerged = superGame.allGamesMerged();
+        games.push(...superGame.getAllGames({ roundReady: false }).filter(
+          (g) => (allGamesMerged ? true : !g.merged) // с интегрированными в ядро играми можно взаимодействовать только после allGamesMerged
+        ));
+        if (allGamesMerged) games.push(superGame);
+      }
+      if (superGame.gameConfig === 'competition') {
+        games.push(game);
+        if (game.merged) games.push(superGame);
+      }
 
       let zoneList = [];
       for (const game of games) {

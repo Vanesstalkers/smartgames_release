@@ -52,7 +52,7 @@
         if (!joinPlane) {
           joinPlane = player.find('Deck[plane]')
             .getAllItems()
-            .sort((a, b) => Object.keys(a.portMap).length < Object.keys(b.portMap).length ? -1 : 1)
+            .sort((a, b) => a.portsCount() < b.portsCount() ? -1 : 1)
             .pop();
         }
         this.putPlaneOnEmptyField = true;

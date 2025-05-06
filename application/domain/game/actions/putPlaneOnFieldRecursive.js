@@ -8,7 +8,7 @@
 
   if (fromHand) planes = planeDeck.items();
 
-  const sortPlanesByPorts = (a, b) => Object.keys(a.portMap).length < Object.keys(b.portMap).length ? -1 : 1;
+  const sortPlanesByPorts = (a, b) => a.portsCount() < b.portsCount() ? -1 : 1;
 
   const getPlaneFreePorts = plane => {
     const ports = Object.keys(plane.portMap).map(id => game.get(id));
@@ -65,14 +65,14 @@
   };
 
   const addExtraPlane = () => {
-    const extraPlane = this.getSmartRandomPlaneFromDeck();
+    const extraPlane = this.getSmartRandomPlaneFromDeck({ forceSearch: true });
     extraPlane.moveToTarget(game.find('Deck[plane]'));
     deckOwner.set({ eventData: { plane: { [extraPlane.id()]: { mustBePlaced: true } } } });
     planes.push(extraPlane);
   };
 
   const freePortsNotEnough = () => {
-    const plane = this.getSmartRandomPlaneFromDeck();
+    const plane = this.getSmartRandomPlaneFromDeck({ forceSearch: true });
     game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
     const uniqueFreePorts = new Set(game.availablePorts.map(item => item.targetPortId)).size;
     return game.isCoreGame() && uniqueFreePorts < minFreePorts;

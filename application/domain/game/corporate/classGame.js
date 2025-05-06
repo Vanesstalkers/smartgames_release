@@ -206,4 +206,33 @@
   renameTeam({ title }) {
     this.set({ title });
   }
+
+  getSmartRandomPlaneFromDeck({ forceSearch = false } = {}) {
+    if (this.gameConfig === 'cooperative') return super.getSmartRandomPlaneFromDeck();
+
+    {
+      // this.gameConfig === 'competition'
+
+      const tablePlanesCount = this.decks.table.itemsCount();
+      const expectedZonesCount = tablePlanesCount === 0 ? 4 : tablePlanesCount === 1 ? 3 : 2;
+
+      const planes = this.find('Deck[plane]').items().filter((p) => p.zonesCount() === expectedZonesCount);
+
+      // вызов с forceSearch делается в putPlaneOnFieldRecursive - если не вернуть вообще никакое поле, то игра завершится с ошибкой (можно повторить, если выставить большой planesToChoose в конфигах игры)
+      if (planes.length === 0 && forceSearch) return super.getSmartRandomPlaneFromDeck();
+
+      return planes[Math.floor(Math.random() * planes.length)];
+    }
+  }
+
+  initTableDiceAction({ dice, player }) {
+    super.initTableDiceAction({ dice, player });
+
+    if (this.gameConfig === 'competition') {
+      const zone = dice.parent();
+      const zoneParent = zone.parent();
+      if (zoneParent.anchorGameId && zoneParent.anchorGameId !== player.gameId)
+        throw new Error('Игроку запрещено взаимодействовать с костяшками на столе чужой команды');
+    }
+  }
 });

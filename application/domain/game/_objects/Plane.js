@@ -76,6 +76,9 @@
   ports() {
     return this.select('Port');
   }
+  portsCount() {
+    return Object.keys(this.portMap).length;
+  }
   updatePorts(updateData) {
     for (const port of this.ports()) port.set(updateData);
   }
@@ -83,6 +86,9 @@
     return Object.keys(this.zoneMap)
       .map((_id) => this.getStore().zone[_id])
       .find((zone) => zone.code === code);
+  }
+  zonesCount() {
+    return Object.keys(this.zoneMap).length;
   }
 
   getCurrentRotation() {

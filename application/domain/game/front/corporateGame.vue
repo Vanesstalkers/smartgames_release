@@ -927,4 +927,12 @@ export default {
     }
   }
 }
+
+#game[config=competition] .plane:not(.team-plane) .domino-dice {
+  cursor: default !important;
+
+  >.controls {
+    display: none !important;
+  }
+}
 </style>

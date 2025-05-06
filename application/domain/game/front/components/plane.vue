@@ -8,6 +8,7 @@
     isPlacementRequired ? 'placement-required' : '',
     game.merged ? 'source-game-merged' : '',
     plane.release ? 'release' : '',
+    plane.anchorGameId === sessionPlayer().gameId ? 'team-plane' : '',
     ...plane.customClass,
     ...Object.values(customClass),
   ]" :style="customStyle" v-on:click.stop="(e) => (isSelectable ? choosePlane() : selectPlane(e))" :code="plane.code"

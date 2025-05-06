@@ -216,6 +216,7 @@
       },
       competition: {
         title: 'Соревнование',
+        planesNeedToStart: 1,
         // roundStartCardAddToPlayerHand: false,
         // allowedAutoCardPlayRoundStart: true,
       },

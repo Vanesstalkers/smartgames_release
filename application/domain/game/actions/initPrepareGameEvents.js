@@ -18,13 +18,12 @@
         const { game } = this.eventContext();
         const player = game.selectNextActivePlayer();
         const hand = player.find('Deck[plane]');
-        const deck = game.find('Deck[plane]');
 
         player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, roundBtn: { label: 'Помочь выложить' } } });
 
         const eventData = { plane: {} };
         for (let j = 0; j < game.settings.planesToChoose; j++) {
-          const plane = deck.getRandomItem();
+          const plane = game.getSmartRandomPlaneFromDeck();
           if (!plane) continue;
           plane.moveToTarget(hand);
           eventData.plane[plane.id()] = { oneOfMany: true };

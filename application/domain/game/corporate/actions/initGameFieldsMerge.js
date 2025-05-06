@@ -46,11 +46,11 @@
           // если поле пустое (сработает !hasAvailablePorts), тогда в руку ничего не добавляем
           if (playerPlaneDeck.itemsCount() === 0) {
             const planes = game.find('Deck[plane]').items();
-            planes.sort((p1, p2) => (Object.keys(p2.portMap).length - Object.keys(p1.portMap).length));
+            planes.sort((p1, p2) => (p2.portsCount() - p1.portsCount()));
 
             const extraPlanes = [];
             // Сначала берем все доступные plane с 4 портами
-            const planesWithFourPorts = planes.filter((p) => Object.keys(p.portMap).length === 4);
+            const planesWithFourPorts = planes.filter((p) => p.portsCount() === 4);
             if (planesWithFourPorts.length > 0) {
               while (extraPlanes.length < Math.min(2, planesWithFourPorts.length)) {
                 const extraPlane = planesWithFourPorts[Math.floor(Math.random() * planesWithFourPorts.length)];
@@ -62,7 +62,7 @@
 
             // Если нужно добрать plane с 3 портами
             if (extraPlanes.length < 2) {
-              const planesWithThreePorts = planes.filter((p) => Object.keys(p.portMap).length === 3);
+              const planesWithThreePorts = planes.filter((p) => p.portsCount() === 3);
               while (extraPlanes.length < 2 && planesWithThreePorts.length > 0) {
                 const extraPlane = planesWithThreePorts[Math.floor(Math.random() * planesWithThreePorts.length)];
                 if (!extraPlanes.includes(extraPlane)) {
@@ -73,7 +73,7 @@
 
             // Если все еще не хватает, добираем plane с 2 портами
             if (extraPlanes.length < 2) {
-              const planesWithTwoPorts = planes.filter((p) => Object.keys(p.portMap).length === 2);
+              const planesWithTwoPorts = planes.filter((p) => p.portsCount() === 2);
               while (extraPlanes.length < 2 && planesWithTwoPorts.length > 0) {
                 const extraPlane = planesWithTwoPorts[Math.floor(Math.random() * planesWithTwoPorts.length)];
                 if (!extraPlanes.includes(extraPlane)) {

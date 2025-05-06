@@ -63,7 +63,7 @@
   }
   getSmartRandomPlaneFromDeck() {
     const plane = this.find('Deck[plane]')
-      .getAllItems()
+      .items()
       .sort(({ portMap: a }, { portMap: b }) => {
         const al = Object.keys(a).length;
         const bl = Object.keys(b).length;
@@ -188,5 +188,10 @@
       timerOverdueCounter = 0;
     }
     this.set({ timerOverdueCounter });
+  }
+
+  initTableDiceAction({ dice, player }) {
+    if (player.triggerEventEnabled())
+      throw new Error('Игрок не может совершить это действие, пока не завершит активное событие');
   }
 });

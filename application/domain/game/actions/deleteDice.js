@@ -1,8 +1,7 @@
 (function ({ diceId }, player) {
-  if (player.triggerEventEnabled())
-    throw new Error('Игрок не может совершить это действие, пока не завершит активное событие');
-
   const dice = this.get(diceId);
+  this.initTableDiceAction({ dice, player });
+
   if (dice.placedAtRound === this.round) throw new Error('Запрещено менять костяшки, размещенные на текущем ходу');
 
   const eventName = 'diceReplacementEvent';
