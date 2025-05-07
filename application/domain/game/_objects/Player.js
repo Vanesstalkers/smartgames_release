@@ -1,7 +1,12 @@
 (class Player extends lib.game._objects.Player {
   constructor(data, { parent }) {
     super(data, { parent });
-    this.set({ eventData: { availableZones: [] } }); // без предустановленного значения не будет работать реактивность на фронте (сразу после запуска игры)
+    this.set({
+      eventData: {
+        availableZones: [], // без предустановленного значения не будет работать реактивность на фронте (сразу после запуска игры)
+        availablePorts: [], // чтобы избавиться от лишних проверок в коде
+      }
+    });
   }
   checkHandDiceLimit() {
     const game = this.game();

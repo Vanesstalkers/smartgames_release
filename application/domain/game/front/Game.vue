@@ -114,7 +114,7 @@ export default {
         this.hideZonesAvailability();
       }
     },
-    'game.availablePorts': function () {
+    'player.eventData.availablePorts': function () {
       this.$nextTick(() => {
         this.state.gamePlaneNeedUpdate = true;
         this.selectedFakePlanePosition = '';
@@ -204,19 +204,13 @@ export default {
 
     possibleAddPlanePositions() {
       if (!this.sessionPlayerIsActive()) return [];
-      const availablePorts = this.game.availablePorts || [];
+      const availablePorts = this.sessionPlayer().eventData.availablePorts || [];
       return availablePorts
-        .filter(({ playerId }) => playerId === this.gameState.sessionPlayerId)
         .map(({ gameId, joinPlaneId, joinPortId, joinPortDirect, targetPortId, targetPortDirect, position }) => {
           return [
             {
               code: joinPortId + joinPortDirect + targetPortId + targetPortDirect,
-              gameId,
-              joinPlaneId,
-              joinPortId,
-              joinPortDirect,
-              targetPortId,
-              targetPortDirect,
+              ...{ gameId, joinPlaneId, joinPortId, joinPortDirect, targetPortId, targetPortDirect },
               style: {
                 left: position.left + 'px',
                 top: position.top + 'px',

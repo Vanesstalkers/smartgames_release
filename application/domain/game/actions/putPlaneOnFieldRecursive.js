@@ -41,7 +41,7 @@
       const linkedPlanes = plane.getLinkedPlanes();
       const nonCardPlanes = linkedPlanes.length - linkedPlanes.filter(p => p.cardPlane).length;
       if (!plane.anchorGameId // НЕ корпоративная игра
-        || plane.anchorGameId === initPlayer.gameId) // корпоративная игра
+        || plane.anchorGameId === initPlayer?.gameId) // корпоративная игра (в putStartPlanes нет initPlayer)
         acc[plane.id()] = nonCardPlanes < 2 ? { selectable: true, mustBePlaced: true } : null;
       return acc;
     }, {});
@@ -73,14 +73,14 @@
 
   const freePortsNotEnough = () => {
     const plane = this.getSmartRandomPlaneFromDeck({ forceSearch: true });
-    game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
-    const uniqueFreePorts = new Set(game.availablePorts.map(item => item.targetPortId)).size;
+    const availablePorts = game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
+    const uniqueFreePorts = new Set(availablePorts.map(item => item.targetPortId)).size;
     return game.isCoreGame() && uniqueFreePorts < minFreePorts;
   };
 
-  const putPlaneOnAvailablePort = () => {
-    const port = game.availablePorts.sort((a, b) => a.priority > b.priority ? -1 : 1)[0];
-    game.run('putPlaneOnField', port);
+  const putPlaneOnAvailablePort = (availablePorts) => {
+    const port = availablePorts.sort((a, b) => a.priority > b.priority ? -1 : 1)[0];
+    game.run('putPlaneOnField', port, initPlayer);
   };
 
   game.toggleEventHandlers('ADD_PLANE_RECURSIVE_STARTED');
@@ -100,10 +100,10 @@
     // await debug()
     planes.sort(sortPlanesByPorts);
     const plane = planes.pop();
-    game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
+    const availablePorts = game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
     // await debug()
-    if (game.availablePorts.length) {
-      putPlaneOnAvailablePort();
+    if (availablePorts.length) {
+      putPlaneOnAvailablePort(availablePorts);
       // await debug()
     } else if (game.decks.table.itemsCount() === 1) {
       // был добавлен plane на пустое поле (через вызов NO_AVAILABLE_PORTS внутри showPlanePortsAvailability)
@@ -111,10 +111,10 @@
       const initialFreePorts = game.decks.table.getFreePorts().length;
       movePlaneFromTableToHand();
       // await debug()
-      game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
+      const availablePorts = game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
       // await debug()
-      if (game.availablePorts.length) {
-        putPlaneOnAvailablePort();
+      if (availablePorts.length) {
+        putPlaneOnAvailablePort(availablePorts);
         // await debug()
       }
 
@@ -123,7 +123,7 @@
         while (game.decks.table.items().filter(
           p => !p.anchorGameId // НЕ корпоративная игра
             || ( // корпоративная игра
-              p.anchorGameId === initPlayer.gameId &&
+              p.anchorGameId === initPlayer?.gameId && // в putStartPlanes нет initPlayer
               !p.mergedPlane // точку привязки не трогаем
             )
         ).length > 0) {
@@ -142,9 +142,9 @@
         const plane = planes.sort(sortPlanesByPorts).pop();
         if (this.merged) {
           // цепляемся к оставшемуся на поле mergedPlane
-          game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
+          const availablePorts = game.run('showPlanePortsAvailability', { joinPlaneId: plane.id() }, initPlayer);
           // await debug()
-          if (game.availablePorts.length) putPlaneOnAvailablePort();
+          if (availablePorts.length) putPlaneOnAvailablePort(availablePorts);
           // await debug()
         } else {
           // выкладываем на пустое поле
@@ -157,7 +157,7 @@
     planes = planeDeck.items();
   }
 
-  game.set({ availablePorts: [] });
+  initPlayer?.set({ eventData: { availablePorts: [] } }); // в putStartPlanes нет initPlayer
 
   const eventData = { plane: {} };
   for (const plane of game.decks.table.items()) {

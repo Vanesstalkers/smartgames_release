@@ -20,7 +20,7 @@
         integrationPlanes: new Set(),
       },
       init() {
-        const { game } = this.eventContext();
+        const { game, player } = this.eventContext();
         const { startPlanes, integrationPlanes } = game.settings;
         const superGame = game.game();
         const planeDeck = superGame.find('Deck[plane]');
@@ -29,27 +29,27 @@
 
         this.data.integrationPlanes = integrationPlanes.map((code) => planeDeck.find(code));
 
-        const availablePorts = [];
+        const filteredAvailablePorts = [];
         for (const plane of this.data.integrationPlanes) {
           if (!plane) continue; // уже мог быть использован ранее другой командой
 
           plane.set({ anchorGameId: game.id() });
 
           for (const port of plane.ports()) {
-            superGame.run('showPlanePortsAvailability', { joinPortId: port.id() }, player);
+            const availablePorts = superGame.run('showPlanePortsAvailability', { joinPortId: port.id() }, player);
 
-            availablePorts.push(...superGame.availablePorts.filter(({ targetPlaneId }) => {
+            filteredAvailablePorts.push(...availablePorts.filter(({ targetPlaneId }) => {
               const targetPlane = superGame.get(targetPlaneId);
               return startPlanes.includes(targetPlane.code.replace(planeDeck.code, '')); // нельзя мерджиться к чужим блокам интеграции 
             }));
           }
         }
 
-        if (availablePorts.length === 0) {
+        if (filteredAvailablePorts.length === 0) {
           return this.emit('RESET');
           // тут проигрыш команды (ситуация чисто теоретическая, но должна быть описана логика, когда команд больше двух)
         }
-        superGame.set({ availablePorts });
+        player.set({ eventData: { availablePorts: filteredAvailablePorts } });
       },
       handlers: {
         NO_AVAILABLE_PORTS,
@@ -62,7 +62,7 @@
           const superGame = game.game();
           const planeDeck = superGame.find('Deck[plane]');
 
-          game.set({ availablePorts: [] });
+          player.set({ eventData: { availablePorts: [] } });
           for (const plane of this.data.integrationPlanes) {
             if (plane.parent() !== planeDeck) continue
             plane.set({ anchorGameId: null });
@@ -81,13 +81,13 @@
           if (endRoundTriggered) game.findEvent({ name: 'initGameFieldsMerge' }).emit('END_ROUND')
         },
         END_ROUND() {
-          const { game } = this.eventContext();
+          const { game, player } = this.eventContext();
           const superGame = game.game();
 
           this.endRoundTriggered = true;
 
-          const availablePort = superGame.availablePorts[0];
-          superGame.run('putPlaneOnField', availablePort);
+          const availablePort = player.eventData.availablePorts[0];
+          superGame.run('putPlaneOnField', availablePort, player);
         },
       },
     },

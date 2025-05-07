@@ -21,7 +21,7 @@
           const updateResult = port.updateDirect(direct);
           if (!updateResult) continue;
 
-          const ports = game.run('getAvailablePortsToJoinPort', { joinPort: port, gameId, playerId });
+          const ports = game.run('getAvailablePortsToJoinPort', { joinPort: port, gameId });
           availablePorts.push(...ports);
         }
         port.updateDirect(realDirect);
@@ -29,11 +29,12 @@
     }
     game.enableChanges();
 
-    // заменить на clientCustomUpdates не получится, в частности, из-за сложной логики с card-plane (например, при авторозыгрыше "req_*"-карты в начале игры)
-    game.set({ availablePorts });
+    initPlayer?.set({ eventData: { availablePorts } }); // в putStartPlanes нет initPlayer
 
     if (availablePorts.length === 0) {
       game.toggleEventHandlers('NO_AVAILABLE_PORTS', { joinPlane });
     }
   }
+
+  return availablePorts;
 });

@@ -28,21 +28,21 @@
           const { game, player } = this.eventContext();
           const playerPlaneDeck = player.find('Deck[plane]');
           const superGame = game.game();
-          
+
           let hasAvailablePorts = false;
           const availablePorts = [];
           const eventData = { port: {} };
           for (const plane of game.decks.table.items()) {
             for (const port of plane.ports()) {
-              superGame.run('showPlanePortsAvailability', { joinPortId: port.id() }, player);
-              const filteredAvailablePorts = superGame.availablePorts.filter(({ targetPlaneId }) => {
+              const availablePorts = superGame.run('showPlanePortsAvailability', { joinPortId: port.id() }, player);
+              const filteredAvailablePorts = availablePorts.filter(({ targetPlaneId }) => {
                 const targetPlane = superGame.get(targetPlaneId);
 
                 let result = targetPlane.sourceGameId === superGame.id();
                 if (result && superGame.gameConfig === 'competition') {
                   result = targetPlane.anchorGameId === game.id();
                 }
-                
+
                 return result;
               });
               if (filteredAvailablePorts.length > 0) {
@@ -52,8 +52,7 @@
               }
             }
           }
-          player.set({ eventData });
-          superGame.set({ availablePorts });
+          player.set({ eventData: { ...eventData, availablePorts } });
 
           if (hasAvailablePorts) return { preventListenerRemove: true };
 
@@ -127,10 +126,8 @@
           const gameDeck = game.find('Deck[plane]');
           const playerPlaneDeck = player.find('Deck[plane]');
 
-          player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, plane: null, port: null } });
+          player.set({ eventData: { availablePorts: [], showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, plane: null, port: null } });
           playerPlaneDeck.moveAllItems({ target: gameDeck });
-
-          game.set({ availablePorts: [] });
 
           this.destroy();
         },
@@ -145,9 +142,8 @@
               const port = target;
               const superGame = game.game();
 
-              superGame.run('showPlanePortsAvailability', { joinPortId: port.id() }, player);
-
-              const onlySuperGameCorePorts = superGame.availablePorts.filter(({ targetPlaneId }) => {
+              const availablePorts = superGame.run('showPlanePortsAvailability', { joinPortId: port.id() }, player);
+              const onlySuperGameCorePorts = availablePorts.filter(({ targetPlaneId }) => {
                 const targetPlane = superGame.get(targetPlaneId);
 
                 let result = targetPlane.sourceGameId === superGame.id();
@@ -157,7 +153,7 @@
 
                 return result;
               });
-              superGame.set({ availablePorts: onlySuperGameCorePorts });
+              player.set({ eventData: { availablePorts: onlySuperGameCorePorts } });
               break;
 
             case 'plane':
@@ -166,7 +162,7 @@
               if (!game.decks.table.items().find((p) => p.id() !== plane.id() && !p.cardPlane))
                 throw new Error('Нельзя убирать все блоки с игрового поле');
 
-              game.set({ availablePorts: [] });
+              player.set({ eventData: { availablePorts: [] } });
               plane.removeFromTableToHand({ player });
 
               break;
@@ -237,17 +233,17 @@
           return { preventListenerRemove: true };
         },
         END_ROUND() {
-          const { game, source: plane } = this.eventContext();
+          const { game, player, source: plane } = this.eventContext();
           const superGame = game.game();
 
           this.endRoundTriggered = true;
 
           for (const port of game.decks.table.getFreePorts()) {
             this.emit('TRIGGER', { target: port });
-            const availablePort = superGame.availablePorts[0];
+            const availablePort = player.eventData.availablePorts[0];
             if (!availablePort) continue;
 
-            superGame.run('putPlaneOnField', availablePort);
+            superGame.run('putPlaneOnField', availablePort, player);
             return this.emit('RESET');
           }
 

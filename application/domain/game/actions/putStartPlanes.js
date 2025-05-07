@@ -14,11 +14,11 @@
         // игровое поле пустое
         plane.moveToTarget(this.decks.table);
       } else {
-        this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
-        if (this.availablePorts.length === 0) {
+        const availablePorts = this.run('showPlanePortsAvailability', { joinPlaneId: plane.id() });
+        if (availablePorts.length === 0) {
           this.run('putPlaneOnFieldRecursive', { planes: [plane] });
         } else {
-          const availablePortConfig = this.availablePorts[Math.floor(Math.random() * this.availablePorts.length)];
+          const availablePortConfig = availablePorts[Math.floor(Math.random() * availablePorts.length)];
           this.run('putPlaneOnField', availablePortConfig);
         }
       }

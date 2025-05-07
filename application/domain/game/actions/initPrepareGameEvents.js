@@ -157,10 +157,8 @@
           const { game } = this.eventContext();
           const deck = game.find('Deck[plane]');
 
-          game.set({ availablePorts: [] });
-
           for (const player of game.players()) {
-            player.set({ eventData: { roundBtn: null } })
+            player.set({ eventData: { roundBtn: null, availablePorts: [] } })
             player.removeEventWithTriggerListener();
 
             if (!player.eventData.plane) continue;

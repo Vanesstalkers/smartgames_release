@@ -1,4 +1,4 @@
-(function ({ joinPort, gameId, playerId }) {
+(function ({ joinPort, gameId }) {
   const availablePorts = [];
   const joinPlane = joinPort.getParent();
   const originalPositions = {
@@ -69,7 +69,6 @@
 
         availablePorts.push({
           gameId,
-          playerId,
           position: joinPlane.getPosition(),
           joinPlaneId: joinPlane.id(),
           joinPortId: joinPort.id(),

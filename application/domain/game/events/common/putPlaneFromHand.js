@@ -6,8 +6,7 @@
   handlers: {
     RESET() {
       const { game, player } = this.eventContext();
-      game.set({ availablePorts: [] });
-      player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, plane: null } });
+      player.set({ eventData: { availablePorts: [], showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, plane: null } });
       player.find('Deck[plane]').moveAllItems({ target: game.find('Deck[plane]') });
       this.destroy();
     },
@@ -74,7 +73,7 @@
       if (!plane) return;
       const { game, player } = this.eventContext();
       plane.removeFromTableToHand({ player });
-      game.set({ availablePorts: [] });
+      player.set({ eventData: { availablePorts: [] } });
       this.emit('NO_AVAILABLE_PORTS');
       return { preventListenerRemove: true };
     },

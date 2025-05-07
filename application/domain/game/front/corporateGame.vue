@@ -158,28 +158,7 @@ export default {
         this.hideZonesAvailability();
       }
     },
-    'game.availablePorts': function () {
-      this.$nextTick(() => {
-        this.state.gamePlaneNeedUpdate = true;
-        this.selectedFakePlanePosition = '';
-        this.gameCustom.selectedFakePlanes = {};
-
-        if (this.sessionPlayer().eventData.showNoAvailablePortsBtn && !this.gameFinished()) {
-          this.gameState.cardWorkerAction = {
-            show: true,
-            label: 'Помочь выложить',
-            style: { background: '#ffa500' },
-            sendApiData: {
-              path: 'game.api.action',
-              args: [{ name: 'putPlaneOnFieldRecursive', data: { fromHand: true } }],
-            },
-          };
-        } else {
-          this.gameState.cardWorkerAction = null;
-        }
-      });
-    },
-    'superGame.availablePorts': function () {
+    'player.eventData.availablePorts': function () {
       this.$nextTick(() => {
         this.state.gamePlaneNeedUpdate = true;
         this.selectedFakePlanePosition = '';
@@ -295,7 +274,6 @@ export default {
             .find((deck) => deck.subtype === 'table'),
           bridgeMap: game.bridgeMap || {},
           playerMap: game.playerMap || {},
-          availablePorts: game.availablePorts,
           selected: selectedGameId === gameId,
           super: this.gameState.gameId === gameId,
           my: gameId === playerGameId,
@@ -473,9 +451,9 @@ export default {
     },
     possibleAddPlanePositions(game) {
       if (!this.sessionPlayerIsActive()) return [];
-      const availablePorts = game.availablePorts || [];
+      const availablePorts = this.sessionPlayer().eventData.availablePorts || [];
       const positions = availablePorts
-        .filter(({ playerId }) => playerId === this.gameState.sessionPlayerId)
+        .filter(({ gameId }) => gameId === game.gameId)
         .map(
           ({
             gameId,
@@ -489,12 +467,7 @@ export default {
           }) => {
             return {
               code: joinPortId + joinPortDirect + targetPortId + targetPortDirect,
-              gameId,
-              joinPlaneId,
-              joinPortId,
-              joinPortDirect,
-              targetPortId,
-              targetPortDirect,
+              ...{ gameId, joinPlaneId, joinPortId, joinPortDirect, targetPortId, targetPortDirect },
               style: {
                 left: position.left + 'px',
                 top: position.top + 'px',

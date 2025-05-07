@@ -17,7 +17,6 @@
   this.round = data.round || 0;
   this.roundActivePlayerId = data.roundActivePlayerId;
   this.cardEvents = data.cardEvents || {};
-  this.availablePorts = data.availablePorts || [];
   this.title = data.title;
   this.title = data.title;
   if (!data.templates) data.templates = { card: 'dark' }; // !!! заменить выбранный игроком шаблон
