@@ -34,11 +34,11 @@ export default {
     port() {
       return this.store.port?.[this.portId];
     },
-    sessionPlayerGamePort() {
-      return this.port.code.indexOf(this.game.code) === 0;
+    portEventData() {
+      return this.sessionPlayerIsActive() && this.sessionPlayer().eventData.port?.[this.portId];
     },
     selectable() {
-      return this.port.eventData.selectable && this.sessionPlayerIsActive() && this.sessionPlayerGamePort;
+      return this.portEventData?.selectable;
     },
   },
   methods: {

@@ -8,10 +8,6 @@
 
       game.run('putStartPlanes');
 
-      for (const plane of game.decks.table.items()) {
-        plane.addCustomClass('core');
-      }
-
       game.set({ statusLabel: 'Подготовка к игре', status: 'PREPARE_START' });
       for (const childGame of game.getAllGames()) {
         childGame.run('domain.initPrepareGameEvents');

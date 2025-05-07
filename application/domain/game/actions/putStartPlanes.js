@@ -5,7 +5,7 @@
   } = this;
 
   const gamePlaneDeck = this.find('Deck[plane]');
-  const skipArray = skipStartPlanes.map((code) => this.find(code));
+  const skipArray = skipStartPlanes.map((code) => gamePlaneDeck.find(code));
   for (let i = 0; i < planesAtStart; i++) {
     let plane = gamePlaneDeck.getRandomItem({ skipArray });
     if (plane) {

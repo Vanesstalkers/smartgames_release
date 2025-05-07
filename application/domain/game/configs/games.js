@@ -210,13 +210,15 @@
     items: {
       cooperative: {
         title: 'Кооперация',
-        skipStartPlanes: ['Deck[plane]Plane[12]', 'Deck[plane]Plane[15]', 'Deck[plane]Plane[16]'],
+        skipStartPlanes: ['Plane[12]', 'Plane[15]', 'Plane[16]'],
         // roundStartCardAddToPlayerHand: false,
         // allowedAutoCardPlayRoundStart: true,
       },
       competition: {
         title: 'Соревнование',
         planesNeedToStart: 1,
+        startPlanes: ['Plane[8]'],
+        integrationPlanes: ['Plane[4]', 'Plane[5]', 'Plane[10]', 'Plane[11]'],
         // roundStartCardAddToPlayerHand: false,
         // allowedAutoCardPlayRoundStart: true,
       },

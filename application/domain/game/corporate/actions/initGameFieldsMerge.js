@@ -28,21 +28,35 @@
           const { game, player } = this.eventContext();
           const playerPlaneDeck = player.find('Deck[plane]');
           const superGame = game.game();
+          
           let hasAvailablePorts = false;
-
+          const availablePorts = [];
+          const eventData = { port: {} };
           for (const plane of game.decks.table.items()) {
             for (const port of plane.ports()) {
               superGame.run('showPlanePortsAvailability', { joinPortId: port.id() }, player);
               const filteredAvailablePorts = superGame.availablePorts.filter(({ targetPlaneId }) => {
-                return superGame.get(targetPlaneId).sourceGameId === superGame.id();
+                const targetPlane = superGame.get(targetPlaneId);
+
+                let result = targetPlane.sourceGameId === superGame.id();
+                if (result && superGame.gameConfig === 'competition') {
+                  result = targetPlane.anchorGameId === game.id();
+                }
+                
+                return result;
               });
               if (filteredAvailablePorts.length > 0) {
-                port.set({ eventData: { selectable: true } });
+                eventData.port[port.id()] = { selectable: true };
                 hasAvailablePorts = true;
+                availablePorts.push(...filteredAvailablePorts);
               }
             }
           }
+          player.set({ eventData });
+          superGame.set({ availablePorts });
+
           if (hasAvailablePorts) return { preventListenerRemove: true };
+
           // если поле пустое (сработает !hasAvailablePorts), тогда в руку ничего не добавляем
           if (playerPlaneDeck.itemsCount() === 0) {
             const planes = game.find('Deck[plane]').items();
@@ -113,14 +127,8 @@
           const gameDeck = game.find('Deck[plane]');
           const playerPlaneDeck = player.find('Deck[plane]');
 
-          player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, plane: null } });
+          player.set({ eventData: { showNoAvailablePortsBtn: null, fakePlaneAddBtn: null, plane: null, port: null } });
           playerPlaneDeck.moveAllItems({ target: gameDeck });
-
-          // привязка связанных plane еще не произошло
-          const planes = [].concat(game.decks.table.items()).concat(superGame.decks.table.items());
-          for (const plane of planes) {
-            plane.updatePorts({ eventData: { selectable: null } });
-          }
 
           game.set({ availablePorts: [] });
 
@@ -141,7 +149,13 @@
 
               const onlySuperGameCorePorts = superGame.availablePorts.filter(({ targetPlaneId }) => {
                 const targetPlane = superGame.get(targetPlaneId);
-                return targetPlane.sourceGameId === superGame.id();
+
+                let result = targetPlane.sourceGameId === superGame.id();
+                if (result && superGame.gameConfig === 'competition') {
+                  result = targetPlane.anchorGameId === game.id();
+                }
+
+                return result;
               });
               superGame.set({ availablePorts: onlySuperGameCorePorts });
               break;

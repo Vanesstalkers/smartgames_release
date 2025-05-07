@@ -1,6 +1,6 @@
 (function () {
   let {
-    settings: { planesAtStart, skipStartPlanes = [] },
+    settings: { planesAtStart, skipStartPlanes = [], startPlanes: [startPlane] = [] },
   } = this;
 
   const gamePlaneDeck = this.find('Deck[plane]');
@@ -10,7 +10,7 @@
     case 'competition':
 
       if (this.isCoreGame()) {
-        gamePlaneDeck.find('Plane[8]').moveToTarget(this.decks.table);
+        gamePlaneDeck.find(startPlane).moveToTarget(this.decks.table);
       }
 
       break;
@@ -23,7 +23,7 @@
       }
 
 
-      const skipArray = this.isCoreGame() ? skipStartPlanes.map((code) => this.find(code)?.id()) : [];
+      const skipArray = this.isCoreGame() ? skipStartPlanes.map((code) => gamePlaneDeck.find(code)?.id()) : [];
       for (let i = 0; i < planesAtStart; i++) {
         let plane = gamePlaneDeck.getRandomItem({ skipArray });
         if (plane) {
