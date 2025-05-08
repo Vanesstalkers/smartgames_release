@@ -7,6 +7,7 @@
     selectable ? 'selectable' : '',
     showEndRoundBtn || showLeaveBtn || showCustomActionBtn ? 'has-action' : '',
     controlActionDisabled ? 'disabled' : '',
+    // disabled || controlActionDisabled ? 'disabled' : '',
   ]" :style="customStyle" @click="controlAction">
     <div class="user-name">
       {{ player.userName }}
@@ -64,6 +65,9 @@ export default {
       const player = store.player?.[this.playerId] || {};
       return this.getGame(player.gameId);
     },
+    // superGame() {
+    //   return this.getSuperGame();
+    // },
     store() {
       return this.getStore();
     },
@@ -140,10 +144,14 @@ export default {
     showCustomActionBtn() {
       return this.iam && this.customAction.show;
     },
+    // disabled() {
+    //   return this.superGame.status === 'RESTORING_GAME' || this.game.roundReady;
+    // },
   },
   methods: {
     async controlAction() {
       if (this.controlActionDisabled) return;
+      // if (this.controlActionDisabled || this.disabled) return;
       this.controlActionDisabled = true;
       this.hidePreviewPlanes();
       if (this.selectable) {

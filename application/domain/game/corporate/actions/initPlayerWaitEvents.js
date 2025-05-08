@@ -4,7 +4,8 @@
       name: 'initPlayerWaitEvents',
       init: function () {
         const { game, player } = this.eventContext();
-        game.set({ statusLabel: 'Ожидание игроков', status: 'WAIT_FOR_PLAYERS' });
+        const status = game.restorationMode ? 'RESTORING_GAME' : 'WAIT_FOR_PLAYERS';
+        game.set({ status, statusLabel: 'Ожидание игроков' });
       },
       handlers: {
         PLAYER_JOIN: function () {

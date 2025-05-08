@@ -1,4 +1,11 @@
-(function ({ winningPlayer, canceledByUser, msg } = {}) {
+(function ({ winningPlayer, canceledByUser, msg } = {}, initPlayer) {
+
+  // lib.store.broadcaster.publishAction(`gameuser-${winningPlayer?.userId || initPlayer?.userId}`, 'broadcastToSessions', {
+  //   data: { message: 'игра закончена' },
+  // });
+
+  // return;
+
   const superGame = this.game();
   superGame.run('lib.endGame', { winningPlayer, canceledByUser, customFinalize: true, msg });
 

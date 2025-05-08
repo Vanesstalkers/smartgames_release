@@ -1,5 +1,5 @@
 <template>
-  <game :debug="false" :planeScaleMin="0.2" :planeScaleMax="1">
+  <game :debug="false" :planeScaleMin="0.2" :planeScaleMax="1" :status="game.status" :superStatus="superGame.status">
 
     <template #helper-guru="{ } = {}">
       <tutorial :inGame="true" class="scroll-off" :defaultMenu="defaultTutorialMenu" />
@@ -7,7 +7,7 @@
 
     <template #gameplane="{ } = {}">
       <div v-for="game in planeViewGames" :key="game.gameId" :gameId="game.gameId"
-        :class="['gp', game.roundReady ? 'round-ready' : '', allGamesMerged ? 'all-games-merged' : '']"
+        :class="['gp', game.roundReady ? 'round-ready' : '', allGamesMerged ? 'all-games-merged' : '', superGame.status === 'RESTORING_GAME' ? 'restoring-game' : '']"
         :style="{ ...gamePlaneStyle(game.gameId) }">
         <div class="gp-content" :style="{ ...gamePlaneContentControlStyle(game.gameId) }">
           <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" />
@@ -583,6 +583,9 @@ export default {
 // раунд завершен
 .gp.round-ready .plane .domino-dice,
 .gp.round-ready .bridge .domino-dice,
+// восстанавливается игра
+.gp.restoring-game .plane .domino-dice,
+.gp.restoring-game .bridge .domino-dice,
 // замороженная игра (ждет merge всех остальных игр)
 .gp:not(.all-games-merged) .plane.source-game-merged .domino-dice,
 .gp:not(.all-games-merged) .bridge.anchor-game-merged .domino-dice {

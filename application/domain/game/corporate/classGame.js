@@ -173,6 +173,7 @@
     return (this.roundReady && mergeStatus !== 'merged')
       || mergeStatus === 'freezed'
       || this.eventData.activeEvents?.find(e => e.name === 'initGameFieldsMerge')
+      || this.game().status === 'RESTORING_GAME';
   }
   mergeStatus() {
     const superGame = this.game();

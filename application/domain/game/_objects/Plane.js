@@ -132,9 +132,12 @@
     }
   }
   moveToTarget(target) {
+    let moveResult = target.beforeAddItem?.(this);
+    if (moveResult?.error) return moveResult;
+
     const currentParent = this.getParent();
     currentParent.removeItem(this); // сначала удаляем
-    const moveResult = target.addItem(this);
+    moveResult = target.addItem(this);
     if (moveResult) {
       this.updateParent(target);
       if (target.afterAddItem) target.afterAddItem(this);
