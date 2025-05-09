@@ -217,8 +217,6 @@
       competition: {
         title: 'Соревнование',
         planesNeedToStart: 1,
-        startPlanes: ['Plane[8]'],
-        integrationPlanes: ['Plane[4]', 'Plane[5]', 'Plane[10]', 'Plane[11]'],
         // roundStartCardAddToPlayerHand: false,
         // allowedAutoCardPlayRoundStart: true,
       },

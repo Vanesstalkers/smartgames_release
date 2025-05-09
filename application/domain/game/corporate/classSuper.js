@@ -264,7 +264,7 @@
           clone.store[entityType][entityId] = entityData;
         }
       }
-      Object.assign(clone.store.game[gameId], { eventData: {}, eventListeners: {} });
+      Object.assign(clone.store.game[gameId], { eventData: { activeEvents: [] }, eventListeners: {} });
     }
     clone._gameid = db.mongo.ObjectID(clone._id);
     clone._dumptime = Date.now();

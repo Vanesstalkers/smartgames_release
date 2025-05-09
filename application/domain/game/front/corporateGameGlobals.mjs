@@ -35,7 +35,7 @@ function gameFinished() {
   return this.getSuperGame().status === 'FINISHED';
 }
 function actionsDisabled() {
-  return this.getGame().roundReady || this.store.player?.[this.gameState.sessionPlayerId]?.eventData?.actionsDisabled;
+  return this.getGame().roundReady || this.store.player?.[this.gameState.sessionPlayerId]?.eventData?.actionsDisabled || this.getSuperGame().status === 'RESTORING_GAME';
 }
 function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
   const p = {};

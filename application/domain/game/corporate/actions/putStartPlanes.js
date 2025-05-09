@@ -10,7 +10,25 @@
     case 'competition':
 
       if (this.isCoreGame()) {
-        gamePlaneDeck.find(startPlane).moveToTarget(this.decks.table);
+        const centralPlane = gamePlaneDeck.find('Plane[8]');
+        centralPlane.moveToTarget(this.decks.table);
+
+        this.run('putPlaneOnField', {
+          targetPortId: centralPlane.find('Port[1]').id(), targetPortDirect: 'top',
+          joinPortId: gamePlaneDeck.find('Plane[10]Port[4]').id(), joinPortDirect: 'bottom',
+        });
+        this.run('putPlaneOnField', {
+          targetPortId: centralPlane.find('Port[2]').id(), targetPortDirect: 'top',
+          joinPortId: gamePlaneDeck.find('Plane[5]Port[3]').id(), joinPortDirect: 'bottom',
+        });
+        this.run('putPlaneOnField', {
+          targetPortId: centralPlane.find('Port[3]').id(), targetPortDirect: 'bottom',
+          joinPortId: gamePlaneDeck.find('Plane[4]Port[2]').id(), joinPortDirect: 'top',
+        });
+        this.run('putPlaneOnField', {
+          targetPortId: centralPlane.find('Port[4]').id(), targetPortDirect: 'bottom',
+          joinPortId: gamePlaneDeck.find('Plane[11]Port[1]').id(), joinPortDirect: 'top',
+        });
       }
 
       break;

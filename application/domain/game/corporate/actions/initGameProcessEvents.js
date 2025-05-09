@@ -14,11 +14,8 @@
       game.logs(`Игрок {{player}} инициировал РЕЛИЗ, за что получает дополнительную карту-события в руку.`);
 
       if (game.checkFieldIsReady() && !game.merged) {
-        if (game.gameConfig === 'competition') {
-          game.run('initGameFieldsPrepareMerge');
-        } else {
-          game.run('initGameFieldsMerge');
-        }
+        // при необходимости можно доработать и использовать initGameFieldsPrepareMerge (проблемы с конфликтами интеграции для 4-й команды) 
+        game.run('initGameFieldsMerge');
       } else {
         const superGame = game.game();
         superGame.toggleEventHandlers('RELEASE', {}, initPlayer);

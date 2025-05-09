@@ -37,13 +37,7 @@
               const availablePorts = superGame.run('showPlanePortsAvailability', { joinPortId: port.id() }, player);
               const filteredAvailablePorts = availablePorts.filter(({ targetPlaneId }) => {
                 const targetPlane = superGame.get(targetPlaneId);
-
-                let result = targetPlane.sourceGameId === superGame.id();
-                if (result && superGame.gameConfig === 'competition') {
-                  result = targetPlane.anchorGameId === game.id();
-                }
-
-                return result;
+                return targetPlane.sourceGameId === superGame.id();
               });
               if (filteredAvailablePorts.length > 0) {
                 eventData.port[port.id()] = { selectable: true };
@@ -147,9 +141,7 @@
                 const targetPlane = superGame.get(targetPlaneId);
 
                 let result = targetPlane.sourceGameId === superGame.id();
-                if (result && superGame.gameConfig === 'competition') {
-                  result = targetPlane.anchorGameId === game.id();
-                }
+                if (result && superGame.gameConfig === 'competition') result = !targetPlane.integrationPlane;
 
                 return result;
               });
@@ -259,8 +251,10 @@
         const mergedBridge = bridges.find((b) => b.game() === superGame);
 
         game.set({ merged: true });
-        plane.set({ mergedPlane: true });
         mergedBridge.set({ mergedGameId: gameId });
+        const mergedPlane = mergedBridge.getLinkedPlanes().find(p => p !== plane);
+        mergedPlane.set({ integrationPlane: true });
+        plane.set({ mergedPlaneId: mergedPlane.id() });
 
         // переносим все связанные plane-ы
         const processedBridges = [mergedBridge];

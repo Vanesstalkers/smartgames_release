@@ -116,6 +116,7 @@
         lib.store.broadcaster.publishAction(`gameuser-${userId}`, 'broadcastToSessions', {
           data: { message: exception.message, stack: exception.stack },
         });
+        await this.saveChanges();
       }
     }
   }
@@ -173,6 +174,7 @@
     return (this.roundReady && mergeStatus !== 'merged')
       || mergeStatus === 'freezed'
       || this.eventData.activeEvents?.find(e => e.name === 'initGameFieldsMerge')
+      || this.game().status === 'RESTORING_GAME';
   }
   mergeStatus() {
     const superGame = this.game();

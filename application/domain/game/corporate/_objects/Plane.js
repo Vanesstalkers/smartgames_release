@@ -1,10 +1,10 @@
 (class Plane extends domain.game._objects.Plane {
   constructor(data = {}) {
     super(...arguments);
-    let { sourceGameId, anchorGameId, mergedPlane } = data;
+    let { sourceGameId, anchorGameId, mergedPlaneId } = data;
     if (!sourceGameId) sourceGameId = this.game().id();
 
-    this.set({ sourceGameId, anchorGameId, mergedPlane });
+    this.set({ sourceGameId, anchorGameId, mergedPlaneId });
     this.broadcastableFields(['sourceGameId', 'anchorGameId', 'release']);
   }
   game(game) {

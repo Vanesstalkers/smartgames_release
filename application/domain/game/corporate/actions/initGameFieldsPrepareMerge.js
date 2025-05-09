@@ -12,29 +12,92 @@
     },
   } = domain.game.events.common.putPlaneFromHand();
 
-  this.initEvent(
+  // специально делаем через событие superGame, т.к.BEFORE_ADD_PLANE срабатывает для targetGame
+  const superGame = this.game();
+  superGame.initEvent(
     {
       name: 'initGameFieldsPrepareMerge',
-      data: {
-        ...data,
-        integrationPlanes: new Set(),
-      },
+      data: { ...data, mergedGame: this },
       init() {
-        const { game, player } = this.eventContext();
-        const { startPlanes, integrationPlanes } = game.settings;
-        const superGame = game.game();
-        const planeDeck = superGame.find('Deck[plane]');
+        const game = this.data.mergedGame;
+        const { game: superGame, player } = this.eventContext();
 
         superGame.broadcastEvent('DICES_DISABLED', { parent: game });
+        this.showAvailablePorts();
+      },
+      handlers: {
+        NO_AVAILABLE_PORTS,
+        TRIGGER_EXTRA_PLANE,
+        CHECK_PLANES_IN_HANDS,
+        CHECK_AVAILABLE_PORTS,
+        TRIGGER,
+        RESET() {
+          const { game: superGame, player } = this.eventContext();
 
-        this.data.integrationPlanes = integrationPlanes.map((code) => planeDeck.find(code));
+          player.set({ eventData: { availablePorts: [] } });
+
+          this.destroy();
+        },
+        BEFORE_ADD_PLANE({ target: plane, initPlayer }) {
+          if (!plane.integrationPlane) {
+            // сюда может попасть "обычный" plane, который добавляется после интеграции одной игры, но до интеграции следующей в конце раунда
+            return { preventListenerRemove: true };
+          }
+
+          const game = this.data.mergedGame;
+
+          if (initPlayer.gameId !== game.id()) {
+            // тут активированные initGameFieldsPrepareMerge из других игр
+            return { preventListenerRemove: true };
+          }
+
+          if (plane.anchorGameId) {
+            this.showAvailablePorts();
+            return { error: 'Этот блок уже был использован другой командой', preventListenerRemove: true };
+          }
+
+          // вся логика работы с игровым полем команды должна распространяться и на блок интеграции
+          plane.set({ anchorGameId: game.id() });
+        },
+        ADD_PLANE({ target: plane, initPlayer }) {
+          if (!plane.integrationPlane) return { preventListenerRemove: true };
+
+          const game = this.data.mergedGame;
+          if (game.id() !== initPlayer.gameId) {
+            // тут активированные initGameFieldsPrepareMerge из других игр (т.к. поле поменялось, то нужно пересчитать availablePorts)
+            this.showAvailablePorts();
+            return { preventListenerRemove: true };
+          }
+
+          const endRoundTriggered = this.endRoundTriggered;
+          this.emit('RESET');
+
+          game.run('initGameFieldsMerge');
+          if (endRoundTriggered) game.findEvent({ name: 'initGameFieldsMerge' }).emit('END_ROUND')
+        },
+        END_ROUND({ initPlayer }) {
+          const game = this.data.mergedGame;
+
+          if (initPlayer.gameId !== game.id()) return { preventListenerRemove: true };
+
+          const { game: superGame, player } = this.eventContext();
+
+          this.endRoundTriggered = true;
+
+          // plane с наименьшим количеством зон
+          const availablePort = player.eventData.availablePorts.map((_) => [superGame.get(_.joinPlaneId), _]).sort((a, b) => a[0].zonesCount() - b[0].zonesCount())[0][1];
+          superGame.run('putPlaneOnField', availablePort, player);
+        },
+      },
+      showAvailablePorts() {
+        const game = this.data.mergedGame;
+        const { game: superGame, player } = this.eventContext();
+        const { startPlanes } = game.settings;
+        const planeDeck = superGame.find('Deck[plane]');
+        const integrationPlanes = planeDeck.select({ className: 'Plane', attr: { integrationPlane: true } })
 
         const filteredAvailablePorts = [];
-        for (const plane of this.data.integrationPlanes) {
-          if (!plane) continue; // уже мог быть использован ранее другой командой
-
-          plane.set({ anchorGameId: game.id() });
-
+        for (const plane of integrationPlanes) {
           for (const port of plane.ports()) {
             const availablePorts = superGame.run('showPlanePortsAvailability', { joinPortId: port.id() }, player);
 
@@ -47,50 +110,11 @@
 
         if (filteredAvailablePorts.length === 0) {
           return this.emit('RESET');
-          // тут проигрыш команды (ситуация чисто теоретическая, но должна быть описана логика, когда команд больше двух)
+          // !!! тут проигрыш команды (ситуация чисто теоретическая, но должна быть описана логика, когда команд больше двух)
         }
         player.set({ eventData: { availablePorts: filteredAvailablePorts } });
-      },
-      handlers: {
-        NO_AVAILABLE_PORTS,
-        TRIGGER_EXTRA_PLANE,
-        CHECK_PLANES_IN_HANDS,
-        CHECK_AVAILABLE_PORTS,
-        TRIGGER,
-        RESET() {
-          const { game, player } = this.eventContext();
-          const superGame = game.game();
-          const planeDeck = superGame.find('Deck[plane]');
-
-          player.set({ eventData: { availablePorts: [] } });
-          for (const plane of this.data.integrationPlanes) {
-            if (plane.parent() !== planeDeck) continue
-            plane.set({ anchorGameId: null });
-          }
-
-          this.destroy();
-        },
-
-        ADD_PLANE({ target: plane }) {
-
-          const { game, player } = this.eventContext();
-          const endRoundTriggered = this.endRoundTriggered;
-          this.emit('RESET');
-
-          game.run('initGameFieldsMerge');
-          if (endRoundTriggered) game.findEvent({ name: 'initGameFieldsMerge' }).emit('END_ROUND')
-        },
-        END_ROUND() {
-          const { game, player } = this.eventContext();
-          const superGame = game.game();
-
-          this.endRoundTriggered = true;
-
-          const availablePort = player.eventData.availablePorts[0];
-          superGame.run('putPlaneOnField', availablePort, player);
-        },
-      },
+      }
     },
-    { player }
+    { player, allowedPlayers: superGame.players() }
   );
 });

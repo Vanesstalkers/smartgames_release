@@ -13,6 +13,12 @@
   });
 
   for (const plane of gamePlanes) {
+    if (plane.mergedPlaneId) {
+      const mergedPlane = superGame.get(plane.mergedPlaneId);
+      mergedPlane.set({ integrationPlane: null });
+      plane.set({ mergedPlaneId: null });
+    }
+
     plane.removeFromTableToHand({ player });
     if (this.merged) plane.game(this);
   }

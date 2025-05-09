@@ -49,7 +49,7 @@
     deckOwner.set({ eventData: { plane: planeStates } });
 
     const selectablePlanes = game.decks.table.items()
-      .filter(p => deckOwner.eventData.plane?.[p.id()]?.selectable && !p.mergedPlane)
+      .filter(p => deckOwner.eventData.plane?.[p.id()]?.selectable && !p.mergedPlaneId)
       .sort(sortSelectablePlanes);
 
     if (selectablePlanes.length === 0) return;
@@ -124,7 +124,7 @@
           p => !p.anchorGameId // НЕ корпоративная игра
             || ( // корпоративная игра
               p.anchorGameId === initPlayer?.gameId && // в putStartPlanes нет initPlayer
-              !p.mergedPlane // точку привязки не трогаем
+              !p.mergedPlaneId // точку привязки не трогаем
             )
         ).length > 0) {
           movePlaneFromTableToHand();
