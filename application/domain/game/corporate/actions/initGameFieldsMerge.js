@@ -251,6 +251,15 @@
         const mergedBridge = bridges.find((b) => b.game() === superGame);
 
         game.set({ merged: true });
+
+        if (superGame.gameConfig === 'competition') {
+          const roundPool = superGame.roundPool;
+          roundPool.add(game.id(), [game]);
+          const commonRound = roundPool.get('common');
+          roundPool.update('common', commonRound.data.filter((g) => g !== game));
+          if (superGame.allGamesMerged()) roundPool.setActive('common', false);
+        }
+
         mergedBridge.set({ mergedGameId: gameId });
         const mergedPlane = mergedBridge.getLinkedPlanes().find(p => p !== plane);
         mergedPlane.set({ integrationPlane: true });

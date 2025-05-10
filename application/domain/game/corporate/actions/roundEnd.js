@@ -17,6 +17,26 @@
     superGame.broadcastEvent('DICES_DISABLED', { parent: this });
   }
 
+  if (superGame.gameConfig === 'competition') {
+    const games = superGame.roundPool.current();
+
+    if (games.find((game) => !game.roundReady)) return; // есть игры, которые не завершили раунд
+
+    for (const game of games) {
+      const activePlayer = game.roundActivePlayer();
+      if (activePlayer) game.toggleEventHandlers('END_ROUND', {}, activePlayer);
+    }
+    for (const game of games) {
+      const activePlayer = game.roundActivePlayer();
+      if (game.round > 0 && activePlayer) {
+        activePlayer.checkHandDiceLimit(); // отдельный цикл ради этой проверки (в конце хода может добавиться карта в руку)
+      }
+    }
+
+    superGame.run('roundStart');
+    return;
+  }
+
   if (!superGame.allGamesRoundReady()) return;
 
   for (const game of superGame.getAllGames()) {
@@ -39,8 +59,6 @@
     if (game.round > 0 && activePlayer) {
       activePlayer.checkHandDiceLimit(); // отдельный цикл ради этой проверки (в конце хода может добавиться карта в руку)
     }
-
-    game.run('roundStart'); // просто обойти массив checkPlayers нельзя, т.к. в команде может быть только один игрок
   }
 
   superGame.run('roundStart');

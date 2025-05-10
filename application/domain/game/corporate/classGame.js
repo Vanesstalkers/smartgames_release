@@ -216,7 +216,8 @@
       // this.gameConfig === 'competition'
 
       const tablePlanesCount = this.decks.table.itemsCount();
-      const expectedZonesCount = tablePlanesCount === 0 ? 4 : tablePlanesCount === 1 ? 3 : 2;
+      // const expectedZonesCount = tablePlanesCount === 0 ? 4 : tablePlanesCount === 1 ? 3 : 2;
+      const expectedZonesCount = 2;
 
       const planes = this.find('Deck[plane]').items().filter((p) => p.zonesCount() === expectedZonesCount);
 

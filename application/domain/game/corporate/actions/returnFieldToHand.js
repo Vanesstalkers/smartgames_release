@@ -29,6 +29,17 @@
     turnOrder: superGame.turnOrder.filter((gameId) => gameId !== this.id()),
   });
 
+  if (superGame.gameConfig === 'competition') {
+    const pool = superGame.roundPool;
+    const gameId = this.id();
+    if (pool.get(gameId)) {
+      pool.remove(gameId);
+      pool.update('common', [...pool.get('common').data, this]);
+      pool.setActive('common');
+      if (pool.currentKey !== gameId) this.set({ roundReady: true });
+    }
+  }
+
   // принципиально делать после set({ merged: null })
   const playersHands = this.players().map((p) => p.find('Deck[domino]'));
   const dices = this.find('Deck[domino_common]').items();
