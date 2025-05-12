@@ -6,9 +6,12 @@
     </template>
 
     <template #gameplane="{ } = {}">
-      <div v-for="game in planeViewGames" :key="game.gameId" :gameId="game.gameId"
-        :class="['gp', game.roundReady ? 'round-ready' : '', allGamesMerged ? 'all-games-merged' : '', superGame.status === 'RESTORING_GAME' ? 'restoring-game' : '']"
-        :style="{ ...gamePlaneStyle(game.gameId) }">
+      <div v-for="game in planeViewGames" :key="game.gameId" :gameId="game.gameId" :class="['gp',
+        game.roundReady ? 'round-ready' : '',
+        allGamesMerged ? 'all-games-merged' : '',
+        sessionPlayerGame.merged ? 'session-game-merged' : '',
+        superGame.status === 'RESTORING_GAME' ? 'restoring-game' : ''
+      ]" :style="{ ...gamePlaneStyle(game.gameId) }">
         <div class="gp-content" :style="{ ...gamePlaneContentControlStyle(game.gameId) }">
           <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" />
           <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
@@ -202,6 +205,9 @@ export default {
     superGame() {
       return this.getSuperGame();
     },
+    sessionPlayerGame() {
+      return this.getGame(this.sessionPlayer()?.gameId);
+    },
     player() {
       return this.store.player?.[this.gameState.sessionPlayerId] || {};
     },
@@ -281,6 +287,7 @@ export default {
           roundReady: game.roundReady,
           code: game.code,
           merged: game.merged,
+          gameConfig: game.gameConfig,
         };
       });
     },
@@ -619,6 +626,8 @@ export default {
   position: absolute;
   top: 35px;
   right: 100px;
+  width: 70px;
+  height: 70px;
   padding: 14px;
   cursor: default;
 }
@@ -904,7 +913,8 @@ export default {
   }
 }
 
-#game[config=competition] .plane:not(.team-plane) .domino-dice {
+#game[config=competition] .plane:not(.team-plane):not(.core.central) .domino-dice,
+#game[config=competition] .gp:not(.session-game-merged) .plane:not(.team-plane) .domino-dice {
   cursor: default !important;
 
   >.controls {

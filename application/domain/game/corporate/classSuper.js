@@ -1,6 +1,7 @@
 (class CorporateSuperGame extends domain.game.class {
   isSuperGame = true;
   gamesMap = {};
+  roundPool = new lib.utils.circularArray();
   #dumps = {};
 
   constructor() {
@@ -92,6 +93,7 @@
       gamesMap[game.id()] = Object.fromEntries(players.map((player) => [player.id(), {}]));
     }
     this.set({ gamesMap });
+    this.roundPool.add('common', this.getAllGames());
     await this.saveChanges();
 
     const initiatedGame = await db.redis.hget('games', this.id());
@@ -103,6 +105,22 @@
   restore() {
     this.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${this.round}` });
     this.run('initGameProcessEvents');
+
+    if (this.gameConfig === 'competition') {
+      for (const game of this.getAllGames()) {
+        game.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${game.round}`, roundReady: true });
+        game.run('initGameProcessEvents'); // из "лишних" событий ADD_PLANE отключится при первом же вызове
+      }
+
+      const games = this.roundPool.current({ fixState: true }); // в конце раунда будет вызов с loadFixedState
+      for (const game of games) {
+        lib.timers.timerRestart(game, game.lastRoundTimerConfig);
+        game.playRoundStartCards();
+        game.set({ roundReady: false });
+      }
+
+      return;
+    }
 
     const allGamesMerged = this.allGamesMerged();
     const roundActiveGame = allGamesMerged ? this.roundActiveGame() : null;
@@ -255,6 +273,7 @@
 
   async dumpState() {
     const clone = lib.utils.structuredClone(this);
+    clone.roundPool = this.roundPool.toJSON();
 
     for (const [gameId, gameDump] of Object.entries(this.#dumps)) {
       clone.store.game[gameId] = gameDump;

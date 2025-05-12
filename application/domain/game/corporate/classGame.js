@@ -178,6 +178,7 @@
   }
   mergeStatus() {
     const superGame = this.game();
+    if (this.gameConfig === 'competition') return this.merged ? 'merged' : '';
     return this.merged ? (superGame.allGamesMerged() ? 'merged' : 'freezed') : '';
   }
 

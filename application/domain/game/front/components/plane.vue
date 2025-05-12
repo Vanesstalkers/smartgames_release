@@ -6,9 +6,9 @@
     isOneOfMany ? 'one-of-many' : '',
     isExtraPlane ? 'extra' : '',
     isPlacementRequired ? 'placement-required' : '',
-    game.merged ? 'source-game-merged' : '',
+    game.merged && game.gameConfig === 'cooperative' ? 'source-game-merged' : '',
     plane.release ? 'release' : '',
-    plane.anchorGameId === sessionPlayer().gameId ? 'team-plane' : '',
+    plane.anchorGameId === sessionPlayerGameId || plane.mergedGameId === sessionPlayerGameId ? 'team-plane' : '',
     ...plane.customClass,
     ...Object.values(customClass),
   ]" :style="customStyle" v-on:click.stop="(e) => (isSelectable ? choosePlane() : selectPlane(e))" :code="plane.code"
@@ -72,6 +72,9 @@ export default {
     },
     game() {
       return this.getGame(this.plane.anchorGameId || this.plane.sourceGameId);
+    },
+    sessionPlayerGameId() {
+      return this.sessionPlayer()?.gameId;
     },
     plane() {
       return this.store.plane?.[this.planeId] || { eventData: {}, customClass: [] };

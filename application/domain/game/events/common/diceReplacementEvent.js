@@ -66,10 +66,10 @@
 
       this.emit('RESET');
     },
-    DICE_RESTORE_NOT_AVAILABLE: function ({ msg = '' }) {
+    DICE_RESTORE_NOT_AVAILABLE: function ({ msg = '', initPlayer: player }) {
       // при любом подозрении на ошибку с размещением костяшки восстанавливаем исходное состояние стола
 
-      const { game, player } = this.eventContext();
+      const { game } = this.eventContext();
       const { deletedDices, placedDices, savedRotations, disabledZoneParents } = this;
 
       // если есть временно удаленные dice, то восстанавливаем состояние до их удаления

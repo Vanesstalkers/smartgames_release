@@ -1,6 +1,6 @@
 (function () {
   let {
-    settings: { planesAtStart, skipStartPlanes = [], startPlanes: [startPlane] = [] },
+    settings: { planesAtStart, skipStartPlanes = [] },
   } = this;
 
   const gamePlaneDeck = this.find('Deck[plane]');
@@ -11,6 +11,7 @@
 
       if (this.isCoreGame()) {
         const centralPlane = gamePlaneDeck.find('Plane[8]');
+        centralPlane.addCustomClass('central');
         centralPlane.moveToTarget(this.decks.table);
 
         this.run('putPlaneOnField', {

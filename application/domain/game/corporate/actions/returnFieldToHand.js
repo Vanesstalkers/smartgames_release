@@ -15,7 +15,10 @@
   for (const plane of gamePlanes) {
     if (plane.mergedPlaneId) {
       const mergedPlane = superGame.get(plane.mergedPlaneId);
-      mergedPlane.set({ integrationPlane: null });
+      mergedPlane.set({ mergedGameId: null });
+      for(const bridge of mergedPlane.getLinkedBridges()) {
+        bridge.set({ mergedGameId: null });
+      }
       plane.set({ mergedPlaneId: null });
     }
 
@@ -28,6 +31,17 @@
   superGame.set({
     turnOrder: superGame.turnOrder.filter((gameId) => gameId !== this.id()),
   });
+
+  if (superGame.gameConfig === 'competition') {
+    const pool = superGame.roundPool;
+    const gameId = this.id();
+    if (pool.get(gameId)) {
+      pool.remove(gameId);
+      pool.update('common', [...pool.get('common').data, this]);
+      pool.setActive('common');
+      if (pool.currentKey !== gameId) this.set({ roundReady: true });
+    }
+  }
 
   // принципиально делать после set({ merged: null })
   const playersHands = this.players().map((p) => p.find('Deck[domino]'));

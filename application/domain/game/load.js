@@ -16,6 +16,13 @@ async ({ gameType, gameId, lobbyId, round }) => {
           game.run('fillGameData', gameData);
           gamesMap[gameId] = game;
         }
+
+        const pool = loadedData.roundPool;
+        for (const key of pool.keys) {
+          const games = key === 'common' ? this.getAllGames().filter((g) => !pool.keys.includes(g.id())) : [this.get(key)];
+          this.roundPool.add(key, games, { active: pool.items[key].active });
+        }
+        this.roundPool.setKey(pool.currentKey);
       }
       : function (loadedData) {
         const game = this;

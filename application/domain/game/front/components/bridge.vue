@@ -1,9 +1,7 @@
 <template>
   <div
-    :class="['bridge', game.merged ? 'anchor-game-merged' : '', ...Object.values(customClass)]"
-    :id="bridge._id"
-    :style="customStyle"
-  >
+    :class="['bridge', game.merged && game.gameConfig == 'cooperative' ? 'anchor-game-merged' : '', ...Object.values(customClass)]"
+    :id="bridge._id" :style="customStyle">
     <div class="zone-wraper">
       <plane-zone v-for="id in zoneIds" :key="id" :zoneId="id" :gameId="bridge.anchorGameId" />
     </div>
@@ -71,10 +69,12 @@ export default {
   position: absolute;
   z-index: 1;
 }
+
 .bridge .zone {
   margin-left: -73px;
   margin-top: -36.5px;
 }
+
 .bridge .zone.vertical {
   margin-left: -36.5px;
   margin-top: -73px;

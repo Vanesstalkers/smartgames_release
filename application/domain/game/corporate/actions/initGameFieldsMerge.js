@@ -251,10 +251,29 @@
         const mergedBridge = bridges.find((b) => b.game() === superGame);
 
         game.set({ merged: true });
+
+        if (superGame.gameConfig === 'competition') {
+          const roundPool = superGame.roundPool;
+          if (roundPool.size() === 1) {
+            // иначе первая смердженая игра получит преимущество, т.к. следующий раунд будет ее
+            roundPool.setForceNext('common');
+          }
+
+          roundPool.add(game.id(), [game]);
+          const commonRound = roundPool.get('common');
+          roundPool.update('common', commonRound.data.filter((g) => g !== game));
+          if (superGame.allGamesMerged()) roundPool.setActive('common', false);
+        }
+
         mergedBridge.set({ mergedGameId: gameId });
         const mergedPlane = mergedBridge.getLinkedPlanes().find(p => p !== plane);
-        mergedPlane.set({ integrationPlane: true });
         plane.set({ mergedPlaneId: mergedPlane.id() });
+        if (superGame.gameConfig === 'competition') {
+          mergedPlane.set({ mergedGameId: gameId });
+          for(const bridge of mergedPlane.getLinkedBridges()) {
+            bridge.set({ mergedGameId: gameId });
+          }
+        }
 
         // переносим все связанные plane-ы
         const processedBridges = [mergedBridge];

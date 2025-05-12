@@ -6,7 +6,7 @@
 
   const { status, msg = 'Ошибка восстановления удаленной костяшки. Размещенные костяшки возвращены в руки игроков.' } = zone.checkIsAvailable(dice);
   if (status !== true) {
-    return this.toggleEventHandlers('DICE_RESTORE_NOT_AVAILABLE', { msg });
+    return this.toggleEventHandlers('DICE_RESTORE_NOT_AVAILABLE', { msg }, player);
   }
 
   if (status === 'rotate') dice.rotate();

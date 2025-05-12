@@ -6,9 +6,6 @@
     target: player.find('Deck[domino]'),
   });
 
-  this.dropPlayedCards();
-  this.checkCrutches();
-
   const newRoundNumber = this.round + 1;
   const newRoundLogEvents = [];
   newRoundLogEvents.push(`<a>Начало раунда №${newRoundNumber}.</a>`);
