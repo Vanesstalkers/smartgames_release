@@ -56,7 +56,7 @@
       this.targetDice.moveToTarget(target.find('Deck[domino]'));
 
       game.logs({
-        msg: `Игрок {{player}} стал целью события "${this.getTitle()}".`,
+        msg: `Игрок {{player}} стал целью события <a>${this.getTitle()}</a>.`,
         userId: target.userId,
       });
 

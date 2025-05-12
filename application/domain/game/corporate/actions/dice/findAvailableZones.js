@@ -1,12 +1,12 @@
 (function () {
-  const sourceGame = this.game();
-  const sourceGameId = sourceGame.id();
-  const superGame = sourceGame.game();
+  const parentGame = this.parent().game(); // ксстяшки из одной игры могут лежать в руке игрока из другой
+  const parentGameId = parentGame.id();
+  const superGame = parentGame.game();
 
   const result = [];
 
   // включить, если findAvailableZones будет вызываться откуда то кроме showZonesAvailability
-  // sourceGame.disableChanges();
+  // parentGame.disableChanges();
   {
     // чтобы не мешать расчету для соседних зон при перемещении из одной зоны в другую (ниже вернем состояние)
     this.getParent().removeItem(this);
@@ -20,7 +20,7 @@
       if (allGamesMerged) games.push(superGame);
     }
     if (superGame.gameConfig === 'competition') {
-      games.push(sourceGame.merged ? superGame : sourceGame);
+      games.push(parentGame.merged ? superGame : parentGame);
     }
 
     let zoneList = [];
@@ -37,8 +37,8 @@
         zoneList.push(...deletedDicesZones);
       } else {
         let planes = game.decks.table.getAllItems();
-        if (superGame.gameConfig === 'competition' && sourceGame.merged) {
-          planes = planes.filter(p => p.anchorGameId === sourceGameId || p.mergedGameId === sourceGameId || p.customClass.includes('central'));
+        if (superGame.gameConfig === 'competition' && parentGame.merged) {
+          planes = planes.filter(p => p.anchorGameId === parentGameId || p.mergedGameId === parentGameId || p.customClass.includes('central'));
         }
         zoneList.push(
           ...planes.reduce((arr, plane) => {
@@ -48,8 +48,8 @@
         );
 
         let bridges = game.getObjects({ className: 'Bridge', directParent: game });
-        if (superGame.gameConfig === 'competition' && sourceGame.merged) {
-          bridges = bridges.filter(b => b.anchorGameId === sourceGameId || b.mergedGameId === sourceGameId);
+        if (superGame.gameConfig === 'competition' && parentGame.merged) {
+          bridges = bridges.filter(b => b.anchorGameId === parentGameId || b.mergedGameId === parentGameId);
         }
         zoneList.push(
           ...bridges.reduce((arr, bridge) => {
@@ -68,6 +68,6 @@
     // восстанавливаем состояние для ранее удаленного dice (ссылка на parent все еще на месте, т.к. она меняется только через updateParent/setParent)
     this.getParent().addItem(this);
   }
-  // sourceGame.enableChanges();
+  // parentGame.enableChanges();
   return result;
 });

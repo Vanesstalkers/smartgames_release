@@ -13,8 +13,7 @@
     };
 
     event.getPlayerDeck = function (player) {
-        const playerGame = player.game();
-        return playerGame.merged ? playerGame.find('Deck[domino_common]') : player.find('Deck[domino]');
+        return player.getHandDominoDeck();
     };
 
     return event;

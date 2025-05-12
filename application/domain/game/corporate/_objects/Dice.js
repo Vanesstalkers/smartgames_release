@@ -28,7 +28,7 @@
       }
     }
 
-    if (targetGame.merged) {
+    if (targetGame.merged && targetGame.gameConfig === 'cooperative') {
       if (targetParent.is('Player')) {
         if (targetCode === 'Deck[domino]') {
           // рука игрока

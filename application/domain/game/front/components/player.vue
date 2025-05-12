@@ -119,7 +119,7 @@ export default {
     dominoDecks() {
       const decks = this.deckIds.map((id) => this.store.deck?.[id] || {});
 
-      if (!this.game.merged) {
+      if (!this.game.merged || this.game.gameConfig !== 'cooperative') {
         const result = decks.filter((deck) => deck.type === 'domino') || [];
         return result.sort((deck) => (deck.subtype ? -1 : 1));
       }

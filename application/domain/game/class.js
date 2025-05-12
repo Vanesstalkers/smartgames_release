@@ -190,8 +190,8 @@
     this.set({ timerOverdueCounter });
   }
 
-  initTableDiceAction({ dice, player }) {
-    if (player.triggerEventEnabled())
+  initTableDiceAction({ dice, player } = {}) {
+    if (player.triggerEventEnabled({ ignoreEvents: ['diceReplacementEvent'] }))
       throw new Error('Игрок не может совершить это действие, пока не завершит активное событие');
   }
 });

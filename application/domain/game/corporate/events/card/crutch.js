@@ -7,7 +7,8 @@
 
     event.init = function () {
         const { game, player } = this.eventContext();
-        const decks = [player.game().find('Deck[domino_common]'), ...player.select('Deck')];
+        const decks = [...player.select('Deck')];
+        if (game.gameConfig === 'cooperative') decks.push(player.game().find('Deck[domino_common]'));
 
         const eventData = { dside: {} };
         for (const deck of decks) {

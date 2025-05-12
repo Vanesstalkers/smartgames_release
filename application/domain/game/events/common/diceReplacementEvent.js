@@ -29,6 +29,10 @@
     this.disabledZoneParents.add(parent);
   },
   handlers: {
+    TRIGGER: function () {
+      // фиктивный handler для срабатывания проверки player.triggerEventEnabled
+      return { preventListenerRemove: true };
+    },
     DICE_PLACED: function ({ dice, initPlayer: player }) {
       const { game } = this.eventContext();
       const { deletedDices, placedDices, possibleReleases, disabledZoneParents } = this;
@@ -115,7 +119,7 @@
 
       if (game.status !== 'IN_PROCESS') return; // ??? тут конец игры
 
-      if (this.deletedDices.size > 0) return this.emit('DICE_RESTORE_NOT_AVAILABLE');
+      if (this.deletedDices.size > 0) return this.emit('DICE_RESTORE_NOT_AVAILABLE', {}, player);
 
       this.emit('RESET');
     },

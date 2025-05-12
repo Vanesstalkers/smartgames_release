@@ -26,10 +26,15 @@
     }
     return super.handleEventWithTriggerListener(handler, data);
   }
-
+  getHandDominoDeck() {
+    const game = this.game();
+    const { merged, gameConfig: gameType } = game;
+    const playerHand = merged && gameType === 'cooperative' ? game.find('Deck[domino_common]') : this.find('Deck[domino]');
+    return playerHand;
+  }
   checkHandDiceLimit() {
     const game = this.game();
-    if (!game.merged) {
+    if (!game.merged || game.gameConfig !== 'cooperative') {
       super.checkHandDiceLimit();
     } else {
       const gameCommonDominoDeck = game.find('Deck[domino_common]');

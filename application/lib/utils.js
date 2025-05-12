@@ -530,6 +530,15 @@
       return this;
     }
 
+    getForceNext() {
+      return this.#forceNextKey;
+    }
+
+    clearForceNext() {
+      this.#forceNextKey = null;
+      return this;
+    }
+
     setForcePrevious(key) {
       if (key !== null && !this.#items.has(key)) {
         throw new Error('CircularArray key not exists');

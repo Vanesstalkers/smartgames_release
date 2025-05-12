@@ -16,14 +16,11 @@
         const { game, player } = this.eventContext();
 
         game.logs({
-            msg: `Игрок {{player}} стал целью события "${this.getTitle()}".`,
+            msg: `Игрок {{player}} стал целью события <a>${this.getTitle()}</a>.`,
             userId: targetPlayer.userId,
         });
 
-        const targetPlayerGame = targetPlayer.game();
-        const targetHand = targetPlayerGame.merged ? targetPlayerGame.find('Deck[domino_common]') : targetPlayer.find('Deck[domino]');
-
-        for (const dice of targetHand.items()) {
+        for (const dice of targetPlayer.getHandDominoDeck().items()) {
             dice.moveToDeck();
         }
 

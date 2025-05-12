@@ -78,6 +78,7 @@
           else preparedData[key] = value;
         }
       }
+      if (preparedData['deleted'] === undefined) preparedData['deleted'] = null; // игрок не узнает про измененный флаг, если dice вернулся в колоду
     }
     return { visibleId, preparedData };
   }

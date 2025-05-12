@@ -9,8 +9,7 @@
         for (const player of superGame.players()) {
             if (player === activePlayer) continue;
 
-            const playerGame = player.game();
-            const deck = playerGame.merged ? playerGame.find('Deck[domino_common]') : player.find('Deck[domino]');
+            const deck = player.getHandDominoDeck();
             for (const dice of deck.select('Dice')) {
                 const diceId = dice.id();
                 let visibleDiceId = diceId;
@@ -31,10 +30,12 @@
     event.getTargetPlayer = function ({ targetPlayerId }) {
         const { game } = this.eventContext();
         const superGame = game.hasSuperGame ? game.game() : game;
-        const targetPlayer = superGame.get(targetPlayerId);
-        const targetPlayerGame = targetPlayer.game();
-        const targetPlayerHand = targetPlayerGame.merged ? targetPlayerGame.find('Deck[domino_common]') : targetPlayer.find('Deck[domino]');
+        const diceParent = superGame.get(targetPlayerId); // в cooperative-игре ту может быть game (фактический владелец Deck[domino_common])
+
+        const targetPlayer = diceParent.isGame() ? diceParent.roundActivePlayer() : superGame.get(targetPlayerId);
+        const targetPlayerHand = targetPlayer.getHandDominoDeck();
         const handId = targetPlayerHand?.id();
+
         return { targetPlayer, targetPlayerHand, handId };
     }
     event.getRandomDice = function () {

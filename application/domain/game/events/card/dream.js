@@ -23,6 +23,7 @@
 
       const deck = game.find('Deck[domino]');
       for (const dice of target.select({ className: 'Dice', directParent: false })) {
+        if (dice.deleted) domain.game.actions.restoreDice.call(game, { diceId: dice.id() }, player);
         dice.moveToTarget(deck);
       }
       target.set({ release: null });
@@ -31,7 +32,8 @@
     },
     END_ROUND: function () {
       const { game, player } = this.eventContext();
-      const targetId = Object.entries(player.eventData.plane).find(([id, p]) => p.selectable)[0];
+      const targetId = Object.entries(player.eventData.plane).find(([id, p]) => p.selectable)?.[0];
+      if(!targetId) return this.emit('RESET');
       const target = game.get(targetId);
       this.emit('TRIGGER', { target });
     },

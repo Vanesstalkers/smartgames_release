@@ -1,7 +1,8 @@
 (function event() {
     const event = domain.game.events.card.emergency();
+    const game = this.game();
 
-    event.init = function () {
+    if (game.gameConfig === 'cooperative') event.init = function () {
         const { game, player } = this.eventContext();
         const superGame = game.hasSuperGame ? game.game() : game;
 

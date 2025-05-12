@@ -16,7 +16,7 @@
     if (plane.mergedPlaneId) {
       const mergedPlane = superGame.get(plane.mergedPlaneId);
       mergedPlane.set({ mergedGameId: null });
-      for(const bridge of mergedPlane.getLinkedBridges()) {
+      for (const bridge of mergedPlane.getLinkedBridges()) {
         bridge.set({ mergedGameId: null });
       }
       plane.set({ mergedPlaneId: null });
@@ -43,17 +43,19 @@
     }
   }
 
-  // принципиально делать после set({ merged: null })
-  const playersHands = this.players().map((p) => p.find('Deck[domino]'));
-  const dices = this.find('Deck[domino_common]').items();
-  for (let i = 0; i < dices.length; i++) {
-    const dice = dices[i];
-    dice.moveToTarget(playersHands[i % playersHands.length]); // внутри сработает markDelete
-    dice.markNew();
-  }
+  if (superGame.gameConfig === 'cooperative') {
+    // принципиально делать после set({ merged: null })
+    const playersHands = this.players().map((p) => p.find('Deck[domino]'));
+    const dices = this.find('Deck[domino_common]').items();
+    for (let i = 0; i < dices.length; i++) {
+      const dice = dices[i];
+      dice.moveToTarget(playersHands[i % playersHands.length]); // внутри сработает markDelete
+      dice.markNew();
+    }
 
-  const gameCommonCardDeck = this.find('Deck[card_common]');
-  gameCommonCardDeck.moveAllItems({ target: player.find('Deck[card]'), markNew: true });
+    const gameCommonCardDeck = this.find('Deck[card_common]');
+    gameCommonCardDeck.moveAllItems({ target: player.find('Deck[card]'), markNew: true });
+  }
 
   const event = domain.game.events.common.putPlaneFromHand();
   this.initEvent({

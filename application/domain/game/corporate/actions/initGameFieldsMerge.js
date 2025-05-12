@@ -254,15 +254,21 @@
 
         if (superGame.gameConfig === 'competition') {
           const roundPool = superGame.roundPool;
-          if (roundPool.size() === 1) {
-            // иначе первая смердженая игра получит преимущество, т.к. следующий раунд будет ее
-            roundPool.setForceNext('common');
-          }
+          const forceNextCommon = roundPool.size() === 1 ? true : false;
 
           roundPool.add(game.id(), [game]);
           const commonRound = roundPool.get('common');
           roundPool.update('common', commonRound.data.filter((g) => g !== game));
-          if (superGame.allGamesMerged()) roundPool.setActive('common', false);
+
+          if (superGame.allGamesMerged()) {
+            roundPool.setActive('common', false);
+            if (roundPool.getForceNext() === 'common') roundPool.clearForceNext();
+          } else {
+            if (forceNextCommon) {
+              // иначе первая смердженая игра получит преимущество, т.к. следующий раунд будет ее
+              roundPool.setForceNext('common');
+            }
+          }
         }
 
         mergedBridge.set({ mergedGameId: gameId });
@@ -270,7 +276,7 @@
         plane.set({ mergedPlaneId: mergedPlane.id() });
         if (superGame.gameConfig === 'competition') {
           mergedPlane.set({ mergedGameId: gameId });
-          for(const bridge of mergedPlane.getLinkedBridges()) {
+          for (const bridge of mergedPlane.getLinkedBridges()) {
             bridge.set({ mergedGameId: gameId });
           }
         }
@@ -303,11 +309,13 @@
         turnOrder.push(gameId);
         superGame.set({ turnOrder });
 
-        const gameCommonDominoDeck = game.find('Deck[domino_common]');
-        const gameCommonCardDeck = game.find('Deck[card_common]');
-        for (const player of game.players()) {
-          player.find('Deck[domino]').moveAllItems({ target: gameCommonDominoDeck, markNew: true });
-          player.find('Deck[card]').moveAllItems({ target: gameCommonCardDeck, markNew: true });
+        if (game.gameConfig === 'cooperative') {
+          const gameCommonDominoDeck = game.find('Deck[domino_common]');
+          const gameCommonCardDeck = game.find('Deck[card_common]');
+          for (const player of game.players()) {
+            player.find('Deck[domino]').moveAllItems({ target: gameCommonDominoDeck, markNew: true });
+            player.find('Deck[card]').moveAllItems({ target: gameCommonCardDeck, markNew: true });
+          }
         }
       },
     },

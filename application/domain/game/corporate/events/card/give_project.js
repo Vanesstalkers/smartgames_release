@@ -3,8 +3,7 @@
 
     event.init = function () {
         const { game, player } = this.eventContext();
-        const playerGame = player.game();
-        const deck = playerGame.merged ? playerGame.find('Deck[domino_common]') : player.find('Deck[domino]');
+        const deck = player.getHandDominoDeck();
 
         const eventData = { dice: {} };
         for (const dice of deck.select('Dice')) {
@@ -36,12 +35,11 @@
             return { preventListenerRemove: true };
         }
 
-        const targetPlayerGame = target.game();
-        const deck = targetPlayerGame.merged ? targetPlayerGame.find('Deck[domino_common]') : target.find('Deck[domino]');
-        this.targetDice.moveToTarget(deck);
+        const playerHand = target.getHandDominoDeck();
+        this.targetDice.moveToTarget(playerHand);
 
         game.logs({
-            msg: `Игрок {{player}} стал целью события "${this.getTitle()}".`,
+            msg: `Игрок {{player}} стал целью события <a>${this.getTitle()}</a>.`,
             userId: target.userId,
         });
 
@@ -56,7 +54,7 @@
         if (playerGame.merged) players = players.filter(p => p.gameId !== playerGame.id()); // иначе будет возврат в общую руку
 
         if (!this.targetDice) {
-            const deck = playerGame.merged ? playerGame.find('Deck[domino_common]') : player.find('Deck[domino]');
+            const deck = player.getHandDominoDeck();
             this.targetDice = deck.select('Dice')[0]; // не берем из eventData.dice, т.к. dice могли уже забрать из руки (событие take_project)
         }
 

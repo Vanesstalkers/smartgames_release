@@ -57,7 +57,7 @@
       dice.moveToTarget(playerHand);
 
       game.logs({
-        msg: `Игрок {{player}} стал целью события "${this.getTitle()}".`,
+        msg: `Игрок {{player}} стал целью события <a>${this.getTitle()}</a>.`,
         userId: targetPlayer.userId,
       });
 
