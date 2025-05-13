@@ -58,6 +58,7 @@
   }
   play({ player, logMsg } = {}) {
     if (this.played) return;
+    player.game().logs(logMsg || `Разыграна карта "<a>${this.title}</a>"`);
 
     let game = player.game();
     const superGame = game.game();
@@ -66,7 +67,5 @@
     const event = this.initEvent(this.name, { game, player, allowedPlayers: [player] });
     if (event !== null && player) player.addEvent(event);
     this.set({ played: Date.now() });
-
-    player.game().logs(logMsg || `Разыграна карта "<a>${this.title}</a>"`);
   }
 });

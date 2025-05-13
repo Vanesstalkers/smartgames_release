@@ -88,7 +88,8 @@
           game.my ? 'my' : '',
           game.roundReady ? 'round-ready' : '',
           game.merged && !allGamesMerged ? 'disable-field' : '',
-        ]" v-on:click="selectGame(game.gameId)">
+          game.selectable ? 'selectable' : '',
+        ]" v-on:click="selectGame(game.gameId, { selectable: game.selectable })">
           {{ game.title }}
         </div>
       </div>
@@ -240,6 +241,9 @@ export default {
         ).length || 0
       );
     },
+    sessionPlayerEventData() {
+      return this.sessionPlayer().eventData;
+    },
 
     fullPrice() {
       const { gameTimer, gameConfig } = this.game;
@@ -288,6 +292,7 @@ export default {
           code: game.code,
           merged: game.merged,
           gameConfig: game.gameConfig,
+          selectable: this.sessionPlayerIsActive() && this.sessionPlayerEventData.game?.[gameId]?.selectable
         };
       });
     },
@@ -562,7 +567,7 @@ export default {
       clearTimeout(this.zIndexDecreaseChangeTimeout);
       event.target.classList.remove('low-zindex');
     },
-    selectGame(gameId) {
+    async selectGame(gameId, { selectable }) {
       this.gameCustom.gamePlaneRotations = {
         ...this.gameCustom.gamePlaneRotations,
         [this.focusedGameId()]: this.gameCustom.gamePlaneRotation,
@@ -574,7 +579,19 @@ export default {
 
       this.$set(this.gameCustom, 'selectedGameId', gameId);
       this.resetPlanePosition();
-    },
+
+      if (selectable) {
+        await this.handleGameApi({
+          name: 'eventTrigger',
+          data: {
+            eventData: {
+              targetId: gameId,
+              targetPlayerId: this.$parent.playerId,
+            },
+          },
+        });
+      }
+    }
   },
 };
 </script>
@@ -835,6 +852,10 @@ export default {
     &:hover {
       cursor: pointer;
       opacity: 0.7;
+    }
+
+    &.selectable {
+      box-shadow: 0 0 20px 8px yellow !important;
     }
 
     &.selected {
