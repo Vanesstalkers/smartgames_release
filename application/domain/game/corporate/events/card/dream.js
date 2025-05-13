@@ -4,23 +4,33 @@
 
     event.init = function () {
         const { game, player } = this.eventContext();
+        const isCompetitionGame = game.gameConfig === 'competition';
+        const isCooperativeGame = game.gameConfig === 'cooperative';
 
-        if (game.fieldIsBlocked()) {
-            const message = `Карта "${this.title}" не имеет эффекта в текущем статусе игры.`;
-            game.logs(message);
-            lib.store.broadcaster.publishAction(`gameuser-${player.userId}`, 'broadcastToSessions', {
-                data: { message },
-            });
-            return { resetEvent: true };
-        }
+        const games =
+            isCompetitionGame
+                ? game.game().getAllGames()
+                : game.isSuperGame && game.allGamesMerged()
+                    ? [game]
+                    : game.game().getAllGames().filter((g) => !g.merged);
 
         const eventData = { plane: {} };
-        const planes = game.decks.table.select({ className: 'Plane', attr: { anchorGameId: game.id() } });
-        for (const plane of planes) {
-            if (plane.isCardPlane()) continue;
-            if (plane.select({ className: 'Dice', directParent: false, attr: { deleted: true } }).length) continue;
+        for (const game of games) {
+            if (isCooperativeGame && game.fieldIsBlocked()) continue;
 
-            eventData.plane[plane.id()] = { selectable: true };
+            const gameId = game.id();
+            const planes = isCompetitionGame
+                ? game.merged
+                    ? game.game().decks.table.items().filter(p => p.anchorGameId === gameId || p.mergedGameId === gameId || p.customClass.includes('central'))
+                    : game.decks.table.items()
+                : game.decks.table.select({ className: 'Plane', attr: { anchorGameId: gameId } });
+
+            for (const plane of planes) {
+                if (plane.isCardPlane()) continue;
+                if (plane.select({ className: 'Dice', directParent: false, attr: { deleted: true } }).length) continue;
+
+                eventData.plane[plane.id()] = { selectable: true };
+            }
         }
         player.set({ eventData });
     };
@@ -47,12 +57,15 @@
     event.handlers['DICES_DISABLED'] = function ({ parent, ids = [] }) {
         const { game, player } = this.eventContext();
 
-        if (parent === game) return; // тут roundReady, следом вызовется END_ROUND из roundEnd
+        if (ids.length === 0) {
+            const planeIds = parent.isGame() ? parent.decks.table.items().map((p) => p.id()) : [parent.id()];
+            ids.push(...planeIds);
+        }
 
         if (player.eventData.plane) {
             const eventData = { plane: {} };
             for (const planeId of Object.keys(player.eventData.plane)) {
-                if (parent.id() === planeId) {
+                if (ids.includes(planeId)) {
                     eventData.plane[planeId] = null;
                 }
             }

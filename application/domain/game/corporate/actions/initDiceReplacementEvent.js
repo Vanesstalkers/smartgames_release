@@ -1,4 +1,4 @@
-(function () {
+(function ({}, initPlayer) {
   const event = domain.game.events.common.diceReplacementEvent();
 
   event.disableZoneParent = function (parent) {
@@ -13,6 +13,7 @@
     name: 'initDiceReplacementEvent',
     ...event
   }, {
+    player: initPlayer,
     allowedPlayers: this.hasSuperGame ? this.game().players() : this.players(),
   });
 });

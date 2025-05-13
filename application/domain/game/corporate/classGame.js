@@ -169,12 +169,26 @@
   isSinglePlayer() {
     return false;
   }
+
   fieldIsBlocked() {
-    const mergeStatus = this.mergeStatus();
-    return (this.roundReady && mergeStatus !== 'merged')
-      || mergeStatus === 'freezed'
-      || this.eventData.activeEvents?.find(e => e.name === 'initGameFieldsMerge')
-      || this.game().status === 'RESTORING_GAME';
+    const superGame = this.game();
+    if (superGame.status === 'RESTORING_GAME') return true;
+    if (this.eventData.activeEvents?.find(e => e.name === 'initGameFieldsMerge')) return true;
+
+    if (this.gameConfig === 'cooperative') {
+      const mergeStatus = this.mergeStatus();
+      return (this.roundReady && mergeStatus !== 'merged') || mergeStatus === 'freezed';
+    }
+
+    if (this.gameConfig === 'competition') {
+      if (this.roundReady && !this.merged) {
+        // у смердженной игры раунды обособенны от других игр - при очищении стола конфликта не возникнет
+        return true;
+      }
+      return false;
+    }
+
+    return false;
   }
   mergeStatus() {
     const superGame = this.game();

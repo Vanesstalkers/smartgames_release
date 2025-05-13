@@ -37,8 +37,21 @@
         zoneList.push(...deletedDicesZones);
       } else {
         let planes = game.decks.table.getAllItems();
+        let bridges = game.getObjects({ className: 'Bridge', directParent: game });
+
         if (superGame.gameConfig === 'competition' && parentGame.merged) {
-          planes = planes.filter(p => p.anchorGameId === parentGameId || p.mergedGameId === parentGameId || p.customClass.includes('central'));
+          const mergedPlanes = planes.filter(p => p.anchorGameId === parentGameId);
+          const mergedBridges = bridges.filter(b => b.anchorGameId === parentGameId);
+
+          let centralPlanes = [], centralBridges = [];
+          const canFillCentral = [...mergedPlanes, ...mergedBridges].find(p => p.hasEmptyZones()) === undefined;
+          if (canFillCentral) {
+            centralPlanes = planes.filter(p => p.mergedGameId === parentGameId || p.customClass.includes('central'));
+            centralBridges = bridges.filter(b => b.mergedGameId === parentGameId);
+          }
+
+          planes = [...mergedPlanes, ...centralPlanes];
+          bridges = [...mergedBridges, ...centralBridges];
         }
         zoneList.push(
           ...planes.reduce((arr, plane) => {
@@ -46,11 +59,6 @@
             return arr.concat(freeZones);
           }, [])
         );
-
-        let bridges = game.getObjects({ className: 'Bridge', directParent: game });
-        if (superGame.gameConfig === 'competition' && parentGame.merged) {
-          bridges = bridges.filter(b => b.anchorGameId === parentGameId || b.mergedGameId === parentGameId);
-        }
         zoneList.push(
           ...bridges.reduce((arr, bridge) => {
             const freeZones = bridge.select('Zone').filter((zone) => !zone.getItem());

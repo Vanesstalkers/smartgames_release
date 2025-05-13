@@ -8,7 +8,7 @@
     if (game.merged) this.game(game.game());
 
     this.set({ mergedGameId, anchorGameId });
-    this.broadcastableFields(['anchorGameId']);
+    this.broadcastableFields(['anchorGameId', 'mergedGameId']);
   }
   game(game) {
     const currentGame = super.game();

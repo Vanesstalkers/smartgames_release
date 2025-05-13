@@ -1,6 +1,11 @@
 <template>
   <div
-    :class="['bridge', game.merged && game.gameConfig == 'cooperative' ? 'anchor-game-merged' : '', ...Object.values(customClass)]"
+    :class="[
+      'bridge', 
+      game.merged && game.gameConfig == 'cooperative' ? 'anchor-game-merged' : '', 
+      bridge.anchorGameId === sessionPlayerGameId || bridge.mergedGameId === sessionPlayerGameId ? 'anchor-team-field' : '',
+      ...Object.values(customClass)
+    ]"
     :id="bridge._id" :style="customStyle">
     <div class="zone-wraper">
       <plane-zone v-for="id in zoneIds" :key="id" :zoneId="id" :gameId="bridge.anchorGameId" />
@@ -38,6 +43,9 @@ export default {
     },
     game() {
       return this.getGame(this.bridge.anchorGameId);
+    },
+    sessionPlayerGameId() {
+      return this.sessionPlayer()?.gameId;
     },
     customStyle() {
       const style = { ...this.bridge } || {};

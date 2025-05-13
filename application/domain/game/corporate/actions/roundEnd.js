@@ -18,7 +18,7 @@
   }
 
   if (superGame.gameConfig === 'competition') {
-    const games = superGame.roundPool.current({ 
+    const games = superGame.roundPool.current({
       loadFixedState: true, // в течение раунда мог поменяться список игр - в зафикисированном состоянии список по состоянию на начало раунда
     });
 
@@ -29,6 +29,9 @@
       const activePlayer = game.roundActivePlayer();
       if (activePlayer) game.toggleEventHandlers('END_ROUND', {}, activePlayer);
     }
+    const activePlayer = superGame.roundActivePlayer();
+    superGame.toggleEventHandlers('END_ROUND', {}, activePlayer); // когда все игры смерджены, то события карт навешиваются на супер-игру
+
     for (const game of games) {
       game.dropPlayedCards();
       game.checkCrutches();
@@ -60,7 +63,7 @@
   for (const game of superGame.getAllGames()) {
     game.dropPlayedCards();
     game.checkCrutches();
-    
+
     if (
       allGamesMerged
       && roundActiveGame // будет null, если только что смерджили последнюю игру

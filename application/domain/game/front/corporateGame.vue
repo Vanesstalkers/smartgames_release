@@ -588,8 +588,8 @@ export default {
 }
 
 // раунд завершен
-.gp.round-ready .plane .domino-dice,
-.gp.round-ready .bridge .domino-dice,
+#game[config=cooperative] .gp.round-ready .plane .domino-dice,
+#game[config=cooperative] .gp.round-ready .bridge .domino-dice,
 // восстанавливается игра
 .gp.restoring-game .plane .domino-dice,
 .gp.restoring-game .bridge .domino-dice,
@@ -913,8 +913,11 @@ export default {
   }
 }
 
-#game[config=competition] .plane:not(.team-plane):not(.core.central) .domino-dice,
-#game[config=competition] .gp:not(.session-game-merged) .plane:not(.team-plane) .domino-dice {
+#game[config=competition] .plane:not(.anchor-team-field):not(.core.central) .domino-dice,
+#game[config=competition] .gp:not(.session-game-merged) .plane:not(.anchor-team-field) .domino-dice,
+#game[config=competition] .bridge:not(.anchor-team-field):not(.core.central) .domino-dice,
+#game[config=competition] .gp:not(.session-game-merged) .bridge:not(.anchor-team-field) .domino-dice {
+
   cursor: default !important;
 
   >.controls {
