@@ -61,14 +61,14 @@
     const { Player } = this.defaultClasses();
     return new Player(data, { parent: this });
   }
-  getSmartRandomPlaneFromDeck() {
+  getSmartRandomPlaneFromDeck({ sort = true } = {}) {
     const plane = this.find('Deck[plane]')
       .items()
-      .sort(({ portMap: a }, { portMap: b }) => {
+      .sort(sort ? ({ portMap: a }, { portMap: b }) => {
         const al = Object.keys(a).length;
         const bl = Object.keys(b).length;
         return al === bl ? (Math.random() > 0.5 ? -1 : 1) : al < bl ? -1 : 1;
-      })
+      } : () => Math.random() > 0.5 ? -1 : 1)
       .pop();
 
     if (!plane) this.run('endGame', { msg: { lose: 'В колоде закончились блоки игрового поля' } }); // проиграли все
@@ -150,12 +150,8 @@
     if (zoneParent.release) return; // РЕЛИЗ был активирован ранее
     if (zoneParent.hasEmptyZones()) return;
 
-    let anchorGame = zoneParent.game();
-    if (zoneParent.anchorGameId) anchorGame = lib.store('game').get(zoneParent.anchorGameId);
-
     zoneParent.set({ release: true });
-
-    anchorGame.toggleEventHandlers('RELEASE', {}, player);
+    this.toggleEventHandlers('RELEASE', {}, player);
   }
 
   dropPlayedCards() {

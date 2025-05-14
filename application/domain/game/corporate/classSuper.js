@@ -386,4 +386,17 @@
     }
     return super.logs(data, config);
   }
+
+  checkForRelease({ zoneParent, player }) {
+    if (zoneParent.release) return; // РЕЛИЗ был активирован ранее
+    if (zoneParent.hasEmptyZones()) return;
+
+    let anchorGame = zoneParent.game();
+    if (zoneParent.anchorGameId) anchorGame = lib.store('game').get(zoneParent.anchorGameId);
+    if (this.gameConfig === 'competition') anchorGame = player.game();
+
+    zoneParent.set({ release: true });
+
+    anchorGame.toggleEventHandlers('RELEASE', { zoneParent }, player);
+  }
 });

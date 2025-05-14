@@ -13,15 +13,25 @@
   const newRoundLogEvents = [];
   newRoundLogEvents.push(`<team team="${this.templates.code || 'super'}">Начало раунда №${newRoundNumber}.</team>`);
 
-  const smartMoveRandomCardTarget =
-    this.settings.roundStartCardAddToPlayerHand || this.mergeStatus() === 'freezed'
-      ? player.find('Deck[card]')
-      : this.decks.active;
+  const playerCardHand = player.find('Deck[card]');
+  if (this.gameConfig === 'cooperative') {
+    const target =
+      this.settings.roundStartCardAddToPlayerHand || this.mergeStatus() === 'freezed'
+        ? playerCardHand
+        : this.decks.active;
 
-  if (superGame.allGamesMerged()) {
-    superGame.run('smartMoveRandomCard', { target: smartMoveRandomCardTarget });
+    if (superGame.allGamesMerged()) {
+      superGame.run('smartMoveRandomCard', { target });
+    } else {
+      this.run('smartMoveRandomCard', { target });
+    }
   } else {
-    this.run('smartMoveRandomCard', { target: smartMoveRandomCardTarget });
+    const target = playerCardHand;
+    if (this.merged) {
+      superGame.run('smartMoveRandomCard', { target });
+    } else {
+      this.run('smartMoveRandomCard', { target });
+    }
   }
 
   // обновляем таймер

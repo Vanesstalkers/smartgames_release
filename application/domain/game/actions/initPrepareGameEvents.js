@@ -23,7 +23,7 @@
 
         const eventData = { plane: {} };
         for (let j = 0; j < game.settings.planesToChoose; j++) {
-          const plane = game.getSmartRandomPlaneFromDeck();
+          const plane = game.getSmartRandomPlaneFromDeck({ sort: false });
           if (!plane) continue;
           plane.moveToTarget(hand);
           eventData.plane[plane.id()] = { oneOfMany: true };

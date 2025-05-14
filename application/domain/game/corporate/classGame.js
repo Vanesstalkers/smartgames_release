@@ -252,4 +252,8 @@
         throw new Error('Игроку запрещено взаимодействовать с костяшками на столе чужой команды');
     }
   }
+
+  checkForRelease({ zoneParent, player }) {
+    this.game().checkForRelease({ zoneParent, player });
+  }
 });
