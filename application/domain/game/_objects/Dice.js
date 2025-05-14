@@ -148,7 +148,7 @@
           }, [])
         );
         zoneList.push(
-          ...game.getObjects({ className: 'Bridge', directParent: game }).reduce((arr, bridge) => {
+          ...game.select({ className: 'Bridge', directParent: game }).reduce((arr, bridge) => {
             return arr.concat(bridge.select('Zone'));
           }, [])
         );

@@ -204,14 +204,6 @@ export default {
       }
     }
   }
-
-  &.mobile-view.portrait-view {
-    .plane.in-hand:not(.card-plane) {
-      transform: scale(0.7);
-      transform-origin: top right;
-      margin: 25px 0px -75px 0px;
-    }
-  }
 }
 
 .plane {
@@ -273,15 +265,15 @@ export default {
     }
   }
 
-  &.one-of-many {
-    &:after {
-      box-shadow: inset 0 0 0px 10px blue;
-    }
-  }
-
   &.extra {
     &:after {
       box-shadow: inset 0 0 0px 10px greenyellow;
+    }
+  }
+
+  &.one-of-many {
+    &:after {
+      box-shadow: inset 0 0 0px 10px blue;
     }
   }
 

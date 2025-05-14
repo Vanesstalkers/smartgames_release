@@ -8,8 +8,11 @@
     <div class="inner-content" :style="{ justifyContent: 'flex-end' }">
       <div class="player-hands" v-if="game.status != 'WAIT_FOR_PLAYERS'"
         :style="{ justifyContent: 'flex-end', maxWidth: (state.innerWidth - 200) + 'px' }">
-        <div v-if="hasPlaneInHand" class="hand-planes"
-          :style="{ ...(iam ? { marginRight: (100 * planeInHandIds.length) + 'px' } : { marginLeft: (Math.max(250, 50 * planeInHandIds.length)) + 'px' }) }">
+        <div v-if="hasPlaneInHand" class="hand-planes" :style="{
+          ...(iam
+            ? { marginRight: Math.max(500, 70 * planeInHandIds.length) + 'px' }
+            : { marginLeft: (state.isPortrait ? -1 : 1) * (Math.max(150, 20 * planeInHandIds.length)) + 'px' })
+        }">
           <plane v-if="iam && player.eventData?.fakePlaneAddBtn" :key="'fake'" :planeId="'fake'" :inHand="true"
             :class="['in-hand', 'add-block-action']" />
           <plane v-for="id in planeInHandIds" :key="id" :planeId="id" :inHand="true" :class="['in-hand']" />
@@ -158,7 +161,8 @@ export default {
     planeInHandIds() {
       return Object.keys(
         this.deckIds.map((id) => this.store.deck?.[id]).find((deck) => deck.type === 'plane')?.itemMap || {}
-      ).map((id) => this.store.plane?.[id] ? id : 'fake' + id);
+      ).map((id) => this.store.plane?.[id] ? id : 'fake' + id)
+        .sort((a, b) => (this.store.plane?.[a]?.customClass?.includes('card-plane') ? 1 : 0) - (this.store.plane?.[b]?.customClass?.includes('card-plane') ? 1 : 0));
     },
     hasPlaneInHand() {
       return this.planeInHandIds.length > 0;
@@ -223,12 +227,61 @@ export default {
         &:not(.iam) {
           >.inner-content {
             flex-direction: row;
+
+            .hand-planes {
+              flex-direction: column-reverse;
+
+              .plane.in-hand {
+                transform: scale(0.4);
+                transform-origin: top right;
+                margin: 0px 0px 150px -450px;
+                order: 0;
+
+                @for $i from 1 through 10 {
+                  &:nth-child(#{$i}) {
+                    margin-bottom: calc(-20px + (30px * ($i - 1))) !important;
+
+                    &:hover {
+                      margin-bottom: calc(20px + (30px * ($i - 1))) !important;
+                    }
+
+                    &.card-plane {
+                      order: -1;
+                      z-index: 2;
+                      margin: 280px -120px 260px -220px !important;
+                    }
+                  }
+                }
+              }
+            }
           }
         }
 
         .hand-planes {
           flex-wrap: wrap;
           align-items: flex-end;
+
+          .plane.in-hand:not(.card-plane) {
+            transform: scale(0.4);
+            transform-origin: top right;
+            margin: 25px 0px -75px 0px;
+
+            @for $i from 1 through 10 {
+              &:nth-child(#{$i}) {
+                margin-bottom: calc(-20px + (30px * ($i - 1))) !important;
+
+                &:hover {
+                  margin-bottom: calc(20px + (30px * ($i - 1))) !important;
+                }
+
+                &.card-plane {
+                  order: 0;
+                  z-index: 2;
+                  margin: 0px 0px 260px calc(30px * ($i * -1)) !important;
+                }
+              }
+            }
+          }
         }
 
         &.iam {

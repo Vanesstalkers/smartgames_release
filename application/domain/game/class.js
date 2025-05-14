@@ -15,7 +15,7 @@
 
   checkFieldIsReady() {
     const planeList = this.decks.table.getAllItems();
-    const bridgeList = this.getObjects({ className: 'Bridge', directParent: this });
+    const bridgeList = this.select({ className: 'Bridge', directParent: this });
 
     let ready = true;
     for (const releaseItem of [...planeList, ...bridgeList]) {
@@ -77,7 +77,7 @@
   }
   countAvailableZones() {
     const planeList = this.decks.table.getAllItems();
-    const bridgeList = this.getObjects({ className: 'Bridge', directParent: this });
+    const bridgeList = this.select({ className: 'Bridge', directParent: this });
 
     let count = 0;
     for (const plane of planeList) {

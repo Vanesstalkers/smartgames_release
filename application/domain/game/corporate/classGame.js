@@ -140,7 +140,7 @@
       : this.decks.table.getAllItems();
     const bridgeList = this.merged
       ? this.game().select({ className: 'Bridge', attr: { sourceGameId: this.id() } })
-      : this.getObjects({ className: 'Bridge', directParent: this });
+      : this.select({ className: 'Bridge', directParent: this });
 
     let ready = true;
     for (const releaseItem of [...planeList, ...bridgeList]) {

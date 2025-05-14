@@ -37,7 +37,7 @@
         zoneList.push(...deletedDicesZones);
       } else {
         let planes = game.decks.table.getAllItems();
-        let bridges = game.getObjects({ className: 'Bridge', directParent: game });
+        let bridges = game.select({ className: 'Bridge', directParent: game });
 
         if (superGame.gameConfig === 'competition' && parentGame.merged) {
           const mergedPlanes = planes.filter(p => p.anchorGameId === parentGameId);
