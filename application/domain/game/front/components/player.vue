@@ -135,7 +135,7 @@ export default {
     cardDecks() {
       const decks = this.deckIds.map((id) => this.store.deck?.[id] || {});
 
-      if (!this.game.merged) {
+      if (!this.game.merged || this.game.gameConfig !== 'cooperative') {
         return decks.filter((deck) => deck.type === 'card') || [];
       }
 
@@ -163,8 +163,11 @@ export default {
     hasPlaneInHand() {
       return this.planeInHandIds.length > 0;
     },
+    sessionPlayerEventData() {
+      return this.sessionPlayer().eventData;
+    },
     showDecks() {
-      return this.iam && this.sessionPlayerIsActive() && this.player.eventData.showDecks;
+      return this.sessionPlayerIsActive() && this.sessionPlayerEventData.player?.[this.playerId]?.showDecks;
     },
     handCardsWidth() {
       const cardWidth = 130;
