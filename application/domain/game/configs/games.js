@@ -10,8 +10,8 @@
         title: 'Блиц',
         timer: 60,
         timerReleasePremium: 20,
-        planesAtStart: 2,
-        planesNeedToStart: 2,
+        planesAtStart: 0,
+        planesNeedToStart: 3,
         roundStartCardAddToPlayerHand: true,
         allowedAutoCardPlayRoundStart: false,
         style: { order: 1 },
@@ -25,6 +25,7 @@
         style: { order: 2 },
       },
       hardcore: {
+        planesAtStart: 1,
         title: 'Хардкор',
         timer: 30,
         timerReleasePremium: 10,
@@ -41,7 +42,7 @@
       playerHandLimit: 3,
       planesAtStart: 3, // изначальное количество блоков на поле
       planesNeedToStart: 3, // нужно для начала игры (будут добавляться игроками)
-      planesToChoose: 2, // блоков на выбор игроку для добавления на поле
+      planesToChoose: 5, // блоков на выбор игроку для добавления на поле
       timeToPlaceStartPlane: 10, // время на размещение стартового блока
       roundStartCardAddToPlayerHand: false,
       allowedAutoCardPlayRoundStart: false,
@@ -56,7 +57,8 @@
       ],
       deckList: [
         { type: 'plane' },
-        { type: 'plane', subtype: 'hand', itemType: 'plane'},
+        { type: 'plane', subtype: 'table', itemType: 'plane', access: 'all' },
+        { type: 'plane', subtype: 'hand', itemType: 'plane' },
         { type: 'domino', itemType: 'any' },
         { type: 'card', itemType: 'event' },
         { type: 'card', subtype: 'active', itemType: 'event', access: 'all' },
@@ -106,7 +108,7 @@
       playerHandLimit: 3,
       planesAtStart: 1, // изначальное количество блоков на поле
       planesNeedToStart: 3, // нужно для начала игры (будут добавляться игроками)
-      planesToChoose: 2, // блоков на выбор игроку для добавления на поле
+      planesToChoose: 5, // блоков на выбор игроку для добавления на поле
       timeToPlaceStartPlane: 10, // время на размещение стартового блока
       roundStartCardAddToPlayerHand: false,
       allowedAutoCardPlayRoundStart: false,
@@ -118,7 +120,8 @@
       })),
       deckList: [
         { type: 'plane' },
-        { type: 'plane', subtype: 'hand', itemType: 'plane'},
+        { type: 'plane', subtype: 'table', itemType: 'plane', access: 'all' },
+        { type: 'plane', subtype: 'hand', itemType: 'plane' },
         { type: 'domino', itemType: 'any' },
         { type: 'card', itemType: 'event' },
         { type: 'card', subtype: 'active', itemType: 'event', access: 'all' },
@@ -177,7 +180,8 @@
       })),
       deckList: [
         { type: 'plane' },
-        { type: 'plane', subtype: 'hand', itemType: 'plane'},
+        { type: 'plane', subtype: 'table', itemType: 'plane', access: 'all' },
+        { type: 'plane', subtype: 'hand', itemType: 'plane' },
         { type: 'domino', itemType: 'any' },
         { type: 'card', itemType: 'event' },
         { type: 'card', subtype: 'active', itemType: 'event', access: 'all' },
@@ -216,7 +220,6 @@
       },
       competition: {
         title: 'Соревнование',
-        planesNeedToStart: 1,
         // roundStartCardAddToPlayerHand: false,
         // allowedAutoCardPlayRoundStart: true,
       },
@@ -226,16 +229,16 @@
       timerReleasePremium: 20,
       playerHandStart: 3,
       playerHandLimit: 3,
-      planesAtStart: 3, // изначальное количество блоков на поле (для core-игры количество соответствует количеству игр)
-      planesNeedToStart: 3, // нужно для начала игры (будут добавляться игроками)
-      planesToChoose: 2, // блоков на выбор игроку для добавления на поле
+      planesAtStart: 0, // изначальное количество блоков на поле (для core-игры количество соответствует количеству игр)
+      planesNeedToStart: 2, // нужно для начала игры (будут добавляться игроками)
+      planesToChoose: 5, // блоков на выбор игроку для добавления на поле
       timeToPlaceStartPlane: 10, // время на размещение стартового блока
       roundStartCardAddToPlayerHand: true,
       allowedAutoCardPlayRoundStart: false,
       autoFinishAfterRoundsOverdue: 10,
 
-      playerCount: '2-8',
-      maxPlayersInGame: '1-4',
+      playerCount: '2-3',
+      maxPlayersInGame: '1-2',
       playerTemplates: {
         default: {
           deckList: [{ type: 'domino', itemType: 'any' }, { type: 'card', itemType: 'event' }, { type: 'plane' }],
@@ -245,7 +248,8 @@
       playerList: [],
       deckList: [
         { type: 'plane' },
-        { type: 'plane', subtype: 'hand', itemType: 'plane'},
+        { type: 'plane', subtype: 'table', itemType: 'plane', access: 'all' },
+        { type: 'plane', subtype: 'hand', itemType: 'plane' },
         { type: 'domino', itemType: 'any' },
         { type: 'card', itemType: 'event' },
         { type: 'card', subtype: 'active', itemType: 'event', access: 'all' },

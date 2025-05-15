@@ -36,15 +36,6 @@
   } else {
     newGame = true;
     data.deckList = data.settings.deckList;
-
-    this.addDeck(
-      {
-        type: 'plane',
-        subtype: 'table',
-        access: this.playerMap,
-      },
-      { deckClass: Table, deckItemClass: Plane }
-    );
   }
   for (const item of data.deckList || []) {
     const deckClass = item.subtype === 'table' ? Table : Deck;

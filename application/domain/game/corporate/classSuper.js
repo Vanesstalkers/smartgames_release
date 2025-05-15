@@ -19,19 +19,21 @@
     return super.select(query);
   }
 
-  async create({ deckType, gameType, gameConfig, gameTimer, playerCount, maxPlayersInGame } = {}) {
+  async create({ deckType, gameType, gameConfig, gameTimer, playerCount, maxPlayersInGame, teamsCount } = {}) {
     const {
       utils: { structuredClone: clone },
     } = lib;
-    const {
-      [gameType]: {
-        //
-        items: { [gameConfig]: settings },
-      } = {},
-    } = domain.game.configs.gamesFilled();
+    // const {
+    //   [gameType]: {
+    //     //
+    //     items: { [gameConfig]: settings },
+    //   } = {},
+    // } = domain.game.configs.gamesFilled();
     const usedTemplates = [];
 
-    if (!playerCount?.val || !maxPlayersInGame?.val) throw 'player_count_not_exists';
+    // if (!playerCount?.val || !maxPlayersInGame?.val) throw 'player_count_not_exists';
+    teamsCount = playerCount; // !!! убрать после тестирования
+    if (!teamsCount?.val) throw new Error('Количество команд должно быть указано');
 
     playerCount = playerCount.val;
 
@@ -40,22 +42,26 @@
       { deckType, gameType, gameConfig, gameTimer, templates: { card: usedTemplates[0] } },
       { initPlayerWaitEvents: false }
     );
-    this.set({ playerCount });
+    // this.set({ playerCount });
+    this.set({ teamsCount: teamsCount.val });
     this.set({ settings: { planesAtStart: this.settings.planesNeedToStart } });
+    this.set({ status: 'WAIT_FOR_PLAYERS', statusLabel: 'Ожидание игроков' });
 
-    for (let _code = 1; _code <= playerCount; _code++) {
-      this.run('addPlayer', {
-        ...clone(settings.playerTemplates['default']),
-        _code,
-      });
-    }
-    this.run('initPlayerWaitEvents');
-    this.decks.table.set({ access: this.playerMap });
-    this.decks.active.set({ access: this.playerMap });
+    // for (let _code = 1; _code <= playerCount; _code++) {
+    //   this.run('addPlayer', {
+    //     ...clone(settings.playerTemplates['default']),
+    //     _code,
+    //   });
+    // }
 
-    const fullPlayersList = Object.values(this.store.player);
-    const gamesMap = {};
-    for (let _code = 1; _code <= Math.ceil(playerCount / maxPlayersInGame.val); _code++) {
+    // this.run('initPlayerWaitEvents');
+    // this.decks.table.set({ access: this.playerMap });
+    // this.decks.active.set({ access: this.playerMap });
+
+    // const fullPlayersList = Object.values(this.store.player);
+    // const gamesMap = {};
+    // for (let _code = 1; _code <= Math.ceil(playerCount / maxPlayersInGame.val); _code++) {
+    for (let _code = 1; _code <= this.teamsCount; _code++) {
       usedTemplates.unshift(domain.game.configs.cardTemplates.random({ exclude: usedTemplates }));
       const game = await new domain.game.corporate.classGame(
         { _code }, // storeData
@@ -64,35 +70,38 @@
         {
           ...{ deckType, gameType, gameConfig, gameTimer },
           templates: { card: usedTemplates[0], code: `team${_code}` },
+          playerMap: {}, // будут доабвлены в playerJoin > getFreePlayerSlot
         },
         { initPlayerWaitEvents: false }
       );
+      game.set({ title: `Команда №${_code}` });
 
-      const players = fullPlayersList.splice(0, maxPlayersInGame.val);
-      players[0].set({ teamlead: true });
+      // const players = fullPlayersList.splice(0, maxPlayersInGame.val);
+      // players[0].set({ teamlead: true });
 
-      let active = true;
-      const playerMap = Object.fromEntries(players.map(p => [p._id, {}]));
-      for (const player of players) {
-        player.updateParent(game);
-        player.game(game);
-        if (active) {
-          player.set({ active });
-          active = false;
-        }
-        player.find('Deck[plane]').set({ access: playerMap });
-      }
-      game.set({ playerMap, title: `Команда №${_code}` });
+      // let active = true;
+      // const playerMap = Object.fromEntries(players.map(p => [p._id, {}]));
+      // for (const player of players) {
+      //   player.updateParent(game);
+      //   player.game(game);
+      //   if (active) {
+      //     player.set({ active });
+      //     active = false;
+      //   }
+      //   player.find('Deck[plane]').set({ access: playerMap });
+      // }
+      // game.decks.table.set({ access: this.playerMap });
+      // game.set({ playerMap, title: `Команда №${_code}` });
 
-      if (players.length === 1) game.set({ settings: { singlePlayer: true } });
-      game.decks.table.set({ access: this.playerMap });
-      game.decks.active.set({ access: this.playerMap });
-      game.find('Deck[domino_common]').set({ access: playerMap, markNew: true });
-      game.find('Deck[card_common]').set({ access: playerMap, markNew: true });
+      // if (players.length === 1) game.set({ settings: { singlePlayer: true } });
+      // game.decks.table.set({ access: this.playerMap });
+      // game.decks.active.set({ access: this.playerMap });
+      // game.find('Deck[domino_common]').set({ access: playerMap, markNew: true });
+      // game.find('Deck[card_common]').set({ access: playerMap, markNew: true });
 
-      gamesMap[game.id()] = Object.fromEntries(players.map((player) => [player.id(), {}]));
+      // gamesMap[game.id()] = Object.fromEntries(players.map((player) => [player.id(), {}]));
+      this.set({ gamesMap: { [game.id()]: {} } });
     }
-    this.set({ gamesMap });
     this.roundPool.add('common', this.getAllGames());
     await this.saveChanges();
 
@@ -156,6 +165,21 @@
     return broadcastData;
   }
 
+  getFreePlayerSlot({ game } = {}) {
+    const playerCount = this.players().length;
+    if (playerCount >= this.maxPlayersInGame) return null;
+
+    if (!game) game = this.getAllGames().sort((g1, g2) => g1.players().length - g2.players().length)[0];
+
+    const player = this.run('addPlayer', {
+      ...lib.utils.structuredClone(this.settings.playerTemplates['default']),
+      _code: playerCount + 1,
+      parentGame: game,
+    });
+
+    return player;
+  }
+
   async playerJoin({ userId, userName }) {
     try {
       if (this.status === 'FINISHED') throw new Error('Игра уже завершена');
@@ -176,7 +200,13 @@
       this.set({ gamesMap });
 
       // инициатором события был установлен первый player в списке, который совпадает с активным игроком на старте игры
-      this.toggleEventHandlers('PLAYER_JOIN', { targetId: playerId }, player);
+      // this.toggleEventHandlers('PLAYER_JOIN', { targetId: playerId }, player);
+
+      if (this.players().length >= this.teamsCount * 4) {
+        if (this.restorationMode) this.restore();
+        else this.run('initPrepareGameEvents');
+      }
+
       await this.saveChanges();
 
       lib.store.broadcaster.publishAction(`gameuser-${userId}`, 'joinGame', {

@@ -415,7 +415,7 @@ export default {
             },
           },
           {
-            text: 'Закончить игру', action: async function () {
+            text: 'Выйти из игры', action: async function () {
               await api.action
                 .call({
                   path: 'game.api.leave',
