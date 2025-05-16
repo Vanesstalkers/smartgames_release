@@ -1,4 +1,4 @@
-async (context, { round } = {}) => {
+async (context, { round } = {}) => { // восстановление игры через меню игрока
   const { sessionId } = context.session.state;
   const { gameId, lobbyId } = lib.store('session').get(sessionId);
   const game = lib.store('game').get(gameId);
@@ -27,6 +27,7 @@ async (context, { round } = {}) => {
     restoredGame.restorationMode = true;
 
     // Восстановление игроков и зрителей
+    // !!! проверить game.store.player с удаленным игроком
     for (const player of [...Object.values(game.store.player), ...Object.values(game.store.viewer || {})]) {
       const { userId, userName, _id: id } = player;
       const user = lib.store('user').get(userId);

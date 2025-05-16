@@ -1,4 +1,4 @@
-async (context, { deckType, gameType, gameId, needLoadGame }) => {
+async (context, { deckType, gameType, gameId, needLoadGame }) => { // восстановление игры из lobby
 
   const handleError = async (user, message) => {
     user.set({

@@ -25,11 +25,12 @@ async () => {
             games[gameType].items = {};
 
             for (const [gameConfig, configData] of Object.entries(items)) {
-              let { title, timer, playerCount, maxPlayersInGame, playerList, style } = configData;
+              let { title, timer, teamsCount, playerCount, maxPlayersInGame, playerList, style } = configData;
+              if (!teamsCount) teamsCount = playerList.length;
               if (!playerCount) playerCount = playerList.length;
               if (!maxPlayersInGame) maxPlayersInGame = playerList.length;
 
-              games[gameType].items[gameConfig] = { title, timer, playerCount, maxPlayersInGame, style };
+              games[gameType].items[gameConfig] = { title, timer, teamsCount, playerCount, maxPlayersInGame, style };
             }
           }
 
