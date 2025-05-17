@@ -149,7 +149,7 @@ export default {
     gameDataLoaded: function () {
       // тут ловим обновление страницы
       if (
-        this.gameDataLoaded // gameDataLoaded может не быть при restoreGame
+        this.gameDataLoaded // gameDataLoaded может не быть при restoreForced
       ) {
         this.hideZonesAvailability();
       }
@@ -157,7 +157,7 @@ export default {
     'player.eventData.triggerListenerEnabled': function () {
       this.gameCustom.pickedDiceId = '';
       if (
-        this.gameDataLoaded // gameDataLoaded может не быть при restoreGame
+        this.gameDataLoaded // gameDataLoaded может не быть при restoreForced
       ) {
         this.hideZonesAvailability();
       }
@@ -219,7 +219,7 @@ export default {
       return Object.values(this.store.game || {}).filter(({ status }) => status !== 'WAIT_FOR_PLAYERS').length;
     },
     showPlayerControls() {
-      return ['IN_PROCESS', 'PREPARE_START'].includes(this.game.status) && !this.game.roundReady;
+      return ['IN_PROCESS', 'PREPARE_START'].includes(this.superGame.status) && !this.game.roundReady;
     },
     playerIds() {
       if (this.gameState.viewerMode && !this.gameCustom.selectedGameId) return [];
@@ -391,7 +391,7 @@ export default {
                   title: 'Вернуть игровой стол команды',
                   action: { tutorial: 'game-tutorial-teamleadMenu', step: 'transferTable' },
                 },
-                { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-restoreGame' } },
+                { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-restoreForced' } },
                 {
                   title: 'Переименовать команду', action: { tutorial: 'game-tutorial-teamleadMenu', step: 'renameTeam' }
                 },
@@ -415,7 +415,7 @@ export default {
             },
           },
           {
-            text: 'Закончить игру', action: async function () {
+            text: 'Выйти из игры', action: async function () {
               await api.action
                 .call({
                   path: 'game.api.leave',

@@ -14,7 +14,7 @@
 
           this.emit('RESET');
 
-          if (game.restorationMode) return game.restore();
+          if (game.restorationMode) return game.restart();
 
           game.run('initPrepareGameEvents', {}, initPlayer);
         },

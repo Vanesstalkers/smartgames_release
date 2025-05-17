@@ -220,6 +220,10 @@
     return this.game().logs(data, config);
   }
 
+  getTeamlead() {
+    return this.players().find(p => p.teamlead);
+  }
+
   renameTeam({ title }) {
     this.set({ title });
   }
@@ -255,5 +259,10 @@
 
   checkForRelease({ zoneParent, player }) {
     this.game().checkForRelease({ zoneParent, player });
+  }
+  selectNextActivePlayer() {
+    const roundActivePlayer = this.roundActivePlayer();
+    const newActivePlayer = super.selectNextActivePlayer();
+    return newActivePlayer || roundActivePlayer; // в команде могло не остаться игроков после их удаления - возвращаем последнего активного игрока, чтобы отработал END_ROUND
   }
 });

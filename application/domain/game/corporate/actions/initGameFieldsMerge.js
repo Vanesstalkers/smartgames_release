@@ -305,9 +305,11 @@
         };
         processBridges(plane);
 
-        let turnOrder = superGame.turnOrder.filter((id) => id !== gameId);
-        turnOrder.push(gameId);
-        superGame.set({ turnOrder });
+        if (game.players().length) { // игроки могли быть удалены из игры
+          let turnOrder = superGame.turnOrder.filter((id) => id !== gameId);
+          turnOrder.push(gameId);
+          superGame.set({ turnOrder });
+        }
 
         if (game.gameConfig === 'cooperative') {
           const gameCommonDominoDeck = game.find('Deck[domino_common]');

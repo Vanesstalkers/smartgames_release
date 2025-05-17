@@ -114,13 +114,13 @@ export default {
       return this.getGame(this.player.gameId);
     },
     player() {
-      return this.store.player?.[this.playerId] || {};
+      return this.store.player?.[this.playerId] || { eventData: {} };
     },
     viewer() {
       return this.store.viewer?.[this.viewerId] || {};
     },
     dominoDecks() {
-      const decks = this.deckIds.map((id) => this.store.deck?.[id] || {});
+      const decks = this.deckIds.map((id) => this.store.deck?.[id] || { itemMap: {} });
 
       if (!this.game.merged || this.game.gameConfig !== 'cooperative') {
         const result = decks.filter((deck) => deck.type === 'domino') || [];
@@ -130,13 +130,13 @@ export default {
       // сделано не через player.active, чтобы рука не исчезала после окончания хода
       if (this.game.roundActivePlayerId !== this.playerId) return [];
 
-      const gameDecks = Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id] || {});
+      const gameDecks = Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id] || { itemMap: {} });
       const commonDecks = gameDecks.filter((deck) => deck.subtype === 'common');
       const result = [...commonDecks, ...decks].filter((deck) => deck.type === 'domino' && deck.subtype) || [];
       return result.sort((deck) => (deck.subtype !== 'common' ? -1 : 1));
     },
     cardDecks() {
-      const decks = this.deckIds.map((id) => this.store.deck?.[id] || {});
+      const decks = this.deckIds.map((id) => this.store.deck?.[id] || { itemMap: {} });
 
       if (!this.game.merged || this.game.gameConfig !== 'cooperative') {
         return decks.filter((deck) => deck.type === 'card') || [];

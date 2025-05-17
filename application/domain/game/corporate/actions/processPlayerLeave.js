@@ -1,30 +1,36 @@
 (function ({ }, player) {
-  player.set({ ready: false });
 
+  const playerId = player.id();
   const game = player.game();
   const superGame = game.game();
 
+  player.set({ ready: false });
   const remainPlayers = game.players().filter(p => p.ready);
   const remainPlayersOverall = superGame.players().filter(p => p.ready).length;
 
-  if (game.status !== 'IN_PROCESS' && remainPlayers.length === 0) {
-    return this.run('endGame');
-  }
+  if (remainPlayersOverall <= 0) return this.run('endGame');
 
   if (game.status === 'IN_PROCESS') {
-
-    if (remainPlayersOverall <= 1) {
-      return this.run('endGame', { canceledByUser: player.userId });
+    if (game.gameConfig === 'cooperative') {
+      if (remainPlayers.length === 0) {
+        if (!game.merged) game.run('initGameFieldsMerge');
+        else {
+          this.set({
+            turnOrder: this.turnOrder.filter((gameId) => gameId !== game.id()),
+          });
+        }
+      }
     }
-
-    if (remainPlayers.length === 0) {
-      game.run('initGameFieldsMerge');
-      game.run('roundEnd');
-
-      // делаем принципиально позже, т.к. игра добавится в turnOrder только после события ROUND_END
-      this.set({
-        turnOrder: this.turnOrder.filter((gameId) => gameId !== game.id()),
-      });
+    if (game.gameConfig === 'competition') {
+      const roundPool = superGame.roundPool;
+      if (!game.merged) {
+        const commonRound = roundPool.get('common');
+        const commonRoundGames = commonRound.data.filter((g) => g !== game);
+        roundPool.update('common', commonRoundGames);
+        if (commonRoundGames.length === 0) roundPool.setActive('common', false);
+      } else {
+        roundPool.setActive(game.id(), false);
+      }
     }
   }
 
@@ -49,8 +55,6 @@
 
 
     if (player.teamlead) {
-      player.set({ teamlead: null });
-
       const targetPlayer = remainPlayers[0];
       targetPlayer.set({ teamlead: true });
 
@@ -61,4 +65,9 @@
     }
   }
   if (player === game.roundActivePlayer()) game.run('roundEnd');
+
+  player.markDelete();
+  player.set({ userId: null, teamlead: null });
+  game.set({ playerMap: { [playerId]: null } });
+  this.set({ playerMap: { [playerId]: null }, gamesMap: { [game.id()]: { [playerId]: null } } }); // игрок пропадет из game.player(), но остается в store (нужно, чтобы корректно отработал END_ROUND у initGameFieldsMerge)
 });

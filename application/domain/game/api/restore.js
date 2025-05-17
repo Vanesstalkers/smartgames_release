@@ -1,4 +1,4 @@
-async (context, { deckType, gameType, gameId, needLoadGame }) => {
+async (context, { deckType, gameType, gameId, needLoadGame }) => { // восстановление игры из lobby
 
   const handleError = async (user, message) => {
     user.set({
@@ -26,7 +26,7 @@ async (context, { deckType, gameType, gameId, needLoadGame }) => {
 
   const loadAndJoinGame = async (gameType, gameId, lobbyId, user, playerId, viewerId) => {
     try {
-      const game = await domain.game.load({ gameType, gameId, lobbyId });
+      const game = await domain.game.actions.loadGame({ gameType, gameId, lobbyId });
       await joinGame(game, user, playerId, viewerId);
       return { status: 'ok' };
     } catch (err) {

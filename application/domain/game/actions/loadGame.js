@@ -4,7 +4,10 @@ async ({ gameType, gameId, lobbyId, round }) => {
       ? async function (loadedData) {
         const corporateGame = this;
         corporateGame.set({ gamesMap: loadedData.gamesMap });
-        corporateGame.run('fillGameData', loadedData);
+        corporateGame.restorationMode = true;
+        corporateGame.run('fillGameData', { ...loadedData, playerMap: {} });
+        corporateGame.set({ status: 'RESTORING_GAME', statusLabel: 'Восстановление игры' });
+
         const gamesMap = {};
         for (const gameId of Object.keys(loadedData.gamesMap)) {
           const gameData = loadedData.store.game[gameId];
@@ -13,8 +16,17 @@ async ({ gameType, gameId, lobbyId, round }) => {
             { parent: corporateGame } // config
           ).load({ fromData: gameData }, { initStore: true });
           game.restorationMode = true;
-          game.run('fillGameData', gameData);
+          game.run('fillGameData', { ...gameData, playerMap: {} });
           gamesMap[gameId] = game;
+        }
+
+
+        for (const playerId of Object.keys(loadedData.playerMap)) {
+          const playerData = this.store.player[playerId];
+          const game = this.store.game[playerData.gameId];
+
+          if (playerData.teamlead) delete playerData.eventData.teamReady;
+          game.run('addPlayer', playerData);
         }
 
         const pool = loadedData.roundPool;
@@ -37,6 +49,7 @@ async ({ gameType, gameId, lobbyId, round }) => {
     .then(async (game) => {
       const { deckType, gameType, gameConfig, gameTimer, playerMap } = game;
       await lib.store.broadcaster.publishAction(`lobby-${lobbyId}`, 'addGame', {
+        restorationMode: true,
         ...{ gameId, gameTimer, playerMap },
         ...{ deckType, gameType, gameConfig },
       });

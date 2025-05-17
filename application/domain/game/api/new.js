@@ -1,4 +1,4 @@
-async (context, { deckType, gameType, gameConfig, gameTimer, playerCount, maxPlayersInGame }) => {
+async (context, { deckType, gameType, gameConfig, gameTimer, teamsCount, playerCount, maxPlayersInGame }) => {
 
   lib.game.flush.exec();
 
@@ -12,7 +12,7 @@ async (context, { deckType, gameType, gameConfig, gameTimer, playerCount, maxPla
     const gameClassGetter = gameType === 'corporate' ? domain.game.corporate.classSuper : domain.game.class;
     const game = await new gameClassGetter().create({
       ...{ deckType, gameType, gameConfig, gameTimer },
-      ...{ playerCount, maxPlayersInGame },
+      ...{ teamsCount, playerCount, maxPlayersInGame },
     });
     const gameId = game.id();
 

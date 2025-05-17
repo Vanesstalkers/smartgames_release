@@ -109,7 +109,7 @@ export default {
     'player.eventData.triggerListenerEnabled': function () {
       this.gameCustom.pickedDiceId = '';
       if (
-        this.gameDataLoaded // gameDataLoaded может не быть при restoreGame
+        this.gameDataLoaded // gameDataLoaded может не быть при restoreForced
       ) {
         this.hideZonesAvailability();
       }
@@ -281,7 +281,7 @@ export default {
               pos: 'bottom-left',
               html: (game) => `
                 <div v-if="menu.input" class="input">
-                  <input value="${game.round}" placeholder="${game.round}" name="restoreGameInput" type="number" min="1" max="${game.round}" />
+                  <input value="${game.round}" placeholder="${game.round}" name="restoreForcedInput" type="number" min="1" max="${game.round}" />
                 </div>
               `,
               buttons: [
@@ -290,8 +290,8 @@ export default {
                   text: 'Выполнить', action: async function () {
                     await api.action
                       .call({
-                        path: 'game.api.restoreGame',
-                        args: [{ round: this.inputData['restoreGameInput'] }],
+                        path: 'game.api.restoreForced',
+                        args: [{ round: this.inputData['restoreForcedInput'] }],
                       })
                       .catch(prettyAlert);
                   }
@@ -300,7 +300,7 @@ export default {
             },
           },
           {
-            text: 'Закончить игру', action: async function () {
+            text: 'Выйти из игры', action: async function () {
               await api.action
                 .call({
                   path: 'game.api.leave',

@@ -29,6 +29,7 @@
     <div v-if="showCustomActionBtn && !showLeaveBtn" class="action-btn" :style="customAction.style || {}">
       {{ customAction.label }}
     </div>
+    <div v-if="showTeamleadBtn" class="action-btn team-ready-btn">Команда готова</div>
   </div>
 </template>
 
@@ -137,6 +138,9 @@ export default {
     showLeaveBtn() {
       return (this.gameFinished() && this.iam) || this.viewerId;
     },
+    showTeamleadBtn() {
+      return this.iam && this.player.teamlead && this.getSuperGame()?.status === 'WAIT_FOR_PLAYERS' && !this.player.eventData.teamReady;
+    },
     showCustomActionBtn() {
       return this.iam && this.customAction.show;
     },
@@ -171,6 +175,7 @@ export default {
           .catch(prettyAlert);
       if (this.showEndRoundBtn) return await this.endRound();
       if (this.showLeaveBtn) return await this.leaveGame();
+      if (this.showTeamleadBtn) return await this.teamReady();
     },
 
     async endRound() {
@@ -179,6 +184,18 @@ export default {
 
       await this.handleGameApi(
         { name: 'roundEnd' },
+        {
+          onSuccess: () => (this.controlActionDisabled = false),
+          onError: () => (this.controlActionDisabled = false),
+        }
+      );
+    },
+    async teamReady() {
+      this.hideZonesAvailability();
+      this.gameCustom.pickedDiceId = '';
+
+      await this.handleGameApi(
+        { name: 'teamReady' },
         {
           onSuccess: () => (this.controlActionDisabled = false),
           onError: () => (this.controlActionDisabled = false),
@@ -196,7 +213,6 @@ export default {
     toggleViewerShowCards() {
       if (!this.gameState.viewerMode) return;
       this.$set(this.gameCustom.viewerState.showCards, this.playerId, !this.gameCustom.viewerState.showCards[this.playerId]);
-      console.log('toggleViewerShowCards', { playerId: this.playerId, viewerState: this.gameCustom.viewerState.showCards[this.playerId] });
     },
   },
   mounted() { },
@@ -260,12 +276,20 @@ export default {
     color: white;
     font-size: 16px;
 
+    &:hover {
+      opacity: 0.8;
+    }
+
     &.end-round-btn {
       background: #3f51b5;
     }
 
     &.leave-game-btn {
       background: #bb3030;
+    }
+
+    &.team-ready-btn {
+      background: green;
     }
   }
 

@@ -14,7 +14,16 @@
 
       if (game.gameConfig === 'competition') {
 
-        if ('!!! описать условие победы' === true) return game.run('endGame', { winningPlayer: player });
+        const gameId = game.id();
+        const planeList = superGame.decks.table.items().filter(p => (p.anchorGameId === gameId || p.mergedGameId === gameId || p.customClass.includes('central')));
+        const bridgeList = superGame.select('Bridge').filter(b => (b.anchorGameId === gameId || b.mergedGameId === gameId));
+
+        let endGame = true;
+        for (const releaseItem of [...planeList, ...bridgeList]) {
+          if (!endGame) continue;
+          if (releaseItem.hasEmptyZones()) endGame = false;
+        }
+        if (endGame) game.run('endGame', { winningPlayer: player });
 
         const anchorGame = superGame.get(zoneParent.anchorGameId);
         anchorGame.run('smartMoveRandomCard', { target: playerCardDeck });

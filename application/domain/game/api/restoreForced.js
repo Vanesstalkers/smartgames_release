@@ -1,4 +1,4 @@
-async (context, { round } = {}) => {
+async (context, { round } = {}) => { // восстановление игры через меню игрока
   const { sessionId } = context.session.state;
   const { gameId, lobbyId } = lib.store('session').get(sessionId);
   const game = lib.store('game').get(gameId);
@@ -23,8 +23,7 @@ async (context, { round } = {}) => {
     await game.removeGame({ preventDeleteDumps: true });
 
     // Восстановление игры
-    const restoredGame = await domain.game.load({ gameType, gameId, lobbyId, round: parseInt(round) || game.round });
-    restoredGame.restorationMode = true;
+    const restoredGame = await domain.game.actions.loadGame({ gameType, gameId, lobbyId, round: parseInt(round) || game.round });
 
     // Восстановление игроков и зрителей
     for (const player of [...Object.values(game.store.player), ...Object.values(game.store.viewer || {})]) {

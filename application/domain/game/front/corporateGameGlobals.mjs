@@ -112,7 +112,7 @@ function getGamePlaneOffsets() {
   };
 
   if (
-    !superGame.store // может возникнуть при restoreGame
+    !superGame.store // может возникнуть при restoreForced
   ) {
     return offsets;
   }

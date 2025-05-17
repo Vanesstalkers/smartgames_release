@@ -14,22 +14,8 @@
     }
 
     if (!isCoreGame) {
-      this.addDeck(
-        {
-          type: 'domino',
-          subtype: 'common',
-          access: this.playerMap,
-        },
-        { deckClass: Deck, deckItemClass: Dice }
-      );
-      this.addDeck(
-        {
-          type: 'card',
-          subtype: 'common',
-          access: this.playerMap,
-        },
-        { deckClass: Deck, deckItemClass: Card }
-      );
+      this.addDeck({ type: 'domino', subtype: 'common' }, { deckClass: Deck, deckItemClass: Dice });
+      this.addDeck({ type: 'card', subtype: 'common' }, { deckClass: Deck, deckItemClass: Card });
     }
   }
 
