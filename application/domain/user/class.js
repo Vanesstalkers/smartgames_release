@@ -60,4 +60,53 @@
       this.set({ money: (this.money || 0) + income, helper: tutorial[endGameStatus], rankings });
       await this.saveChanges({ saveToLobbyUser: true });
     }
+    async corporateGameFinished({ gameId, gameType, playerEndGameStatus, fullPrice, roundCount, crutchCount, msg = {}, preventCalcStats = false } = {}) {
+      const {
+        helper: { getTutorial },
+        utils: { structuredClone: clone },
+      } = lib;
+
+      if (this.viewerId) {
+        this.set({
+          helper: {
+            text: 'Игра закончена',
+            buttons: [{ text: 'Выйти из игры', action: 'leaveGame' }],
+            actions: {
+              leaveGame: (async () => {
+                await api.action.call({ path: 'game.api.leave', args: [] }).catch(prettyAlert);
+                return { exit: true };
+              }).toString(),
+            },
+          },
+        });
+        await this.saveChanges();
+        return;
+      }
+
+      if (preventCalcStats) return;
+
+      const endGameStatus = playerEndGameStatus[this.id()];;
+
+      let income = 0;
+      let penaltySum = 0;
+      if (endGameStatus === 'win') {
+        penaltySum = 100 * crutchCount * 1000;
+        income = fullPrice * 1000 - penaltySum;
+        if (income < 0) income = 0; // в рейтинги отрицательный результата пишем
+      }
+
+      const tutorial = clone(getTutorial('game-corporate-tutorial-finished'), {
+        convertFuncToString: true,
+      });
+      let incomeText = `${income.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')} ₽`;
+      if (penaltySum > 0)
+        incomeText += ` (с учетом штрафа ${penaltySum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}₽ за костыли)`;
+      tutorial[endGameStatus].text = tutorial[endGameStatus].text.replace('[[win-money]]', incomeText);
+
+      // кастомное сообщение для пользователя
+      for (const key in msg) tutorial[key].text = msg[key];
+
+      this.set({ helper: tutorial[endGameStatus] });
+      await this.saveChanges({ saveToLobbyUser: true });
+    }
   };
