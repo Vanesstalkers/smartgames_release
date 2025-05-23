@@ -6,7 +6,6 @@ async ({ gameType, gameId, lobbyId, round }) => {
         corporateGame.set({ gamesMap: loadedData.gamesMap });
         corporateGame.restorationMode = true;
         corporateGame.run('fillGameData', { ...loadedData, playerMap: {} });
-        corporateGame.set({ status: 'RESTORING_GAME', statusLabel: 'Восстановление игры' });
 
         const gamesMap = {};
         for (const gameId of Object.keys(loadedData.gamesMap)) {
@@ -65,6 +64,7 @@ async ({ gameType, gameId, lobbyId, round }) => {
         port: application.server.port,
       });
       game.run('initPlayerWaitEvents');
+      game.set({ status: 'RESTORING_GAME', statusLabel: 'Восстановление игры' }); // в initPlayerWaitEvents выставляется  {status: 'WAIT_FOR_PLAYERS'}
 
       for (const player of game.players()) player.set({ ready: false });
 
