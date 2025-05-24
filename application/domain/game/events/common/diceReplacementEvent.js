@@ -100,10 +100,7 @@
 
       if (msg) {
         game.logs({ msg, userId: player.userId });
-        lib.store.broadcaster.publishAction(`gameuser-${player.userId}`, 'broadcastToSessions', {
-          data: { message: msg },
-          config: { hideTime: 0 },
-        });
+        player.notifyUser(msg, { hideTime: 0 });
       }
       game.logs({
         msg:

@@ -343,12 +343,7 @@
     if (availableZonesCount > dicesInDeck + dicesInHandCount) {
       for (const player of this.players()) {
         if (!player.teamlead) continue;
-
-        const data = {
-          message:
-            'Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля. Попробуйте восстановить более ранние раунды игры.',
-        };
-        lib.store.broadcaster.publishAction(`gameuser-${player.userId}`, 'broadcastToSessions', { data });
+        player.notifyUser('Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля. Попробуйте восстановить более ранние раунды игры.');
       }
     }
   }

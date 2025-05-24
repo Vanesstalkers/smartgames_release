@@ -33,9 +33,7 @@
                     //  нажали кнопку "Отмена"
                     if (!targetPlayer) return this.emit('RESET');
                     if (!targetPlayer.ready) {
-                        lib.store.broadcaster.publishAction(`gameuser-${player.userId}`, 'broadcastToSessions', {
-                            data: { message: 'Игрок не может быть удален, т.к. он вышел из игры.' },
-                        });
+                        player.notifyUser('Игрок не может быть удален, т.к. он вышел из игры.');
                         return this.emit('RESET');
                     }
 
