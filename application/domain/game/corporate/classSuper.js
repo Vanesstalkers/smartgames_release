@@ -19,7 +19,7 @@
     return super.select(query);
   }
 
-  async create({ deckType, gameType, gameConfig, gameTimer, teamsCount, playerCount, maxPlayersInGame } = {}) {
+  async create({ deckType, gameType, gameConfig, gameTimer, teamsCount, playerCount, maxPlayersInGame, gameRoundLimit } = {}) {
     const usedTemplates = [];
 
     if (!teamsCount?.val) throw new Error('Количество команд должно быть указано');
@@ -33,6 +33,7 @@
     );
 
     this.set({ teamsCount: teamsCount.val });
+    this.set({ gameRoundLimit: gameRoundLimit });
     this.set({ settings: { planesAtStart: this.settings.planesNeedToStart } });
     this.set({ status: 'WAIT_FOR_PLAYERS', statusLabel: 'Ожидание игроков' });
 
@@ -334,13 +335,15 @@
     let dicesInHandCount = 0;
     let dicesInDeck = 0;
 
-    for (const game of this.getAllGames()) {
+    const games = this.getAllGames();
+    for (const game of games) {
       availableZonesCount += game.countAvailableZones();
       dicesInHandCount += game.countDicesInHands();
       dicesInDeck += game.find('Deck[domino]').itemsCount();
     }
 
-    if (availableZonesCount > dicesInDeck + dicesInHandCount) {
+    const vacantIntergationZonesCount = games.filter((game) => !game.merged && !game.mergeInProgress).length;
+    if (availableZonesCount + vacantIntergationZonesCount > dicesInDeck + dicesInHandCount) {
       for (const player of this.players()) {
         if (!player.teamlead) continue;
         player.notifyUser('Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля. Попробуйте восстановить более ранние раунды игры.');

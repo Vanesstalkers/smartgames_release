@@ -4,6 +4,9 @@
   const newRoundNumber = this.round + 1;
   this.set({ statusLabel: `Раунд ${newRoundNumber}`, round: newRoundNumber });
 
+  if (this.gameRoundLimit && newRoundNumber > this.gameRoundLimit)
+    return this.run('endGame', { msg: { lose: `Игра закончена. Превышен лимит раундов (${this.gameRoundLimit}).` } });
+
   if (this.gameConfig === 'competition') {
     const games = this.roundPool.next({ fixState: true });
 

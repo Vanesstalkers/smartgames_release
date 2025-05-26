@@ -13,8 +13,8 @@
   const access = { [playerId]: {} };
   if (this.gameConfig === 'cooperative') {
     // доступ только для команды (наполняется с подключением каждого нового игрока)
-    this.find('Deck[domino_common]').set({ access/* , markNew: true */ });
-    this.find('Deck[card_common]').set({ access/* , markNew: true */ });
+    this.find('Deck[domino_common]').set({ access });
+    this.find('Deck[card_common]').set({ access });
   }
 
   const superGame = this.game();

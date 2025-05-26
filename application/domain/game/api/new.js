@@ -1,4 +1,4 @@
-async (context, { deckType, gameType, gameConfig, gameTimer, teamsCount, playerCount, maxPlayersInGame }) => {
+async (context, { deckType, gameType, gameConfig, gameTimer, teamsCount, playerCount, maxPlayersInGame, gameRoundLimit }) => {
 
   lib.game.flush.exec();
 
@@ -12,7 +12,7 @@ async (context, { deckType, gameType, gameConfig, gameTimer, teamsCount, playerC
     const gameClassGetter = gameType === 'corporate' ? domain.game.corporate.classSuper : domain.game.class;
     const game = await new gameClassGetter().create({
       ...{ deckType, gameType, gameConfig, gameTimer },
-      ...{ teamsCount, playerCount, maxPlayersInGame },
+      ...{ teamsCount, playerCount, maxPlayersInGame, gameRoundLimit },
     });
     const gameId = game.id();
 
@@ -27,7 +27,7 @@ async (context, { deckType, gameType, gameConfig, gameTimer, teamsCount, playerC
     lib.store.broadcaster.publishAction(`lobby-${lobbyId}`, 'addGame', {
       gameId,
       creator: { userId: user.id(), tgUsername: user.tgUsername },
-      ...{ deckType, gameType, gameConfig, gameTimer, playerMap: game.playerMap },
+      ...{ deckType, gameType, gameConfig, gameTimer, gameRoundLimit, playerMap: game.playerMap },
     });
 
     return { status: 'ok', gameId };

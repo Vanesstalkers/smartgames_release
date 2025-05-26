@@ -43,10 +43,16 @@
           const mergedPlanes = planes.filter(p => p.anchorGameId === parentGameId);
           const mergedBridges = bridges.filter(b => b.anchorGameId === parentGameId);
 
+          const canFillIntegration = [...mergedPlanes, ...mergedBridges].find(p => p.hasEmptyZones()) === undefined;
+          if (canFillIntegration) {
+            mergedPlanes.push(...planes.filter(p => p.mergedGameId === parentGameId));
+            mergedBridges.push(...bridges.filter(b => b.mergedGameId === parentGameId && !b.linkedPlanesIds.find(id => superGame.get(id).customClass.includes('central'))));
+          }
+
           let centralPlanes = [], centralBridges = [];
-          const canFillCentral = [...mergedPlanes, ...mergedBridges].find(p => p.hasEmptyZones()) === undefined;
+          const canFillCentral = canFillIntegration && [...mergedPlanes, ...mergedBridges].find(p => p.hasEmptyZones()) === undefined;
           if (canFillCentral) {
-            centralPlanes = planes.filter(p => p.mergedGameId === parentGameId || p.customClass.includes('central'));
+            centralPlanes = planes.filter(p => p.customClass.includes('central'));
             centralBridges = bridges.filter(b => b.mergedGameId === parentGameId);
           }
 

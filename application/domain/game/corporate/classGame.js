@@ -265,4 +265,13 @@
     const newActivePlayer = super.selectNextActivePlayer();
     return newActivePlayer || roundActivePlayer; // в команде могло не остаться игроков после их удаления - возвращаем последнего активного игрока, чтобы отработал END_ROUND
   }
+
+  countDicesInHands() {
+    let count = 0;
+    for (const player of this.players()) {
+      count += player.select({ className: 'Dice', directParent: false }).length;
+    }
+    count += this.find('Deck[domino_common]').itemsCount();
+    return count;
+  }
 });

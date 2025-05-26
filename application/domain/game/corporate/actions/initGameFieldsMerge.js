@@ -17,6 +17,8 @@
       init() {
         const { game } = this.eventContext();
         const superGame = game.game();
+        
+        game.set({ mergeInProgress: true }); // без этого некорректно отработает checkDiceResource
         superGame.broadcastEvent('DICES_DISABLED', { parent: game });
         return this.emit('CHECK_AVAILABLE_PORTS');
       },
@@ -246,7 +248,7 @@
         const bridges = plane.getLinkedBridges();
         const mergedBridge = bridges.find((b) => b.game() === superGame);
 
-        game.set({ merged: true });
+        game.set({ merged: true, mergeInProgress: null });
 
         if (superGame.gameConfig === 'competition') {
           const roundPool = superGame.roundPool;

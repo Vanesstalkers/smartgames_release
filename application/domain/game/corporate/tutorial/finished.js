@@ -15,7 +15,6 @@
     cancel: {
       text: 'Последняя игра была отменена.',
       buttons: [{ text: 'Понятно, спасибо.', action: 'exit' }],
-      img: './img/tutorial/cancel.png',
       superPos: true,
     },
   },
