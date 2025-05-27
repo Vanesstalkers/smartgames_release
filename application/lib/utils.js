@@ -99,7 +99,7 @@
 
   // ! рефакторить только одновременно с mergeDeep (на фронте)
   mergeDeep({ target, source, masterObj = {}, config = {}, keyPath = [] }) {
-    const { reset = [], deleteNull = false } = config;
+    const { reset = [], deleteNull = false, removeEmptyObject = false } = config;
     // обнуляем ключи в заданных объектах (для передачи обновлений клиенту и БД)
     if (reset.includes(keyPath.join('.'))) {
       for (const key of Object.keys(masterObj)) target[key] = null;
@@ -118,7 +118,7 @@
               config,
               keyPath: [...keyPath, key],
             });
-            if (config.removeEmptyObject && Object.keys(target[key]).length === 0) {
+            if (removeEmptyObject && Object.keys(target[key]).length === 0) {
               // изменений во вложенном объекте нет (удаляем, чтобы он не перетерся в БД)
               delete target[key];
             }
@@ -144,7 +144,7 @@
               config,
               keyPath: [...keyPath, key],
             });
-            if (config.removeEmptyObject && Object.keys(target[key]).length === 0) {
+            if (removeEmptyObject && Object.keys(target[key]).length === 0) {
               // изменений во вложенном объекте нет (удаляем, чтобы он не перетерся в БД)
               delete target[key];
             }
@@ -359,8 +359,10 @@
     }
 
     add(key, element, { active = true } = {}) {
+      const restoreKey = this.#removedKeys.has(key);
+      if (restoreKey) this.#removedKeys.delete(key);
       this.#items.set(key, this.wrapItem(element, { active }));
-      this.#keys.push(key);
+      if (!restoreKey) this.#keys.push(key);
       this.currentKey ??= key;
       this.#saveCallback?.();
       return this;

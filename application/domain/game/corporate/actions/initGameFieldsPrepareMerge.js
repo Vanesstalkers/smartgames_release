@@ -1,5 +1,7 @@
 (function () {
-  const player = this.roundActivePlayer();
+  // промежуточный этап с отдельным добавлением зоны интеграции (не используется)
+
+/*   const player = this.roundActivePlayer();
   const {
     data,
     handlers: {
@@ -39,7 +41,7 @@
           this.destroy();
         },
         BEFORE_ADD_PLANE({ target: plane, initPlayer }) {
-          if (!plane.integrationPlane) {
+          if (!plane.mergedGameId) {
             // сюда может попасть "обычный" plane, который добавляется после интеграции одной игры, но до интеграции следующей в конце раунда
             return { preventListenerRemove: true };
           }
@@ -60,7 +62,7 @@
           plane.set({ anchorGameId: game.id() });
         },
         ADD_PLANE({ target: plane, initPlayer }) {
-          if (!plane.integrationPlane) return { preventListenerRemove: true };
+          if (!plane.mergedGameId) return { preventListenerRemove: true };
 
           const game = this.data.mergedGame;
           if (game.id() !== initPlayer.gameId) {
@@ -94,7 +96,7 @@
         const { game: superGame, player } = this.eventContext();
         const { startPlanes } = game.settings;
         const planeDeck = superGame.find('Deck[plane]');
-        const integrationPlanes = planeDeck.select({ className: 'Plane', attr: { integrationPlane: true } })
+        const integrationPlanes = planeDeck.select({ className: 'Plane', attr: { integrationPlane: true } }) // ключ integrationPlane должен проставляться при создании игры
 
         const filteredAvailablePorts = [];
         for (const plane of integrationPlanes) {
@@ -116,5 +118,5 @@
       }
     },
     { player, allowedPlayers: superGame.players() }
-  );
+  ); */
 });

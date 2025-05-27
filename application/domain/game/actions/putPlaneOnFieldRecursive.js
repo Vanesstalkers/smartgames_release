@@ -1,7 +1,7 @@
 (/* async */ function ({ planes = [], minFreePorts = 0, fromHand = false }, initPlayer) {
   const MAX_ATTEMPTS = 50;
   const game = this.merged ? this.game() : this;
-  const deckOwner = game.roundActivePlayer() || game;
+  const deckOwner = initPlayer || game; // в putStartPlanes или restoreCardsFromDrop нет initPlayer
   const planeDeck = deckOwner.matches({ className: 'Game' })
     ? deckOwner.find('Deck[plane_hand]')
     : deckOwner.find('Deck[plane]');

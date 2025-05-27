@@ -139,7 +139,7 @@
                 const targetPlane = superGame.get(targetPlaneId);
 
                 let result = targetPlane.sourceGameId === superGame.id();
-                if (result && superGame.gameConfig === 'competition') result = !targetPlane.integrationPlane;
+                if (result && superGame.gameConfig === 'competition') result = !targetPlane.mergedGameId; // не интегрирован с какой либо игрй
 
                 return result;
               });

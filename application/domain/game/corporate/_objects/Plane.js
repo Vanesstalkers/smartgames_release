@@ -48,9 +48,11 @@
     return bridges;
   }
   canBeRemovedFromTable({ player }) {
+    if (this.mergedPlaneId) return false; // не удаляем первоначально смердженные plane, чтобы не решать проблем с повторным выставлением mergedGameId на plane и bridge
+
     const linkedPlanes = this.getLinkedPlanes();
-    const canRemove = linkedPlanes.length - linkedPlanes.filter(p => p.cardPlane).length < 2;
-    const anchorGame = this.anchorGameId === player.gameId ? true : false;
-    return canRemove && anchorGame;
+    if (linkedPlanes.length - linkedPlanes.filter(p => p.cardPlane).length >= 2) return false;
+
+    return this.anchorGameId === player.gameId ? true : false;
   }
 });
