@@ -33,7 +33,7 @@
         this.emit('DEACTIVATE');
 
         if (game.isSinglePlayer()) {
-          target.moveToTarget(game.find('Deck[domino]'));
+          target.moveToTarget(game.find('Deck[domino]'), { markDelete: true });
           return this.emit('RESET');
         }
 

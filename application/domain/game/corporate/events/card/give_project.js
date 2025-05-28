@@ -37,6 +37,7 @@
 
         const playerHand = target.getHandDominoDeck();
         this.targetDice.moveToTarget(playerHand);
+        target.game().toggleEventHandlers('DICE_ADDED', { dice: this.targetDice }, target); // в качестве initPlayer-а указывает target, чтобы прошла access-проверка
 
         game.logs({
             msg: `Игрок {{player}} стал целью события <a>${this.getTitle()}</a>.`,

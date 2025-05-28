@@ -1,6 +1,16 @@
 (function event() {
     const event = domain.game.events.card.crutch();
 
+    event.handlers['DICE_ADDED'] = function ({ dice }) {
+        const { game, player } = this.eventContext();
+
+        const eventData = { dside: {} };
+        for (const dside of dice.select('DiceSide')) {
+            eventData.dside[dside.id()] = { selectable: true };
+        }
+        player.set({ eventData });
+    }
+
     const game = this.game();
     const commonHandActive = game.merged || game.isSuperGame;
     if (!commonHandActive) return event;

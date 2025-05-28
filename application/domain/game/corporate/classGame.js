@@ -202,8 +202,8 @@
     return this.#relatedEvents;
   }
 
-  playRoundStartCards() {
-    if (this.merged) return; // проверка на allGamesMerged не обязательна , так как после merge карта будет добавляться в руку
+  playRoundStartCards({ enabled } = {}) {
+    if (!enabled) return;
     super.playRoundStartCards();
   }
 

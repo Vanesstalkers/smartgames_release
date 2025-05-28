@@ -23,12 +23,7 @@
     DEACTIVATE: function () {
       const { player } = this.eventContext();
       player.removeEventWithTriggerListener(); // без этого будут срабатывать проверки player.triggerEventEnabled
-
-      const eventData = { dside: {} };
-      for (const sideId in player.eventData.dside) {
-        eventData.dside[sideId] = null;
-      }
-      player.set({ eventData });
+      player.set({ eventData: { dside: null } });
     },
     TRIGGER: function ({ target, fakeValue = 0, skipFakeValueSet }) {
       const { game, player } = this.eventContext();

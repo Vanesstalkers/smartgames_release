@@ -76,7 +76,7 @@
       const games = this.roundPool.current({ fixState: true }); // в конце раунда будет вызов с loadFixedState
       for (const game of games) {
         lib.timers.timerRestart(game, game.lastRoundTimerConfig);
-        game.playRoundStartCards();
+        game.playRoundStartCards({ enabled: true });
         game.set({ roundReady: false });
       }
 
@@ -86,7 +86,8 @@
     const allGamesMerged = this.allGamesMerged();
     const roundActiveGame = allGamesMerged ? this.roundActiveGame() : null;
 
-    for (const game of this.getAllGames()) {
+    const games = this.getAllGames();
+    for (const game of games) {
       game.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${game.round}` });
       game.run('initGameProcessEvents'); // из "лишних" событий ADD_PLANE отключится при первом же вызове
 
@@ -94,10 +95,10 @@
 
       lib.timers.timerRestart(game, game.lastRoundTimerConfig);
 
-      if (!allGamesMerged) game.playRoundStartCards();
+      if (!allGamesMerged) game.playRoundStartCards({ enabled: true });
     }
 
-    if (allGamesMerged) this.playRoundStartCards();
+    if (allGamesMerged) this.playRoundStartCards(); // у superGame нет кастомного метода playRoundStartCards, так что можно не укаызвать { enabled: true }
   }
 
   prepareBroadcastData({ data = {}, userId, viewerMode }) {

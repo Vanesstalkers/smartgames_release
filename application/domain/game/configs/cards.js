@@ -13,9 +13,9 @@
     // 'time'
   ]).length
     ? (() =>
-        Array(5)
-          .fill(null)
-          .reduce((__) => __.concat(domain.custom_cards.map((name) => ({ name, playOneTime: false }))), []))()
+      Array(10)
+        .fill(null)
+        .reduce((__) => __.concat(domain.custom_cards.map((name) => ({ name, title: name.toUpperCase(), playOneTime: false }))), []))()
     : [
         { name: 'audit', title: 'ИТ-аудит' },
         { name: 'claim', title: 'Жалоба' },

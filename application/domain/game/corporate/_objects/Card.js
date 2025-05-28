@@ -25,7 +25,7 @@
           target = sourceGame.find('Deck[card_drop]');
         }
       } else if (targetCode === 'Deck[card_active]' && targetGame !== superGame) {
-        if (superGame.allGamesMerged()) {
+        if (superGame.allGamesMerged() && targetGame.gameConfig === 'cooperative') {
           target = superGame.find('Deck[card_active]');
         }
       }
@@ -65,6 +65,7 @@
     if (game.merged && superGame.allGamesMerged()) game = superGame;
 
     const event = this.initEvent(this.name, { game, player, allowedPlayers: [player] });
+    if (event) event.name = this.title;
     if (event !== null && player) player.addEvent(event);
     this.set({ played: Date.now() });
   }

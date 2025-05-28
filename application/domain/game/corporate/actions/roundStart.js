@@ -20,6 +20,9 @@
       game.dumpState();
     }
 
+    // должно вызываться после roundStart всех игр, чтобы везде отработали методы добавления костяшек в руку
+    for (const game of games) game.playRoundStartCards({ enabled: true });
+
     this.dumpState();
     return;
   }
@@ -30,6 +33,7 @@
 
   const games = this.getAllGames();
 
+  const roundStartGames = [];
   for (const game of games) {
     const activePlayers = game.players().filter(p => p.ready); // могли выйти из игры
     if (activePlayers.length === 0) continue;
@@ -40,9 +44,16 @@
       continue;
     }
     game.set({ roundReady: false }); // активируем действия пользователя на фронте (вызываем до roundStart, чтобы попало в dumpState)
-    game.run('domain.roundStart');
+    game.run('domain.roundStart'); // внутри дефолтный playRoundStartCards вызовется без { enabled: true }, поэтому не отработает
+    roundStartGames.push(game);
   }
 
   this.dumpState();
-  if (allGamesMerged) this.playRoundStartCards();
+
+  if (allGamesMerged) {
+    this.playRoundStartCards(); // у superGame нет кастомного метода playRoundStartCards, так что можно не укаызвать { enabled: true }
+  } else {
+    // должно вызываться после roundStart всех игр, чтобы везде отработали методы добавления костяшек в руку
+    for (const game of roundStartGames) game.playRoundStartCards({ enabled: true });
+  }
 });

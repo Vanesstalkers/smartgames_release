@@ -30,7 +30,7 @@
       const targetPlayerHand = targetPlayer.find('Deck[domino]');
       const gameDeck = game.find('Deck[domino]');
 
-      targetPlayerHand.moveAllItems({ target: gameDeck });
+      targetPlayerHand.moveAllItems({ target: gameDeck, markDelete: true });
 
       this.emit('RESET');
     },

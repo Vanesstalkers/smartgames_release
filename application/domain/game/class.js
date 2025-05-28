@@ -187,7 +187,8 @@
   }
 
   initTableDiceAction({ dice, player } = {}) {
-    if (player.triggerEventEnabled({ ignoreEvents: ['diceReplacementEvent'] }))
-      throw new Error('Игрок не может совершить это действие, пока не завершит активное событие');
+    const enabledTriggerEvent = player.triggerEventEnabled({ ignoreEvents: ['diceReplacementEvent'] });
+    if (enabledTriggerEvent)
+      throw new Error(`Игрок не может совершить это действие, пока не завершит активное событие (${enabledTriggerEvent.name})`);
   }
 });

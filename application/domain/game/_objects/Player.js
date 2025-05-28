@@ -19,6 +19,7 @@
       } else {
         hand.moveAllItems({
           target: game.find('Deck[domino]'),
+          markDelete: true, // сбрасываем флаги удаления и т.п.
         });
 
         game.logs({
