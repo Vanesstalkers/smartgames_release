@@ -7,12 +7,13 @@
   player.set({ ready: false });
   const remainPlayers = game.players().filter(p => p.ready);
   const remainPlayersOverall = superGame.players().filter(p => p.ready).length;
+  const gameDisabled = remainPlayers.length === 0;
 
   if (remainPlayersOverall <= 0) return this.run('endGame');
 
   if (game.status === 'IN_PROCESS') {
     if (game.gameConfig === 'cooperative') {
-      if (remainPlayers.length === 0) {
+      if (gameDisabled) {
         if (!game.merged) game.run('initGameFieldsMerge');
         else {
           this.set({
@@ -22,14 +23,16 @@
       }
     }
     if (game.gameConfig === 'competition') {
-      const roundPool = superGame.roundPool;
-      if (!game.merged) {
-        const commonRound = roundPool.get('common');
-        const commonRoundGames = commonRound.data.filter((g) => g !== game);
-        roundPool.update('common', commonRoundGames);
-        if (commonRoundGames.length === 0) roundPool.setActive('common', false);
-      } else {
-        roundPool.setActive(game.id(), false);
+      if (gameDisabled) {
+        const roundPool = superGame.roundPool;
+        if (!game.merged) {
+          const commonRound = roundPool.get('common');
+          const commonRoundGames = commonRound.data.filter((g) => g !== game);
+          roundPool.update('common', commonRoundGames);
+          if (commonRoundGames.length === 0) roundPool.setActive('common', false);
+        } else {
+          roundPool.setActive(game.id(), false);
+        }
       }
     }
   }
