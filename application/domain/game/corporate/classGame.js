@@ -4,8 +4,8 @@
 
   constructor(storeData, gameObjectData) {
     super(storeData, gameObjectData);
-    const { merged, roundReady } = storeData;
-    this.set({ merged, roundReady });
+    const { merged, roundReady, disabled = false } = storeData;
+    this.set({ merged, roundReady, disabled });
     this.defaultClasses({
       ...this.game().defaultClasses(),
       Table: domain.game.corporate._objects.Table,
@@ -235,7 +235,8 @@
       // this.gameConfig === 'competition'
 
       const tablePlanesCount = this.decks.table.itemsCount();
-      const expectedZonesCount = tablePlanesCount === 0 ? 4 : tablePlanesCount === 1 ? 3 : 2;
+      // const expectedZonesCount = tablePlanesCount === 0 ? 4 : tablePlanesCount === 1 ? 3 : 2;
+      const expectedZonesCount = 2;
 
       const planes = this.find('Deck[plane]').items().filter((p) => p.zonesCount() === expectedZonesCount);
 

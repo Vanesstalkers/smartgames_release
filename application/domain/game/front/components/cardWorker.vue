@@ -250,9 +250,11 @@ export default {
 
   &.selectable {
 
-    .end-round-btn,
-    .end-round-timer {
+    .end-round-btn {
       display: none;
+    }
+    .end-round-timer {
+      opacity: 0.5;
     }
   }
 

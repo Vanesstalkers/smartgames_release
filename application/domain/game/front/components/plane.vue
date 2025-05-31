@@ -134,6 +134,7 @@ export default {
   },
   methods: {
     async selectPlane(event) {
+      console.log('selectPlane');
       const $plane = event.target.closest('.plane');
       if ($plane.closest('.player.iam')) {
         this.gameCustom.selectedPlane = this.planeId;
@@ -146,6 +147,7 @@ export default {
       }
     },
     async choosePlane() {
+      console.log('choosePlane');
       this.hidePreviewPlanes();
       await this.handleGameApi({ name: 'eventTrigger', data: { eventData: { targetId: this.planeId } } });
     },

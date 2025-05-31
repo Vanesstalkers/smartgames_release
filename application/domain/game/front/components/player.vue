@@ -10,7 +10,7 @@
         :style="{ justifyContent: 'flex-end', maxWidth: (state.innerWidth - 200) + 'px' }">
         <div v-if="hasPlaneInHand" class="hand-planes" :style="{
           ...(iam
-            ? { marginRight: Math.max(500, 70 * planeInHandIds.length) + 'px' }
+            ? { marginRight: state.isPortrait ? '-120px' : Math.max(500, 70 * planeInHandIds.length) + 'px' }
             : { marginLeft: (state.isPortrait ? -1 : 1) * (Math.max(150, 20 * planeInHandIds.length)) + 'px' })
         }">
           <plane v-if="iam && player.eventData?.fakePlaneAddBtn" :key="'fake'" :planeId="'fake'" :inHand="true"
@@ -208,6 +208,10 @@ export default {
       >.inner-content {
         >.player-hands {
           flex-wrap: nowrap;
+
+          .plane.add-block-action {
+            z-index: 5;
+          }
         }
       }
     }
@@ -229,7 +233,9 @@ export default {
             flex-direction: row;
 
             .hand-planes {
+              flex-wrap: wrap;
               flex-direction: column-reverse;
+              align-items: flex-end;
 
               .plane.in-hand {
                 transform: scale(0.4);
@@ -248,7 +254,7 @@ export default {
                     &.card-plane {
                       order: -1;
                       z-index: 2;
-                      margin: 280px -120px 260px -220px !important;
+                      margin: 280px -150px 260px -220px !important;
                     }
                   }
                 }
@@ -257,37 +263,35 @@ export default {
           }
         }
 
-        .hand-planes {
-          flex-wrap: wrap;
-          align-items: flex-end;
-
-          .plane.in-hand:not(.card-plane) {
-            transform: scale(0.4);
-            transform-origin: top right;
-            margin: 25px 0px -75px 0px;
-
-            @for $i from 1 through 10 {
-              &:nth-child(#{$i}) {
-                margin-bottom: calc(-20px + (30px * ($i - 1))) !important;
-
-                &:hover {
-                  margin-bottom: calc(20px + (30px * ($i - 1))) !important;
-                }
-
-                &.card-plane {
-                  order: 0;
-                  z-index: 2;
-                  margin: 0px 0px 260px calc(30px * ($i * -1)) !important;
-                }
-              }
-            }
-          }
-        }
-
         &.iam {
           .hand-planes {
-            height: initial;
-            margin-bottom: 0px;
+            align-items: flex-end;
+            justify-content: flex-start;
+            margin-bottom: 200px;
+            margin-right: 40px;
+            display: flex;
+            flex-direction: column-reverse;
+            height: auto;
+            flex-wrap: nowrap;
+
+            .plane.in-hand:not(.card-plane) {
+              transform: scale(0.4);
+              transform-origin: top right;
+              margin: 25px 0px -200px 0px;
+            }
+
+            .plane.in-hand.card-plane {
+              margin: 0px 130px -210px 0px;
+
+              &:hover {
+                margin-bottom: -210px !important;
+              }
+            }
+
+            .plane.add-block-action {
+              left: auto;
+              bottom: 140px;
+            }
           }
         }
       }

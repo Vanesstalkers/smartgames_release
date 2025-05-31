@@ -374,10 +374,13 @@
 
       let nextIndex = currentIndex;
       let nextKey;
+      let i = 0;
 
       do {
         nextIndex = (nextIndex + direction + length) % length;
         nextKey = this.#keys[nextIndex];
+        
+        if (i++ > this.#keys.length) throw new Error('CircularArray next key not found');
       } while (
         !this.#items.get(nextKey).active ||
         this.#removedKeys.has(nextKey)

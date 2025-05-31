@@ -3,13 +3,13 @@
 
   initPlayer.set({ eventData: { teamReady: true } });
 
-  const games = superGame.getAllGames();
+  const games = superGame.getAllGames({ disabled: false });
   for (const game of games) {
     const teamlead = game.getTeamlead();
-    if (!teamlead?.eventData.teamReady) return; // "teamlead?" на случай, если не все игроки подключились
+    if (!teamlead?.eventData.teamReady && game.disabled === false) return;// "teamlead?" на случай, если не все игроки подключились
   }
 
-  if(superGame.restorationMode) return superGame.restart();
+  if (superGame.restorationMode) return superGame.restart();
 
   superGame.run('putStartPlanes');
 

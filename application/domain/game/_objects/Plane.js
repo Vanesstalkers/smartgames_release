@@ -190,4 +190,7 @@
   hasEmptyZones() {
     return this.select('Zone').find((zone) => !zone.getItem()) ? true : false;
   }
+  dicesCount() {
+    return this.select({ className: 'Dice', directParent: false }).length;
+  }
 });
