@@ -29,7 +29,7 @@
                 if (plane.isCardPlane()) continue;
                 if (plane.select({ className: 'Dice', directParent: false, attr: { deleted: true } }).length) continue;
 
-                eventData.plane[plane.id()] = { selectable: true };
+                eventData.plane[plane.id()] = { selectable: true, anchorGameId: plane.anchorGameId, dicesCount: plane.dicesCount() };
             }
         }
         player.set({ eventData });
@@ -54,8 +54,27 @@
         }
         this.emit('RESET');
     }
+    event.handlers['END_ROUND'] = function () {
+        const { game, player } = this.eventContext();
+
+        const targetId = Object.entries(player.eventData.plane)
+            .sort(([idA, p1], [idB, p2]) => {
+                // делаем через player.gameId, потому что в game может быть super-игра
+                if (p1.anchorGameId === player.gameId && p2.anchorGameId !== player.gameId) return -1;
+                if (p1.anchorGameId !== player.gameId && p2.anchorGameId === player.gameId) return 1;
+                return (p2.dicesCount || 0) - (p1.dicesCount || 0); // plane с наибольшим количеством костяшек
+            })
+            .find(([id, p]) => p.selectable)?.[0];
+
+        if (!targetId) return this.emit('RESET');
+
+        const target = game.get(targetId);
+        this.emit('TRIGGER', { target });
+    }
     event.handlers['DICES_DISABLED'] = function ({ parent, ids = [] }) {
         const { game, player } = this.eventContext();
+
+        if (parent === game) return this.emit('END_ROUND'); // событие должно отработать до того, как все блоки всех игру будут заблокированы
 
         if (ids.length === 0) {
             const planeIds = parent.isGame() ? parent.decks.table.items().map((p) => p.id()) : [parent.id()];

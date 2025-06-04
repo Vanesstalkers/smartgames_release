@@ -2,30 +2,36 @@
     const event = domain.game.events.card.emergency();
     const game = this.game();
 
-    if (game.gameConfig === 'cooperative') event.init = function () {
-        const { game, player } = this.eventContext();
-        const superGame = game.hasSuperGame ? game.game() : game;
+    if (game.gameConfig === 'cooperative') {
+        event.init = function () {
+            const { game, player } = this.eventContext();
+            const superGame = game.hasSuperGame ? game.game() : game;
 
-        for (const game of superGame.getAllGames()) {
-            const deck = game.find('Deck[domino]');
-
-            if (game.merged) {
-                const hand = game.find('Deck[domino_common]');
-                const count = hand.itemsCount();
-                const handLimit = game.settings.playerHandLimit * game.players().length;
-                deck.moveRandomItems({ count: handLimit - count, target: hand });
-            } else {
-                for (const player of game.players()) {
-                    const hand = player.find('Deck[domino]');
+            for (const game of superGame.getAllGames()) {
+                if (game.merged) {
+                    const deck = game.find('Deck[domino]');
+                    const hand = game.find('Deck[domino_common]');
                     const count = hand.itemsCount();
-                    const handLimit = game.settings.playerHandLimit;
+                    const handLimit = game.settings.playerHandLimit * game.players().length;
                     deck.moveRandomItems({ count: handLimit - count, target: hand });
+                } else {
+                    this.fillHandWithDices(game);
                 }
             }
-        }
 
-        return { resetEvent: true };
-    };
+            return { resetEvent: true };
+        };
+    }
+
+    if (game.gameConfig === 'competition') {
+        event.init = function () {
+            const { game, player } = this.eventContext();
+            const games = game.hasSuperGame ? [game] : game.getAllGames();
+            for (const game of games) {
+                this.fillHandWithDices(game);
+            }
+        }
+    }
 
     return event;
 })
