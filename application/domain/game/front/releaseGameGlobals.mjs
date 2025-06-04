@@ -3,7 +3,8 @@ function zoneAvailable(zoneId) {
 }
 function hideZonesAvailability() {
   if (this.gameState.viewerMode) return;
-  this.getStore().player[this.gameState.sessionPlayerId].eventData.availableZones = [];
+  if(!this.getStore().player[this.gameState.sessionPlayerId].eventData) return; // это баг, но поймать пока не получается
+  this.getStore().player[this.gameState.sessionPlayerId].eventData.availableZones = []; 
 }
 function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
   const p = {};

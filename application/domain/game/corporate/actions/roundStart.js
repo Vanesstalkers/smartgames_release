@@ -35,10 +35,10 @@
 
   const roundStartGames = [];
   for (const game of games) {
-    const activePlayers = game.players().filter(p => p.ready); // могли выйти из игры
-    if (activePlayers.length === 0) continue;
-
-    if (allGamesMerged && roundActiveGame && game !== roundActiveGame) {
+    if (
+      (allGamesMerged && roundActiveGame && game !== roundActiveGame)
+      || game.disabled // как минимум необходимо сохранить в БД {disabled: true} - без этого сломается восстановление игры
+    ) {
       game.set({ round: newRoundNumber }); // иначе иначе будет рассинхрон раундов, которые обновляются в domain.roundStart
       game.dumpState();
       continue;

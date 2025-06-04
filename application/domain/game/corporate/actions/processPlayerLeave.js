@@ -14,7 +14,10 @@
   if (game.status === 'IN_PROCESS') {
     if (game.gameConfig === 'cooperative') {
       if (gameDisabled) {
-        if (!game.merged) game.run('initGameFieldsMerge');
+        if (!game.merged) {
+          game.toggleEventHandlers('END_ROUND'); // сбросит #eventWithTriggerListener у player, чтобы навесилось новое событие из initGameFieldsMerge
+          game.run('initGameFieldsMerge');
+        }
         else {
           this.set({
             turnOrder: this.turnOrder.filter((gameId) => gameId !== game.id()),
@@ -35,6 +38,8 @@
         }
       }
     }
+
+    if (gameDisabled) game.set({ disabled: true });
   }
 
   if (remainPlayers.length > 0) {

@@ -64,7 +64,7 @@
   }
 
   restart() {
-    this.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${this.round}` });
+    this.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${this.round}`, restorationMode: null });
     this.run('initGameProcessEvents');
 
     if (this.gameConfig === 'competition') {
@@ -91,7 +91,7 @@
       game.set({ status: 'IN_PROCESS', statusLabel: `Раунд ${game.round}` });
       game.run('initGameProcessEvents'); // из "лишних" событий ADD_PLANE отключится при первом же вызове
 
-      if (roundActiveGame && game !== roundActiveGame) continue;
+      if (roundActiveGame && game !== roundActiveGame && !game.disabled) continue;
 
       lib.timers.timerRestart(game, game.lastRoundTimerConfig);
 
@@ -159,12 +159,11 @@
         return;
       }
 
-      playerGame.set({ playerMap: { [playerId]: userId } });
+      playerGame.set({ disabled: false, playerMap: { [playerId]: userId } });
       this.set({ gamesMap: { [player.gameId]: { [playerId]: userId } } });
       this.logs({ msg: `Игрок {{player}} присоединился к игре.`, userId });
 
       if (this.status === 'IN_PROCESS') {
-        const playerGame = player.game();
         if (this.gameConfig === 'cooperative') {
           const turnOrder = this.turnOrder;
           if (playerGame.merged && !turnOrder.includes(playerGame.id())) {

@@ -4,8 +4,8 @@
 
   constructor(storeData, gameObjectData) {
     super(storeData, gameObjectData);
-    const { merged, roundReady } = storeData;
-    this.set({ merged, roundReady });
+    const { merged, roundReady, disabled = false } = storeData;
+    this.set({ merged, roundReady, disabled });
     this.defaultClasses({
       ...this.game().defaultClasses(),
       Table: domain.game.corporate._objects.Table,

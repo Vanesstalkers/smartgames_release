@@ -27,7 +27,10 @@ async (context, { round } = {}) => { // восстановление игры ч
 
     // Восстановление игроков и зрителей
     for (const player of [...Object.values(game.store.player), ...Object.values(game.store.viewer || {})]) {
-      const { userId, userName, _id: id } = player;
+      const { userId, userName, _id: id, ready } = player;
+
+      if (!ready) continue; // игрок вышел из игры (через processPlayerLeave)
+
       const user = lib.store('user').get(userId);
       user.subscribe(`game-${gameId}`, { rule: 'actions-only' });
 

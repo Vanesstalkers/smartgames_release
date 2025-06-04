@@ -9,9 +9,13 @@
     lib.timers.timerDelete(game);
     const activePlayer = game.roundActivePlayer();
     if (activePlayer) game.toggleEventHandlers('END_ROUND', {}, activePlayer);
-    for (const player of game.players()) {
-      player.set({ eventData: { plane: null } });
-    }
+    /* 
+    * хз зачем это
+    *  
+    // for (const player of game.players()) {
+    //   player.set({ eventData: { plane: null } });
+    // }
+    */
   }
   lib.timers.timerDelete(superGame);
   const activePlayer = superGame.roundActivePlayer();
