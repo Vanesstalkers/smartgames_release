@@ -163,13 +163,11 @@
 
             if (!player.eventData.plane) continue;
 
-            const eventData = { plane: {} };
             for (const [planeId, { initPlane }] of Object.entries(player.eventData.plane)) {
               if (!initPlane) continue; // возможно тут будут plane-ы, добавленные картами событий, иницированными на старте раунда (pilot, req_*)
               player.get(planeId).moveToTarget(deck);
-              eventData.plane[planeId] = { oneOfMany: null };
             }
-            player.set({ eventData }); // не удаляем через {eventData: {plane: null}}, потому что при авторозыгрыше dream на фронт придет {selectable: true}, а об {oneOfMany: null} он не узнает
+            player.set({ eventData: { plane: null } });
           }
 
           this.destroy();

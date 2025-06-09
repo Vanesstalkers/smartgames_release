@@ -136,7 +136,8 @@
     try {
       if (this.status === 'FINISHED') throw new Error('Игра уже завершена');
 
-      const player = this.restorationMode ? this.getPlayerByUserId(userId) : this.getFreePlayerSlot({ game: this.get(teamId) });
+      const restoredPlayer = this.getPlayerByUserId(userId);
+      const player = restoredPlayer || this.getFreePlayerSlot({ game: this.get(teamId) });
       if (!player) throw new Error('Свободных мест не осталось');
 
       const gameId = this.id();
@@ -153,8 +154,8 @@
         checkTutorials: true,
       });
 
-      if (this.restorationMode) {
-        if (player.teamlead) playerGame.run('teamReady', {}, player);
+      if (restoredPlayer) {
+        if (player.teamlead && !player.eventData.teamReady) playerGame.run('teamReady', {}, player);
         await this.saveChanges();
         return;
       }

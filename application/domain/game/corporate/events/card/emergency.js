@@ -26,10 +26,7 @@
     if (game.gameConfig === 'competition') {
         event.init = function () {
             const { game, player } = this.eventContext();
-            const games = game.hasSuperGame ? [game] : game.getAllGames();
-            for (const game of games) {
-                this.fillHandWithDices(game);
-            }
+            this.fillHandWithDices(player.game());
         }
     }
 

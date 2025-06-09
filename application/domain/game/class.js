@@ -114,8 +114,8 @@
 
     card.play({
       player: this.roundActivePlayer(),
+      logMsg: `Активировано ежедневное событие <a>"${card.title}"</a>`,
     });
-    this.logs(`Активировано ежедневное событие "${card.title}".`);
   }
   getDeletedDices() {
     const result = [];

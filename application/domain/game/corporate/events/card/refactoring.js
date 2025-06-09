@@ -62,7 +62,10 @@
       END_ROUND,
       TRIGGER: function ({ target: dice }) {
         const { game: eventGame, player } = this.eventContext();
-        const zoneParent = dice.findParent({ className: 'Zone' }).parent(); // plane или bridge
+        const zone = dice.findParent({ className: 'Zone' });
+        if(!zone) return this.emit('RESET'); // в конце раунда при нескольких активированных refactoring не успевает отработать DICES_DISABLED у второго
+
+        const zoneParent = zone.parent(); // plane или bridge
         const game = zoneParent.game();
         const isCooperativeGame = game.gameConfig === 'cooperative';
         const playerHand = player.find('Deck[domino]');
@@ -138,7 +141,7 @@
         const diceId = ids[Math.floor(Math.random() * ids.length)]
         const dice = superGame.get(diceId);
 
-        this.emit('TRIGGER', { target: dice });
+        if (dice) this.emit('TRIGGER', { target: dice });
       }
     }
   };
