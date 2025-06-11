@@ -175,9 +175,11 @@
         if (this.gameConfig === 'competition') {
           const roundPool = this.roundPool;
           if (!playerGame.merged) {
-            const commonRound = roundPool.get('common');
-            roundPool.update('common', commonRound.data.concat(playerGame));
-            roundPool.setActive('common', true);
+            const { data } = roundPool.get('common');
+            if (!data.includes(playerGame)) {
+              roundPool.update('common', data.concat(playerGame));
+              roundPool.setActive('common', true);
+            }
           } else {
             roundPool.setActive(playerGame.id(), true);
           }
@@ -309,7 +311,8 @@
       if (roundActivePlayer.eventData.extraTurn) {
         if (
           // актуально только для событий в течение хода игрока, инициированных не им самим
-          roundActivePlayer.eventData.skipTurn
+          roundActivePlayer.eventData.skipTurn ||
+          roundActivePlayer.ready !== true // игрок мог выйти
         ) {
           roundActivePlayer.set({ eventData: { extraTurn: null, skipTurn: null } });
         } else {
@@ -382,7 +385,8 @@
     return super.logs(data, config);
   }
 
-  checkForRelease({ zoneParent, player }) {
+  checkForRelease({ zone, player }) {
+    const zoneParent = zone.parent();
     if (zoneParent.release) return; // РЕЛИЗ был активирован ранее
     if (zoneParent.hasEmptyZones()) return;
 
@@ -392,6 +396,6 @@
 
     zoneParent.set({ release: true });
 
-    anchorGame.toggleEventHandlers('RELEASE', { zoneParent }, player);
+    anchorGame.toggleEventHandlers('RELEASE', { zone }, player);
   }
 });

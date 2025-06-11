@@ -5,7 +5,7 @@
   if (!this.isSuperGame) {
     allowedPlayers = this.game().players();
 
-    event.handlers['RELEASE'] = function ({ zoneParent, initPlayer }) {
+    event.handlers['RELEASE'] = function ({ zone, initPlayer }) {
       // принципиальная разница от gameProcess.RELEASE в том, что иницировать релиз моюет пользователь из другой игры
 
       const { game, player } = this.eventContext();
@@ -23,15 +23,14 @@
           if (!endGame) continue;
           if (releaseItem.hasEmptyZones()) endGame = false;
         }
-        if (endGame) game.run('endGame', { winningPlayer: player });
+        if (endGame) game.run('endGame', { winningPlayer: initPlayer });
 
-        const anchorGame = superGame.get(zoneParent.anchorGameId);
-        anchorGame.run('smartMoveRandomCard', { target: playerCardDeck });
+        game.run('smartMoveRandomCard', { target: playerCardDeck }); // в competition-режиме нет колоды супер-игры
 
         lib.timers.timerRestart(game, { extraTime: game.settings.timerReleasePremium });
         game.logs({
           msg: `Игрок {{player}} инициировал РЕЛИЗ, за что получает дополнительную карту-события в руку.`,
-          userId: player.userId
+          userId: initPlayer.userId
         });
 
         if (!game.merged && game.checkFieldIsReady()) {

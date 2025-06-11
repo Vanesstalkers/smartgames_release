@@ -39,9 +39,7 @@
     // checkForRelease отработает после завершения события DICE_PLACED в diceReplacementEvent
     !this.hasDiceReplacementEvent()
   ) {
-    this.checkForRelease({
-      zoneParent: zone.parent(),
-      player, // для корпоративных игр обязательно указываем player, иначе инициатором будет считаться активный игрок из игры-владельца field-а
-    });
+    // для корпоративных игр обязательно указываем player, иначе инициатором будет считаться активный игрок из игры-владельца field-а
+    this.checkForRelease({ zone, player });
   }
 });

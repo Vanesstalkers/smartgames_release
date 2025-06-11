@@ -62,7 +62,7 @@
 
     let game = player.game();
     const superGame = game.game();
-    if (game.merged && superGame.allGamesMerged()) game = superGame;
+    if (game.merged && (game.gameConfig === 'competition' || superGame.allGamesMerged())) game = superGame;
 
     const event = this.initEvent(this.name, { game, player, allowedPlayers: [player] });
     if (event) event.name = this.title;

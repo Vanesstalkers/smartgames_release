@@ -257,8 +257,8 @@
     }
   }
 
-  checkForRelease({ zoneParent, player }) {
-    this.game().checkForRelease({ zoneParent, player });
+  checkForRelease({ zone, player }) {
+    this.game().checkForRelease({ zone, player });
   }
   selectNextActivePlayer() {
     const roundActivePlayer = this.roundActivePlayer();

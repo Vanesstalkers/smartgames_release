@@ -59,18 +59,23 @@
           planes = [...mergedPlanes, ...centralPlanes];
           bridges = [...mergedBridges, ...centralBridges];
         }
-        zoneList.push(
-          ...planes.reduce((arr, plane) => {
-            const freeZones = plane.select('Zone').filter((zone) => !zone.getItem());
-            return arr.concat(freeZones);
-          }, [])
-        );
-        zoneList.push(
-          ...bridges.reduce((arr, bridge) => {
-            const freeZones = bridge.select('Zone').filter((zone) => !zone.getItem());
-            return arr.concat(freeZones);
-          }, [])
-        );
+
+        const availableZonesOnPlanes = planes.reduce((arr, plane) => {
+          const freeZones = plane.select('Zone').filter((zone) => !zone.getItem());
+          return arr.concat(freeZones);
+        }, []);
+        const availableZonesOnBridges = bridges.reduce((arr, bridge) => {
+          const freeZones = bridge.select('Zone').filter((zone) => !zone.getItem());
+          return arr.concat(freeZones);
+        }, []);
+
+        if ((availableZonesOnPlanes.length + availableZonesOnBridges.length) > 1 ||
+          game === superGame ||
+          !game.roundActivePlayer().triggerEventEnabled() // релиз может инициировать другая команда, в то время как активный игрок, который должен делать merge, занят
+        ) {
+          zoneList.push(...availableZonesOnPlanes);
+          zoneList.push(...availableZonesOnBridges);
+        }
       }
     }
 

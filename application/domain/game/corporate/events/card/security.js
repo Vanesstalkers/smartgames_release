@@ -70,7 +70,7 @@
             let target = player.game();
             if (isCooperativeGame && target.fieldIsBlocked()) {
                 const targetId = Object.keys(player.eventData.game || {}).filter((id) => id !== target.id())[0];
-                target = superGame.get(targetId);
+                if(targetId) target = superGame.get(targetId);
             }
 
             if (target) return this.emit('TRIGGER', { target });

@@ -59,8 +59,7 @@
       for (const dice of deletedDices) dice.moveToDeck();
 
       for (const [zone, player] of possibleReleases) {
-        const zoneParent = zone.parent();
-        game.checkForRelease({ zoneParent, player });
+        game.checkForRelease({ zone, player });
       }
 
       // убираем блокировку на действия с plane/bridge

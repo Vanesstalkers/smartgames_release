@@ -146,7 +146,8 @@
     return plane;
   }
 
-  checkForRelease({ zoneParent, player }) {
+  checkForRelease({ zone, player }) {
+    const zoneParent = zone.parent();
     if (zoneParent.release) return; // РЕЛИЗ был активирован ранее
     if (zoneParent.hasEmptyZones()) return;
 

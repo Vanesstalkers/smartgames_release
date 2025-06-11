@@ -256,7 +256,9 @@ export default {
     },
     deckList() {
       let resultDeckList = Object.keys(this.selectedGame.deckMap).map((id) => this.store.deck?.[id]);
-      if (this.selectedGame._id !== this.gameState.gameId) resultDeckList = resultDeckList.concat(this.superGameCardDeck) || [];
+      if (this.selectedGame._id !== this.gameState.gameId && this.game.gameConfig !== 'competition') {
+        resultDeckList = resultDeckList.concat(this.superGameCardDeck) || [];
+      }
       return resultDeckList;
     },
     superGameCardDeck() {
@@ -403,10 +405,10 @@ export default {
                   title: 'Удалить игрока из команды',
                   action: { tutorial: 'game-tutorial-teamleadMenu', step: 'removePlayer' },
                 } : null,
-                this.playerIds.length > 0 ? {
+                {
                   title: 'Завершить текущий раунд',
                   action: { tutorial: 'game-tutorial-teamleadMenu', step: 'endRound' },
-                } : null,
+                }
               ],
               buttons: [
                 { text: 'Назад в меню', action: 'init' },
