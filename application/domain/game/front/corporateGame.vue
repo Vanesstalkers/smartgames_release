@@ -5,6 +5,11 @@
       <tutorial :inGame="true" class="scroll-off" :defaultMenu="defaultTutorialMenu" />
     </template>
 
+    <template #chat="{ isVisible, hasUnreadMessages } = {}">
+      <chat :defActiveChannel="`game-${gameState.gameId}`" :userData="userData" :isVisible="isVisible"
+        :class="[isVisible ? 'isVisible' : '']" :hasUnreadMessages="hasUnreadMessages" :channels="chatChannels" />
+    </template>
+
     <template #gameplane="{ } = {}">
       <div v-for="game in planeViewGames" :key="game.gameId" :gameId="game.gameId" :class="['gp',
         game.roundReady ? 'round-ready' : '',
@@ -108,6 +113,7 @@ import releaseGameGlobals, { gameCustomArgs } from '~/domain/game/front/releaseG
 import corporateGameGlobals from '~/domain/game/front/corporateGameGlobals.mjs';
 import Game from '~/lib/game/front/Game.vue';
 import tutorial from '~/lib/helper/front/helper.vue';
+import chat from '~/lib/chat/front/chat.vue';
 
 import card from './components/card.vue';
 import player from './components/player.vue';
@@ -118,6 +124,7 @@ export default {
   components: {
     Game,
     tutorial,
+    chat,
     player,
     card,
     plane,
@@ -206,11 +213,20 @@ export default {
     superGame() {
       return this.getSuperGame();
     },
+    sessionPlayerGameId() {
+      return this.sessionPlayer()?.gameId;
+    },
     sessionPlayerGame() {
-      return this.getGame(this.sessionPlayer()?.gameId);
+      return this.getGame(this.sessionPlayerGameId);
     },
     player() {
       return this.store.player?.[this.gameState.sessionPlayerId] || {};
+    },
+    userData() {
+      return this.sessionUserData();
+    },
+    lobby() {
+      return this.state.store.lobby?.[this.state.currentLobby] || {};
     },
     gameDataLoaded() {
       return this.game.addTime;
@@ -345,7 +361,7 @@ export default {
     },
     defaultTutorialMenu() {
       return {
-        text: `Чем могу помочь, ${this.sessionUserData().name || this.sessionUserData().login}?`,
+        text: `Чем могу помочь, ${this.userData.name || this.userData.login}?`,
         bigControls: true,
         buttons: [
           { text: 'Спасибо, ничего не нужно', action: 'exit', exit: true },
@@ -428,6 +444,45 @@ export default {
           },
         ],
       };
+    },
+    chatChannels() {
+      return {
+        [`game-${this.sessionPlayerGameId}`]: {
+          name: 'Чат команды',
+          users: this.teamChatUsers,
+          items: this.game.chat || {},
+          inGame: true,
+        },
+        [`game-${this.gameState.gameId}`]: {
+          name: 'Чат игры',
+          users: this.gameChatUsers,
+          items: this.superGame.chat || {},
+          inGame: true,
+        },
+        [`lobby-${this.state.currentLobby}`]: {
+          name: 'Общий чат',
+          users: this.lobby.users || {},
+          items: this.lobby.chat || {},
+        },
+      };
+    },
+    teamChatUsers() {
+      const playerMap = this.game.playerMap;
+      return Object.values(this.store.player)
+        .filter(p => playerMap[p._id])
+        .reduce((obj, { userId, isViewer }) => {
+          let user = { ...this.lobby.users?.[userId] };
+          return Object.assign(obj, { [userId]: user });
+        }, {});
+    },
+    gameChatUsers() {
+      return Object.values(this.store.player)
+        .concat(Object.values(this.store.viewer || {}))
+        .reduce((obj, { userId, isViewer }) => {
+          let user = { ...this.lobby.users?.[userId] };
+          if (isViewer) user.name = `${user.name || 'Гость'} (наблюдатель)`;
+          return Object.assign(obj, { [userId]: user });
+        }, {});
     },
   },
   methods: {

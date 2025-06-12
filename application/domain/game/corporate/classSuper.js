@@ -6,6 +6,11 @@
 
   constructor() {
     super(...arguments);
+
+    Object.assign(this, {
+      ...domain.game.corporate.decorators['@chat'].decorate(),
+    });
+
     const { Bridge, Card, Dice, Plane, Player, TableSuper, Zone, ZoneSide } = domain.game.corporate._objects;
     this.defaultClasses({ Bridge, Card, Dice, Plane, Player, Table: TableSuper, Zone, ZoneSide });
   }

@@ -4,6 +4,11 @@
 
   constructor(storeData, gameObjectData) {
     super(storeData, gameObjectData);
+
+    Object.assign(this, {
+      ...domain.game.corporate.decorators['@chat'].decorate(),
+    });
+
     const { merged, roundReady, disabled = false } = storeData;
     this.set({ merged, roundReady, disabled });
     this.defaultClasses({
