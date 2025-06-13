@@ -156,7 +156,6 @@
         deckType: this.deckType,
         gameType: this.gameType,
         isSinglePlayer: this.isSinglePlayer(),
-        checkTutorials: true,
       });
 
       if (restoredPlayer) {

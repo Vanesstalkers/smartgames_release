@@ -65,6 +65,6 @@ async (context, { deckType, gameType, gameId, needLoadGame }) => { // восст
     return { status: 'ok' };
   }
 
-  await user.joinGame({ gameId, playerId, viewerId, deckType, gameType });
+  await user.joinGame({ gameId, playerId, viewerId, deckType, gameType, checkTutorials: false });
   return { status: 'ok' };
 };
