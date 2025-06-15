@@ -1,6 +1,6 @@
 () =>
   (domain.custom_cards = [
-    // 'transfer',
+    'security',
   ]).length
     ? (() =>
       Array(10)

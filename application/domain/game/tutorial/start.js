@@ -5,9 +5,8 @@
       superPos: true,
       text: 'Поздравляю, вы начали многопользовательскую партию в игру "Релиз". Пока вы ждете подключения других игроков, я готов рассказать об интерфейсе игры.',
       actions: {
-        before: (self) => {
-          const $rootEl = self.$root.$el;
-          const skipStep = $rootEl.querySelector('.players .player') ? false : true;
+        before: ({ $root }) => {
+          const skipStep = $root.querySelector('.players .player') ? false : true;
           return { skipStep };
         },
       },
@@ -17,12 +16,11 @@
       ],
     },
     helloSingle: {
-      text: 'Поздравляю, вы начали однопользовательскую партию в игру "Релиз". Я готов рассказать об интерфейсе игры.',
+      text: 'Поздравляю, вы начали однопользовательскую партию в игру "Релиз".\r\n <a>Я готов рассказать об интерфейсе игры</a>.',
       superPos: true,
       actions: {
-        before: (self) => {
-          const $rootEl = self.$root.$el;
-          const skipStep = $rootEl.querySelector('.players .player') ? true : false;
+        before: ({ $root }) => {
+          const skipStep = $root.querySelector('.players .player') ? true : false;
           return { skipStep };
         },
       },
@@ -49,9 +47,8 @@
     players: {
       text: 'Это ваши противники. Вы можете увидеть сколько у них карт и костяшек домино в руке.',
       actions: {
-        before: (self) => {
-          const $rootEl = self.$root.$el;
-          const skipStep = $rootEl.querySelector('.players .player') ? false : true;
+        before: ({ $root }) => {
+          const skipStep = $root.querySelector('.players .player') ? false : true;
           return { skipStep };
         },
       },

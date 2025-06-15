@@ -29,7 +29,10 @@ const init = async () => {
       ? `${location.hostname}:${port}`
       : `${location.hostname + location.pathname}api/`;
 
-  const metacom = Metacom.create(`${protocol}://${serverHost}`);
+  const metacom = Metacom.create(`${protocol}://${serverHost}`, { callTimeout: 1000 * 1000 });
+  metacom.on('error', (err) => {
+    console.log({ err });
+  });
   const { api } = metacom;
   window.metacom = metacom;
   window.api = api;
