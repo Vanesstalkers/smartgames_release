@@ -46,7 +46,7 @@
       rankings[gameType].totalTime = totalTime + roundCount;
       rankings[gameType].avrTime = Math.floor(rankings[gameType].totalTime / rankings[gameType].win);
 
-      const tutorial = clone(getTutorial('game-tutorial-finished'), {
+      const { steps: tutorial } = clone(getTutorial('game-tutorial-finished'), {
         convertFuncToString: true,
       });
       let incomeText = `${income.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')} ₽`;
@@ -95,7 +95,7 @@
         if (income < 0) income = 0; // в рейтинги отрицательный результата пишем
       }
 
-      const tutorial = clone(getTutorial('game-corporate-tutorial-finished'), {
+      const { steps: tutorial } = clone(getTutorial('game-corporate-tutorial-finished'), {
         convertFuncToString: true,
       });
       let incomeText = `${income.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')} ₽`;

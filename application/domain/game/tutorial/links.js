@@ -10,10 +10,9 @@
       text: 'Вы можете управлять положением и размером игрового поля с помощью кнопок в верхнем левом углу экрана.',
       active: '.gameplane-controls',
       actions: {
-        before: (self) => {
-          const $rootEl = self.$root.$el;
-          const $controls = $rootEl.querySelector('.gameplane-controls');
-          if (!$controls) $rootEl.querySelector('.move.gui-btn')?.click();
+        before: ({ $root }) => {
+          const $controls = $root.querySelector('.gameplane-controls');
+          if (!$controls) $root.querySelector('.move.gui-btn')?.click();
         },
       },
       buttons: [{ text: 'Продолжай', step: 'planeControlsMouseLeft' }],
@@ -47,7 +46,7 @@
     },
     handPlanesAvailablePlace: {
       pos: 'top-right',
-      text: 'Выберите к какому блоку следует его присоединить.',
+      text: 'Выберите к какому блоку следует его присоединить (если поле было пустой, то размещение произойдет автоматически).',
       active: { selector: '.fake-plane', update: { action: 'exit' } },
       buttons: [{ text: 'Спасибо', action: 'exit' }],
     },
