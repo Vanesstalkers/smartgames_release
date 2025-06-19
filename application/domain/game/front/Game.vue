@@ -2,7 +2,7 @@
   <game :debug="false" :planeScaleMin="0.3" :planeScaleMax="1">
 
     <template #helper-guru="{ } = {}">
-      <tutorial :inGame="true" class="scroll-off" :defaultMenu="defaultTutorialMenu" />
+      <tutorial :game="game" class="scroll-off" :defaultMenu="defaultTutorialMenu" />
     </template>
 
     <template #gameplane="{ } = {}">

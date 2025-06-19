@@ -2,7 +2,7 @@
   <game :debug="false" :planeScaleMin="0.2" :planeScaleMax="1" :status="game.status" :superStatus="superGame.status">
 
     <template #helper-guru="{ } = {}">
-      <tutorial :inGame="true" class="scroll-off" :defaultMenu="defaultTutorialMenu" />
+      <tutorial :game="game" class="scroll-off" :defaultMenu="defaultTutorialMenu" />
     </template>
 
     <template #chat="{ isVisible, hasUnreadMessages } = {}">
