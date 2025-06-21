@@ -41,7 +41,7 @@
                     const userId = targetPlayer.userId;
 
                     game.logs({ msg: `Игрок {{player}} удален из команды.`, userId });
-                    lib.store.broadcaster.publishAction(`game-${superGame.id()}`, 'playerLeave', { userId });
+                    lib.store.broadcaster.publishAction.call(game, `game-${superGame.id()}`, 'playerLeave', { userId });
 
                     this.emit('RESET');
                 },

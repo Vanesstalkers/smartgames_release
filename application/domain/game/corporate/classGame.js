@@ -118,7 +118,7 @@
         await this.removeGame();
       } else {
         console.error(exception);
-        lib.store.broadcaster.publishAction(`gameuser-${userId}`, 'broadcastToSessions', {
+        lib.store.broadcaster.publishAction.call(this, `gameuser-${userId}`, 'broadcastToSessions', {
           data: { message: exception.message, stack: exception.stack },
         });
         await this.saveChanges();

@@ -1,6 +1,7 @@
 async (context, { round } = {}) => { // восстановление игры через меню игрока
   const { sessionId } = context.session.state;
-  const { gameId, lobbyId } = lib.store('session').get(sessionId);
+  const session = lib.store('session').get(sessionId);
+  const { gameId, lobbyId } = session;
   const game = lib.store('game').get(gameId);
 
   if (!game) throw new Error('Не участвует в игре');
@@ -17,7 +18,7 @@ async (context, { round } = {}) => { // восстановление игры ч
 
     // Очистка текущей игры
     for (const [channel] of game.channel().subscribers.entries()) {
-      await lib.store.broadcaster.publishData(channel, game.wrapPublishData(null));
+      await lib.store.broadcaster.publishData.call(session, channel, game.wrapPublishData(null));
     }
     game.clearChanges(); // внутри removeGame вызовется saveChanges, так что очищаем лишнее, чтобы не поломать state на фронте
     await game.removeGame({ preventDeleteDumps: true });

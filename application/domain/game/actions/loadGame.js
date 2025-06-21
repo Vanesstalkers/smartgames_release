@@ -47,7 +47,7 @@ async ({ gameType, gameId, lobbyId, round }) => {
     .load({ fromDB: { id: gameId, query, processData, fromDump: true } })
     .then(async (game) => {
       const { deckType, gameType, gameConfig, gameTimer, playerMap } = game;
-      await lib.store.broadcaster.publishAction(`lobby-${lobbyId}`, 'addGame', {
+      await lib.store.broadcaster.publishAction.call(game, `lobby-${lobbyId}`, 'addGame', {
         restorationMode: true,
         ...{ gameId, gameTimer, playerMap },
         ...{ deckType, gameType, gameConfig },

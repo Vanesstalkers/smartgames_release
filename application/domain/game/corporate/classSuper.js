@@ -51,7 +51,7 @@
         {
           ...{ deckType, gameType, gameConfig, gameTimer },
           templates: { card: usedTemplates[0], code: `team${_code}` },
-          playerMap: {}, // будут доабвлены в playerJoin > getFreePlayerSlot
+          playerMap: {}, // будут добавлены в playerJoin > getFreePlayerSlot
         },
         { initPlayerWaitEvents: false }
       );
@@ -150,7 +150,7 @@
       const playerGame = player.game();
 
       player.set({ ready: true, userId, userName });
-      lib.store.broadcaster.publishAction(`gameuser-${userId}`, 'joinGame', {
+      lib.store.broadcaster.publishAction.call(this, `gameuser-${userId}`, 'joinGame', {
         gameId,
         playerId,
         deckType: this.deckType,
@@ -193,10 +193,10 @@
       await this.saveChanges();
     } catch (exception) {
       console.error(exception);
-      lib.store.broadcaster.publishAction(`user-${userId}`, 'broadcastToSessions', {
+      lib.store.broadcaster.publishAction.call(this, `user-${userId}`, 'broadcastToSessions', {
         data: { message: exception.message, stack: exception.stack },
       });
-      lib.store.broadcaster.publishAction(`gameuser-${userId}`, 'logout'); // инициирует hideGameIframe
+      lib.store.broadcaster.publishAction.call(this, `gameuser-${userId}`, 'logout'); // инициирует hideGameIframe
     }
   }
   async removeGame(config) {
@@ -220,7 +220,7 @@
         } else throw exception;
       }
     }
-    lib.store.broadcaster.publishAction(`gameuser-${userId}`, 'leaveGame', {});
+    lib.store.broadcaster.publishAction.call(this, `gameuser-${userId}`, 'leaveGame', {});
   }
   run(actionPath, data, initPlayer) {
     const [actionName, actionDir] = actionPath.split('.').reverse();

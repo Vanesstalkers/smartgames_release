@@ -22,9 +22,10 @@ async (context, { deckType, gameType, gameConfig, gameTimer, teamsCount, playerC
       session.set({ gameId });
     }
 
-    lib.store.broadcaster.publishAction(`game-${gameId}`, 'playerJoin', { userId });
+    const publishData = { userId, userName: user.getName() }; // userName нужно для логов
+    lib.store.broadcaster.publishAction.call(session, `game-${gameId}`, 'playerJoin', publishData);
 
-    lib.store.broadcaster.publishAction(`lobby-${lobbyId}`, 'addGame', {
+    lib.store.broadcaster.publishAction.call(session, `lobby-${lobbyId}`, 'addGame', {
       gameId,
       creator: { userId: user.id(), tgUsername: user.tgUsername },
       ...{ deckType, gameType, gameConfig, gameTimer, gameRoundLimit, playerMap: game.playerMap },
