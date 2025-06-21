@@ -20,24 +20,7 @@
 
         <div v-if="!hasPlaneInHand" class="hand-dices-list">
           <div v-for="deck in dominoDecks" :key="deck._id" class="hand-dices-list-content">
-            <div v-if="iam || showDecks || !state.isPortrait" class="hand-dices" :style="iam || (state.isMobile && state.isPortrait)
-              ? {
-                position: 'absolute',
-                right: '0px',
-                bottom: '0px',
-                height: '0px',
-                width: 'auto',
-                transformOrigin: 'right bottom',
-              }
-              : {
-                position: 'absolute',
-                left: '0px',
-                bottom: '0px',
-                height: '0px',
-                width: 'auto',
-                transformOrigin: 'left bottom',
-              }
-              ">
+            <div v-if="iam || showDecks || !state.isPortrait" class="hand-dices">
               <dice v-for="id in Object.keys(deck.itemMap)" :key="id" :diceId="id" :inHand="true" :iam="iam"
                 :gameId="player.gameId" />
               <card v-if="iam && deck.subtype === 'teamlead'" :cardData="{ name: 'teamlead' }" />
@@ -56,6 +39,19 @@
           </div>
         </div>
       </div>
+
+      <div class="tutorial-show-flex player-hands">
+        <div class="hand-dices-list">
+          <div class="hand-dices-list-content">
+            <div class="hand-dices" :style="{ marginLeft: '20px' }">
+              <dice v-if="!iam" :diceId="'fake'" />
+              <dice v-if="!iam" :diceId="'fake'" />
+              <dice v-if="!iam" :diceId="'fake'" />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="workers">
         <card-worker :playerId="playerId" :viewerId="viewerId" :iam="iam" :showControls="showControls"
           :dominoDeckCount="mainDominoDeckItemsCount" :cardDeckCount="mainCardDeckItemsCount" />
@@ -174,7 +170,7 @@ export default {
       return this.sessionPlayerIsActive() && this.sessionPlayerEventData.player?.[this.playerId]?.showDecks;
     },
     handCardsWidth() {
-      const cardWidth = 130;
+      const cardWidth = 120;
       const maxCardStack = 4;
 
       return !state.isMobile
@@ -320,6 +316,7 @@ export default {
   &:not(.mobile-view) {
     .hand-cards-list {
       .hand-cards {
+        margin-left: 10px;
         max-height: 250px;
         flex-direction: column;
       }
@@ -629,9 +626,14 @@ export default {
   flex-wrap: nowrap;
   justify-content: flex-end;
   align-items: flex-end;
-  width: 100%;
   padding: 0px;
-  width: 0px;
+
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  height: 0px;
+  width: auto;
+  transform-origin: left bottom;
 
   .domino-dice {
     height: 140px;
@@ -641,6 +643,14 @@ export default {
   .card-event {
     scale: 0.7;
     transform-origin: bottom;
+  }
+}
+
+.player.iam,
+#game.mobile-view.portrait-view {
+  .hand-dices {
+    right: 0px;
+    transform-origin: right bottom;
   }
 }
 

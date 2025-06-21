@@ -25,7 +25,7 @@
     pos: { top: true, left: true },
   },
   fieldPlane: {
-    selector: '#game .plane',
+    selector: '#game #gamePlane .plane',
     tutorial: 'game-tutorial-links',
     type: 'game',
     pos: { top: true, left: true },
@@ -37,7 +37,7 @@
     pos: { top: true, left: true },
   },  
   fieldZoneDouble: {
-    selector: '#game .plane .zone.double',
+    selector: '#game #gamePlane .plane .zone.double',
     tutorial: 'game-tutorial-links',
     type: 'game',
     pos: { top: true, left: true },

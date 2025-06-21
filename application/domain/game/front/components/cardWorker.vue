@@ -30,6 +30,13 @@
       {{ customAction.label }}
     </div>
     <div v-if="showTeamleadBtn" class="action-btn team-ready-btn">Команда готова</div>
+
+    <div v-if="iam" class="tutorial-show action-btn end-round-btn"> {{ 'Закончить раунд' }}</div>
+    <div v-if="iam && !this.localTimer" class="tutorial-show end-round-timer"> {{ '15' }}</div>
+    <div v-if="!iam && !this.localTimer" class="tutorial-show card-event" :style="cardEventCustomStyle">
+      <div>{{ "2" }}</div>
+    </div>
+    <div v-if="!iam && !this.localTimer" class="tutorial-show domino-dice">{{ "3" }}</div>
   </div>
 </template>
 
@@ -176,6 +183,8 @@ export default {
       if (this.showEndRoundBtn) return await this.endRound();
       if (this.showLeaveBtn) return await this.leaveGame();
       if (this.showTeamleadBtn) return await this.teamReady();
+
+      this.controlActionDisabled = false; // сюда попадет tutorial-active
     },
 
     async endRound() {
@@ -253,6 +262,7 @@ export default {
     .end-round-btn {
       display: none;
     }
+
     .end-round-timer {
       opacity: 0.5;
     }
@@ -311,9 +321,15 @@ export default {
     border-radius: 50%;
     height: 100px;
     line-height: 100px;
-    margin: 10px;
     color: #ff5900;
     text-shadow: 4px 4px 0 #fff;
+    margin: 0px 0px 10px 15px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 10px;
+    height: 80px;
+    line-height: 80px;
+    width: 80px;
   }
 
   .card-event {

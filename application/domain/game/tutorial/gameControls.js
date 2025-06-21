@@ -1,124 +1,132 @@
 ({
   steps: {
-    gameControls: {
+    planeControls: {
       initialStep: true,
-      pos: 'bottom-right',
-      text: 'В левом верхнем углу расположены элементы обеспечивающие управления интерфейсом, доступ к игровым логам и чату с другими игроками.',
-      active: '.game-controls',
+      pos: 'bottom-left',
+      text: `
+        Кнопка центровки игрового поля может быть полезна, если вы случайно переместились за пределы экрана.
+      `,
+      active: '.gui-btn.move',
       buttons: [
-        { text: 'Продолжай', step: 'planeControls' },
-        { text: 'Я разберусь', action: 'exit' },
+        { text: 'Продолжай', step: 'planeControlsMouseLeft' }
       ],
     },
-    // planeControls: {
-    //   pos: 'bottom-right',
-    //   text: 'Вы можете управлять положением и размером игрового поля с помощью кнопок в этом блоке. При нажатии на центральную кнопку блока игровое поле восстановится в базовом масштабе по центру - это может быть полезно, если вы случайно переместили игровое поле за пределы экрана.',
-    //   active: '.move.gui-btn',
-    //   actions: {
-    //     before: (self) => {
-    //       const $rootEl = self.$root.$el;
-    //       const $controls = $rootEl.querySelector('.gameplane-controls');
-    //       if (!$controls) $rootEl.querySelector('.move.gui-btn')?.click();
-    //     },
-    //   },
-    //   buttons: [{ text: 'Продолжай', step: 'planeControlsMouseLeft' }],
-    // },
-    planeControls: {
-      pos: 'bottom-right',
-      text: 'В любой момент вы можете отцентровать игровое поле. Это может быть полезно, если вы случайно переместили его за пределы экрана.',
-      active: '.move.gui-btn',
-      actions: {
-        before: (self) => {
-          const $rootEl = self.$root.$el;
-          const $controls = $rootEl.querySelector('.gameplane-controls');
-          if (!$controls) $rootEl.querySelector('.move.gui-btn')?.click();
-        },
-      },
-      buttons: [{ text: 'Продолжай', step: 'planeControlsMouseLeft' }],
-    },
     planeControlsMouseLeft: {
-      pos: 'bottom-right',
-      text: 'При зажатой левой кнопке мыши можно перемещать игровое поле.',
+      pos: 'bottom-left',
+      text: `
+        При зажатой левой кнопке мыши можно перемещать игровое поле.
+      `,
       img: '/img/tutorial/mouse-left.png',
       actions: {
-        before: (self) => {
-          const { isMobile } = self.state;
+        before: ({ state: { isMobile } }) => {
           const skipStep = isMobile ? true : false;
           return { skipStep };
         },
       },
-      buttons: [{ text: 'Продолжай', step: 'planeControlsMouseRight' }],
+      buttons: [
+        { text: 'Продолжай', step: 'planeControlsMouseRight' },
+      ],
     },
     planeControlsMouseRight: {
-      pos: 'bottom-right',
-      text: 'При зажатой правой кнопке мыши можно вращать игровое поле.',
+      pos: 'bottom-left',
+      text: `
+        При зажатой правой кнопке мыши можно вращать игровое поле.
+      `,
       img: '/img/tutorial/mouse-right.png',
       actions: {
-        before: (self) => {
-          const { isMobile } = self.state;
+        before: ({ state: { isMobile } }) => {
           const skipStep = isMobile ? true : false;
           return { skipStep };
         },
       },
-      buttons: [{ text: 'Продолжай', step: 'planeControlsMouseMiddle' }],
+      buttons: [
+        { text: 'Продолжай', step: 'planeControlsMouseMiddle' },
+      ],
     },
     planeControlsMouseMiddle: {
-      pos: 'bottom-right',
-      text: 'Игровое поле можно перемешать.',
+      pos: 'bottom-left',
+      text: `
+        Игровое поле можно перемешать.
+      `,
       img: '/img/tutorial/touch-move.png',
       actions: {
-        before: (self) => {
-          const { isMobile } = self.state;
+        before: ({ state: { isMobile } }) => {
           const skipStep = isMobile ? false : true;
           return { skipStep };
         },
       },
-      buttons: [{ text: 'Продолжай', step: 'planeControlsTouchMove' }],
+      buttons: [
+        { text: 'Продолжай', step: 'planeControlsTouchMove' },
+      ],
     },
     planeControlsTouchMove: {
-      pos: 'bottom-right',
-      text: 'Также можно менять его масштаб.',
+      pos: 'bottom-left',
+      text: `
+        Также можно менять его масштаб.
+      `,
       img: '/img/tutorial/touch-scroll.png',
       actions: {
-        before: (self) => {
-          const { isMobile } = self.state;
+        before: ({ state: { isMobile } }) => {
           const skipStep = isMobile ? false : true;
           return { skipStep };
         },
       },
-      buttons: [{ text: 'Продолжай', step: 'planeControlsTouchScroll' }],
+      buttons: [
+        { text: 'Продолжай', step: 'planeControlsTouchScroll' },
+      ],
     },
     planeControlsTouchScroll: {
-      pos: 'bottom-right',
-      text: 'Колесиком мыши можно приближать и удалять игровое поле.',
+      pos: 'bottom-left',
+      text: `
+        Колесиком мыши можно приближать и удалять игровое поле.
+      `,
       img: '/img/tutorial/mouse-middle.png',
       actions: {
-        before: (self) => {
-          const { isMobile } = self.state;
+        before: ({ state: { isMobile } }) => {
           const skipStep = isMobile ? true : false;
           return { skipStep };
         },
       },
-      buttons: [{ text: 'Продолжай', step: 'logs' }],
+      buttons: [
+        { text: 'Продолжай', step: 'logs' },
+      ],
     },
     logs: {
-      pos: 'bottom-right',
-      text: 'Центральная кнопка предоставляет доступ к логам текущей игры. В них записываются все значимые события, последовательность которых вы можете в любой момент изучить.',
-      active: '.log.gui-btn',
+      pos: 'bottom-left',
+      text: `
+        Это кнопка доступа к логам текущей игры.
+      `,
+      active: '.gui-btn.log',
       actions: {
-        before: (self) => {
-          const $rootEl = self.$root.$el;
-          const $controls = $rootEl.querySelector('.gameplane-controls');
-          if ($controls) $rootEl.querySelector('.move.gui-btn')?.click();
+        before: ({ $root }) => {
+          const $log = $root.querySelector('.gui-btn.log');
+          if (!$log.classList.contains('active')) $log.click();
         },
       },
-      buttons: [{ text: 'Продолжай', step: 'chat' }],
+      buttons: [
+        { text: 'Продолжай', step: 'chat' },
+      ],
     },
     chat: {
-      pos: 'bottom-right',
-      text: 'Крайняя кнопка слева открывает чат с другими игроками. В списке доступных каналов, помимо личных и общего чата, добавился чат текущей игры.',
-      active: '.chat.gui-btn',
-      buttons: [{ text: 'Понятно, спасибо', action: 'exit' }],
+      pos: 'bottom-left',
+      text: `
+        Это кнопка доступа к чату игроков. В списке доступных каналов, помимо личных и общего чата, присутствует чат текущей игры.
+      `,
+      active: '.gui-btn.chat',
+      actions: {
+        before: ({ $root }) => {
+          const $chat = $root.querySelector('.gui-btn.chat');
+          if (!$chat.classList.contains('active')) $chat.click();
+        },
+        customExit: async ({ $root }) => {
+          const $chat = $root.querySelector('.gui-btn.chat');
+          if ($chat.classList.contains('active')) $chat.click();
+          return { exit: true };
+        },
+      },
+      buttons: [
+        { text: 'Понятно, спасибо', action: 'customExit' },
+      ],
     },
   },
 });

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="dice" :code="dice.code" :class="[
+  <div v-if="dice || diceId === 'fake'" :code="dice.code" :class="[
     'domino-dice',
     dice.deleted ? 'deleted' : '',
     locked ? 'locked' : '',
@@ -76,7 +76,7 @@ export default {
       return this.getGame(this.dice.sourceGameId);
     },
     dice() {
-      return this.store.dice?.[this.diceId];
+      return this.store.dice?.[this.diceId] || { code: 'fake' };
     },
     sideList() {
       const sideList = this.dice.sideList || ['', ''];
