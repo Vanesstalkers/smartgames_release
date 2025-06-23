@@ -366,8 +366,6 @@ export default {
     .plane.in-hand {
       z-index: 1;
       flex-shrink: 0;
-      // margin-right: -450px !important;
-      // margin-bottom: -50px !important;
 
       &:not(.card-plane) {
         box-shadow: inset 0px 0px 20px 10px black;
@@ -443,7 +441,7 @@ export default {
           margin: 125px -180px 300px -400px;
 
           &:hover {
-            z-index: 4;
+            z-index: 4 !important;
             opacity: 1;
             margin-bottom: 340px;
             cursor: pointer;
@@ -565,12 +563,6 @@ export default {
       transform: scale(0.5);
       transform-origin: center right;
     }
-
-    // &:hover {
-    // z-index: 4 !important;
-    // opacity: 1;
-    // cursor: pointer;
-    // }
   }
 }
 

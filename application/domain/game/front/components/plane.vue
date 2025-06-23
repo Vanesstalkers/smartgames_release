@@ -251,7 +251,7 @@ export default {
   }
 
   &.tutorial-active {
-    z-index: -1 !important;
+    z-index: 1 !important;
     box-shadow: 0 0 10px 10px #f4e205 !important;
   }
 

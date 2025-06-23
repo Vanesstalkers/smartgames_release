@@ -4,18 +4,18 @@
       initialStep: true,
       pos: 'bottom-left',
       text: 'Какой раунд игры восстановить?',
-      html: ((game) => `
+      html: (game) => `
         <div v-if="menu.input" class="input">
           <input value="${game.round}" placeholder="${game.round}" name="restoreForcedInput" type="number" min="1" max="${game.round}" />
         </div>
-      `).toString(),
+      `,
       actions: {
-        submit: (async (inputData, self) => {
+        submit: async ({ inputData: { restoreForcedInput: round } }) => {
           await api.action
-            .call({ path: 'game.api.restoreForced', args: [{ round: inputData['restoreForcedInput'] }] })
+            .call({ path: 'game.api.restoreForced', args: [{ round }] })
             .catch(prettyAlert);
           return { exit: true };
-        }).toString(),
+        }
       },
       buttons: [
         { text: 'Выполнить', action: 'submit' },
