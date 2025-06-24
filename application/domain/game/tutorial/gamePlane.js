@@ -43,7 +43,7 @@
         },
       },
       buttons: [
-        { text: 'Спасибо', action: 'exit' },
+        { text: 'Продолжай', step: 'center' },
       ],
     },
     planeControlsTouchMove: {
@@ -73,7 +73,16 @@
         },
       },
       buttons: [
-        { text: 'Спасибо', action: 'exit' },
+        { text: 'Продолжай', step: 'center' },
+      ],
+    },
+    center: {
+      text: `
+        Кнопка центровки может быть полезна, если игровое поле переместилось за пределы экрана.
+      `,
+      active: '.gui-btn.move',
+      buttons: [
+        { text: 'Спасибо', action: 'exit' }
       ],
     },
   },

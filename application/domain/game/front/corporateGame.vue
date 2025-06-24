@@ -371,7 +371,7 @@ export default {
               text: 'Нажмите на нужное обучение в списке, чтобы запустить его повторно:',
               showList: [
                 { title: 'Стартовое приветствие игры', action: { tutorial: 'game-tutorial-start' } },
-                { title: 'Управление игровым полем', action: { tutorial: 'game-tutorial-gameControls' } },
+                { title: 'Управление игровым полем', action: { tutorial: 'game-tutorial-gamePlane' } },
               ],
               buttons: [
                 { text: 'Назад в меню', action: 'init' },

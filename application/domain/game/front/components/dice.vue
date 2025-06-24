@@ -208,6 +208,8 @@ export default {
 
 .domino-dice>.controls {
   display: none;
+  align-items: center;
+  justify-content: space-around;
   position: absolute;
   width: 100%;
   height: 100%;
@@ -227,10 +229,10 @@ export default {
 }
 
 .plane .domino-dice:hover:not(.selectable)>.controls,
-.bridge .domino-dice:hover:not(.selectable)>.controls {
+.bridge .domino-dice:hover:not(.selectable)>.controls,
+.plane .domino-dice.tutorial-active:not(.selectable)>.controls,
+.bridge .domino-dice.tutorial-active:not(.selectable)>.controls {
   display: flex;
-  align-items: center;
-  justify-content: space-around;
 }
 
 .domino-dice>.controls>.control {

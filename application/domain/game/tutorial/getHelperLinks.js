@@ -1,4 +1,10 @@
 () => ({
+  players: {
+    selector: '.players .workers',
+    tutorial: 'game-tutorial-links',
+    type: 'game',
+    pos: { top: true, right: true },
+  },
   gameControls: {
     selector: '.game-controls',
     ...{ tutorial: 'game-tutorial-gameControls', simple: false },
@@ -19,6 +25,12 @@
   },
   handDices: {
     selector: '.session-player .player.iam.active .hand-dices .domino-dice:first-child',
+    tutorial: 'game-tutorial-links',
+    type: 'game',
+    pos: { top: true, left: true },
+  },
+  diceControls: {
+    selector: '#game #gamePlane .plane .domino-dice',
     tutorial: 'game-tutorial-links',
     type: 'game',
     pos: { top: true, left: true },

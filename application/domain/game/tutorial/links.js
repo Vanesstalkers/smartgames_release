@@ -1,5 +1,18 @@
 ({
   steps: {
+    players: {
+      text: `
+        Это твои противники. Ты можешь увидеть сколько у них карт и костяшек домино в руке.
+      `,
+      active: [
+        '.players .workers', '.players .player-hands', 
+        { selector: '#game:not(.portrait-view) .players .hand-dices', css: { boxShadow: '-30px -80px 60px 80px #f4e205' } },
+        { selector: '#game.portrait-view .players .hand-dices', css: { boxShadow: '-150px -80px 60px 100px #f4e205' } },
+      ],
+      buttons: [
+        { text: 'Спасибо', action: 'exit' },
+      ],
+    },
     handDices: {
       pos: 'top-right',
       text: `
@@ -16,6 +29,17 @@
         Это твои карты-события. Активируй их, нажимая на кнопку <a>Разыграть</a>.
       `,
       active: '.player.iam .hand-cards-list .card-event',
+      buttons: [
+        { text: 'Спасибо', action: 'exit' },
+      ],
+    },
+    diceControls: {
+      text: `
+        Размещенные на поле костяшки можно <a>поворачивать</a> и <a>менять на костяшки из руки</a> (костяшку необходимо отметить как удаляемую, нажав на соответствующую иконку). <a>Про ограничения на действия с костяшками можно прочитать в Правилах</a>.
+      `,
+      active: [
+        { selector: '#game #gamePlane .plane .domino-dice' },
+      ],
       buttons: [
         { text: 'Спасибо', action: 'exit' },
       ],

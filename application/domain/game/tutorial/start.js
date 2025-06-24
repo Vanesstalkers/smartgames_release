@@ -61,23 +61,7 @@
         { selector: '.player.iam .card-worker', css: { boxShadow: 'none' } },
       ],
       buttons: [
-        { text: 'Дальше', step: 'players' },
-      ],
-    },
-    players: {
-      text: `
-        Это твои противники. Ты можешь увидеть сколько у них карт и костяшек домино в руке.
-      `,
-      actions: {
-        before: ({ state }) => {
-          const game = Object.values(state.store.game)[0];
-          const skipStep = game.gameType === 'single' ? true : false;
-          return { skipStep };
-        },
-      },
-      active: ['.players .workers', '.players .player-hands', { selector: '.players .hand-dices', css: { boxShadow: '-30px -80px 60px 80px #f4e205' } }],
-      buttons: [
-        { text: 'Спасибо', step: 'exit' },
+        { text: 'Дальше', step: 'exit' },
       ],
     },
     exit: {
