@@ -1569,26 +1569,10 @@
             },
           },
           zoneList: [
-            {
-              _code: 1,
-              left: 50,
-              top: 7,
-              vertical: 1,
-              double: true,
-              itemType: 'any',
-              s: 'db',
-            },
+            { _code: 1, left: 50, top: 7, vertical: 1, itemType: 'any', s: 'db' },
             { _code: 2, left: 50, top: 170, itemType: 'any', s: 'bash' },
             { _code: 3, left: 230, top: 170, itemType: 'any', s: 'db' },
-            {
-              _code: 4,
-              left: 300,
-              top: 7,
-              vertical: 1,
-              double: true,
-              itemType: 'any',
-              s: 'core',
-            },
+            { _code: 4, left: 300, top: 7, vertical: 1, itemType: 'any', s: 'core' },
           ],
           portList: [
             {

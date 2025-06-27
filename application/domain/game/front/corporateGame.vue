@@ -402,6 +402,7 @@ export default {
           !this.player.teamlead ? null : {
             text: 'Покажи действия тимлида',
             style: { boxShadow: 'inset 0px 0px 20px #f4e205' },
+            customClass: 'teamlead-actions',
             action: {
               text: 'Выбери действие:',
               showList: [

@@ -5,7 +5,7 @@
         Это твои противники. Ты можешь увидеть сколько у них карт и костяшек домино в руке.
       `,
       active: [
-        '.players .workers', '.players .player-hands', 
+        '.players .workers', '.players .player-hands',
         { selector: '#game:not(.portrait-view) .players .hand-dices', css: { boxShadow: '-30px -80px 60px 80px #f4e205' } },
         { selector: '#game.portrait-view .players .hand-dices', css: { boxShadow: '-150px -80px 60px 100px #f4e205' } },
       ],
@@ -82,6 +82,47 @@
       buttons: [
         { text: 'Спасибо', action: 'exit' },
       ],
-    }
+    },
+    teamsBlock: {
+      text: `
+        Список с названиями команд позволяет переключиться на <a>просмотр информации об игроках, колодах и игровом поле конкретной команды</a>.
+      `,
+      active: '.players .games .game-item',
+      buttons: [
+        { text: 'Спасибо', action: 'exit' },
+      ],
+    },
+    teamsReadyBtn: {
+      text: `
+        Игра начнется после того, как все тимлиды нажмут эту кнопку. Можно дождаться, пока все игроки присоединятся к своим командам.
+      `,
+      active: '.team-ready-btn',
+      buttons: [
+        { text: 'Спасибо', action: 'exit' },
+      ],
+    },
+    teamLead: {
+      showMenu: true,
+      text: `
+        Эта иконка обозначает тимлида команды. В меню тимлида есть доступ к особому разделу, который позволяет:
+        - <a>вернуть игровой стол команды в руку</a>
+        - <a>восстановить игру на начало нужного раунда</a>
+        - <a>переименовать команду</a>
+        - <a>передать руководство командой</a>
+        - <a>принудительно завершить текущий раунд команды</a>
+      `,
+      active: [
+        { selector: '.player.iam .card-worker.teamlead >.teamlead-icon', css: { backgroundSize: '16px' } },
+      ],
+      actions: {
+        before: ({ $root }) => {
+          const $guru = $root.querySelector('.helper-guru');
+          if ($guru) $guru.click();
+        },
+      },
+      buttons: [
+        { text: 'Спасибо', action: 'exit' },
+      ],
+    },
   },
 });

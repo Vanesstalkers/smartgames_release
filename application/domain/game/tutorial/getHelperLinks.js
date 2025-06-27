@@ -18,7 +18,10 @@
     pos: { top: true, left: true },
   },
   gamePlane: {
-    selector: '#game #gamePlane .plane',
+    selector: `
+      #game:not([type="corporate"]) #gamePlane .plane, 
+      #game[type="corporate"] #gamePlane .plane.anchor-team-field
+    `,
     ...{ tutorial: 'game-tutorial-gamePlane', simple: false },
     type: 'game',
     pos: { top: true, left: true },
@@ -30,7 +33,10 @@
     pos: { top: true, left: true },
   },
   diceControls: {
-    selector: '#game #gamePlane .plane .domino-dice',
+    selector: `
+      #game:not([type="corporate"]) #gamePlane .plane .domino-dice,
+      #game[type="corporate"] #gamePlane .plane.anchor-team-field .domino-dice
+    `,
     tutorial: 'game-tutorial-links',
     type: 'game',
     pos: { top: true, left: true },
@@ -42,7 +48,10 @@
     pos: { top: true, left: true },
   },
   fieldZoneDouble: {
-    selector: '#game #gamePlane .plane .zone.double',
+    selector: `
+      #game:not([type="corporate"]) #gamePlane .plane .zone.double,
+      #game[type="corporate"] #gamePlane .plane.anchor-team-field .zone.double
+    `,
     tutorial: 'game-tutorial-links',
     type: 'game',
     pos: { top: true, left: true },
@@ -61,6 +70,24 @@
   },
   addExtraBlock: {
     selector: '.plane.add-block-action',
+    tutorial: 'game-tutorial-links',
+    type: 'game',
+    pos: { top: true, left: true },
+  },
+  teamsBlock: {
+    selector: '.players .games .game-item:last-child',
+    tutorial: 'game-tutorial-links',
+    type: 'game',
+    pos: { top: true, right: true },
+  },
+  teamsReadyBtn: {
+    selector: '.team-ready-btn',
+    tutorial: 'game-tutorial-links',
+    type: 'game',
+    pos: { top: true, left: true },
+  },
+  teamLead: {
+    selector: '.player.iam .card-worker.teamlead >.teamlead-icon',
     tutorial: 'game-tutorial-links',
     type: 'game',
     pos: { top: true, left: true },

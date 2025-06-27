@@ -8,6 +8,7 @@
     showEndRoundBtn || showLeaveBtn || showCustomActionBtn ? 'has-action' : '',
     controlActionDisabled ? 'disabled' : '',
   ]" :style="customStyle" @click="controlAction">
+    <div v-if="player.teamlead" class="teamlead-icon"></div>
     <div class="user-name">
       {{ player.userName }}
     </div>
@@ -242,15 +243,21 @@ export default {
   margin: 0px 0px 0px 5px;
   box-shadow: inset 0px 20px 20px 0px black;
 
-  &.teamlead:before {
-    content: '';
+  &.teamlead>.teamlead-icon {
+    display: block;
+  }
+
+  >.teamlead-icon {
+    display: none;
     position: absolute;
     top: 8px;
     right: 4px;
     width: 24px;
     height: 24px;
     background-image: url(../assets/teamlead.png);
-    background-size: contain;
+    background-size: 24px;
+    background-repeat: no-repeat;
+    background-position: center;
   }
 
   &.active {
