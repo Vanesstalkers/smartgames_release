@@ -6,8 +6,26 @@
       text: `
         Поздравляю, c началом твоей первой партии в игре РЕЛИЗ. <a>Я могу помочь освоиться с интерфейсом игры</a>.
       `,
+      actions: {
+        before: ({ state }) => {
+          const { gameType, gameConfig } = Object.values(state.store.game)[0];
+          console.log('before', { gameType, gameConfig });
+          if (gameType === 'corporate') return { skipStep: { goto: { step: gameConfig } } };
+        },
+      },
       buttons: [
         { text: 'Продолжай', step: 'deckDice' },
+        { text: 'Я разберусь', step: 'exit' },
+      ],
+    },
+    cooperative: {
+      initialStep: true,
+      superPos: true,
+      text: `
+        Поздравляю, c началом твоей первой партии в игре РЕЛИЗ в кооперативном режиме. <a>Я расскажу тебе основную информацию, которая тебе может пригодиться</a>.
+      `,
+      buttons: [
+        { text: 'Продолжай', action: 'changeTutorial', tutorial: 'game-corporate-tutorial-cooperative' },
         { text: 'Я разберусь', step: 'exit' },
       ],
     },

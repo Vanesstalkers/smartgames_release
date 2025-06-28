@@ -47,6 +47,7 @@
               <dice v-if="!iam" :diceId="'fake'" />
               <dice v-if="!iam" :diceId="'fake'" />
               <dice v-if="!iam" :diceId="'fake'" />
+              <dice v-if="!iam" :diceId="'fake'" />
             </div>
           </div>
         </div>
