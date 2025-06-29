@@ -12,14 +12,14 @@
     <div class="user-name">
       {{ player.userName }}
     </div>
-    <div v-if="showControls && player.active && player.timerEndTime && game.status != 'WAIT_FOR_PLAYERS'"
+    <div v-if="showControls && player.active && player.timerEndTime && gameStatus != 'WAIT_FOR_PLAYERS'"
       class="end-round-timer">
       {{ this.localTimer }}
     </div>
-    <div v-if="!iam && game.status != 'WAIT_FOR_PLAYERS'" class="domino-dice">
+    <div v-if="!iam && gameStatus != 'WAIT_FOR_PLAYERS'" class="domino-dice">
       {{ dominoDeckCount }}
     </div>
-    <div v-if="!iam && game.status != 'WAIT_FOR_PLAYERS'" class="card-event" :style="cardEventCustomStyle"
+    <div v-if="!iam && gameStatus != 'WAIT_FOR_PLAYERS'" class="card-event" :style="cardEventCustomStyle"
       @click="toggleViewerShowCards">
       <div>
         {{ cardDeckCount }}
@@ -72,6 +72,9 @@ export default {
       const store = this.getStore() || {};
       const player = store.player?.[this.playerId] || {};
       return this.getGame(player.gameId);
+    },
+    gameStatus() {
+      return this.game.status || this.getSuperGame()?.status;
     },
     store() {
       return this.getStore();
@@ -147,7 +150,7 @@ export default {
       return (this.gameFinished() && this.iam) || this.viewerId;
     },
     showTeamleadBtn() {
-      return this.iam && this.player.teamlead && this.getSuperGame()?.status === 'WAIT_FOR_PLAYERS' && !this.player.eventData.teamReady;
+      return this.iam && this.player.teamlead && this.gameStatus === 'WAIT_FOR_PLAYERS' && !this.player.eventData.teamReady;
     },
     showCustomActionBtn() {
       return this.iam && this.customAction.show;
