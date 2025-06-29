@@ -6,8 +6,34 @@
       text: `
         Поздравляю, c началом твоей первой партии в игре РЕЛИЗ. <a>Я могу помочь освоиться с интерфейсом игры</a>.
       `,
+      actions: {
+        before: ({ state }) => {
+          const { gameType, gameConfig } = Object.values(state.store.game)[0];
+          if (gameType === 'corporate') return { skipStep: { goto: { step: gameConfig } } };
+        },
+      },
       buttons: [
         { text: 'Продолжай', step: 'deckDice' },
+        { text: 'Я разберусь', step: 'exit' },
+      ],
+    },
+    cooperative: {
+      superPos: true,
+      text: `
+        Поздравляю, c началом твоей первой партии в игре РЕЛИЗ в режиме корпоративной кооперации. <a>Я расскажу тебе основную информацию о правилах игры</a>.
+      `,
+      buttons: [
+        { text: 'Продолжай', action: 'changeTutorial', tutorial: 'game-corporate-tutorial-cooperative' },
+        { text: 'Я разберусь', step: 'exit' },
+      ],
+    },
+    competition: {
+      superPos: true,
+      text: `
+        Поздравляю, c началом твоей первой партии в игре РЕЛИЗ в режиме корпоративного соревнования. <a>Я расскажу тебе основную информацию о правилах игры</a>.
+      `,
+      buttons: [
+        { text: 'Продолжай', action: 'changeTutorial', tutorial: 'game-corporate-tutorial-competition' },
         { text: 'Я разберусь', step: 'exit' },
       ],
     },
@@ -69,8 +95,9 @@
       showMenu: true,
       active: '.helper-guru',
       text: `
-        В левом верхнем углу иконка МЕНЮ ИГРОКА. С помощью него <a>можно повторно запустить любое обучение</a>.
+        В левом верхнем углу иконка <a>МЕНЮ ИГРОКА</a>. С помощью него <a>можно повторно запустить любое обучение</a>. Так же рекомендую использовать <a>UI-подсказки (выделены на картинке)</a> - они дают более подробную информацию о раличных деталях интерфейса.
       `,
+      img: '/img/tutorial/helper-links.png',
       buttons: [
         { text: 'Понятно', action: 'exit' },
       ],

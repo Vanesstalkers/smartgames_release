@@ -1,5 +1,5 @@
 <template>
-  <div v-if="dice || diceId === 'fake'" :code="dice.code" :class="[
+  <div v-if="dice || fakeDice" :code="dice.code" :class="[
     'domino-dice',
     dice.deleted ? 'deleted' : '',
     locked ? 'locked' : '',
@@ -27,7 +27,7 @@
     <template>
       <div v-for="side in sideList" :key="side._id" :value="side.value" :class="[
         'el',
-        'template-' + (sourceGame.templates.code || 'default'),
+        !fakeDice ? 'template-' + (sourceGame.templates.code || 'default') : '',
         side.eventData.selectable ? 'selectable' : '',
         side.eventData.fakeValue ? 'fake-value' : '',
       ]" v-on:click="
@@ -76,7 +76,10 @@ export default {
       return this.getGame(this.dice.sourceGameId);
     },
     dice() {
-      return this.store.dice?.[this.diceId] || { code: 'fake' };
+      return this.fakeDice ? { code: 'fake' } : this.store.dice?.[this.diceId];
+    },
+    fakeDice() {
+      return this.diceId === 'fake';
     },
     sideList() {
       const sideList = this.dice.sideList || ['', ''];

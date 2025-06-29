@@ -9,6 +9,10 @@
         { selector: '#game:not(.portrait-view) .players .hand-dices', css: { boxShadow: '-30px -80px 60px 80px #f4e205' } },
         { selector: '#game.portrait-view .players .hand-dices', css: { boxShadow: '-150px -80px 60px 100px #f4e205' } },
       ],
+      prepare: ({ step, user }) => {
+        const game = lib.store('game').get(user.gameId);
+        if(game.gameType == 'corporate') step.text = step.text.replace('Это твои противники.', 'Это карточки игроков как из твоей команды, так и из других команд (<a>между командами можно переключаться</a>).');
+      },
       buttons: [
         { text: 'Спасибо', action: 'exit' },
       ],
