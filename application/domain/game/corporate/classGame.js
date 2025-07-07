@@ -134,10 +134,6 @@
     const { Player } = this.defaultClasses();
     return new Player(data, { parent: this });
   }
-  activate({ setData, publishText } = {}) {
-    this.set({ active: true, activeReady: false, eventData: { actionsDisabled: null } });
-    if (setData) this.set(setData);
-  }
 
   checkFieldIsReady() {
     const planeList = this.merged

@@ -8,10 +8,12 @@
 
   this.updateTimerOverdueCounter(timerOverdue);
 
-  const activePlayer = this.roundActivePlayer();
-  if (activePlayer) this.toggleEventHandlers('END_ROUND', {}, activePlayer);
+  if (player) {
+    this.toggleEventHandlers('END_ROUND', {}, player);
+    player.deactivate();
 
-  if (this.round > 0 && player) player.checkHandDiceLimit(); // делаем принципиально после END_ROUND - могут сработать карты получения dice в руку
+    if (this.round > 0) player.checkHandDiceLimit(); // делаем принципиально после END_ROUND - могут сработать карты получения dice в руку
+  }
 
   this.dropPlayedCards();
   this.checkCrutches();

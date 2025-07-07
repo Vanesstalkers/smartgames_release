@@ -10,7 +10,6 @@
 
   const superGame = this.game();
 
-  // осознанно дублируется логика из roundStart (ради roundReady)
   player.deactivate();
   if (this.checkAllPlayersFinishRound()) {
     this.set({ roundReady: true });

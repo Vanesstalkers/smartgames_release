@@ -56,7 +56,8 @@
       ],
       deckList: [
         { type: 'plane' },
-        { type: 'plane', subtype: 'hand', itemType: 'plane'},
+        { type: 'plane', subtype: 'table', itemType: 'plane', access: 'all' },
+        { type: 'plane', subtype: 'hand', itemType: 'plane' },
         { type: 'domino', itemType: 'any' },
         { type: 'card', itemType: 'event' },
         { type: 'card', subtype: 'active', itemType: 'event', access: 'all' },
@@ -118,7 +119,8 @@
       })),
       deckList: [
         { type: 'plane' },
-        { type: 'plane', subtype: 'hand', itemType: 'plane'},
+        { type: 'plane', subtype: 'table', itemType: 'plane', access: 'all' },
+        { type: 'plane', subtype: 'hand', itemType: 'plane' },
         { type: 'domino', itemType: 'any' },
         { type: 'card', itemType: 'event' },
         { type: 'card', subtype: 'active', itemType: 'event', access: 'all' },
@@ -177,7 +179,8 @@
       })),
       deckList: [
         { type: 'plane' },
-        { type: 'plane', subtype: 'hand', itemType: 'plane'},
+        { type: 'plane', subtype: 'table', itemType: 'plane', access: 'all' },
+        { type: 'plane', subtype: 'hand', itemType: 'plane' },
         { type: 'domino', itemType: 'any' },
         { type: 'card', itemType: 'event' },
         { type: 'card', subtype: 'active', itemType: 'event', access: 'all' },
@@ -203,7 +206,7 @@
 
   corporate: {
     ...{
-      title: 'Потасовка',
+      title: 'Корпоративные проекты',
       icon: ['fas', 'star'],
       style: { order: 5, width: '90%', textAlign: 'center' },
     },
@@ -234,8 +237,7 @@
       allowedAutoCardPlayRoundStart: false,
       autoFinishAfterRoundsOverdue: 10,
 
-      playerCount: '2-8',
-      maxPlayersInGame: '1-4',
+      teamsCount: '2-4',
       playerTemplates: {
         default: {
           deckList: [{ type: 'domino', itemType: 'any' }, { type: 'card', itemType: 'event' }, { type: 'plane' }],
@@ -245,7 +247,8 @@
       playerList: [],
       deckList: [
         { type: 'plane' },
-        { type: 'plane', subtype: 'hand', itemType: 'plane'},
+        { type: 'plane', subtype: 'table', itemType: 'plane', access: 'all' },
+        { type: 'plane', subtype: 'hand', itemType: 'plane' },
         { type: 'domino', itemType: 'any' },
         { type: 'card', itemType: 'event' },
         { type: 'card', subtype: 'active', itemType: 'event', access: 'all' },

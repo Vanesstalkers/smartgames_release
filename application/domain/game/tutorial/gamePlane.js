@@ -48,7 +48,7 @@
     },
     planeControlsTouchMove: {
       text: `
-        Игровое поле можно перемешать.
+        Игровое поле можно перемещать.
       `,
       img: '/img/tutorial/touch-move.png',
       actions: {
