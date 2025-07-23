@@ -42,7 +42,8 @@ async ({ gameType, gameId, lobbyId, round }) => {
 
   const query = { _id: gameId };
   if (round) query.round = round;
-  const gameClassGetter = gameType === 'corporate' ? domain.game.corporate.classSuper : domain.game.class;
+  
+  const gameClassGetter = domain.game[gameType]?.class || domain.game.class;
   return await new gameClassGetter({ id: gameId })
     .load({ fromDB: { id: gameId, query, processData, fromDump: true } })
     .then(async (game) => {
@@ -64,7 +65,7 @@ async ({ gameType, gameId, lobbyId, round }) => {
         port: application.server.port,
       });
       game.run('initPlayerWaitEvents');
-      game.set({ status: 'RESTORING_GAME', statusLabel: 'Восстановление игры' }); // в initPlayerWaitEvents выставляется  {status: 'WAIT_FOR_PLAYERS'}
+      game.set({ status: 'RESTORING_GAME' }); // в initPlayerWaitEvents выставляется  {status: 'WAIT_FOR_PLAYERS'}
 
       for (const player of game.players()) player.set({ ready: false });
 

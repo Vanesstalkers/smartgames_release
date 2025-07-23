@@ -10,7 +10,7 @@
         title: 'Блиц',
         timer: 60,
         timerReleasePremium: 20,
-        planesAtStart: 2,
+        planesAtStart: 0,
         planesNeedToStart: 2,
         roundStartCardAddToPlayerHand: true,
         allowedAutoCardPlayRoundStart: false,
@@ -25,6 +25,7 @@
         style: { order: 2 },
       },
       hardcore: {
+        planesAtStart: 1,
         title: 'Хардкор',
         timer: 30,
         timerReleasePremium: 10,
@@ -41,8 +42,8 @@
       playerHandLimit: 3,
       planesAtStart: 3, // изначальное количество блоков на поле
       planesNeedToStart: 3, // нужно для начала игры (будут добавляться игроками)
-      planesToChoose: 2, // блоков на выбор игроку для добавления на поле
-      timeToPlaceStartPlane: 10, // время на размещение стартового блока
+      planesToChoose: 5, // блоков на выбор игроку для добавления на поле
+      timeToPlaceStartPlane: 1000, // время на размещение стартового блока
       roundStartCardAddToPlayerHand: false,
       allowedAutoCardPlayRoundStart: false,
       cardsToRemove: ['audit', 'coffee', 'weekend'],
@@ -107,7 +108,7 @@
       playerHandLimit: 3,
       planesAtStart: 1, // изначальное количество блоков на поле
       planesNeedToStart: 3, // нужно для начала игры (будут добавляться игроками)
-      planesToChoose: 2, // блоков на выбор игроку для добавления на поле
+      planesToChoose: 5, // блоков на выбор игроку для добавления на поле
       timeToPlaceStartPlane: 10, // время на размещение стартового блока
       roundStartCardAddToPlayerHand: false,
       allowedAutoCardPlayRoundStart: false,
@@ -214,14 +215,13 @@
       cooperative: {
         title: 'Кооперация',
         skipStartPlanes: ['Plane[12]', 'Plane[15]', 'Plane[16]'],
-        // roundStartCardAddToPlayerHand: false,
-        // allowedAutoCardPlayRoundStart: true,
+        roundStartCardAddToPlayerHand: true,
+        allowedAutoCardPlayRoundStart: true,
       },
       competition: {
         title: 'Соревнование',
-        planesNeedToStart: 1,
-        // roundStartCardAddToPlayerHand: false,
-        // allowedAutoCardPlayRoundStart: true,
+        roundStartCardAddToPlayerHand: true,
+        allowedAutoCardPlayRoundStart: true,
       },
     },
     itemsDefault: {
@@ -229,10 +229,10 @@
       timerReleasePremium: 20,
       playerHandStart: 3,
       playerHandLimit: 3,
-      planesAtStart: 3, // изначальное количество блоков на поле (для core-игры количество соответствует количеству игр)
+      planesAtStart: 0, // изначальное количество блоков на поле (для core-игры количество соответствует количеству игр)
       planesNeedToStart: 3, // нужно для начала игры (будут добавляться игроками)
-      planesToChoose: 2, // блоков на выбор игроку для добавления на поле
-      timeToPlaceStartPlane: 10, // время на размещение стартового блока
+      planesToChoose: 5, // блоков на выбор игроку для добавления на поле
+      timeToPlaceStartPlane: 1000, // время на размещение стартового блока
       roundStartCardAddToPlayerHand: true,
       allowedAutoCardPlayRoundStart: false,
       autoFinishAfterRoundsOverdue: 10,
