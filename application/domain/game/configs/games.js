@@ -41,8 +41,8 @@
       playerHandLimit: 3,
       planesAtStart: 3, // изначальное количество блоков на поле
       planesNeedToStart: 3, // нужно для начала игры (будут добавляться игроками)
-      planesToChoose: 2, // блоков на выбор игроку для добавления на поле
-      timeToPlaceStartPlane: 10, // время на размещение стартового блока
+      planesToChoose: 5, // блоков на выбор игроку для добавления на поле
+      timeToPlaceStartPlane: 1000, // время на размещение стартового блока
       roundStartCardAddToPlayerHand: false,
       allowedAutoCardPlayRoundStart: false,
       cardsToRemove: ['audit', 'coffee', 'weekend'],
@@ -214,14 +214,13 @@
       cooperative: {
         title: 'Кооперация',
         skipStartPlanes: ['Plane[12]', 'Plane[15]', 'Plane[16]'],
-        // roundStartCardAddToPlayerHand: false,
-        // allowedAutoCardPlayRoundStart: true,
+        roundStartCardAddToPlayerHand: true,
+        allowedAutoCardPlayRoundStart: true,
       },
       competition: {
         title: 'Соревнование',
-        planesNeedToStart: 1,
-        // roundStartCardAddToPlayerHand: false,
-        // allowedAutoCardPlayRoundStart: true,
+        roundStartCardAddToPlayerHand: true,
+        allowedAutoCardPlayRoundStart: true,
       },
     },
     itemsDefault: {

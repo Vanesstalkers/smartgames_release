@@ -9,7 +9,7 @@ async (context, { deckType, gameType, gameConfig, gameTimer, teamsCount, playerC
 
   try {
 
-    const gameClassGetter = gameType === 'corporate' ? domain.game.corporate.classSuper : domain.game.class;
+    const gameClassGetter = domain.game[gameType]?.class || domain.game.class;
     const game = await new gameClassGetter().create({
       ...{ deckType, gameType, gameConfig, gameTimer },
       ...{ teamsCount, playerCount, maxPlayersInGame, gameRoundLimit },

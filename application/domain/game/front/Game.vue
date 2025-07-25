@@ -1,8 +1,8 @@
 <template>
   <game :debug="false" :planeScaleMin="0.3" :planeScaleMax="1">
 
-    <template #helper-guru="{ } = {}">
-      <tutorial :game="game" class="scroll-off" :defaultMenu="defaultTutorialMenu" />
+    <template #helper-guru="{ menuWrapper, menuButtonsMap } = {}">
+      <tutorial :game="game" class="scroll-off" :customMenu="customMenu({ menuWrapper, menuButtonsMap })" />
     </template>
 
     <template #gameplane="{ } = {}">
@@ -31,7 +31,7 @@
         <div class="game-status-label">
           Бюджет
           <span style="color: gold">{{ fullPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}k ₽</span>
-          {{ game.statusLabel }}
+          {{ statusLabel }}
         </div>
         <div v-for="deck in deckList" :key="deck._id" class="deck" :code="deck.code">
           <div v-if="deck._id && deck.code === 'Deck[domino]'" class="hat" v-on:click="takeDice">
@@ -154,6 +154,13 @@ export default {
       return this.store.player?.[this.gameState.sessionPlayerId] || {};
     },
 
+    restoringGameState() {
+      return this.game.status === 'RESTORING_GAME';
+    },
+    statusLabel() {
+      return this.restoringGameState ? 'Восстановление игры' : this.game.statusLabel;
+    },
+
     gamePlaneContentControlStyle() {
       const transformOrigin = this.gameCustom.gamePlaneTransformOrigin[this.gameState.gameId] ?? 'center center';
       const transform = [
@@ -234,86 +241,23 @@ export default {
         backgroundImage: `url(${rootPath}/back-side.jpg)`,
       };
     },
-    defaultTutorialMenu() {
-      return {
-        text: `Чем могу помочь, ${this.sessionUserData().name || this.sessionUserData().login}?`,
-        bigControls: true,
-        buttons: [
-          { text: 'Спасибо, ничего не нужно', action: 'exit', exit: true },
-          {
-            text: 'Покажи доступные обучения',
-            action: {
-              text: 'Нажмите на нужное обучение в списке, чтобы запустить его повторно:',
-              showList: [
-                { title: 'Стартовое приветствие игры', action: { tutorial: 'game-tutorial-start' } },
-                { title: 'Управление игровым полем', action: { tutorial: 'game-tutorial-gamePlane' } },
-              ],
-              buttons: [
-                { text: 'Назад в меню', action: 'init' },
-                { text: 'Спасибо', action: 'exit', exit: true },
-              ],
-            },
-          },
-          {
-            text: 'Активировать подсказки', action: async function () {
-              await api.action
-                .call({
-                  path: 'helper.api.restoreLinks',
-                  args: [{ inGame: true }],
-                })
-                .then(() => {
-                  this.menu = null;
-                  {
-                    // перерисовываем helper-а, чтобы отобразились подсказки
-                    this.resetFlag = true;
-                    setTimeout(() => {
-                      this.resetFlag = false;
-                    }, 100);
-                  }
-                })
-                .catch(prettyAlert);
-            }
-          },
-          {
-            text: 'Восстановить игру',
-            action: {
-              text: 'Какой раунд игры восстановить?',
-              pos: 'bottom-left',
-              html: (game) => `
-                <div v-if="menu.input" class="input">
-                  <input value="${game.round}" placeholder="${game.round}" name="restoreForcedInput" type="number" min="1" max="${game.round}" />
-                </div>
-              `,
-              buttons: [
-                { text: 'Назад в меню', action: 'init' },
-                {
-                  text: 'Выполнить', action: async function () {
-                    await api.action
-                      .call({
-                        path: 'game.api.restoreForced',
-                        args: [{ round: this.inputData['restoreForcedInput'] }],
-                      })
-                      .catch(prettyAlert);
-                  }
-                },
-              ],
-            },
-          },
-          {
-            text: 'Выйти из игры', action: async function () {
-              await api.action
-                .call({
-                  path: 'game.api.leave',
-                  args: [],
-                })
-                .catch(prettyAlert);
-            }
-          },
-        ],
-      };
-    },
   },
   methods: {
+    customMenu({ menuWrapper, menuButtonsMap } = {}) {
+      if (!menuButtonsMap) return [];
+
+      const { cancel, restore, tutorials, helperLinks, leave } = menuButtonsMap();
+      const fillTutorials = tutorials({
+        showList: [
+          { title: 'Стартовое приветствие игры', action: { tutorial: 'game-tutorial-start' } },
+          { title: 'Управление игровым полем', action: { tutorial: 'game-tutorial-gamePlane' } },
+        ]
+      });
+      
+      return menuWrapper({
+        buttons: [cancel(), restore(), fillTutorials, helperLinks(), leave()],
+      });
+    },
     sortedActiveCards(arr) {
       return arr
         .map((id) => this.store.card?.[id] || {})

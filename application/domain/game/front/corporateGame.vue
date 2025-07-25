@@ -1,8 +1,8 @@
 <template>
   <game :debug="false" :planeScaleMin="0.2" :planeScaleMax="1" :status="game.status" :superStatus="superGame.status">
 
-    <template #helper-guru="{ } = {}">
-      <tutorial :game="game" class="scroll-off" :defaultMenu="defaultTutorialMenu" />
+    <template #helper-guru="{ menuWrapper, menuButtonsMap } = {}">
+      <tutorial :game="game" class="scroll-off" :customMenu="customMenu({ menuWrapper, menuButtonsMap })" />
     </template>
 
     <template #chat="{ isVisible, hasUnreadMessages } = {}">
@@ -15,7 +15,7 @@
         game.roundReady ? 'round-ready' : '',
         allGamesMerged ? 'all-games-merged' : '',
         sessionPlayerGame.merged ? 'session-game-merged' : '',
-        superGame.status === 'RESTORING_GAME' ? 'restoring-game' : ''
+        restoringGameState ? 'restoring-game' : ''
       ]" :style="{ ...gamePlaneStyle(game.gameId) }">
         <div class="gp-content" :style="{ ...gamePlaneContentControlStyle(game.gameId) }">
           <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" />
@@ -485,8 +485,64 @@ export default {
           return Object.assign(obj, { [userId]: user });
         }, {});
     },
+    restoringGameState() {
+      return this.game.status === 'RESTORING_GAME';
+    },
+    statusLabel() {
+      return this.restoringGameState ? 'Восстановление игры' : this.superGame.statusLabel;
+    },
   },
   methods: {
+    customMenu({ menuWrapper, menuButtonsMap } = {}) {
+      if (!menuButtonsMap) return [];
+
+      const { cancel, restore, tutorials, helperLinks, leave } = menuButtonsMap();
+      const fillTutorials = tutorials({
+        showList: [
+          { title: 'Стартовое приветствие игры', action: { tutorial: 'game-tutorial-start' } },
+          { title: 'Управление игровым полем', action: { tutorial: 'game-tutorial-gamePlane' } },
+        ]
+      });
+
+      const teamleadActions = !this.player.teamlead ? null : {
+        text: 'Покажи действия тимлида',
+        style: { boxShadow: 'inset 0px 0px 20px #f4e205' },
+        customClass: 'teamlead-actions',
+        action: {
+          text: 'Выбери действие:',
+          showList: [
+            {
+              title: 'Вернуть игровой стол команды',
+              action: { tutorial: 'game-tutorial-teamleadMenu', step: 'transferTable' },
+            },
+            { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-restoreForced' } },
+            {
+              title: 'Переименовать команду', action: { tutorial: 'game-tutorial-teamleadMenu', step: 'renameTeam' }
+            },
+            this.playerIds.length > 0 ? {
+              title: 'Передать руководство',
+              action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
+            } : null,
+            this.playerIds.length > 0 ? {
+              title: 'Удалить игрока из команды',
+              action: { tutorial: 'game-tutorial-teamleadMenu', step: 'removePlayer' },
+            } : null,
+            {
+              title: 'Завершить текущий раунд',
+              action: { tutorial: 'game-tutorial-teamleadMenu', step: 'endRound' },
+            }
+          ],
+          buttons: [
+            { text: 'Назад в меню', action: 'init' },
+            { text: 'Спасибо', action: 'exit', exit: true },
+          ],
+        },
+      };
+
+      return menuWrapper({
+        buttons: [cancel(), restore(), fillTutorials, helperLinks(), teamleadActions, leave()],
+      });
+    },
     gamePlaneContentControlStyle(gameId) {
       const transformOrigin = this.gameCustom.gamePlaneTransformOrigin[gameId] ?? 'center center';
 
