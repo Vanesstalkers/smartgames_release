@@ -1,25 +1,19 @@
 <template>
-  <div
-    v-if="player._id || viewer._id"
-    :id="player._id"
-    :class="[
-      'card-worker',
-      'card-worker-' + player.code,
-      player.active ? 'active' : '',
-      choiceEnabled ? 'active-event' : '',
-      showEndRoundBtn || showLeaveBtn ? 'has-action' : '',
-    ]"
-    :style="customStyle"
-    @click="controlAction"
-  >
-    <div v-if="showEndRoundBtn" class="action-btn end-round-btn">Закончить раунд</div>
-    <div v-if="player.active && player.timerEndTime && game.status != 'WAIT_FOR_PLAYERS'" class="end-round-timer">
+  <div v-if="player._id || viewer._id" :id="player._id" :class="[
+    'card-worker',
+    'card-worker-' + player.code,
+    player.active ? 'active' : '',
+    selectable ? 'selectable' : '',
+    showControlBtn || showLeaveBtn ? 'has-action' : '',
+  ]" :style="customStyle">
+    <div class="money">{{ new Intl.NumberFormat().format((player.money || 0) * 1000) }}₽</div>
+    <div v-if="showTimer" class="end-round-timer">
       {{ this.localTimer }}
     </div>
-    <div v-if="!iam" class="card-event">
-      {{ cardDeckCount }}
+    <div v-if="showControlBtn" :class="['action-btn', 'end-round-btn', controlBtn.class || '']" @click="controlAction">
+      {{ controlBtn.label || 'Закончить раунд' }}
     </div>
-    <div v-if="showLeaveBtn" class="action-btn leave-game-btn">Выйти из игры</div>
+    <div v-if="showLeaveBtn" class="action-btn leave-game-btn" @click="controlAction">Выйти из игры</div>
   </div>
 </template>
 
@@ -31,7 +25,6 @@ export default {
     playerId: String,
     viewerId: String,
     iam: Boolean,
-    showControls: Boolean,
   },
   data() {
     return {
@@ -78,44 +71,53 @@ export default {
     customStyle() {
       const style = {};
       const gender = this.userData.gender;
-      
+
       const defaultImage = `_default/${gender}_empty`;
       const avatarCode = this.userData.avatarCode || this.player.avatarsMap?.[gender] || defaultImage;
-      
+
       style.backgroundImage = `url(${this.state.lobbyOrigin}/img/workers/${avatarCode}.png)`;
-      
+
       return style;
     },
-    choiceEnabled() {
-      return this.sessionPlayerIsActive() && this.player.activeEvent?.choiceEnabled;
+    controlBtn() {
+      return this.player.eventData.controlBtn;
     },
-    cardDeckCount() {
+    selectable() {
+      return this.sessionPlayerIsActive() && this.player.eventData.selectable;
+    },
+    playerDecks() {
+      return Object.keys(this.player.deckMap || {}).map((id) => this.store.deck?.[id] || {});
+    },
+    showControlBtn() {
+      return this.iam && this.sessionPlayerIsActive() && this.controlBtn?.label && !this.controlBtn.leaveGame;
+    },
+    showTimer() {
       return (
-        Object.keys(
-          Object.keys(this.player.deckMap || {})
-            .map((id) => this.store.deck?.[id] || {})
-            .filter((deck) => deck.type === 'card' && !deck.subtype)[0]?.itemMap || {}
-        ).length || 0
+        this.player.active &&
+        !this.player.eventData.actionsDisabled &&
+        this.player.timerEndTime &&
+        this.game.status != 'WAIT_FOR_PLAYERS'
       );
     },
-    showEndRoundBtn() {
-      return this.showControls && this.iam && this.sessionPlayerIsActive();
-    },
     showLeaveBtn() {
-      return (this.game.status === 'FINISHED' && this.iam) || this.viewerId;
+      return (this.iam && this.controlBtn?.leaveGame) || this.viewerId;
     },
   },
   methods: {
     async controlAction() {
-      if (this.choiceEnabled) return; // выбор игрока в контексте события карты
-      if (this.showEndRoundBtn) return await this.endRound();
+      prettyAlertClear?.();
+
+      if (this.selectable) return; // выбор игрока в контексте события карты
+
       if (this.showLeaveBtn) return await this.leaveGame();
+
+      if (this.showControlBtn) {
+        if (this.controlBtn.triggerEvent) await this.handleGameApi({ name: 'eventTrigger' });
+        else await this.endRound();
+      }
     },
-
     async endRound() {
-      // TO_CHANGE (свои обработчики конца раунда)
-
-      await this.handleGameApi({ name: 'endRound' });
+      await this.handleGameApi({ name: 'roundEnd' });
     },
     async leaveGame() {
       await api.action
@@ -126,11 +128,10 @@ export default {
         .catch(prettyAlert);
     },
   },
-  mounted() {},
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .card-worker {
   position: relative;
   border: 1px solid;
@@ -143,53 +144,67 @@ export default {
   border-radius: 10px;
   margin: 0px 0px 0px 5px;
   box-shadow: inset 0px 20px 20px 0px black;
-}
-.card-worker.has-action {
-  cursor: pointer;
-}
-.card-worker.has-action:hover .action-btn {
-  background: green;
-}
-.card-worker.active {
-  outline: 4px solid green;
+
+  &.active {
+    outline: 4px solid green;
+  }
+
+  .money {
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    font-size: 20px;
+    font-weight: bold;
+    color: #f4e205;
+    padding-top: 4px;
+  }
+
+  .card-event {
+    position: absolute;
+    bottom: 0px;
+    width: 48px;
+    height: 72px;
+    color: white;
+    border: none;
+    font-size: 36px;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+  }
 }
 
-.card-worker .card-event {
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
-  width: 60px;
-  height: 90px;
-  color: white;
-  border: none;
-  font-size: 36px;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  background-image: url(../assets/back-side.jpg);
+.card-worker.has-action:hover .action-btn {
+  cursor: pointer;
+  background: green;
 }
-#game.mobile-view.portrait-view .card-worker .card-event {
-  left: auto;
-  right: 0px;
-}
-.card-worker.active-event .end-round-btn,
-.card-worker.active-event .end-round-timer {
+
+.card-worker.selectable .end-round-btn,
+.card-worker.selectable .end-round-timer {
   display: none;
 }
 
 .end-round-btn {
   position: absolute;
   bottom: 0px;
-  width: 100px;
+  width: 100%;
+  min-height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 0.5em;
-  border: 1px solid black;
   text-align: center;
   cursor: pointer;
-  margin: 6px 10px;
-  background: #3f51b5;
+  background: #008000de;
   color: white;
   font-size: 16px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+
+  &:hover {
+    background: #008000;
+  }
 }
+
 .end-round-timer {
   position: absolute;
   bottom: 50px;
@@ -204,6 +219,7 @@ export default {
   color: #ff5900;
   text-shadow: 4px 4px 0 #fff;
 }
+
 .leave-game-btn {
   position: absolute;
   bottom: 0px;

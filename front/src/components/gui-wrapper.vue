@@ -32,6 +32,8 @@ export default {
       if (this.pos.includes('bottom')) style.bottom = '0px';
       if (this.pos.includes('left')) style.left = '0px';
       if (this.pos.includes('right')) style.right = '0px';
+      // !!!! перенести в core
+      style.transformOrigin = this.pos.join(' ');
       return { ...style, ...this.wrapperStyle };
     },
     contentCustomStyle() {
@@ -52,6 +54,12 @@ export default {
   position: absolute;
   height: 0px;
   width: 100%;
+}
+/* !!!! перенести в core */
+@media only screen and (max-width: 300px) {
+  .gui-wrapper {
+    scale: 0.7;
+  }
 }
 .gui-resizeable {
   position: absolute;

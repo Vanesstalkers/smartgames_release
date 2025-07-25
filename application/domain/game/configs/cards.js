@@ -1,3 +1,4 @@
-() => [
-  { name: 'TO_CHANGE', title: 'наполняем своими картами' },
-];
+() => ({
+  path: (card) => `${card.group}/${card.name}.png`,
+  list: []
+});

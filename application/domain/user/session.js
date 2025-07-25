@@ -1,6 +1,5 @@
 () =>
-  class ReleaseGameSession extends lib.game.sessionClass() {
-    // TO_CHANGE (название класса)
+  class TO_CHANGE extends lib.game.sessionClass() {
     getUserClass() {
       return domain.user.class();
     }
