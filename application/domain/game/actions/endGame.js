@@ -1,15 +1,6 @@
 (function ({ winningPlayer, canceledByUser, message } = {}) {
   this.run('lib.endGame', { winningPlayer, canceledByUser, customFinalize: true, message });
 
-  /* 
-  * хз зачем это
-  *  
-  // игра может завершиться после автодобавления новых plane, алгоритм которого навешивает соответствующие атрибуты
-  for (const player of this.players()) {
-    player.set({ eventData: { plane: null } });
-  }
-  */
-
   this.checkCrutches();
   this.broadcastAction('gameFinished', {
     gameId: this.id(),

@@ -1,5 +1,6 @@
-() =>
-  (domain.custom_cards = [
+() => ({
+  path: (card) => `${card.group}/${card.name}.jpg`,
+  list: (domain.custom_cards = [
     // 'transfer',
   ]).length
     ? (() =>
@@ -35,4 +36,5 @@
       { name: 'transfer', title: 'Перевели в новый отдел' },
       { name: 'weekend', title: 'Поработал в выходные' },
       { name: 'water', title: 'Залил ноутбук' },
-    ];
+    ]
+});

@@ -1,5 +1,5 @@
 <template>
-  <game :debug="false" :planeScaleMin="0.3" :planeScaleMax="1">
+  <game :defaultScaleMinVisibleWidth="1000" :debug="false" :planeScaleMin="0.3" :planeScaleMax="1">
 
     <template #helper-guru="{ menuWrapper, menuButtonsMap } = {}">
       <tutorial :game="game" class="scroll-off" :customMenu="customMenu({ menuWrapper, menuButtonsMap })" />
@@ -80,11 +80,9 @@ import bridge from './components/bridge.vue';
 export default {
   components: {
     Game,
-    tutorial,
     player,
     card,
-    plane,
-    bridge,
+    tutorial,
   },
   props: {},
   data() {
@@ -102,7 +100,6 @@ export default {
 
     Object.assign(gameGlobals, releaseGameGlobals);
     provide('gameGlobals', gameGlobals);
-
     return gameGlobals;
   },
   watch: {

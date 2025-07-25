@@ -190,7 +190,6 @@ export default {
 
       this.controlActionDisabled = false; // сюда попадет tutorial-active
     },
-
     async endRound() {
       this.hideZonesAvailability();
       this.gameCustom.pickedDiceId = '';

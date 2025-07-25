@@ -1,5 +1,6 @@
-({
+() => ({
   steps: {
+    ...lib.game.tutorial.links.steps,
     players: {
       text: `
         Это твои противники. Ты можешь увидеть сколько у них карт и костяшек домино в руке.
@@ -63,16 +64,6 @@
         Это карты-событий, которые доступных для розыгрыша или уже были разыграны в текущем раунде.
       `,
       active: '[code="Deck[card_active]"] .card-event',
-      buttons: [
-        { text: 'Спасибо', action: 'exit' },
-      ],
-    },
-    leaveGame: {
-      pos: 'top-right',
-      text: `
-        Для выхода из игры необходимо нажать эту кнопку, либо выбрать соответствующий пункт в меню.
-      `,
-      active: '.leave-game-btn',
       buttons: [
         { text: 'Спасибо', action: 'exit' },
       ],

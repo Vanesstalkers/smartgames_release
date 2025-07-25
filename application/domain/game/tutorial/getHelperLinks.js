@@ -1,15 +1,10 @@
 () => ({
+  ...lib.game.tutorial.getHelperLinks(),
   players: {
     selector: '.players .workers',
     tutorial: 'game-tutorial-links',
     type: 'game',
     pos: { top: true, right: true },
-  },
-  gameControls: {
-    selector: '.game-controls',
-    ...{ tutorial: 'game-tutorial-gameControls', simple: false },
-    type: 'game',
-    pos: { top: false, left: false },
   },
   handPlanes: {
     selector: '.session-player .player.iam.active .hand-planes .plane:last-child',
@@ -61,12 +56,6 @@
     tutorial: 'game-tutorial-links',
     type: 'game',
     pos: { top: false, left: true },
-  },
-  leaveGame: {
-    selector: '.leave-game-btn',
-    tutorial: 'game-tutorial-links',
-    type: 'game',
-    pos: { top: true, left: true },
   },
   addExtraBlock: {
     selector: '.plane.add-block-action',

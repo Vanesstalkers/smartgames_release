@@ -15,7 +15,7 @@ async () => {
         const lobbyData = await db.redis.get('lobbyData', { json: true });
         if (lobbyData) {
           const { channelName } = lobbyData;
-          const gameTypes = domain.game.configs.gamesFilled();
+          const gameTypes = lib.game.actions.getFilledGamesConfigs();
           const games = {};
 
           for (const [gameType, typeData] of Object.entries(gameTypes)) {

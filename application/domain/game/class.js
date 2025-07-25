@@ -12,6 +12,25 @@
     this.preventSaveFields(['decks']);
     this.preventBroadcastFields(['decks']);
   }
+  
+  stepLabel(label) {
+    return `Раунд ${this.round} (${label})`;
+  }
+  
+  removeTableCards() {
+    const tableDecks = this.select({ className: 'Deck', attr: { placement: 'table' } });
+    for (const deck of tableDecks) {
+      deck.moveAllItems({ target: this.decks.drop, setData: { visible: false } });
+    }
+  }
+  
+  restorePlayersHands() {
+    const { roundStepWinner } = this.rounds[this.round];
+    for (const player of this.players()) {
+      if (player === roundStepWinner) continue; // карты победителя сбрасываются
+      player.returnTableCardsToHand();
+    }
+  }
 
   checkFieldIsReady() {
     const planeList = this.decks.table.getAllItems();

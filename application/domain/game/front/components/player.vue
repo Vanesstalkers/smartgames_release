@@ -57,6 +57,14 @@
         <card-worker :playerId="playerId" :viewerId="viewerId" :iam="iam" :showControls="showControls"
           :dominoDeckCount="mainDominoDeckItemsCount" :cardDeckCount="mainCardDeckItemsCount" />
       </div>
+      <div v-if="iam" :class="[
+        'player-helper',
+        player.staticHelper?.text ? 'new-tutorial' : '',
+        helperChecked ? 'helper-checked' : '',
+      ]">
+        <dialog-helper v-if="iam && player.staticHelper" style="display: block" :dialogStyle="{}"
+          :customData="player.staticHelper" />
+      </div>
     </div>
   </div>
 </template>
@@ -69,6 +77,7 @@ import card from './card.vue';
 import plane from './plane.vue';
 import dice from './dice.vue';
 import cardWorker from './cardWorker.vue';
+import dialogHelper from '~/lib/helper/front/components/dialog.vue';
 
 export default {
   components: {
@@ -77,6 +86,7 @@ export default {
     dice,
     card,
     cardWorker,
+    dialogHelper,
   },
   props: {
     customClass: Array,
@@ -86,7 +96,7 @@ export default {
     showControls: Boolean,
   },
   data() {
-    return {};
+    return { helperVisible: false, helperChecked: false };
   },
   watch: {
     mainCardDeckItemsCount: function () {
@@ -96,7 +106,14 @@ export default {
         scrollbar.scrollTo({ top: 1000000 }); // просто высоты экрана может быть не достаточно при большом количестве карт в руке
       });
     },
+    'player.staticHelper.text': function (val) {
+      if (val) this.helperChecked = false;
+    },
+    'player.staticHelper': function (val) {
+      if (val) this.helperChecked = false;
+    },
   },
+
   setup() {
     return inject('gameGlobals');
   },
@@ -181,7 +198,6 @@ export default {
           : 'auto';
     },
   },
-  methods: {},
 };
 </script>
 

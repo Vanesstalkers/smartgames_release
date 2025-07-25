@@ -1,7 +1,8 @@
 (function (data) {
   const { configs } = domain.game;
   const { Dice, Plane, Table, Deck, Card } = this.defaultClasses();
-  let newGame = false;
+  
+  const newGame = data.newGame;
 
   if (data.store) this.store = data.store;
   this.logs(data.logs);
@@ -33,7 +34,6 @@
     data.deckList = [];
     for (const _id of Object.keys(data.deckMap)) data.deckList.push(this.store.deck[_id]);
   } else {
-    newGame = true;
     data.deckList = data.settings.deckList;
   }
   for (const item of data.deckList || []) {
