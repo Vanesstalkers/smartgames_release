@@ -14,9 +14,11 @@
     <slot name="money" :money="player.money">
       <div class="money">{{ player.money || 0 }}</div>
     </slot>
-    <div v-if="showTimer" class="end-round-timer">
-      {{ this.localTimer }}
-    </div>
+    <slot name="timer" :timer="localTimer" :showTimer="showTimer">
+      <div v-if="showTimer" class="end-round-timer">
+        {{ localTimer }}
+      </div>
+    </slot>
     <slot name="custom" />
     <slot name="control" :controlAction="controlAction">
       <div
@@ -120,7 +122,7 @@ export default {
     },
   },
   methods: {
-    async controlAction(data = {}) {
+    async controlAction(eventData = {}) {
       prettyAlertClear?.();
 
       if (this.selectable) return; // выбор игрока в контексте события карты
@@ -128,7 +130,8 @@ export default {
       if (this.showLeaveBtn) return await this.leaveGame();
 
       if (this.showControlBtn) {
-        if (this.controlBtn.triggerEvent) await this.handleGameApi({ name: 'eventTrigger', args: [data] });
+        if (this.controlBtn.triggerEvent) await this.handleGameApi({ name: 'eventTrigger', data: { eventData } });
+        else await this.endRound();
       }
     },
     async endRound() {
@@ -185,6 +188,16 @@ export default {
     display: flex;
     justify-content: center;
     align-content: center;
+
+    &.car-deck {
+      left: 0px;
+      background-image: url(../assets/car-back-side.png);
+    }
+
+    &.service-deck {
+      right: 0px;
+      background-image: url(../assets/service-back-side.png);
+    }
   }
 }
 
@@ -212,8 +225,8 @@ export default {
   background: #008000de;
   color: white;
   font-size: 16px;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+  // border-bottom-left-radius: 8px;
+  // border-bottom-right-radius: 8px;
 
   &:hover {
     background: #008000;
