@@ -12,6 +12,8 @@
     return;
   }
 
+  card.moveToTarget(player.decks.played);
+
   card.set({
     eventData: {
       ...{ playedTime: Date.now(), canReturn: true },

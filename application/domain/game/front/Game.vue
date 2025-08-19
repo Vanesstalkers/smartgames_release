@@ -14,6 +14,16 @@
         <div class="game-status-label">
           {{ statusLabel }}
         </div>
+        <div
+          v-for="deck in deckList"
+          :key="deck._id"
+          :class="['deck', deck.code.includes('_drop') ? 'drop' : '']"
+          :code="deck.code"
+        >
+          <div class="card-event">
+            {{ Object.keys(deck.itemMap).length }}
+          </div>
+        </div>
       </div>
     </template>
 
@@ -135,6 +145,8 @@ export default {
 };
 </script>
 <style lang="scss">
+@import './css/game.css';
+
 .card-event.played {
   filter: none !important;
 }
@@ -150,25 +162,5 @@ export default {
 
 #game.mobile-view .game-status-label {
   font-size: 1.5em;
-}
-
-#gameInfo {
-  .deck {
-    position: absolute;
-    top: 35px;
-    cursor: default;
-
-    .card-event {
-      width: 60px;
-      height: 90px;
-      border: none;
-      font-size: 36px;
-      display: flex;
-      justify-content: center;
-      align-content: center;
-      color: #ff5900;
-      text-shadow: 1px 1px 0 #fff;
-    }
-  }
 }
 </style>
