@@ -11,13 +11,22 @@
     ]"
     :style="customStyle"
   >
-    <div class="money">{{ new Intl.NumberFormat().format((player.money || 0) * 1000) }}₽</div>
+    <slot name="money" :money="player.money">
+      <div class="money">{{ player.money || 0 }}</div>
+    </slot>
     <div v-if="showTimer" class="end-round-timer">
       {{ this.localTimer }}
     </div>
-    <div v-if="showControlBtn" :class="['action-btn', 'end-round-btn', controlBtn.class || '']" @click="controlAction">
-      {{ controlBtn.label || 'Закончить раунд' }}
-    </div>
+    <slot name="custom" />
+    <slot name="control" :controlAction="controlAction">
+      <div
+        v-if="showControlBtn"
+        :class="['action-btn', 'end-round-btn', controlBtn.class || '']"
+        @click="controlAction"
+      >
+        {{ controlBtn.label || 'Закончить раунд' }}
+      </div>
+    </slot>
     <div v-if="showLeaveBtn" class="action-btn leave-game-btn" @click="controlAction">Выйти из игры</div>
   </div>
 </template>
@@ -90,11 +99,13 @@ export default {
     selectable() {
       return this.sessionPlayerIsActive() && this.player.eventData.selectable;
     },
-    playerDecks() {
-      return Object.keys(this.player.deckMap || {}).map((id) => this.store.deck?.[id] || {});
-    },
     showControlBtn() {
-      return this.iam && this.sessionPlayerIsActive() && this.controlBtn?.label && !this.controlBtn.leaveGame;
+      return (
+        this.iam &&
+        this.sessionPlayerIsActive() &&
+        (this.controlBtn?.label || this.controlBtn?.triggerEvent) &&
+        !this.controlBtn?.leaveGame
+      );
     },
     showTimer() {
       return (
@@ -109,7 +120,7 @@ export default {
     },
   },
   methods: {
-    async controlAction() {
+    async controlAction(data = {}) {
       prettyAlertClear?.();
 
       if (this.selectable) return; // выбор игрока в контексте события карты
@@ -117,8 +128,7 @@ export default {
       if (this.showLeaveBtn) return await this.leaveGame();
 
       if (this.showControlBtn) {
-        if (this.controlBtn.triggerEvent) await this.handleGameApi({ name: 'eventTrigger' });
-        else await this.endRound();
+        if (this.controlBtn.triggerEvent) await this.handleGameApi({ name: 'eventTrigger', args: [data] });
       }
     },
     async endRound() {
