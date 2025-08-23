@@ -50,7 +50,7 @@
     const cardsToRemove = this.settings.cardsToRemove || [];
     for (const [deckCode, json] of [
       ['Deck[domino]', configs.dices()],
-      ['Deck[card]', configs.cards().list.filter((card) => !cardsToRemove.includes(card.name));
+      ['Deck[card]', configs.cards().list.filter((card) => !cardsToRemove.includes(card.name))],
       ['Deck[plane]', configs.planes()],
     ]) {
       const deck = this.find(deckCode);

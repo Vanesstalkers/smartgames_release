@@ -7,8 +7,10 @@
         game.set({ statusLabel: 'Ожидание игроков', status: 'WAIT_FOR_PLAYERS' });
       },
       handlers: {
-        PLAYER_JOIN: function ({ initPlayer }) {
+        PLAYER_JOIN: function ({ initPlayer: player }) {
           const { game } = this.eventContext();
+
+          player.set({ ready: true });
 
           if (game.getFreePlayerSlot()) return { preventListenerRemove: true };
 
@@ -16,10 +18,10 @@
 
           if (game.restorationMode) return game.restart();
 
-          game.run('initPrepareGameEvents', {}, initPlayer);
+          game.run('initPrepareGameEvents', {}, player);
         },
       },
     },
-    { allowedPlayers: this.players() }
+    { publicHandlers: ['PLAYER_JOIN'] }
   );
 });

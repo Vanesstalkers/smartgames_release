@@ -83,6 +83,8 @@ export default {
     player,
     card,
     tutorial,
+    plane,
+    bridge,
   },
   props: {},
   data() {

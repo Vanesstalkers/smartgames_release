@@ -1,41 +1,68 @@
 <template>
-  <div v-if="player._id || viewer._id" :class="[
-    'player',
-    ...customClass,
-    iam ? 'iam' : '',
-    player.active ? 'active' : '',
-  ]">
+  <div
+    v-if="player._id || viewer._id"
+    :class="['player', ...customClass, iam ? 'iam' : '', player.active ? 'active' : '']"
+  >
     <div class="inner-content" :style="{ justifyContent: 'flex-end' }">
-      <div class="player-hands" v-if="game.status != 'WAIT_FOR_PLAYERS'"
-        :style="{ justifyContent: 'flex-end', maxWidth: (state.innerWidth - 200) + 'px' }">
-        <div v-if="hasPlaneInHand" class="hand-planes" :style="{
-          ...(iam
-            ? { marginRight: state.isPortrait ? '-120px' : Math.max(500, 70 * planeInHandIds.length) + 'px' }
-            : { marginLeft: (state.isPortrait ? -1 : 1) * (Math.max(150, 20 * planeInHandIds.length)) + 'px' })
-        }">
-          <plane v-if="iam && player.eventData?.fakePlaneAddBtn" :key="'fake'" :planeId="'fake'" :inHand="true"
-            :class="['in-hand', 'add-block-action']" />
+      <div
+        class="player-hands"
+        v-if="game.status != 'WAIT_FOR_PLAYERS'"
+        :style="{ justifyContent: 'flex-end', maxWidth: state.innerWidth - 200 + 'px' }"
+      >
+        <div
+          v-if="hasPlaneInHand"
+          class="hand-planes"
+          :style="{
+            ...(iam
+              ? { marginRight: state.isPortrait ? '-120px' : Math.max(500, 70 * planeInHandIds.length) + 'px' }
+              : { marginLeft: (state.isPortrait ? -1 : 1) * Math.max(150, 20 * planeInHandIds.length) + 'px' }),
+          }"
+        >
+          <plane
+            v-if="iam && player.eventData?.fakePlaneAddBtn"
+            :key="'fake'"
+            :planeId="'fake'"
+            :inHand="true"
+            :class="['in-hand', 'add-block-action']"
+          />
           <plane v-for="id in planeInHandIds" :key="id" :planeId="id" :inHand="true" :class="['in-hand']" />
         </div>
 
         <div v-if="!hasPlaneInHand" class="hand-dices-list">
           <div v-for="deck in dominoDecks" :key="deck._id" class="hand-dices-list-content">
             <div v-if="iam || showDecks || !state.isPortrait" class="hand-dices">
-              <dice v-for="id in Object.keys(deck.itemMap)" :key="id" :diceId="id" :inHand="true" :iam="iam"
-                :gameId="player.gameId" />
+              <dice
+                v-for="id in Object.keys(deck.itemMap)"
+                :key="id"
+                :diceId="id"
+                :inHand="true"
+                :iam="iam"
+                :gameId="player.gameId"
+              />
               <card v-if="iam && deck.subtype === 'teamlead'" :cardData="{ name: 'teamlead' }" />
               <card v-if="iam && deck.subtype === 'flowstate'" :cardData="{ name: 'flowstate' }" />
             </div>
           </div>
         </div>
         <div
-          v-if="(iam || (gameState.viewerMode && gameCustom.viewerState.showCards[player._id] === true)) && !hasPlaneInHand"
+          v-if="
+            (iam || (gameState.viewerMode && gameCustom.viewerState.showCards[player._id] === true)) && !hasPlaneInHand
+          "
           class="hand-cards-list"
-          :style="gameState.viewerMode ? { width: handCardsWidth !== 'auto' ? parseInt(handCardsWidth) * 0.5 + 'px' : 'auto' } : {}"
-          ref="scrollbar">
+          :style="
+            gameState.viewerMode
+              ? { width: handCardsWidth !== 'auto' ? parseInt(handCardsWidth) * 0.5 + 'px' : 'auto' }
+              : {}
+          "
+          ref="scrollbar"
+        >
           <div v-for="deck in cardDecks" :key="deck._id" class="hand-cards" :style="{ width: handCardsWidth }">
-            <card v-for="id in Object.keys(deck.itemMap)" :key="id" :cardId="id"
-              :canPlay="iam && sessionPlayerIsActive()" />
+            <card
+              v-for="id in Object.keys(deck.itemMap)"
+              :key="id"
+              :cardId="id"
+              :canPlay="iam && sessionPlayerIsActive()"
+            />
           </div>
         </div>
       </div>
@@ -54,16 +81,29 @@
       </div>
 
       <div class="workers">
-        <card-worker :playerId="playerId" :viewerId="viewerId" :iam="iam" :showControls="showControls"
-          :dominoDeckCount="mainDominoDeckItemsCount" :cardDeckCount="mainCardDeckItemsCount" />
+        <card-worker
+          :playerId="playerId"
+          :viewerId="viewerId"
+          :iam="iam"
+          :showControls="showControls"
+          :dominoDeckCount="mainDominoDeckItemsCount"
+          :cardDeckCount="mainCardDeckItemsCount"
+        />
       </div>
-      <div v-if="iam" :class="[
-        'player-helper',
-        player.staticHelper?.text ? 'new-tutorial' : '',
-        helperChecked ? 'helper-checked' : '',
-      ]">
-        <dialog-helper v-if="iam && player.staticHelper" style="display: block" :dialogStyle="{}"
-          :customData="player.staticHelper" />
+      <div
+        v-if="iam"
+        :class="[
+          'player-helper',
+          player.staticHelper?.text ? 'new-tutorial' : '',
+          helperChecked ? 'helper-checked' : '',
+        ]"
+      >
+        <dialog-helper
+          v-if="iam && player.staticHelper"
+          style="display: block"
+          :dialogStyle="{}"
+          :customData="player.staticHelper"
+        />
       </div>
     </div>
   </div>
@@ -175,8 +215,13 @@ export default {
     planeInHandIds() {
       return Object.keys(
         this.deckIds.map((id) => this.store.deck?.[id]).find((deck) => deck.type === 'plane')?.itemMap || {}
-      ).map((id) => this.store.plane?.[id] ? id : 'fake' + id)
-        .sort((a, b) => (this.store.plane?.[a]?.customClass?.includes('card-plane') ? 1 : 0) - (this.store.plane?.[b]?.customClass?.includes('card-plane') ? 1 : 0));
+      )
+        .map((id) => (this.store.plane?.[id] ? id : 'fake' + id))
+        .sort(
+          (a, b) =>
+            (this.store.plane?.[a]?.customClass?.includes('card-plane') ? 1 : 0) -
+            (this.store.plane?.[b]?.customClass?.includes('card-plane') ? 1 : 0)
+        );
     },
     hasPlaneInHand() {
       return this.planeInHandIds.length > 0;
@@ -188,14 +233,11 @@ export default {
       return this.sessionPlayerIsActive() && this.sessionPlayerEventData.player?.[this.playerId]?.showDecks;
     },
     handCardsWidth() {
-      const cardWidth = 120;
+      const cardWidth = 130;
       const maxCardStack = 4;
+      const columns = Math.ceil(this.mainCardDeckItemsCount / maxCardStack);
 
-      return !state.isMobile
-        ? `${Math.ceil(this.mainCardDeckItemsCount / maxCardStack) * cardWidth}px`
-        : this.mainCardDeckItemsCount > 0
-          ? `${cardWidth}px`
-          : 'auto';
+      return !state.isMobile ? `${columns * cardWidth}px` : this.mainCardDeckItemsCount > 0 ? `${cardWidth}px` : 'auto';
     },
   },
 };
@@ -218,8 +260,8 @@ export default {
 
   &.mobile-view {
     .player.iam {
-      >.inner-content {
-        >.player-hands {
+      > .inner-content {
+        > .player-hands {
           flex-wrap: nowrap;
 
           .plane.add-block-action {
@@ -242,7 +284,7 @@ export default {
     &.portrait-view {
       .player {
         &:not(.iam) {
-          >.inner-content {
+          > .inner-content {
             flex-direction: row;
 
             .hand-planes {
@@ -334,6 +376,7 @@ export default {
     .hand-cards-list {
       .hand-cards {
         margin-left: 10px;
+        gap: 10px;
         max-height: 250px;
         flex-direction: column;
       }
@@ -342,7 +385,7 @@ export default {
 
   &.viewer-mode {
     .hand-dices-list {
-      >.hand-dices-list-content {
+      > .hand-dices-list-content {
         z-index: 1;
         transform: scale(0.7);
         transform-origin: bottom left;
@@ -356,7 +399,7 @@ export default {
     position: relative;
     margin-top: 10px;
 
-    >.inner-content {
+    > .inner-content {
       display: flex;
       align-items: flex-end;
       flex-direction: row-reverse;
@@ -396,7 +439,7 @@ export default {
         }
       }
 
-      &.fake>.custom-bg {
+      &.fake > .custom-bg {
         display: none;
       }
 
@@ -421,7 +464,7 @@ export default {
         z-index: 2;
         margin: 180px 0px 260px -160px;
 
-        >.price {
+        > .price {
           display: none;
         }
 
@@ -433,7 +476,7 @@ export default {
   }
 
   &.iam {
-    >.inner-content {
+    > .inner-content {
       display: flex;
       align-items: flex-end;
       position: absolute;
@@ -470,7 +513,7 @@ export default {
           z-index: 2;
           margin: 180px 0px 260px -160px;
 
-          >.price {
+          > .price {
             font-size: 24px;
           }
 
@@ -497,7 +540,7 @@ export default {
             display: none;
           }
 
-          >.custom-bg {
+          > .custom-bg {
             display: none;
           }
 
@@ -527,23 +570,23 @@ export default {
               display: block;
             }
 
-            >.custom-bg {
+            > .custom-bg {
               display: flex;
             }
 
             &::before {
-              content: "+";
+              content: '+';
               padding-left: 8px;
               width: 100%;
             }
           }
 
-          >.price {
+          > .price {
             display: none !important;
           }
         }
 
-        &:hover>.price {
+        &:hover > .price {
           display: block;
         }
       }
@@ -571,7 +614,7 @@ export default {
       opacity: 0.5;
       cursor: pointer !important;
 
-      >.controls {
+      > .controls {
         display: none !important;
       }
     }
@@ -599,8 +642,8 @@ export default {
     }
   }
 
-  >.ps {
-    >.ps__rail-y {
+  > .ps {
+    > .ps__rail-y {
       display: none !important;
     }
   }
@@ -610,7 +653,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
 
-  >.card-event {
+  > .card-event {
     margin-top: -130px;
   }
 }
@@ -622,7 +665,7 @@ export default {
   height: auto;
   width: auto;
 
-  >.hand-dices-list-content {
+  > .hand-dices-list-content {
     width: 0px;
     height: 150px;
     position: relative;
@@ -675,7 +718,7 @@ export default {
     flex-shrink: 0;
   }
 
-  >.plane {
+  > .plane {
     flex-shrink: 2;
     position: relative;
 
@@ -687,12 +730,12 @@ export default {
       }
     }
 
-    >.price {
+    > .price {
       display: none;
     }
   }
 
-  >.ps__rail-x {
+  > .ps__rail-x {
     left: auto !important;
     right: 0px;
   }
