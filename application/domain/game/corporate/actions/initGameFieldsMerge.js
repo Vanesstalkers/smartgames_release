@@ -163,7 +163,7 @@
           const { game, player } = this.eventContext();
           const gamePlaneDeck = game.find('Deck[plane]');
           const playerPlaneDeck = player.find('Deck[plane]');
-          const planeList = playerPlaneDeck.getAllItems();
+          const planeList = playerPlaneDeck.items();
 
           const eventPlanes = player.eventData.plane || {};
           const planeId = plane.id();

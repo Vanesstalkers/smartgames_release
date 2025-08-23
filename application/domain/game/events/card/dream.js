@@ -3,7 +3,7 @@
     const { game, player } = this.eventContext();
 
     const eventData = { plane: {} };
-    for (const plane of game.decks.table.getAllItems()) {
+    for (const plane of game.decks.table.items()) {
       if (plane.isCardPlane()) continue;
       eventData.plane[plane.id()] = { selectable: true, dicesCount: plane.dicesCount() };
     }

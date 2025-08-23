@@ -143,7 +143,7 @@
         zoneList.push(...deletedDicesZones);
       } else {
         zoneList.push(
-          ...game.decks.table.getAllItems().reduce((arr, plane) => {
+          ...game.decks.table.items().reduce((arr, plane) => {
             return arr.concat(plane.select('Zone'));
           }, [])
         );

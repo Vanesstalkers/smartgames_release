@@ -46,7 +46,7 @@
     return linkedPlanes;
   };
 
-  for (const plane of this.decks.table.getAllItems()) {
+  for (const plane of this.decks.table.items()) {
     if (plane === joinPlane) continue;
 
     for (const port of plane.ports()) {

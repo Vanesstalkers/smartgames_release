@@ -27,7 +27,7 @@
           ? game.merged
             ? game.game().decks.table.items().filter(p => p.anchorGameId === gameId || p.mergedGameId === gameId || p.customClass.includes('central'))
             : game.decks.table.items()
-          : game.decks.table.getAllItems();
+          : game.decks.table.items();
         const availableBridges = isCompetitionGame
           ? game.merged
             ? game.game().select('Bridge').filter(b => b.anchorGameId === gameId || b.mergedGameId === gameId)

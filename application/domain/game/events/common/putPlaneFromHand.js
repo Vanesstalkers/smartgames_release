@@ -50,7 +50,7 @@
       if (game.decks.table.itemsCount() === 0) {
         if (!joinPlane) {
           joinPlane = player.find('Deck[plane]')
-            .getAllItems()
+            .items()
             .sort((a, b) => a.portsCount() < b.portsCount() ? -1 : 1)
             .pop();
         }
@@ -59,7 +59,7 @@
         return { preventListenerRemove: true };
       }
 
-      const planeStates = game.decks.table.getAllItems().reduce((acc, plane) => {
+      const planeStates = game.decks.table.items().reduce((acc, plane) => {
         const canBeRemoved = plane.canBeRemovedFromTable({ player });
         acc[plane.id()] = canBeRemoved ? { selectable: true, mustBePlaced: true } : null;
         return acc;

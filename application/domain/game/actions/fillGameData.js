@@ -11,6 +11,9 @@
   this.gameType = data.gameType;
   this.gameConfig = data.gameConfig;
   this.gameTimer = data.gameTimer;
+  this.difficulty = data.difficulty;
+  this.maxPlayersInGame = data.maxPlayersInGame;
+  this.minPlayersToStart = data.minPlayersToStart;
   this.addTime = data.addTime;
   this.settings = data.settings;
   this.status = data.status;
@@ -47,7 +50,7 @@
     const cardsToRemove = this.settings.cardsToRemove || [];
     for (const [deckCode, json] of [
       ['Deck[domino]', configs.dices()],
-      ['Deck[card]', configs.cards().filter((card) => !cardsToRemove.includes(card.name))],
+      ['Deck[card]', configs.cards().list.filter((card) => !cardsToRemove.includes(card.name));
       ['Deck[plane]', configs.planes()],
     ]) {
       const deck = this.find(deckCode);

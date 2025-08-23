@@ -138,7 +138,7 @@
   checkFieldIsReady() {
     const planeList = this.merged
       ? this.game().decks.table.select({ className: 'Plane', attr: { sourceGameId: this.id() } })
-      : this.decks.table.getAllItems();
+      : this.decks.table.items();
     const bridgeList = this.merged
       ? this.game().select({ className: 'Bridge', attr: { sourceGameId: this.id() } })
       : this.select({ className: 'Bridge', directParent: this });

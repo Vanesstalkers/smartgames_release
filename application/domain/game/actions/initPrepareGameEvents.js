@@ -61,7 +61,7 @@
           const player = game.roundActivePlayer();
           const eventPlanes = player.eventData.plane || {};
           const hand = player.find('Deck[plane]');
-          const handPlanes = hand.getAllItems();
+          const handPlanes = hand.items();
           const planeId = plane.id();
 
           if (!eventPlanes[planeId]?.mustBePlaced && !eventPlanes[planeId]?.extraPlane) {
@@ -100,7 +100,7 @@
           }
           player.set({ eventData });
 
-          const remainPlanes = hand.getAllItems().find((p) => !eventPlanes[p.id()]?.extraPlane && !eventPlanes[p.id()]?.oneOfMany);
+          const remainPlanes = hand.items().find((p) => !eventPlanes[p.id()]?.extraPlane && !eventPlanes[p.id()]?.oneOfMany);
           if (remainPlanes) {
             // еще остались обязательные к размещению блоки
             this.emit('NO_AVAILABLE_PORTS');
