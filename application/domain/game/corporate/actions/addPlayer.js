@@ -1,14 +1,17 @@
 (function (data) {
   const player = this.run('domain.addPlayer', data);
   const playerId = player.id();
+  const superGame = this.game();
 
   if (!this.getTeamlead()) {
     player.set({ teamlead: true, active: true });
   }
 
   this.set({ playerMap: { [playerId]: {} } });
-  const gameProcessEvent = this.eventData.activeEvents.find(e => e.name === 'gameProcess');
-  if (gameProcessEvent) gameProcessEvent.allowedPlayers(this.players());
+  for (const game of [this, superGame]) {
+    const gameProcessEvent = game.eventData.activeEvents.find((e) => e.name === 'gameProcess');
+    if (gameProcessEvent) gameProcessEvent.allowedPlayers(game.players({ readyOnly: false }));
+  }
 
   const access = { [playerId]: {} };
   if (this.gameConfig === 'cooperative') {
@@ -17,7 +20,6 @@
     this.find('Deck[card_common]').set({ access });
   }
 
-  const superGame = this.game();
   superGame.set({ playerMap: { [playerId]: {} } });
   superGame.decks.table.set({ access });
   superGame.decks.active.set({ access });

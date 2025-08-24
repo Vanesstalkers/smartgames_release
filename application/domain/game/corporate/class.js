@@ -24,7 +24,27 @@
     return super.select(query);
   }
 
-  async create({ deckType, gameType, gameConfig, gameTimer, teamsCount, playerCount, maxPlayersInGame, gameRoundLimit } = {}) {
+  getBroadcastRuleMethod(ruleHandler) {
+    const splittedPath = ['actions', 'broadcastRules', ruleHandler];
+    let method = lib.utils.getDeep(domain, ['game', 'corporate', ...splittedPath]);
+    if (!method) method = lib.utils.getDeep(domain, ['game', ...splittedPath]);
+    if (!method) method = lib.utils.getDeep(lib, ['game', ...splittedPath]);
+
+    if (typeof method !== 'function') throw notFoundErr;
+
+    return method;
+  }
+
+  async create({
+    deckType,
+    gameType,
+    gameConfig,
+    gameTimer,
+    teamsCount,
+    playerCount,
+    maxPlayersInGame,
+    gameRoundLimit,
+  } = {}) {
     const usedTemplates = [];
 
     if (!teamsCount?.val) throw new Error('Количество команд должно быть указано');
@@ -151,10 +171,7 @@
 
       player.set({ ready: true, userId, userName });
       lib.store.broadcaster.publishAction.call(this, `gameuser-${userId}`, 'joinGame', {
-        gameId,
-        playerId,
-        deckType: this.deckType,
-        gameType: this.gameType,
+        ...{ gameId, playerId, deckType: this.deckType, gameType: this.gameType },
         isSinglePlayer: this.isSinglePlayer(),
       });
 
@@ -169,23 +186,25 @@
       this.logs({ msg: `Игрок {{player}} присоединился к игре.`, userId });
 
       if (this.status === 'IN_PROCESS') {
-        if (this.gameConfig === 'cooperative') {
-          const turnOrder = this.turnOrder;
-          if (playerGame.merged && !turnOrder.includes(playerGame.id())) {
-            turnOrder.push(playerGame.id());
-            this.set({ turnOrder });
-          }
-        }
-        if (this.gameConfig === 'competition') {
-          const roundPool = this.roundPool;
-          if (!playerGame.merged) {
-            const { data } = roundPool.get('common');
-            if (!data.includes(playerGame)) {
-              roundPool.update('common', data.concat(playerGame));
-              roundPool.setActive('common', true);
+        if (this.gameType === 'corporate') {
+          if (this.gameConfig === 'cooperative') {
+            const turnOrder = this.turnOrder;
+            if (playerGame.merged && !turnOrder.includes(playerGame.id())) {
+              turnOrder.push(playerGame.id());
+              this.set({ turnOrder });
             }
-          } else {
-            roundPool.setActive(playerGame.id(), true);
+          }
+          if (this.gameConfig === 'competition') {
+            const roundPool = this.roundPool;
+            if (!playerGame.merged) {
+              const { data } = roundPool.get('common');
+              if (!data.includes(playerGame)) {
+                roundPool.update('common', data.concat(playerGame));
+                roundPool.setActive('common', true);
+              }
+            } else {
+              roundPool.setActive(playerGame.id(), true);
+            }
           }
         }
       }
@@ -209,7 +228,6 @@
     if (this.status !== 'FINISHED' && !viewerId) {
       this.logs({ msg: `Игрок {{player}} вышел из игры.`, userId });
       try {
-
         const player = this.getPlayerByUserId(userId);
         this.run('processPlayerLeave', {}, player);
 
@@ -354,7 +372,9 @@
     if (availableZonesCount + vacantIntergationZonesCount > dicesInDeck + dicesInHandCount) {
       for (const player of this.players()) {
         if (!player.teamlead) continue;
-        player.notifyUser('Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля. Попробуйте восстановить более ранние раунды игры.');
+        player.notifyUser(
+          'Оставшихся костяшек домино не достаточно, чтобы закрыть все свободные зоны игрового поля. Попробуйте восстановить более ранние раунды игры.'
+        );
       }
     }
   }
@@ -384,7 +404,10 @@
       if (!data.userId) data.userId = this.roundActiveGame()?.roundActivePlayer()?.userId;
       const player = this.getPlayerByUserId(data.userId);
       const game = player?.game();
-      data.msg = data.msg.replace(/{{player}}/g, `<player team="${game?.templates?.code || "central"}">${player?.userName || ''}</player>`);
+      data.msg = data.msg.replace(
+        /{{player}}/g,
+        `<player team="${game?.templates?.code || 'central'}">${player?.userName || ''}</player>`
+      );
     }
     return super.logs(data, config);
   }
@@ -401,5 +424,19 @@
     zoneParent.set({ release: true });
 
     anchorGame.toggleEventHandlers('RELEASE', { zone }, player);
+  }
+
+  getFullPrice() {
+    let fullPrice = 0;
+
+    for (const game of [this, ...this.getAllGames()]) {
+      const planes = game.decks.table.items();
+      const baseSum = planes.reduce((sum, plane) => sum + plane.price, 0);
+      const timerMod = 30 / game.gameTimer;
+      const configMod = { blitz: 0.5, standart: 0.75, hardcore: 1 }[game.gameConfig] || 1;
+      fullPrice += Math.floor(baseSum * timerMod * configMod);
+    }
+
+    return fullPrice;
   }
 });

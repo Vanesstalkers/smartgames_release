@@ -28,23 +28,23 @@
     superGame.set({ winUserId: winningPlayer.userId, winTeamId: winningTeam.id() });
     superGame.logs(`Команда <team team="${winningTeam.templates.code}">${winningTeam.title}</team> победила в игре.`);
   }
-  
+
   const playerEndGameStatus = {};
-  for (const player of superGame.players()) {
+  for (const player of superGame.players({ readyOnly: false })) {
     const { userId } = player;
     const endGameStatus = canceledByUser
       ? userId === canceledByUser
         ? 'lose'
         : 'cancel'
       : superGame.winTeamId // у игры есть победитель
-        ? superGame.winTeamId === player.gameId || superGame.gameConfig === 'cooperative'
-          ? 'win'
-          : 'lose'
-        : 'lose'; // игра закончилась автоматически
+      ? superGame.winTeamId === player.gameId || superGame.gameConfig === 'cooperative'
+        ? 'win'
+        : 'lose'
+      : 'lose'; // игра закончилась автоматически
     player.set({ endGameStatus });
     playerEndGameStatus[userId] = endGameStatus;
   }
-  
+
   superGame.set({ playerEndGameStatus });
 
   superGame.checkCrutches();
@@ -52,7 +52,7 @@
     gameId: superGame.id(),
     gameType: superGame.deckType,
     playerEndGameStatus: superGame.playerEndGameStatus,
-    fullPrice: superGame.gamesMap ? 0 : superGame.getFullPrice(),
+    fullPrice: superGame.getFullPrice(),
     roundCount: superGame.round,
     crutchCount: superGame.crutchCount(),
     msg,

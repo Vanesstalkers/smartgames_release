@@ -1,106 +1,179 @@
 <template>
-  <game :debug="false" :planeScaleMin="0.2" :planeScaleMax="1" :status="game.status" :superStatus="superGame.status">
-
+  <game
+    :debug="false"
+    :planeScaleMin="0.3"
+    :planeScaleMax="1"
+    :defaultScaleMinVisibleWidth="1000"
+    :status="game.status"
+    :superStatus="superGame.status"
+  >
     <template #helper-guru="{ menuWrapper, menuButtonsMap } = {}">
       <tutorial :game="game" class="scroll-off" :customMenu="customMenu({ menuWrapper, menuButtonsMap })" />
     </template>
 
     <template #chat="{ isVisible, hasUnreadMessages } = {}">
-      <chat :defActiveChannel="`game-${gameState.gameId}`" :userData="userData" :isVisible="isVisible"
-        :class="[isVisible ? 'isVisible' : '']" :hasUnreadMessages="hasUnreadMessages" :channels="chatChannels" />
+      <chat
+        :defActiveChannel="`game-${gameState.gameId}`"
+        :userData="userData"
+        :isVisible="isVisible"
+        :class="[isVisible ? 'isVisible' : '']"
+        :hasUnreadMessages="hasUnreadMessages"
+        :channels="chatChannels"
+      />
     </template>
 
-    <template #gameplane="{ } = {}">
-      <div v-for="game in planeViewGames" :key="game.gameId" :gameId="game.gameId" :class="['gp',
-        game.roundReady ? 'round-ready' : '',
-        allGamesMerged ? 'all-games-merged' : '',
-        sessionPlayerGame.merged ? 'session-game-merged' : '',
-        restoringGameState ? 'restoring-game' : ''
-      ]" :style="{ ...gamePlaneStyle(game.gameId) }">
+    <template #gameplane="{} = {}">
+      <div
+        v-for="game in planeViewGames"
+        :key="game.gameId"
+        :gameId="game.gameId"
+        :class="[
+          'gp',
+          game.roundReady ? 'round-ready' : '',
+          allGamesMerged ? 'all-games-merged' : '',
+          sessionPlayerGame.merged ? 'session-game-merged' : '',
+          restoringGameState ? 'restoring-game' : '',
+        ]"
+        :style="{ ...gamePlaneStyle(game.gameId) }"
+      >
         <div class="gp-content" :style="{ ...gamePlaneContentControlStyle(game.gameId) }">
           <plane v-for="id in Object.keys(game.table?.itemMap || {})" :key="id" :planeId="id" />
           <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
           <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
 
           <div>
-            <div v-for="position in possibleAddPlanePositions(game)" :key="position.code"
-              :joinPortId="position.joinPortId" :joinPortDirect="position.joinPortDirect"
-              :targetPortId="position.targetPortId" :targetPortDirect="position.targetPortDirect"
+            <div
+              v-for="position in possibleAddPlanePositions(game)"
+              :key="position.code"
+              :joinPortId="position.joinPortId"
+              :joinPortDirect="position.joinPortDirect"
+              :targetPortId="position.targetPortId"
+              :targetPortDirect="position.targetPortDirect"
               :style="position.style"
               :class="['fake-plane', position.code === selectedFakePlanePosition ? 'hidden' : '']"
-              @click="previewPlaneOnField($event, position)" @mouseenter="zIndexDecrease($event, position.code)"
-              @mouseleave="zIndexRestore($event, position.code)" />
-            <plane v-for="[_id, style] of Object.entries(gameCustom.selectedFakePlanes[game.gameId] || {})"
-              :key="_id + '_preview'" :planeId="_id" :viewStyle="style" :class="['preview']" />
+              @click="previewPlaneOnField($event, position)"
+              @mouseenter="zIndexDecrease($event, position.code)"
+              @mouseleave="zIndexRestore($event, position.code)"
+            />
+            <plane
+              v-for="[_id, style] of Object.entries(gameCustom.selectedFakePlanes[game.gameId] || {})"
+              :key="_id + '_preview'"
+              :planeId="_id"
+              :viewStyle="style"
+              :class="['preview']"
+            />
           </div>
         </div>
       </div>
     </template>
 
-    <template #gameinfo="{ } = {}">
+    <template #gameinfo="{} = {}">
       <div :class="['wrapper decks ', allGamesMerged ? 'show-super' : '']">
         <div class="game-status-label">
+          Бюджет
+          <span style="color: gold">{{ fullPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}k ₽</span>
           {{ superGame.statusLabel }}
-          <small v-if="selectedGame.roundReady">{{ allGamesMerged ? 'Ход другой команды' : 'Ожидание других команд'
+          <small v-if="selectedGame.roundReady">{{
+            allGamesMerged ? 'Ход другой команды' : 'Ожидание других команд'
           }}</small>
         </div>
-        <div v-for="deck in deckList" :key="deck._id"
+        <div
+          v-for="deck in deckList"
+          :key="deck._id"
           :class="['deck', 'template-' + (selectedGame.templates.code || 'default')]"
-          :code="deck.code.replace(selectedGame.code, '')">
+          :code="deck.code.replace(selectedGame.code, '')"
+        >
           <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[domino]`" class="hat" v-on:click="takeDice">
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[card]`" class="card-event"
-            :style="cardEventCustomStyle[selectedGame._id]" v-on:click="takeCard">
+          <div
+            v-if="deck._id && deck.code === `${selectedGame.code}Deck[card]`"
+            class="card-event"
+            :style="cardEventCustomStyle[selectedGame._id]"
+            v-on:click="takeCard"
+          >
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[card_drop]`" class="card-event"
-            :style="cardEventCustomStyle[selectedGame._id]">
+          <div
+            v-if="deck._id && deck.code === `${selectedGame.code}Deck[card_drop]`"
+            class="card-event"
+            :style="cardEventCustomStyle[selectedGame._id]"
+          >
             {{ Object.keys(deck.itemMap).length }}
           </div>
           <div v-if="deck._id && deck.code === `${selectedGame.code}Deck[card_active]`" class="deck-active">
             <!-- активная карта всегда первая - для верстки она должна стать последней -->
-            <card v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))" :key="_id" :cardId="_id"
-              :canPlay="!played && sessionPlayerIsActive() && showPlayerControls" />
+            <card
+              v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"
+              :key="_id"
+              :cardId="_id"
+              :canPlay="!played && sessionPlayerIsActive() && showPlayerControls"
+            />
           </div>
-          <div v-if="deck._id && deck.code === `SuperDeck[card]`" class="card-event"
-            :style="cardEventCustomStyle[superGame._id]" v-on:click="takeCard">
+          <div
+            v-if="deck._id && deck.code === `SuperDeck[card]`"
+            class="card-event"
+            :style="cardEventCustomStyle[superGame._id]"
+            v-on:click="takeCard"
+          >
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === `SuperDeck[card_drop]`" class="card-event"
-            :style="cardEventCustomStyle[superGame._id]">
+          <div
+            v-if="deck._id && deck.code === `SuperDeck[card_drop]`"
+            class="card-event"
+            :style="cardEventCustomStyle[superGame._id]"
+          >
             {{ Object.keys(deck.itemMap).length }}
           </div>
           <div v-if="deck._id && deck.code === `SuperDeck[card_active]`" class="deck-active">
             <!-- активная карта всегда первая - для верстки она должна стать последней -->
-            <card v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))" :key="_id" :cardId="_id"
-              :canPlay="!played && sessionPlayerIsActive() && showPlayerControls" />
+            <card
+              v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"
+              :key="_id"
+              :cardId="_id"
+              :canPlay="!played && sessionPlayerIsActive() && showPlayerControls"
+            />
           </div>
         </div>
       </div>
     </template>
 
-    <template #player="{ } = {}">
-      <player :playerId="gameState.sessionPlayerId" :viewerId="gameState.sessionViewerId"
-        :customClass="[`scale-${state.guiScale}`]" :iam="true" :showControls="showPlayerControls" />
+    <template #player="{} = {}">
+      <player
+        :playerId="gameState.sessionPlayerId"
+        :viewerId="gameState.sessionViewerId"
+        :customClass="[`scale-${state.guiScale}`]"
+        :iam="true"
+        :showControls="showPlayerControls"
+      />
     </template>
-    <template #opponents="{ } = {}">
+    <template #opponents="{} = {}">
       <div class="games">
-        <div v-for="game in sortedGames" :key="game.gameId" :class="[
-          'game-item',
-          game.selected ? 'selected' : '',
-          game.super ? 'super' : '',
-          game.my ? 'my' : '',
-          game.roundReady ? 'round-ready' : '',
-          game.merged && !allGamesMerged ? 'disable-field' : '',
-          game.selectable ? 'selectable' : '',
-        ]" v-on:click="selectGame(game.gameId, { selectable: game.selectable })">
+        <div
+          v-for="game in sortedGames"
+          :key="game.gameId"
+          :class="[
+            'game-item',
+            game.selected ? 'selected' : '',
+            game.super ? 'super' : '',
+            game.my ? 'my' : '',
+            game.roundReady ? 'round-ready' : '',
+            game.merged && !allGamesMerged ? 'disable-field' : '',
+            game.selectable ? 'selectable' : '',
+          ]"
+          v-on:click="selectGame(game.gameId, { selectable: game.selectable })"
+        >
           {{ game.title }}
         </div>
       </div>
 
-      <player v-for="(id, index) in playerIds" :key="id" :playerId="id" :customClass="[`idx-${index}`]"
-        :showControls="playerGamesReady[id] ? false : true" />
+      <player
+        v-for="(id, index) in playerIds"
+        :key="id"
+        :playerId="id"
+        :customClass="[`idx-${index}`]"
+        :showControls="playerGamesReady[id] ? false : true"
+      />
     </template>
   </game>
 </template>
@@ -141,7 +214,7 @@ export default {
     const gameGlobals = prepareGameGlobals({
       gameCustomArgs: {
         ...gameCustomArgs,
-        gamePlaneRotations: {}
+        gamePlaneRotations: {},
       },
     });
 
@@ -262,13 +335,17 @@ export default {
     },
 
     fullPrice() {
-      const { gameTimer, gameConfig } = this.game;
-      const baseSum = Object.keys(this.tablePlanes.itemMap)
-        .map((planeId) => this.store.plane?.[planeId] || {})
-        .reduce((sum, plane) => sum + plane.price, 0);
-      const timerMod = 30 / gameTimer;
-      const configMod = { blitz: 0.5, standart: 0.75, hardcore: 1 }[gameConfig] || 1; // !!! + corporate
-      return Math.floor(baseSum * timerMod * configMod);
+      let fullPrice = 0;
+      for (const game of this.games) {
+        const { gameTimer, gameConfig, table } = game;
+        const baseSum = Object.keys(table.itemMap)
+          .map((planeId) => this.store.plane?.[planeId] || {})
+          .reduce((sum, plane) => sum + plane.price, 0);
+        const timerMod = 30 / gameTimer;
+        const configMod = { blitz: 0.5, standart: 0.75, hardcore: 1 }[gameConfig] || 1; // !!! + corporate
+        fullPrice += Math.floor(baseSum * timerMod * configMod);
+      }
+      return fullPrice;
     },
     deckList() {
       let resultDeckList = Object.keys(this.selectedGame.deckMap).map((id) => this.store.deck?.[id]);
@@ -310,7 +387,8 @@ export default {
           code: game.code,
           merged: game.merged,
           gameConfig: game.gameConfig,
-          selectable: this.sessionPlayerIsActive() && this.sessionPlayerEventData.game?.[gameId]?.selectable
+          gameTimer: game.gameTimer,
+          selectable: this.sessionPlayerIsActive() && this.sessionPlayerEventData.game?.[gameId]?.selectable,
         };
       });
     },
@@ -380,7 +458,8 @@ export default {
             },
           },
           {
-            text: 'Активировать подсказки', action: async function () {
+            text: 'Активировать подсказки',
+            action: async function () {
               await api.action
                 .call({
                   path: 'helper.api.restoreLinks',
@@ -397,51 +476,59 @@ export default {
                   }
                 })
                 .catch(prettyAlert);
-            }
-          },
-          !this.player.teamlead ? null : {
-            text: 'Покажи действия тимлида',
-            style: { boxShadow: 'inset 0px 0px 20px #f4e205' },
-            customClass: 'teamlead-actions',
-            action: {
-              text: 'Выбери действие:',
-              showList: [
-                {
-                  title: 'Вернуть игровой стол команды',
-                  action: { tutorial: 'game-tutorial-teamleadMenu', step: 'transferTable' },
-                },
-                { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-restoreForced' } },
-                {
-                  title: 'Переименовать команду', action: { tutorial: 'game-tutorial-teamleadMenu', step: 'renameTeam' }
-                },
-                this.playerIds.length > 0 ? {
-                  title: 'Передать руководство',
-                  action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
-                } : null,
-                this.playerIds.length > 0 ? {
-                  title: 'Удалить игрока из команды',
-                  action: { tutorial: 'game-tutorial-teamleadMenu', step: 'removePlayer' },
-                } : null,
-                {
-                  title: 'Завершить текущий раунд',
-                  action: { tutorial: 'game-tutorial-teamleadMenu', step: 'endRound' },
-                }
-              ],
-              buttons: [
-                { text: 'Назад в меню', action: 'init' },
-                { text: 'Спасибо', action: 'exit', exit: true },
-              ],
             },
           },
+          !this.player.teamlead
+            ? null
+            : {
+                text: 'Покажи действия тимлида',
+                style: { boxShadow: 'inset 0px 0px 20px #f4e205' },
+                customClass: 'teamlead-actions',
+                action: {
+                  text: 'Выбери действие:',
+                  showList: [
+                    {
+                      title: 'Вернуть игровой стол команды',
+                      action: { tutorial: 'game-tutorial-teamleadMenu', step: 'transferTable' },
+                    },
+                    { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-restoreForced' } },
+                    {
+                      title: 'Переименовать команду',
+                      action: { tutorial: 'game-tutorial-teamleadMenu', step: 'renameTeam' },
+                    },
+                    this.playerIds.length > 0
+                      ? {
+                          title: 'Передать руководство',
+                          action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
+                        }
+                      : null,
+                    this.playerIds.length > 0
+                      ? {
+                          title: 'Удалить игрока из команды',
+                          action: { tutorial: 'game-tutorial-teamleadMenu', step: 'removePlayer' },
+                        }
+                      : null,
+                    {
+                      title: 'Завершить текущий раунд',
+                      action: { tutorial: 'game-tutorial-teamleadMenu', step: 'endRound' },
+                    },
+                  ],
+                  buttons: [
+                    { text: 'Назад в меню', action: 'init' },
+                    { text: 'Спасибо', action: 'exit', exit: true },
+                  ],
+                },
+              },
           {
-            text: 'Выйти из игры', action: async function () {
+            text: 'Выйти из игры',
+            action: async function () {
               await api.action
                 .call({
                   path: 'game.api.leave',
                   args: [],
                 })
                 .catch(prettyAlert);
-            }
+            },
           },
         ],
       };
@@ -470,7 +557,7 @@ export default {
     teamChatUsers() {
       const playerMap = this.game.playerMap;
       return Object.values(this.store.player)
-        .filter(p => playerMap[p._id])
+        .filter((p) => playerMap[p._id])
         .reduce((obj, { userId, isViewer }) => {
           let user = { ...this.lobby.users?.[userId] };
           return Object.assign(obj, { [userId]: user });
@@ -501,43 +588,50 @@ export default {
         showList: [
           { title: 'Стартовое приветствие игры', action: { tutorial: 'game-tutorial-start' } },
           { title: 'Управление игровым полем', action: { tutorial: 'game-tutorial-gamePlane' } },
-        ]
+        ],
       });
 
-      const teamleadActions = !this.player.teamlead ? null : {
-        text: 'Покажи действия тимлида',
-        style: { boxShadow: 'inset 0px 0px 20px #f4e205' },
-        customClass: 'teamlead-actions',
-        action: {
-          text: 'Выбери действие:',
-          showList: [
-            {
-              title: 'Вернуть игровой стол команды',
-              action: { tutorial: 'game-tutorial-teamleadMenu', step: 'transferTable' },
+      const teamleadActions = !this.player.teamlead
+        ? null
+        : {
+            text: 'Покажи действия тимлида',
+            style: { boxShadow: 'inset 0px 0px 20px #f4e205' },
+            customClass: 'teamlead-actions',
+            action: {
+              text: 'Выбери действие:',
+              showList: [
+                {
+                  title: 'Вернуть игровой стол команды',
+                  action: { tutorial: 'game-tutorial-teamleadMenu', step: 'transferTable' },
+                },
+                { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-restoreForced' } },
+                {
+                  title: 'Переименовать команду',
+                  action: { tutorial: 'game-tutorial-teamleadMenu', step: 'renameTeam' },
+                },
+                this.playerIds.length > 0
+                  ? {
+                      title: 'Передать руководство',
+                      action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
+                    }
+                  : null,
+                this.playerIds.length > 0
+                  ? {
+                      title: 'Удалить игрока из команды',
+                      action: { tutorial: 'game-tutorial-teamleadMenu', step: 'removePlayer' },
+                    }
+                  : null,
+                {
+                  title: 'Завершить текущий раунд',
+                  action: { tutorial: 'game-tutorial-teamleadMenu', step: 'endRound' },
+                },
+              ],
+              buttons: [
+                { text: 'Назад в меню', action: 'init' },
+                { text: 'Спасибо', action: 'exit', exit: true },
+              ],
             },
-            { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-restoreForced' } },
-            {
-              title: 'Переименовать команду', action: { tutorial: 'game-tutorial-teamleadMenu', step: 'renameTeam' }
-            },
-            this.playerIds.length > 0 ? {
-              title: 'Передать руководство',
-              action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
-            } : null,
-            this.playerIds.length > 0 ? {
-              title: 'Удалить игрока из команды',
-              action: { tutorial: 'game-tutorial-teamleadMenu', step: 'removePlayer' },
-            } : null,
-            {
-              title: 'Завершить текущий раунд',
-              action: { tutorial: 'game-tutorial-teamleadMenu', step: 'endRound' },
-            }
-          ],
-          buttons: [
-            { text: 'Назад в меню', action: 'init' },
-            { text: 'Спасибо', action: 'exit', exit: true },
-          ],
-        },
-      };
+          };
 
       return menuWrapper({
         buttons: [cancel(), restore(), fillTutorials, helperLinks(), teamleadActions, leave()],
@@ -705,7 +799,7 @@ export default {
           },
         });
       }
-    }
+    },
   },
 };
 </script>
@@ -730,12 +824,12 @@ export default {
   opacity: 0.5;
   cursor: default !important;
 
-  >.controls {
+  > .controls {
     display: none !important;
   }
 }
 
-.deck>.card-event {
+.deck > .card-event {
   width: 60px;
   height: 90px;
   border: none;
@@ -748,7 +842,7 @@ export default {
   background-image: url(./assets/back-side.jpg);
 }
 
-.deck>.card-event:hover {
+.deck > .card-event:hover {
   box-shadow: inset 0 0 0 1000px rgba(255, 255, 255, 0.5);
   color: black !important;
 }
@@ -791,7 +885,7 @@ export default {
   filter: hue-rotate(10deg);
 }
 
-.deck[code='Deck[domino]']>.hat {
+.deck[code='Deck[domino]'] > .hat {
   color: white;
   font-size: 36px;
   padding: 14px;
@@ -817,7 +911,7 @@ export default {
   right: -10px;
   cursor: default;
 
-  >.card-event {
+  > .card-event {
     color: #ccc;
   }
 }
@@ -850,7 +944,6 @@ export default {
 }
 
 .decks.show-super {
-
   .deck[code='SuperDeck[card]'],
   .deck[code='SuperDeck[card_active]'],
   .deck[code='SuperDeck[card_drop]'] {
@@ -890,7 +983,7 @@ export default {
   white-space: nowrap;
   text-shadow: black 1px 0 10px;
 
-  >small {
+  > small {
     display: block;
     font-size: 50%;
   }
@@ -1025,7 +1118,6 @@ export default {
   .game-status-label {
     font-size: 1.5em;
   }
-
 }
 
 #game .log-content .log-item {
@@ -1048,14 +1140,13 @@ export default {
   }
 }
 
-#game[config=competition] .plane:not(.anchor-team-field):not(.core.central) .domino-dice,
-#game[config=competition] .gp:not(.session-game-merged) .plane:not(.anchor-team-field) .domino-dice,
-#game[config=competition] .bridge:not(.anchor-team-field):not(.core.central) .domino-dice,
-#game[config=competition] .gp:not(.session-game-merged) .bridge:not(.anchor-team-field) .domino-dice {
-
+#game[config='competition'] .plane:not(.anchor-team-field):not(.core.central) .domino-dice,
+#game[config='competition'] .gp:not(.session-game-merged) .plane:not(.anchor-team-field) .domino-dice,
+#game[config='competition'] .bridge:not(.anchor-team-field):not(.core.central) .domino-dice,
+#game[config='competition'] .gp:not(.session-game-merged) .bridge:not(.anchor-team-field) .domino-dice {
   cursor: default !important;
 
-  >.controls {
+  > .controls {
     display: none !important;
   }
 }
