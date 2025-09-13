@@ -1,4 +1,7 @@
 async () => {
+  domain.game.configs.devMode = process.env.NODE_ENV === 'development';
+  domain.game.configs.tutorialImgPrefix = domain.game.configs.devMode ? '' : '/release';
+
   {
     const files = await node.fsp.readdir('./application/static/img/cards', { withFileTypes: true });
     const cardTemplates = Object.values(files).map((_) => _.name);
@@ -40,9 +43,9 @@ async () => {
             title: 'Релиз',
             icon: ['fas', 'microchip'],
             active: true,
-            url: process.env.NODE_ENV === 'development' ? 'http://localhost:8082' : url,
+            url: domain.game.configs.devMode ? 'http://localhost:8082' : url,
             serverUrl:
-              process.env.NODE_ENV === 'development' ? `http://localhost:${config.server.balancer}` : `${url}/api`,
+              domain.game.configs.devMode ? `http://localhost:${config.server.balancer}` : `${url}/api`,
             games,
           });
           return;
