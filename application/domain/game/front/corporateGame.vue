@@ -634,7 +634,7 @@ export default {
           };
 
       return menuWrapper({
-        buttons: [cancel(), restore(), fillTutorials, helperLinks(), teamleadActions, leave()],
+        buttons: [cancel(), restore(), fillTutorials, helperLinks({ inGame: true }), teamleadActions, leave()],
       });
     },
     gamePlaneContentControlStyle(gameId) {

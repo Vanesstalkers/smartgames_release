@@ -1,32 +1,42 @@
 <template>
   <game :defaultScaleMinVisibleWidth="1000" :debug="false" :planeScaleMin="0.3" :planeScaleMax="1">
-
     <template #helper-guru="{ menuWrapper, menuButtonsMap } = {}">
       <tutorial :game="game" class="scroll-off" :customMenu="customMenu({ menuWrapper, menuButtonsMap })" />
     </template>
 
-    <template #gameplane="{ } = {}">
+    <template #gameplane="{} = {}">
       <div :class="['gp-content']" :style="{ ...gamePlaneContentControlStyle }">
         <plane v-for="id in Object.keys(tablePlanes.itemMap)" :key="id" :planeId="id" />
         <!-- bridgeMap может не быть на старте игры при формировании поля с нуля -->
         <bridge v-for="id in Object.keys(game.bridgeMap || {})" :key="id" :bridgeId="id" />
 
         <div v-for="positions in possibleAddPlanePositions" :key="JSON.stringify(positions)">
-          <div v-for="position in positions"
+          <div
+            v-for="position in positions"
             :key="position.joinPortId + position.joinPortDirect + position.targetPortId + position.targetPortDirect"
-            :joinPortId="position.joinPortId" :joinPortDirect="position.joinPortDirect"
-            :targetPortId="position.targetPortId" :targetPortDirect="position.targetPortDirect" :style="position.style"
+            :joinPortId="position.joinPortId"
+            :joinPortDirect="position.joinPortDirect"
+            :targetPortId="position.targetPortId"
+            :targetPortDirect="position.targetPortDirect"
+            :style="position.style"
             :class="['fake-plane', position.code === selectedFakePlanePosition ? 'hidden' : '']"
-            @click="previewPlaneOnField($event, position)" @mouseenter="zIndexDecrease($event, position.code)"
-            @mouseleave="zIndexRestore($event, position.code)" />
+            @click="previewPlaneOnField($event, position)"
+            @mouseenter="zIndexDecrease($event, position.code)"
+            @mouseleave="zIndexRestore($event, position.code)"
+          />
         </div>
 
-        <plane v-for="[_id, style] of Object.entries(gameCustom.selectedFakePlanes)" :key="_id + '_preview'"
-          :planeId="_id" :viewStyle="style" :class="['preview']" />
+        <plane
+          v-for="[_id, style] of Object.entries(gameCustom.selectedFakePlanes)"
+          :key="_id + '_preview'"
+          :planeId="_id"
+          :viewStyle="style"
+          :class="['preview']"
+        />
       </div>
     </template>
 
-    <template #gameinfo="{ } = {}">
+    <template #gameinfo="{} = {}">
       <div class="wrapper">
         <div class="game-status-label">
           Бюджет
@@ -37,8 +47,12 @@
           <div v-if="deck._id && deck.code === 'Deck[domino]'" class="hat" v-on:click="takeDice">
             {{ Object.keys(deck.itemMap).length }}
           </div>
-          <div v-if="deck._id && deck.code === 'Deck[card]'" class="card-event" :style="cardEventCustomStyle"
-            v-on:click="takeCard">
+          <div
+            v-if="deck._id && deck.code === 'Deck[card]'"
+            class="card-event"
+            :style="cardEventCustomStyle"
+            v-on:click="takeCard"
+          >
             {{ Object.keys(deck.itemMap).length }}
           </div>
           <div v-if="deck._id && deck.code === 'Deck[card_drop]'" class="card-event" :style="cardEventCustomStyle">
@@ -46,20 +60,34 @@
           </div>
           <div v-if="showPlayerControls && deck._id && deck.code === 'Deck[card_active]'" class="deck-active">
             <!-- активная карта всегда первая - для верстки она должна стать последней -->
-            <card v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))" :key="_id" :cardId="_id"
-              :canPlay="!played && sessionPlayerIsActive()" />
+            <card
+              v-for="{ _id, played } in sortedActiveCards(Object.keys(deck.itemMap))"
+              :key="_id"
+              :cardId="_id"
+              :canPlay="!played && sessionPlayerIsActive()"
+            />
           </div>
         </div>
       </div>
     </template>
 
-    <template #player="{ } = {}">
-      <player :playerId="gameState.sessionPlayerId" :viewerId="gameState.sessionViewerId"
-        :customClass="[`scale-${state.guiScale}`]" :iam="true" :showControls="showPlayerControls" />
+    <template #player="{} = {}">
+      <player
+        :playerId="gameState.sessionPlayerId"
+        :viewerId="gameState.sessionViewerId"
+        :customClass="[`scale-${state.guiScale}`]"
+        :iam="true"
+        :showControls="showPlayerControls"
+      />
     </template>
-    <template #opponents="{ } = {}">
-      <player v-for="(id, index) in playerIds" :key="id" :playerId="id" :customClass="[`idx-${index}`]"
-        :showControls="true" />
+    <template #opponents="{} = {}">
+      <player
+        v-for="(id, index) in playerIds"
+        :key="id"
+        :playerId="id"
+        :customClass="[`idx-${index}`]"
+        :showControls="true"
+      />
     </template>
   </game>
 </template>
@@ -96,7 +124,7 @@ export default {
   setup() {
     const gameGlobals = prepareGameGlobals({
       gameCustomArgs: {
-        ...gameCustomArgs
+        ...gameCustomArgs,
       },
     });
 
@@ -211,8 +239,8 @@ export default {
     possibleAddPlanePositions() {
       if (!this.sessionPlayerIsActive()) return [];
       const availablePorts = this.sessionPlayer().eventData.availablePorts || [];
-      return availablePorts
-        .map(({ gameId, joinPlaneId, joinPortId, joinPortDirect, targetPortId, targetPortDirect, position }) => {
+      return availablePorts.map(
+        ({ gameId, joinPlaneId, joinPortId, joinPortDirect, targetPortId, targetPortDirect, position }) => {
           return [
             {
               code: joinPortId + joinPortDirect + targetPortId + targetPortDirect,
@@ -226,7 +254,8 @@ export default {
               },
             },
           ];
-        });
+        }
+      );
     },
 
     cardEventCustomStyle() {
@@ -250,11 +279,11 @@ export default {
         showList: [
           { title: 'Стартовое приветствие игры', action: { tutorial: 'game-tutorial-start' } },
           { title: 'Управление игровым полем', action: { tutorial: 'game-tutorial-gamePlane' } },
-        ]
+        ],
       });
-      
+
       return menuWrapper({
-        buttons: [cancel(), restore(), fillTutorials, helperLinks(), leave()],
+        buttons: [cancel(), restore(), fillTutorials, helperLinks({ inGame: true }), leave()],
       });
     },
     sortedActiveCards(arr) {
@@ -337,7 +366,7 @@ export default {
   position: absolute;
 }
 
-.deck>.card-event {
+.deck > .card-event {
   width: 60px;
   height: 90px;
   border: none;
@@ -360,7 +389,7 @@ export default {
   cursor: default;
 }
 
-.deck[code='Deck[domino]']>.hat {
+.deck[code='Deck[domino]'] > .hat {
   color: white;
   font-size: 36px;
   padding: 14px;
@@ -386,7 +415,7 @@ export default {
   cursor: default;
 }
 
-.deck[code='Deck[card_drop]']>.card-event {
+.deck[code='Deck[card_drop]'] > .card-event {
   color: #ccc;
 }
 
