@@ -1,6 +1,19 @@
 () =>
   class ReleaseGameUser extends lib.game.userClass() {
-    async gameFinished({ gameId, gameType, playerEndGameStatus, fullPrice, roundCount, crutchCount, msg = {}, preventCalcStats = false } = {}) {
+    async gameFinished(data = {}) {
+      const {
+        corporateGame,
+        gameType,
+        playerEndGameStatus,
+        fullPrice,
+        roundCount,
+        crutchCount,
+        msg = {},
+        preventCalcStats = false,
+      } = data;
+
+      if (corporateGame) return this.corporateGameFinished(data);
+
       const {
         helper: { getTutorial },
         utils: { structuredClone: clone },
@@ -13,7 +26,7 @@
             buttons: [{ text: 'Выйти из игры', action: 'leaveGame' }],
             actions: {
               leaveGame: (async () => {
-                await api.action.call({ path: 'game.api.leave', args: [] }).catch(prettyAlert);
+                await api.action.call({ path: 'game.api.leave', args: [] }).catch(window.prettyAlert);
                 return { exit: true };
               }).toString(), // если без toString(), то нужно вызывать через helper.updateTutorial
             },
@@ -59,7 +72,13 @@
       this.set({ money: (this.money || 0) + income, helper: tutorial[endGameStatus], rankings });
       await this.saveChanges({ saveToLobbyUser: true });
     }
-    async corporateGameFinished({ gameId, gameType, playerEndGameStatus, fullPrice, roundCount, crutchCount, msg = {}, preventCalcStats = false } = {}) {
+    async corporateGameFinished({
+      playerEndGameStatus,
+      fullPrice,
+      crutchCount,
+      msg = {},
+      preventCalcStats = false,
+    } = {}) {
       const {
         helper: { getTutorial },
         utils: { structuredClone: clone },
@@ -72,7 +91,7 @@
             buttons: [{ text: 'Выйти из игры', action: 'leaveGame' }],
             actions: {
               leaveGame: (async () => {
-                await api.action.call({ path: 'game.api.leave', args: [] }).catch(prettyAlert);
+                await api.action.call({ path: 'game.api.leave', args: [] }).catch(window.prettyAlert);
                 return { exit: true };
               }).toString(), // если без toString(), то нужно вызывать через helper.updateTutorial
             },
@@ -84,7 +103,7 @@
 
       if (preventCalcStats) return;
 
-      const endGameStatus = playerEndGameStatus[this.id()];;
+      const endGameStatus = playerEndGameStatus[this.id()];
 
       let income = 0;
       let penaltySum = 0;
