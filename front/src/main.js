@@ -18,15 +18,15 @@ Vue.config.productionTip = false;
 
 const init = async () => {
   if (!window.name) window.name = Date.now() + Math.random();
-  window.tokenName = 'smartgames.session.token';
+
+  window.tokenName = 'smartgames.session.token-' + location.host + location.pathname;
+  if (window.tokenName.endsWith('/')) window.tokenName = window.tokenName.slice(0, -1);
 
   const protocol = location.protocol === 'http:' ? 'ws' : 'wss';
-  // направление на конкретный port нужно для reconnect (см. initSession) + для отладки
-  const port = new URLSearchParams(location.search).get('port') || serverFrontConfig.port;
 
   const serverHost =
     process.env.NODE_ENV === 'development' || new URLSearchParams(document.location.search).get('dev')
-      ? `${location.hostname}:${port}`
+      ? `${location.hostname}:${serverFrontConfig.port}`
       : `${location.hostname + location.pathname}api/`;
 
   const metacom = Metacom.create(`${protocol}://${serverHost}`);
@@ -36,7 +36,6 @@ const init = async () => {
   const { api } = metacom;
   window.metacom = metacom;
   window.api = api;
-  window.iframeEvents = [];
 
   await metacom.load('action');
 
@@ -47,6 +46,7 @@ const init = async () => {
     isMobile: false,
     isLandscape: true,
     isPortrait: false,
+    iframeMode: window !== window.parent,
     isFullscreen: false,
     gamePlaneNeedUpdate: false,
     guiScale: 1,
@@ -56,12 +56,12 @@ const init = async () => {
         mergeDeep({ target: state.store, source: data });
       },
       alert(data, config) {
-        prettyAlert(data, config);
+        window.prettyAlert(data, config);
       },
       logout() {
         window.app.$set(window.app.$root.state, 'currentUser', '');
         localStorage.removeItem(window.tokenName);
-        router.push({ path: `/` }).catch((err) => {
+        router.push({ path: '/' }).catch((err) => {
           console.log(err);
         });
       },
@@ -74,16 +74,15 @@ const init = async () => {
     event(data, config);
   });
 
-  window.addEventListener('message', async function (e) {
+  window.addEventListener('message', async (e) => {
     const { path, args, routeTo, emit } = e.data;
     if (path && args) {
-      const result = await api.action.call({ path, args }).catch((err) => prettyAlert(err));
+      const result = await api.action.call({ path, args }).catch((err) => window.prettyAlert(err));
 
       if (result?.logout === true) {
-        return await api.action.call({ path: 'lobby.api.logout' }).catch(prettyAlert);
+        return await api.action.call({ path: 'lobby.api.logout' }).catch(window.prettyAlert);
       }
       return result;
-
     }
 
     if (routeTo) {
@@ -127,13 +126,7 @@ const init = async () => {
               if (typeof onError === 'function') await onError(err);
             })) || {};
 
-        const { token: sessionToken, userId, reconnect } = session;
-        if (reconnect) {
-          const { workerId, ports } = reconnect;
-          const port = ports[workerId.substring(1) * 1 - 1];
-          location.href = `${location.origin}?port=${port}`;
-          return;
-        }
+        const { token: sessionToken, userId } = session;
 
         this.$set(this.$root.state, 'currentToken', sessionToken);
         if (sessionToken && sessionToken !== token) localStorage.setItem(window.tokenName, sessionToken);
@@ -141,31 +134,8 @@ const init = async () => {
           this.$set(this.$root.state, 'currentUser', userId);
           if (typeof onSuccess === 'function') await onSuccess(session);
         }
-      },
-      async initSessionIframe() {
-        const searchParams = new URLSearchParams(document.location.search);
-        const userId = searchParams.get('userId');
-        const lobbyId = searchParams.get('lobbyId');
-        const token = searchParams.get('token');
 
-        await api.action.public({
-          path: 'user.api.initSession',
-          args: [
-            {
-              ...{ token, userId, lobbyId },
-              windowTabId: window.name,
-            },
-          ],
-        });
-
-        this.$set(this.$root.state, 'currentUser', userId);
-        this.$set(this.$root.state, 'currentLobby', lobbyId);
-        this.$set(this.$root.state, 'lobbyOrigin', searchParams.get('lobbyOrigin'));
-
-        if (window !== window.parent) {
-          const iframeCode = searchParams.get('iframeCode');
-          window.parent.postMessage({ emit: { name: 'iframeAlive', data: { iframeCode } } }, '*');
-        }
+        return session;
       },
     },
   };
@@ -174,7 +144,7 @@ const init = async () => {
     router,
     mixins: [mixin],
     data: { state },
-    render: function (h) {
+    render(h) {
       return h(App);
     },
   });
@@ -196,11 +166,11 @@ const init = async () => {
     const height = window.innerHeight;
     state.innerWidth = screen.width;
     state.innerHeight = screen.height;
-    state.isMobile = isMobile() ? true : false;
+    state.isMobile = !!isMobile();
     state.isLandscape = height < width;
     state.isPortrait = !state.isLandscape;
     state.guiScale = width < 1000 ? 1 : width < 1500 ? 2 : width < 2000 ? 3 : width < 3000 ? 4 : 5;
-    state.isFullscreen = document.fullscreenElement ? true : false;
+    state.isFullscreen = !!document.fullscreenElement;
   };
 
   // window.addEventListener('orientationchange', async () => {
@@ -210,7 +180,7 @@ const init = async () => {
   window.addEventListener('resize', checkDevice);
   checkDevice();
 
-  document.addEventListener('contextmenu', function (event) {
+  document.addEventListener('contextmenu', (event) => {
     event.preventDefault();
   });
 };

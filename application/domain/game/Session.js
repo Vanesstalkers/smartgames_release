@@ -1,4 +1,4 @@
-(class TO_CHANGE extends domain.game.Session {
+(class TO_CHANGE extends lib.game.Session() {
   getUserClass() {
     return domain.user.Class;
   }

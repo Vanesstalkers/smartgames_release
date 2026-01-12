@@ -1,0 +1,3 @@
+({
+  appCode: 'TO_CHANGE',
+});

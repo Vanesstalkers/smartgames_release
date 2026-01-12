@@ -8,8 +8,10 @@ async () => {
 
   if (application.worker.id === 'W1') {
     console.debug('Connect to mongo');
-    await db.mongo.handlers.afterStart(async () => {
-      console.log('db.mongo.afterStart');
+    await db.mongo.handlers.afterStart({
+      mongoConnected: async () => {
+        console.log('db.mongo.afterStart');
+      },
     });
   }
 

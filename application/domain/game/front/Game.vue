@@ -7,19 +7,21 @@
     } = {}">
     </template>
 
-    <template #gameinfo="{ } = {}">
+    <template #gameinfo="{} = {}">
       <div class="wrapper">
         <div class="game-status-label">
           {{ statusLabel }}
         </div>
-        <div
-          v-for="deck in deckList"
-          :key="deck._id"
-          :class="['deck', deck.code.includes('_drop') ? 'drop' : '']"
-          :code="deck.code"
-        >
-          <div class="card-event">
-            {{ Object.keys(deck.itemMap).length }}
+        <div class="deck-list">
+          <div
+            v-for="deck in deckList"
+            :key="deck._id"
+            :class="['deck', deck.code.includes('_drop') ? 'drop' : '']"
+            :code="deck.code"
+          >
+            <div class="card-event">
+              {{ Object.keys(deck.itemMap).length }}
+            </div>
           </div>
         </div>
       </div>
