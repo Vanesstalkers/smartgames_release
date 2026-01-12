@@ -1,6 +1,5 @@
-() => ({
-  path: (card) => `${card.group}/${card.name}.jpg`,
-  list: (domain.custom_cards = [
+({ apiRequest, selectGroup, template } = {}) => {
+  const list = (domain.custom_cards = [
     // 'transfer',
   ]).length
     ? (() =>
@@ -36,5 +35,11 @@
       { name: 'transfer', title: 'Перевели в новый отдел' },
       { name: 'weekend', title: 'Поработал в выходные' },
       { name: 'water', title: 'Залил ноутбук' },
-    ]
-});
+  ];
+
+  const result = list
+    .filter((card) => !selectGroup || card.group === selectGroup)
+    .map((card) => (apiRequest ? { path: `${template}/${card.group}/${card.name}.png` } : card));
+
+  return result;
+};

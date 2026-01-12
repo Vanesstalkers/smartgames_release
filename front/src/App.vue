@@ -30,6 +30,9 @@ export default {
     return { error: '' };
   },
   watch: {
+    lobbyDataLoaded() {
+      this.$root.state.viewLoaded = true;
+    },
     'userData.avatars.code': function () {
       // !!! перенести в generateAvatar с добавлением кнопки перехода в профиль
       prettyAlert(
@@ -47,6 +50,12 @@ export default {
     },
     store() {
       return this.state.store || {};
+    },
+    lobby() {
+      return this.store.lobby?.[this.state.currentLobby] || {};
+    },
+    lobbyDataLoaded() {
+      return !!this.lobby.code;
     },
     userData() {
       const currentUserData = this.store.user?.[this.state.currentUser];
