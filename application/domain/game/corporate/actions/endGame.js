@@ -48,7 +48,8 @@
   superGame.set({ playerEndGameStatus });
 
   superGame.checkCrutches();
-  superGame.broadcastAction('corporateGameFinished', {
+  superGame.broadcastAction('gameFinished', {
+    corporateGame: true,
     gameId: superGame.id(),
     gameType: superGame.deckType,
     playerEndGameStatus: superGame.playerEndGameStatus,
