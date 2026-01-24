@@ -36,7 +36,7 @@
   }
 
   async create({
-    deckType,
+    gameCode,
     gameType,
     gameConfig,
     gameTimer,
@@ -53,7 +53,7 @@
 
     usedTemplates.unshift(domain.game.configs.cardTemplates.random());
     await super.create(
-      { deckType, gameType, gameConfig, gameTimer, templates: { card: usedTemplates[0] } },
+      { gameCode, gameType, gameConfig, gameTimer, templates: { card: usedTemplates[0] } },
       { initPlayerWaitEvents: false }
     );
 
@@ -69,7 +69,7 @@
         { parent: this } // gameObjectData
       ).create(
         {
-          ...{ deckType, gameType, gameConfig, gameTimer },
+          ...{ gameCode, gameType, gameConfig, gameTimer },
           templates: { card: usedTemplates[0], code: `team${_code}` },
           playerMap: {}, // будут добавлены в playerJoin > getFreePlayerSlot
         },

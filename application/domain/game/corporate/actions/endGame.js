@@ -51,7 +51,7 @@
   superGame.broadcastAction('gameFinished', {
     corporateGame: true,
     gameId: superGame.id(),
-    gameType: superGame.deckType,
+    gameCode: superGame.gameCode,
     playerEndGameStatus: superGame.playerEndGameStatus,
     fullPrice: superGame.getFullPrice(),
     roundCount: superGame.round,

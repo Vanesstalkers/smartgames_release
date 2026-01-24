@@ -29,12 +29,12 @@ export default {
     gameServerTitle() {
       return this.lobby.__gameServerConfig?.title;
     },
-    defaultDeckType() {
+    defaultGameCode() {
       return this.lobby.__gameServerConfig?.code;
     },
-    deckMap() {
+    gamesMap() {
       return {
-        [this.defaultDeckType]: this.lobby.__gameServerConfig,
+        [this.defaultGameCode]: this.lobby.__gameServerConfig,
       };
     },
   },

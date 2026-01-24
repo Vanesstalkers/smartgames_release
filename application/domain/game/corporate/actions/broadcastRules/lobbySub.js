@@ -2,7 +2,7 @@
   const result = {};
   if (data.round !== undefined) result.round = data.round;
   if (data.status !== undefined) result.status = data.status;
-  if (data.deckType !== undefined) result.deckType = data.deckType;
+  if (data.gameCode !== undefined) result.gameCode = data.gameCode;
   if (data.gameType !== undefined) result.gameType = data.gameType;
   if (data.gameConfig !== undefined) result.gameConfig = data.gameConfig;
   if (data.gameTimer !== undefined) result.gameTimer = data.gameTimer;

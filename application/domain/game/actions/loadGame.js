@@ -47,11 +47,11 @@ async ({ gameType, gameId, lobbyId, round }) => {
   return await new gameClassGetter({ id: gameId })
     .load({ fromDB: { id: gameId, query, processData, fromDump: true } })
     .then(async (game) => {
-      const { deckType, gameType, gameConfig, gameTimer, playerMap } = game;
+      const { gameCode, gameType, gameConfig, gameTimer, playerMap } = game;
       await lib.store.broadcaster.publishAction.call(game, `lobby-${lobbyId}`, 'addGame', {
         restorationMode: true,
         ...{ gameId, gameTimer, playerMap },
-        ...{ deckType, gameType, gameConfig },
+        ...{ gameCode, gameType, gameConfig },
       });
 
       game.restorationMode = true;
@@ -59,7 +59,7 @@ async ({ gameType, gameId, lobbyId, round }) => {
       await game.updateGameAtCache({
         restorationMode: true,
         id: gameId,
-        deckType,
+        gameCode,
         gameType,
         workerId: application.worker.id,
         port: application.server.port,
