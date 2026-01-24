@@ -6,7 +6,7 @@
 
   const player = this.roundActivePlayer();
 
-  let message = "Новый раунд";
+  let message = `Новый раунд`;
   if (!this.isSinglePlayer()) message += ". Ваш ход.";
-  player.notifyUser({ message }, { hideTime: 3000 });
+  player.notifyUser({ message }, { hideTime: 3000, hideIcon: true });
 });

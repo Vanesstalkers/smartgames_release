@@ -24,17 +24,25 @@ async () => {
   }
 
   if (application.worker.id === 'W1') {
-    db.redis.handlers.afterStart({ workerStarted: async () => {
-      async function connectToLobby() {
-        const smartgamesLobby = await db.redis.get('smartgamesPortalLobby', { json: true });
-        if (smartgamesLobby) {
-          const { channelName } = smartgamesLobby;
-          lib.store.broadcaster.publishAction(channelName, 'gameServerConnected', lib.lobby.__gameServerConfig);
-          return;
+    db.redis.handlers.afterStart({
+      workerStarted: async () => {
+        async function connectToLobby() {
+          const { channelName } = (await db.redis.get(`${config.smartgames.appCode}Lobby`, { json: true })) || {};
+          const smartgamesLobby = await db.redis.get('smartgamesPortalLobby', { json: true });
+          if (channelName && smartgamesLobby) {
+            lib.lobby.__gameServerConfig.channelName = channelName;
+
+            lib.store.broadcaster.publishAction(
+              smartgamesLobby.channelName,
+              'gameServerConnected',
+              lib.lobby.__gameServerConfig
+            );
+            return;
+          }
+          setTimeout(async () => await connectToLobby(), 1000);
         }
-        setTimeout(async () => await connectToLobby(), 1000);
-      }
-      await connectToLobby();
-    } });
+        await connectToLobby();
+      },
+    });
   }
 };

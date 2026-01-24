@@ -1,7 +1,7 @@
 <template>
   <lobby :gameServerTitle="gameServerTitle">
     <template v-if="lobby.__gameServerConfig" #menu-item-game>
-      <games class="menu-item-content" :deckMap="deckMap" :defaultDeckType="defaultDeckType" />
+      <games class="menu-item-content" :gamesMap="gamesMap" :defaultGameCode="defaultGameCode">
     </template>
   </lobby>
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <game :defaultScaleMinVisibleWidth="1000" :debug="false" :planeScaleMin="0.3" :planeScaleMax="1">
+  <game :debug="false">
     <template #helper-guru="{ menuWrapper, menuButtonsMap } = {}">
       <tutorial :game="game" class="scroll-off" :customMenu="customMenu({ menuWrapper, menuButtonsMap })" />
     </template>
@@ -123,6 +123,7 @@ export default {
   },
   setup() {
     const gameGlobals = prepareGameGlobals({
+      defaultDeviceOffset: 300,
       gameCustomArgs: {
         ...gameCustomArgs,
       },
@@ -141,7 +142,9 @@ export default {
         this.hideZonesAvailability();
       }
     },
-    'player.eventData.availablePorts': function () {
+    'player.eventData.availablePorts': function (ports) {
+      if(!ports.length) return;
+
       this.$nextTick(() => {
         this.state.gamePlaneNeedUpdate = true;
         this.selectedFakePlanePosition = '';

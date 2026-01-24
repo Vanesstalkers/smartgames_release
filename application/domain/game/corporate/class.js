@@ -157,21 +157,23 @@
     return player;
   }
 
-  async playerJoin({ userId, userName, teamId }) {
+  async playerJoin({ playerId, userId, userName, teamId }) {
     try {
       if (this.status === 'FINISHED') throw new Error('Игра уже завершена');
 
-      const restoredPlayer = this.getPlayerByUserId(userId);
-      const player = restoredPlayer || this.getFreePlayerSlot({ game: this.get(teamId) });
+      const restoredPlayer = !!playerId;
+      const player = restoredPlayer ? this.get(playerId) : this.getFreePlayerSlot();
       if (!player) throw new Error('Свободных мест не осталось');
-
       const gameId = this.id();
-      const playerId = player.id();
+      playerId = player.id();
       const playerGame = player.game();
 
       player.set({ ready: true, userId, userName });
-      lib.store.broadcaster.publishAction.call(this, `gameuser-${userId}`, 'joinGame', {
-        ...{ gameId, playerId, deckType: this.deckType, gameType: this.gameType },
+      this.logs({ msg: `Игрок {{player}} присоединился к игре.`, userId });
+      
+      const user = lib.store('user').get(userId);
+      await user.joinGame({
+        ...{ gameId, playerId, gameCode: this.gameCode, gameType: this.gameType },
         isSinglePlayer: this.isSinglePlayer(),
       });
 
@@ -183,7 +185,6 @@
 
       playerGame.set({ disabled: false, playerMap: { [playerId]: userId } });
       this.set({ gamesMap: { [player.gameId]: { [playerId]: userId } } });
-      this.logs({ msg: `Игрок {{player}} присоединился к игре.`, userId });
 
       if (this.status === 'IN_PROCESS') {
         if (this.gameType === 'corporate') {
@@ -215,7 +216,7 @@
       lib.store.broadcaster.publishAction.call(this, `user-${userId}`, 'broadcastToSessions', {
         data: { message: exception.message, stack: exception.stack },
       });
-      lib.store.broadcaster.publishAction.call(this, `gameuser-${userId}`, 'logout'); // инициирует hideGameIframe
+      lib.store.broadcaster.publishAction.call(this, `user-${userId}`, 'logout'); // инициирует hideGameIframe
     }
   }
   async removeGame(config) {
@@ -238,7 +239,7 @@
         } else throw exception;
       }
     }
-    lib.store.broadcaster.publishAction.call(this, `gameuser-${userId}`, 'leaveGame', {});
+    lib.store.broadcaster.publishAction.call(this, `user-${userId}`, 'leaveGame', {});
   }
   run(actionPath, data, initPlayer) {
     const [actionName, actionDir] = actionPath.split('.').reverse();

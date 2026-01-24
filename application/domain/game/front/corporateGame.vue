@@ -803,7 +803,7 @@ export default {
   },
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 #gamePlane {
   transform-origin: left top !important;
 

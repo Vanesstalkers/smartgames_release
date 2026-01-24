@@ -79,6 +79,7 @@
     // делаем прицнипиально после завершения всех END_ROUND-событий
     for (const _game of [game, superGame]) {
       const gameProcessEvent = _game.eventData.activeEvents.find((e) => e.name === 'gameProcess');
+      if (!gameProcessEvent) continue;
       gameProcessEvent.allowedPlayers(gameProcessEvent.allowedPlayers().filter((p) => p.id() !== playerId));
     }
   }

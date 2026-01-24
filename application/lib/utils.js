@@ -110,7 +110,7 @@
       // без этого рекурсия не дойдет до нужного keyPath в проверке выше
       if (reset.includes([...keyPath, key].join('.')) && source[key] === null) source[key] = {};
 
-      if (masterObj[key] === null) {
+      if (masterObj[key] == null) {
         if (source[key] !== null) {
           if (typeof source[key] === 'object' && !Array.isArray(source[key])) {
             if (!target[key]) target[key] = {};
