@@ -1,12 +1,5 @@
 <template>
-  <game
-    :debug="false"
-    :planeScaleMin="0.3"
-    :planeScaleMax="1"
-    :defaultScaleMinVisibleWidth="1000"
-    :status="game.status"
-    :superStatus="superGame.status"
-  >
+  <game :debug="false" :defaultPlaneScale="1" :status="game.status" :superStatus="superGame.status">
     <template #helper-guru="{ menuWrapper, menuButtonsMap } = {}">
       <tutorial :game="game" class="scroll-off" :customMenu="customMenu({ menuWrapper, menuButtonsMap })" />
     </template>
@@ -803,10 +796,8 @@ export default {
   },
 };
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 #gamePlane {
-  transform-origin: left top !important;
-
   .gp-content {
     position: absolute;
   }
@@ -1032,7 +1023,7 @@ export default {
   margin-left: 60px;
 }
 
-.games {
+#game .games {
   z-index: 1;
   position: absolute;
   left: 40px;

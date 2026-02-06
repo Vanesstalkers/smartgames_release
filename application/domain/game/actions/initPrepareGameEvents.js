@@ -36,19 +36,24 @@
       init() {
         const { game } = this.eventContext();
         const {
-          settings: { planesAtStart, planesNeedToStart, timeToPlaceStartPlane },
+          settings: { planesNeedToStart },
         } = game;
 
         game.run('putStartPlanes');
 
-        if (planesNeedToStart <= planesAtStart) {
+        if (game.decks.table.itemsCount() >= planesNeedToStart) {
+          this.emit('RESET');
           game.run('startGame');
-          return { resetEvent: true };
+          return; // не делаем через { resetEvent: true }, чтобы сбрасывалось событие player.#eventWithTriggerListener 
         }
 
         game.set({ statusLabel: 'Подготовка к игре', status: 'PREPARE_START' });
 
         this.initPrepareStartFieldStep();
+
+        for (const player of game.players()) {
+          player.setEventWithTriggerListener(this);
+        }
       },
       handlers: {
         NO_AVAILABLE_PORTS,
@@ -154,7 +159,7 @@
           return { preventListenerRemove: true };
         },
         RESET() {
-          const { game } = this.eventContext();
+          const { game, player } = this.eventContext();
           const deck = game.find('Deck[plane]');
 
           for (const player of game.players()) {
@@ -176,10 +181,4 @@
     },
     { allowedPlayers: this.players() }
   );
-
-  if (!event) return;
-
-  for (const player of this.players()) {
-    player.setEventWithTriggerListener(event);
-  }
 });

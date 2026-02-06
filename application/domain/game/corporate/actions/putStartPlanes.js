@@ -8,27 +8,34 @@
 
   switch (this.gameConfig) {
     case 'competition':
-
       if (this.isCoreGame()) {
         const centralPlane = gamePlaneDeck.find('Plane[8]');
         centralPlane.addCustomClass('central');
         centralPlane.moveToTarget(this.decks.table);
 
         this.run('putPlaneOnField', {
-          targetPortId: centralPlane.find('Port[1]').id(), targetPortDirect: 'top',
-          joinPortId: gamePlaneDeck.find('Plane[10]Port[4]').id(), joinPortDirect: 'bottom',
+          targetPortId: centralPlane.find('Port[1]').id(),
+          targetPortDirect: 'top',
+          joinPortId: gamePlaneDeck.find('Plane[10]Port[4]').id(),
+          joinPortDirect: 'bottom',
         });
         this.run('putPlaneOnField', {
-          targetPortId: centralPlane.find('Port[2]').id(), targetPortDirect: 'top',
-          joinPortId: gamePlaneDeck.find('Plane[5]Port[3]').id(), joinPortDirect: 'bottom',
+          targetPortId: centralPlane.find('Port[2]').id(),
+          targetPortDirect: 'top',
+          joinPortId: gamePlaneDeck.find('Plane[5]Port[3]').id(),
+          joinPortDirect: 'bottom',
         });
         this.run('putPlaneOnField', {
-          targetPortId: centralPlane.find('Port[3]').id(), targetPortDirect: 'bottom',
-          joinPortId: gamePlaneDeck.find('Plane[4]Port[2]').id(), joinPortDirect: 'top',
+          targetPortId: centralPlane.find('Port[3]').id(),
+          targetPortDirect: 'bottom',
+          joinPortId: gamePlaneDeck.find('Plane[4]Port[2]').id(),
+          joinPortDirect: 'top',
         });
         this.run('putPlaneOnField', {
-          targetPortId: centralPlane.find('Port[4]').id(), targetPortDirect: 'bottom',
-          joinPortId: gamePlaneDeck.find('Plane[11]Port[1]').id(), joinPortDirect: 'top',
+          targetPortId: centralPlane.find('Port[4]').id(),
+          targetPortDirect: 'bottom',
+          joinPortId: gamePlaneDeck.find('Plane[11]Port[1]').id(),
+          joinPortDirect: 'top',
         });
       }
 
@@ -40,7 +47,6 @@
         planesAtStart = gamesCount;
         minFreePorts = gamesCount;
       }
-
 
       const skipArray = this.isCoreGame() ? skipStartPlanes.map((code) => gamePlaneDeck.find(code)?.id()) : [];
       for (let i = 0; i < planesAtStart; i++) {
