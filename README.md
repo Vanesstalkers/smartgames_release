@@ -8,7 +8,7 @@ npm ci
 npm run serve
 ```
 
-- тестирование билда 
+##### Сборка фронтенда 
 ```bash
 npm run buildFront
 ```
