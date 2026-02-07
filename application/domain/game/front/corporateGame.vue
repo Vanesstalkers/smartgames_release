@@ -1,5 +1,10 @@
 <template>
-  <game :debug="false" :defaultPlaneScale="1" :status="game.status" :superStatus="superGame.status">
+  <game
+    :debug="false"
+    :defaultPlaneScale="putPlaneEventActive ? 0.3 : 0.5"
+    :status="game.status"
+    :superStatus="superGame.status"
+  >
     <template #helper-guru="{ menuWrapper, menuButtonsMap } = {}">
       <tutorial :game="game" class="scroll-off" :customMenu="customMenu({ menuWrapper, menuButtonsMap })" />
     </template>
@@ -362,8 +367,8 @@ export default {
       const games = [];
       const playerGameId = this.playerGameId();
       const selectedGameId = this.gameCustom.selectedGameId || playerGameId;
-      games.push([this.gameState.gameId, this.state.store.game?.[this.gameState.gameId] || {}]);
       if (this.store.game) games.push(...Object.entries(this.store.game));
+      games.push([this.gameState.gameId, this.state.store.game?.[this.gameState.gameId] || {}]); // super-игра принципиально последняя, чтобы в верстке быть поверх остальных игр
       return games.map(([gameId, game]) => {
         return {
           gameId,
@@ -571,6 +576,9 @@ export default {
     statusLabel() {
       return this.restoringGameState ? 'Восстановление игры' : this.superGame.statusLabel;
     },
+    putPlaneEventActive() {
+      return Object.keys(this.sessionPlayer().eventData.plane || {}).length > 0 ? true : false;
+    },
   },
   methods: {
     customMenu({ menuWrapper, menuButtonsMap } = {}) {
@@ -631,7 +639,10 @@ export default {
       });
     },
     gamePlaneContentControlStyle(gameId) {
-      const transformOrigin = this.gameCustom.gamePlaneTransformOrigin[gameId] ?? 'center center';
+      const gameTransformOrigin = this.gameCustom.gamePlaneTransformOrigin[gameId];
+      const transformOrigin = gameTransformOrigin
+        ? `${gameTransformOrigin.x}px ${gameTransformOrigin.y}px`
+        : 'center center';
 
       const rotation =
         gameId === this.focusedGameId()
@@ -646,7 +657,9 @@ export default {
     },
     gamePlaneStyle(gameId) {
       const { x, y } = this.getGamePlaneOffsets()[gameId];
-      return { transform: `translate(${x}px, ${y}px)` };
+
+      const gameTransformOrigin = this.gameCustom.gamePlaneTransformOrigin[gameId];
+      return { transform: `translate(${x}px, ${y - (gameTransformOrigin?.y ?? 0)}px)` };
     },
     sortedActiveCards(arr) {
       return arr
@@ -664,6 +677,7 @@ export default {
     },
     possibleAddPlanePositions(game) {
       if (!this.sessionPlayerIsActive()) return [];
+
       const availablePorts = this.sessionPlayer().eventData.availablePorts || [];
       const positions = availablePorts
         .filter(({ gameId }) => gameId === game.gameId)
@@ -798,6 +812,8 @@ export default {
 </script>
 <style lang="scss">
 #gamePlane {
+  transform-origin: top left;
+
   .gp-content {
     position: absolute;
   }

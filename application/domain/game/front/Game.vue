@@ -143,7 +143,7 @@ export default {
       }
     },
     'player.eventData.availablePorts': function (ports) {
-      if(!ports.length) return;
+      if (!ports.length) return;
 
       this.$nextTick(() => {
         this.state.gamePlaneNeedUpdate = true;
@@ -192,7 +192,10 @@ export default {
     },
 
     gamePlaneContentControlStyle() {
-      const transformOrigin = this.gameCustom.gamePlaneTransformOrigin[this.gameState.gameId] ?? 'center center';
+      const gameTransformOrigin = this.gameCustom.gamePlaneTransformOrigin[this.gameState.gameId];
+      const transformOrigin = gameTransformOrigin
+        ? `${gameTransformOrigin.x}px ${gameTransformOrigin.y}px`
+        : 'center center';
       const transform = [
         //
         `rotate(${this.gameCustom.gamePlaneRotation || 0}deg)`,
@@ -361,10 +364,6 @@ export default {
 };
 </script>
 <style lang="scss">
-#gamePlane {
-  transform-origin: left top !important;
-}
-
 #gamePlane .gp-content {
   position: absolute;
 }

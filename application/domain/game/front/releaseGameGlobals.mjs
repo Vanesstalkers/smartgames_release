@@ -28,9 +28,10 @@ function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
 
     // вычисляем центр для определения корректного transform-origin (нужен для вращения gp-content)
     this.gameCustom.gamePlaneTransformOrigin = {
-      [this.gameState.gameId]:
-        `${(p.r - p.l) / (gamePlaneScale * 2) + p.ol / gamePlaneScale}px ` +
-        `${(p.b - p.t) / (gamePlaneScale * 2) + p.ot / gamePlaneScale}px `,
+      [this.gameState.gameId]: {
+        x: (p.r - p.l) / (gamePlaneScale * 2) + p.ol / gamePlaneScale,
+        y: (p.b - p.t) / (gamePlaneScale * 2) + p.ot / gamePlaneScale,
+      },
     };
 
     return {
