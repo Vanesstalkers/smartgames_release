@@ -364,6 +364,10 @@ export default {
 };
 </script>
 <style lang="scss">
+#gamePlane {
+  transform-origin: left top;
+}
+
 #gamePlane .gp-content {
   position: absolute;
 }

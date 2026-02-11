@@ -1,5 +1,6 @@
 <template>
   <game
+    ref="game"
     :debug="false"
     :defaultPlaneScale="putPlaneEventActive ? 0.3 : 0.5"
     :status="game.status"
@@ -456,7 +457,7 @@ export default {
             },
           },
           {
-            text: 'Активировать подсказки',
+            text: 'Активировать быстрые подсказки',
             action: async function () {
               await api.action
                 .call({
@@ -794,6 +795,7 @@ export default {
 
       this.$set(this.gameCustom, 'selectedGameId', gameId);
       this.resetPlanePosition();
+      this.$refs.game?.updatePlaneScale();
 
       if (selectable) {
         await this.handleGameApi({
@@ -812,8 +814,6 @@ export default {
 </script>
 <style lang="scss">
 #gamePlane {
-  transform-origin: top left;
-
   .gp-content {
     position: absolute;
   }
@@ -1107,7 +1107,6 @@ export default {
       display: flex;
       flex-direction: row;
       transform: rotate(90deg);
-      transform-origin: top left;
     }
 
     .deck-active {

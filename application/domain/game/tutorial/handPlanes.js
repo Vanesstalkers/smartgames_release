@@ -9,7 +9,7 @@
       active: '.plane.in-hand',
       buttons: [
         { text: 'Продолжай', step: 'availablePlacement' },
-        { text: 'Я разберусь', action: 'exit' },
+        { text: 'Я разберусь', action: 'exit', exit: true },
       ],
     },
     availablePlacement: {
@@ -18,9 +18,7 @@
         Выбери к какому блоку его присоединить (если поле было пустое, то размещение произойдет автоматически).
       `,
       img: '/img/tutorial/available-placement.png',
-      buttons: [
-        { text: 'Продолжай', step: 'agree' },
-      ],
+      buttons: [{ text: 'Продолжай', step: 'agree' }],
     },
     agree: {
       pos: 'top-right',
@@ -29,9 +27,7 @@
       `,
       img: '/img/tutorial/plane-agree.png',
       active: '.player.iam .card-worker',
-      buttons: [
-        { text: 'Продолжай', step: 'help' },
-      ],
+      buttons: [{ text: 'Продолжай', step: 'help' }],
     },
     help: {
       pos: 'top-right',
@@ -40,9 +36,7 @@
       `,
       img: '/img/tutorial/plane-help.png',
       active: '.player.iam .card-worker',
-      buttons: [
-        { text: 'Спасибо', action: 'exit' },
-      ],
+      buttons: [{ text: 'Спасибо', action: 'exit' }],
     },
   },
 });

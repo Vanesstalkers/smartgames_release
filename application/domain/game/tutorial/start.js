@@ -42,53 +42,37 @@
         Это счетчик оставшихся в колоде костяшек.
       `,
       active: { selector: '[code="Deck[domino]"]', css: { borderRadius: '50%' } },
-      buttons: [
-        { text: 'Дальше', step: 'deckCard' }
-      ],
+      buttons: [{ text: 'Дальше', step: 'deckCard' }],
     },
     deckCard: {
       text: `
         Это счетчик оставшихся в колоде карт-событий.
       `,
       active: '[code="Deck[card]"]',
-      buttons: [
-        { text: 'Дальше', step: 'deckCardDrop' }
-      ],
+      buttons: [{ text: 'Дальше', step: 'deckCardDrop' }],
     },
     deckCardDrop: {
       text: `
         Это счетчик карт в колоде сброса.
       `,
       active: { selector: '[code="Deck[card_drop]"]', css: { filter: 'grayscale(0)' } },
-      buttons: [
-        { text: 'Дальше', step: 'playerTimer' },
-      ],
+      buttons: [{ text: 'Дальше', step: 'playerTimer' }],
     },
     playerTimer: {
       text: `
         Это таймер на ход. По истечении времени, ты принудительно закончишь раунд. При этом <a>все активные события будут завершены с автоматическим выбором целей</a> (если они требуются).
       `,
       pos: 'top-right',
-      active: [
-        '.player.iam .end-round-timer',
-        { selector: '.player.iam .card-worker', css: { boxShadow: 'none' } },
-      ],
-      buttons: [
-        { text: 'Дальше', step: 'playerEndRoundBtn' },
-      ],
+      active: ['.player.iam .end-round-timer', { selector: '.player.iam .card-worker', css: { boxShadow: 'none' } }],
+      buttons: [{ text: 'Дальше', step: 'playerEndRoundBtn' }],
     },
     playerEndRoundBtn: {
       text: `
         Это кнопка окончания раунда. По нажатию ход закончится, а <a>все активные события будут завершены с автоматическим выбором целей</a> (если они требуются).
       `,
       pos: 'top-right',
-      active: [
-        '.player.iam .end-round-btn',
-        { selector: '.player.iam .card-worker', css: { boxShadow: 'none' } },
-      ],
-      buttons: [
-        { text: 'Дальше', step: 'exit' },
-      ],
+      active: ['.player.iam .end-round-btn', { selector: '.player.iam .card-worker', css: { boxShadow: 'none' } }],
+      buttons: [{ text: 'Дальше', step: 'exit' }],
     },
     exit: {
       superPos: true,
@@ -98,9 +82,7 @@
         В левом верхнем углу иконка <a>МЕНЮ ИГРОКА</a>. С помощью него <a>можно повторно запустить любое обучение</a>. Так же рекомендую использовать <a>UI-подсказки (выделены на картинке)</a> - они дают более подробную информацию о раличных деталях интерфейса.
       `,
       img: '/img/tutorial/helper-links.png',
-      buttons: [
-        { text: 'Понятно', action: 'exit' },
-      ],
+      buttons: [{ text: 'Понятно', action: 'exit' }],
     },
   },
 });

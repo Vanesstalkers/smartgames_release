@@ -121,7 +121,7 @@ function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
 function getGamePlaneOffsets() {
   const superGameId = this.gameState.gameId;
   const superGame = this.$root.state.store.game?.[superGameId] || {};
-  const deviceOffset = this.$root.state.isMobile ? (this.$root.state.isLandscape ? 0 : -100) : 1000;
+  const deviceOffset = this.$root.state.isMobile ? (this.$root.state.isLandscape ? 500 : 500) : 1000;
 
   const offsets = {
     [superGameId]: { x: 0 + deviceOffset, y: 0 },

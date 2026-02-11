@@ -69,7 +69,7 @@
     for (const key in msg) tutorial[key].text = msg[key];
 
     this.set({ money: (this.money || 0) + income, helper: tutorial[endGameStatus], rankings });
-    await this.saveChanges({ saveToLobbyUser: true });
+    await this.saveChanges();
   }
   async corporateGameFinished({
     playerEndGameStatus,
@@ -123,6 +123,6 @@
     for (const key in msg) tutorial[key].text = msg[key];
 
     this.set({ helper: tutorial[endGameStatus] });
-    await this.saveChanges({ saveToLobbyUser: true });
+    await this.saveChanges();
   }
 });
