@@ -13,7 +13,12 @@
     this.preventSaveFields(['decks']);
     this.preventBroadcastFields(['decks']);
   }
-  
+
+  restart() {
+    super.restart();
+    this.playRoundStartCards(); // активирует слушатели событий карт (END_ROUND и др.), не сохраняемые в дамп
+  }
+
   stepLabel(label) {
     return `Раунд ${this.round} (${label})`;
   }

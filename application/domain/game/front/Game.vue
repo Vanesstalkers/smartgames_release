@@ -143,7 +143,7 @@ export default {
       }
     },
     'player.eventData.availablePorts': function (ports) {
-      if (!ports.length) return;
+      if (!ports?.length) return;
 
       this.$nextTick(() => {
         this.state.gamePlaneNeedUpdate = true;

@@ -3,16 +3,16 @@ function zoneAvailable(zoneId) {
 }
 function hideZonesAvailability() {
   if (this.gameState.viewerMode) return;
-  if(!this.getStore().player[this.gameState.sessionPlayerId].eventData) return; // это баг, но поймать пока не получается
-  this.getStore().player[this.gameState.sessionPlayerId].eventData.availableZones = []; 
+  if (!this.getStore().player[this.gameState.sessionPlayerId].eventData) return; // это баг, но поймать пока не получается
+  this.getStore().player[this.gameState.sessionPlayerId].eventData.availableZones = [];
 }
 function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
   const p = {};
   const gamePlane = document.getElementById('gamePlane');
   if (gamePlane instanceof HTMLElement) {
     const gamePlaneRect = gamePlane.getBoundingClientRect();
-
-    gamePlane.querySelectorAll('.plane, .fake-plane').forEach((plane) => {
+    const planes = gamePlane.querySelectorAll('.plane, .fake-plane');
+    planes.forEach((plane) => {
       const rect = plane.getBoundingClientRect();
       const offsetTop = rect.top - gamePlaneRect.top;
       const offsetLeft = rect.left - gamePlaneRect.left;
@@ -25,7 +25,6 @@ function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
       if (p.ot == undefined || offsetTop < p.ot) p.ot = offsetTop;
       if (p.ol == undefined || offsetLeft < p.ol) p.ol = offsetLeft;
     });
-
     // вычисляем центр для определения корректного transform-origin (нужен для вращения gp-content)
     this.gameCustom.gamePlaneTransformOrigin = {
       [this.gameState.gameId]: {
@@ -34,9 +33,11 @@ function calcGamePlaneCustomStyleData({ gamePlaneScale, isMobile }) {
       },
     };
 
+    const onePlaneMultiplier = planes.length === 1 ? 2 : 1;
+
     return {
-      height: (p.b - p.t) / gamePlaneScale + 'px',
-      width: (p.r - p.l) / gamePlaneScale + 'px',
+      height: (onePlaneMultiplier * (p.b - p.t)) / gamePlaneScale + 'px',
+      width: (onePlaneMultiplier * (p.r - p.l)) / gamePlaneScale + 'px',
       top: `calc(50% - ${(p.b - p.t) / 2 + p.ot * 1}px)`,
       left: `calc(50% - ${(p.r - p.l) / 2 + p.ol * 1}px)`,
     };
@@ -58,4 +59,4 @@ export const gameCustomArgs = {
   gamePlaneRotation: 0,
   gamePlaneTransformOrigin: {},
   viewerState: { showCards: {} },
-}
+};
