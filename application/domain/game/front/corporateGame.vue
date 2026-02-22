@@ -436,102 +436,6 @@ export default {
     allGamesMerged() {
       return this.games.every((game) => game.super || game.merged);
     },
-    defaultTutorialMenu() {
-      return {
-        text: `Чем могу помочь, ${this.userData.name || this.userData.login}?`,
-        bigControls: true,
-        buttons: [
-          { text: 'Спасибо, ничего не нужно', action: 'exit', exit: true },
-          {
-            text: 'Покажи доступные обучения',
-            action: {
-              text: 'Нажмите на нужное обучение в списке, чтобы запустить его повторно:',
-              showList: [
-                { title: 'Стартовое приветствие игры', action: { tutorial: 'game-tutorial-start' } },
-                { title: 'Управление игровым полем', action: { tutorial: 'game-tutorial-gamePlane' } },
-              ],
-              buttons: [
-                { text: 'Назад в меню', action: 'init' },
-                { text: 'Спасибо', action: 'exit', exit: true },
-              ],
-            },
-          },
-          {
-            text: 'Активировать быстрые подсказки',
-            action: async function () {
-              await api.action
-                .call({
-                  path: 'helper.api.restoreLinks',
-                  args: [{ inGame: true }],
-                })
-                .then(() => {
-                  this.menu = null;
-                  {
-                    // перерисовываем helper-а, чтобы отобразились подсказки
-                    this.resetFlag = true;
-                    setTimeout(() => {
-                      this.resetFlag = false;
-                    }, 100);
-                  }
-                })
-                .catch(prettyAlert);
-            },
-          },
-          !this.player.teamlead
-            ? null
-            : {
-                text: 'Покажи действия тимлида',
-                style: { boxShadow: 'inset 0px 0px 20px #f4e205' },
-                customClass: 'teamlead-actions',
-                action: {
-                  text: 'Выбери действие:',
-                  showList: [
-                    {
-                      title: 'Вернуть игровой стол команды',
-                      action: { tutorial: 'game-tutorial-teamleadMenu', step: 'transferTable' },
-                    },
-                    { title: 'Восстановить игру', action: { tutorial: 'game-tutorial-restoreForced' } },
-                    {
-                      title: 'Переименовать команду',
-                      action: { tutorial: 'game-tutorial-teamleadMenu', step: 'renameTeam' },
-                    },
-                    this.playerIds.length > 0
-                      ? {
-                          title: 'Передать руководство',
-                          action: { tutorial: 'game-tutorial-teamleadMenu', step: 'changeTeamlead' },
-                        }
-                      : null,
-                    this.playerIds.length > 0
-                      ? {
-                          title: 'Удалить игрока из команды',
-                          action: { tutorial: 'game-tutorial-teamleadMenu', step: 'removePlayer' },
-                        }
-                      : null,
-                    {
-                      title: 'Завершить текущий раунд',
-                      action: { tutorial: 'game-tutorial-teamleadMenu', step: 'endRound' },
-                    },
-                  ],
-                  buttons: [
-                    { text: 'Назад в меню', action: 'init' },
-                    { text: 'Спасибо', action: 'exit', exit: true },
-                  ],
-                },
-              },
-          {
-            text: 'Выйти из игры',
-            action: async function () {
-              await api.action
-                .call({
-                  path: 'game.api.leave',
-                  args: [],
-                })
-                .catch(prettyAlert);
-            },
-          },
-        ],
-      };
-    },
     chatChannels() {
       return {
         [`game-${this.sessionPlayerGameId}`]: {
@@ -1062,6 +966,8 @@ export default {
     width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 
     &:hover {
       cursor: pointer;

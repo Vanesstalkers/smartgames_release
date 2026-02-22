@@ -24,14 +24,9 @@
     return super.select(query);
   }
 
-  getBroadcastRuleMethod(ruleHandler) {
-    const splittedPath = ['actions', 'broadcastRules', ruleHandler];
-    let method = lib.utils.getDeep(domain, ['game', 'corporate', ...splittedPath]);
-    if (!method) method = lib.utils.getDeep(domain, ['game', ...splittedPath]);
-    if (!method) method = lib.utils.getDeep(lib, ['game', ...splittedPath]);
-
-    if (typeof method !== 'function') throw notFoundErr;
-
+  getBroadcastRule(ruleHandler) {
+    let method = lib.utils.getDeep(domain, ['game', 'corporate', 'actions', 'broadcastRules', ruleHandler]);
+    if (!method) method = super.getBroadcastRule();
     return method;
   }
 
@@ -162,7 +157,7 @@
       if (this.status === 'FINISHED') throw new Error('Игра уже завершена');
 
       const restoredPlayer = !!playerId;
-      const player = restoredPlayer ? this.get(playerId) : this.getFreePlayerSlot();
+      const player = restoredPlayer ? this.get(playerId) : this.getFreePlayerSlot({ game: this.get(teamId) });
       if (!player) throw new Error('Свободных мест не осталось');
       const gameId = this.id();
       playerId = player.id();
@@ -170,7 +165,7 @@
 
       player.set({ ready: true, userId, userName });
       this.logs({ msg: `Игрок {{player}} присоединился к игре.`, userId });
-      
+
       const user = lib.store('user').get(userId);
       await user.joinGame({
         ...{ gameId, playerId, gameCode: this.gameCode, gameType: this.gameType },

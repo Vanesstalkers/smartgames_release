@@ -13,8 +13,8 @@
         },
       },
       buttons: [
-        { text: 'Готово', action: 'submit' },
-        { text: 'Отмена', action: 'exit' },
+        { text: 'Готово', action: 'submit', key: null },
+        { text: 'Отмена', action: 'exit', exit: true },
       ],
     },
     changeTeamlead: {
