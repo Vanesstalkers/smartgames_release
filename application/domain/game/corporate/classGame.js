@@ -135,6 +135,17 @@
     return new Player(data, { parent: this });
   }
 
+  getFreePlayerSlot() {
+    const slot = super.getFreePlayerSlot();
+    if (slot) return slot;
+
+    const superGame = this.game();
+    return this.run('addPlayer', {
+      ...lib.utils.structuredClone(superGame.settings.playerTemplates['default']),
+      _code: superGame.players().length + 1,
+    });
+  }
+
   checkFieldIsReady() {
     const planeList = this.merged
       ? this.game().decks.table.select({ className: 'Plane', attr: { sourceGameId: this.id() } })

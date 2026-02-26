@@ -143,13 +143,7 @@
     if (this.maxPlayersInGame && playerCount >= this.maxPlayersInGame) return null;
 
     if (!game) game = this.getAllGames().sort((g1, g2) => g1.players().length - g2.players().length)[0];
-
-    const player = game.run('addPlayer', {
-      ...lib.utils.structuredClone(this.settings.playerTemplates['default']),
-      _code: playerCount + 1,
-    });
-
-    return player;
+    return game.getFreePlayerSlot();
   }
 
   async playerJoin({ playerId, userId, userName, teamId }) {

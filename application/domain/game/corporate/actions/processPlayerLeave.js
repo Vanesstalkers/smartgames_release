@@ -84,8 +84,9 @@
     }
   }
 
-  player.markDelete();
-  player.set({ userId: null, teamlead: null });
   game.set({ playerMap: { [playerId]: null } });
   this.set({ playerMap: { [playerId]: null }, gamesMap: { [game.id()]: { [playerId]: null } } }); // игрок пропадет из game.player(), но остается в store (нужно, чтобы корректно отработал END_ROUND у initGameFieldsMerge)
+  player.set({ userId: null, teamlead: null });
+  player.markDelete({ saveToDB: true });
+  player.deleteFromParentsObjectStorage();
 });
