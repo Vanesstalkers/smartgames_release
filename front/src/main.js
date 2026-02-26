@@ -39,6 +39,32 @@ const init = async () => {
 
   await metacom.load('action');
 
+  class StoreQueue {
+    constructor(getTarget) {
+      this.queue = [];
+      this.processing = false;
+      this.getTarget = getTarget;
+    }
+
+    push(data) {
+      this.queue.push(data);
+      this.process();
+    }
+
+    process() {
+      if (this.processing || this.queue.length === 0) return;
+      this.processing = true;
+      const data = this.queue.shift();
+      console.log('process :: ', JSON.stringify(data), 'target=', JSON.stringify(this.getTarget().game?.['699f16e4ddfdb76b6136d74e']?.store?.player));
+      mergeDeep({ target: this.getTarget(), source: data });
+      console.info('process :: done', 'target=', JSON.stringify(this.getTarget().game?.['699f16e4ddfdb76b6136d74e']?.store?.player));
+      this.processing = false;
+      if (this.queue.length > 0) {
+        Promise.resolve().then(() => this.process());
+      }
+    }
+  }
+
   const state = {
     serverOrigin: `${location.protocol}//${serverHost}`,
     innerWidth: window.innerWidth,
@@ -53,7 +79,8 @@ const init = async () => {
     store: {},
     emit: {
       updateStore(data) {
-        mergeDeep({ target: state.store, source: data });
+        console.debug('updateStore :: ', JSON.stringify(data));
+        storeQueue.push(data);
       },
       alert(data, config) {
         window.prettyAlert(data, config);
@@ -67,6 +94,8 @@ const init = async () => {
       },
     },
   };
+
+  const storeQueue = new StoreQueue(() => state.store);
 
   api.action.on('emit', ({ eventName, data, config }) => {
     const event = state.emit[eventName];

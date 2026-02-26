@@ -41,7 +41,8 @@
         <div class="game-status-label">
           Бюджет
           <span style="color: gold">{{ fullPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}k ₽</span>
-          {{ statusLabel }}
+          {{ game.statusLabel }}
+          <small v-if="game.status === 'RESTORING_GAME'">{{ subStatusLabel }}</small>
         </div>
         <div v-for="deck in deckList" :key="deck._id" class="deck" :code="deck.code">
           <div v-if="deck._id && deck.code === 'Deck[domino]'" class="hat" v-on:click="takeDice">
@@ -187,8 +188,9 @@ export default {
     restoringGameState() {
       return this.game.status === 'RESTORING_GAME';
     },
-    statusLabel() {
-      return this.restoringGameState ? 'Восстановление игры' : this.game.statusLabel;
+    subStatusLabel() {
+      const players = Object.values(this.store.player || {});
+      return `Подключилось ${players.filter((player) => player.ready).length} из ${players.length} игроков`;
     },
 
     gamePlaneContentControlStyle() {
@@ -393,6 +395,7 @@ export default {
   background-size: cover;
   padding: 14px;
   cursor: default;
+  filter: drop-shadow(2px 4px 6px black);
 }
 
 .deck[code='Deck[domino]'] > .hat {
@@ -410,11 +413,12 @@ export default {
   top: 35px;
   right: 30px;
   cursor: default;
+  filter: drop-shadow(2px 4px 6px black);
 }
 
 .deck[code='Deck[card_drop]'] {
   position: absolute;
-  filter: grayscale(1);
+  filter: grayscale(1) drop-shadow(2px 4px 6px black);
   transform: scale(0.5);
   top: 65px;
   right: -10px;
@@ -446,12 +450,21 @@ export default {
 }
 
 .game-status-label {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 1;
   text-align: right;
   color: white;
   font-weight: bold;
   font-size: 2em;
   white-space: nowrap;
   text-shadow: black 1px 0 10px;
+
+  > small {
+    display: block;
+    font-size: 50%;
+  }
 }
 
 .plane {

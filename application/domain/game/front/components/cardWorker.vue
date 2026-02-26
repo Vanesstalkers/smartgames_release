@@ -1,43 +1,55 @@
 <template>
-  <div v-if="player._id || viewer._id" :id="player._id" :class="[
-    'card-worker',
-    'card-worker-' + player.code,
-    player.active ? 'active' : '',
-    player.teamlead ? 'teamlead' : '',
-    selectable ? 'selectable' : '',
-    showEndRoundBtn || showLeaveBtn || showCustomActionBtn ? 'has-action' : '',
-    controlActionDisabled ? 'disabled' : '',
-  ]" :style="customStyle" @click="controlAction">
+  <div
+    v-if="player._id || viewer._id"
+    :id="player._id"
+    :class="[
+      'card-worker',
+      'card-worker-' + player.code,
+      player.active ? 'active' : '',
+      player.teamlead ? 'teamlead' : '',
+      selectable ? 'selectable' : '',
+      showEndRoundBtn || showLeaveBtn || showCustomActionBtn ? 'has-action' : '',
+      controlActionDisabled ? 'disabled' : '',
+    ]"
+    :style="customStyle"
+    @click="controlAction"
+  >
     <div v-if="player.teamlead" class="teamlead-icon"></div>
     <div class="user-name">
       {{ player.userName }}
     </div>
-    <div v-if="showControls && player.active && player.timerEndTime && gameStatus != 'WAIT_FOR_PLAYERS'"
-      class="end-round-timer">
+    <div
+      v-if="showControls && player.active && player.timerEndTime && gameStatus != 'WAIT_FOR_PLAYERS'"
+      class="end-round-timer"
+    >
       {{ this.localTimer }}
     </div>
     <div v-if="!iam && gameStatus != 'WAIT_FOR_PLAYERS'" class="domino-dice">
       {{ dominoDeckCount }}
     </div>
-    <div v-if="!iam && gameStatus != 'WAIT_FOR_PLAYERS'" class="card-event" :style="cardEventCustomStyle"
-      @click="toggleViewerShowCards">
+    <div
+      v-if="!iam && gameStatus != 'WAIT_FOR_PLAYERS'"
+      class="card-event"
+      :style="cardEventCustomStyle"
+      @click="toggleViewerShowCards"
+    >
       <div>
         {{ cardDeckCount }}
       </div>
     </div>
-    <div v-if="showEndRoundBtn" class="action-btn end-round-btn"> {{ roundBtn.label || 'Закончить раунд' }}</div>
+    <div v-if="showEndRoundBtn" class="action-btn end-round-btn">{{ roundBtn.label || 'Закончить раунд' }}</div>
     <div v-if="showLeaveBtn" class="action-btn leave-game-btn">Выйти из игры</div>
     <div v-if="showCustomActionBtn && !showLeaveBtn" class="action-btn" :style="customAction.style || {}">
       {{ customAction.label }}
     </div>
     <div v-if="showTeamleadBtn" class="action-btn team-ready-btn">Команда готова</div>
 
-    <div v-if="iam" class="tutorial-show action-btn end-round-btn"> {{ 'Закончить раунд' }}</div>
-    <div v-if="iam && !this.localTimer" class="tutorial-show end-round-timer"> {{ '15' }}</div>
+    <div v-if="iam" class="tutorial-show action-btn end-round-btn">{{ 'Закончить раунд' }}</div>
+    <div v-if="iam && !this.localTimer" class="tutorial-show end-round-timer">{{ '15' }}</div>
     <div v-if="!iam && !this.localTimer" class="tutorial-show card-event" :style="cardEventCustomStyle">
-      <div>{{ "2" }}</div>
+      <div>{{ '2' }}</div>
     </div>
-    <div v-if="!iam && !this.localTimer" class="tutorial-show domino-dice">{{ "3" }}</div>
+    <div v-if="!iam && !this.localTimer" class="tutorial-show domino-dice">{{ '3' }}</div>
   </div>
 </template>
 
@@ -150,7 +162,9 @@ export default {
       return (this.gameFinished() && this.iam) || this.viewerId;
     },
     showTeamleadBtn() {
-      return this.iam && this.player.teamlead && this.gameStatus === 'WAIT_FOR_PLAYERS' && !this.player.eventData.teamReady;
+      return (
+        this.iam && this.player.teamlead && this.gameStatus === 'WAIT_FOR_PLAYERS' && !this.game.eventData.teamReady
+      );
     },
     showCustomActionBtn() {
       return this.iam && this.customAction.show;
@@ -224,10 +238,14 @@ export default {
     },
     toggleViewerShowCards() {
       if (!this.gameState.viewerMode) return;
-      this.$set(this.gameCustom.viewerState.showCards, this.playerId, !this.gameCustom.viewerState.showCards[this.playerId]);
+      this.$set(
+        this.gameCustom.viewerState.showCards,
+        this.playerId,
+        !this.gameCustom.viewerState.showCards[this.playerId]
+      );
     },
   },
-  mounted() { },
+  mounted() {},
 };
 </script>
 
@@ -245,11 +263,11 @@ export default {
   margin: 0px 0px 0px 5px;
   box-shadow: inset 0px 20px 20px 0px black;
 
-  &.teamlead>.teamlead-icon {
+  &.teamlead > .teamlead-icon {
     display: block;
   }
 
-  >.teamlead-icon {
+  > .teamlead-icon {
     display: none;
     position: absolute;
     top: 8px;
@@ -267,7 +285,6 @@ export default {
   }
 
   &.selectable {
-
     .end-round-btn {
       display: none;
     }
@@ -354,7 +371,7 @@ export default {
     justify-content: center;
     align-content: center;
 
-    >div {
+    > div {
       z-index: 1;
     }
 
@@ -406,8 +423,17 @@ export default {
     border-radius: 10px;
   }
 
-  &:hover>.user-name {
+  &:hover > .user-name {
     display: block;
+  }
+}
+
+.player.not-ready {
+  .card-worker {
+    .end-round-timer,
+    > .user-name {
+      display: none;
+    }
   }
 }
 

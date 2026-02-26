@@ -157,6 +157,7 @@
             game.super ? 'super' : '',
             game.my ? 'my' : '',
             game.roundReady ? 'round-ready' : '',
+            game.teamReady ? 'team-ready' : '',
             game.merged && !allGamesMerged ? 'disable-field' : '',
             game.selectable ? 'selectable' : '',
           ]"
@@ -383,6 +384,7 @@ export default {
           my: gameId === playerGameId,
           title: game.title,
           roundReady: game.roundReady,
+          teamReady: game.eventData.teamReady,
           code: game.code,
           merged: game.merged,
           gameConfig: game.gameConfig,
@@ -482,7 +484,7 @@ export default {
       return this.restoringGameState ? 'Восстановление игры' : this.superGame.statusLabel;
     },
     putPlaneEventActive() {
-      return Object.keys(this.sessionPlayer().eventData.plane || {}).length > 0 ? true : false;
+      return Object.keys(this.sessionPlayer()?.eventData?.plane || {}).length > 0 ? true : false;
     },
   },
   methods: {
@@ -766,6 +768,7 @@ export default {
   height: 70px;
   padding: 14px;
   cursor: default;
+  filter: drop-shadow(2px 4px 6px black);
 }
 
 .deck[code='Deck[domino]']:after {
@@ -811,12 +814,13 @@ export default {
   top: 35px;
   right: 30px;
   cursor: default;
+  filter: drop-shadow(2px 4px 6px black);
 }
 
 .deck[code='Deck[card_drop]'],
 .deck[code='SuperDeck[card_drop]'] {
   position: absolute;
-  filter: grayscale(1);
+  filter: grayscale(1) drop-shadow(2px 4px 6px black);
   transform: scale(0.5);
   top: 65px;
   right: -10px;
@@ -988,13 +992,19 @@ export default {
       color: black;
     }
 
-    &:not(.round-ready) {
-      background: orange;
+    &.round-ready {
+      background: green;
     }
 
     &.my {
-      background: #3f51b5;
+      background: #3f51b5!important;
     }
+  }
+}
+
+#game[superStatus='WAIT_FOR_PLAYERS'] .game-item {
+  &.team-ready {
+    background: green;
   }
 }
 

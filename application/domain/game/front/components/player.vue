@@ -1,7 +1,13 @@
 <template>
   <div
     v-if="player._id || viewer._id"
-    :class="['player', ...customClass, iam ? 'iam' : '', player.active ? 'active' : '']"
+    :class="[
+      'player',
+      ...customClass,
+      iam ? 'iam' : '',
+      player.active && player.ready ? 'active' : '',
+      !player.ready ? 'not-ready' : '',
+    ]"
   >
     <div class="inner-content" :style="{ justifyContent: 'flex-end' }">
       <div
@@ -646,6 +652,13 @@ export default {
     > .ps__rail-y {
       display: none !important;
     }
+  }
+}
+
+.player.not-ready {
+  .card-worker,
+  .player-hands {
+    opacity: 0.5;
   }
 }
 

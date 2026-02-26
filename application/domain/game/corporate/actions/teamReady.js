@@ -1,12 +1,11 @@
-(function ({ }, initPlayer) {
+(function ({}, initPlayer) {
   const superGame = this.game();
-
-  initPlayer.set({ eventData: { teamReady: true } });
-
   const games = superGame.getAllGames({ disabled: false });
+
+  this.set({ eventData: { teamReady: true } });
+
   for (const game of games) {
-    const teamlead = game.getTeamlead();
-    if (!teamlead?.eventData.teamReady && game.disabled === false) return;// "teamlead?" на случай, если не все игроки подключились
+    if (!game.eventData.teamReady) return;
   }
 
   if (superGame.restorationMode) return superGame.restart();

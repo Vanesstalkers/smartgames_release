@@ -13,16 +13,17 @@ async ({ gameType, gameId, lobbyId, round }) => {
               { id: gameData._id, _code: gameData.code }, // data
               { parent: corporateGame } // config
             ).load({ fromData: gameData }, { initStore: true });
+            
             game.restorationMode = true;
             game.run('fillGameData', { ...gameData, playerMap: {} });
+            game.eventData.teamReady = false;
+
             gamesMap[gameId] = game;
           }
 
           for (const playerId of Object.keys(loadedData.playerMap)) {
             const playerData = this.store.player[playerId];
             const game = this.store.game[playerData.gameId];
-
-            if (playerData.teamlead) delete playerData.eventData.teamReady;
             game.run('addPlayer', playerData);
           }
 

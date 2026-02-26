@@ -127,9 +127,8 @@ function getGamePlaneOffsets() {
     [superGameId]: { x: 0 + deviceOffset, y: 0 },
   };
 
-  if (
-    !superGame.store // может возникнуть при restoreForced
-  ) {
+  if (!superGame.store?.game) {
+    // может возникнуть при restoreForced
     return offsets;
   }
 

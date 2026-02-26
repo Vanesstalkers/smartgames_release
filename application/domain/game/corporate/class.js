@@ -173,7 +173,15 @@
       });
 
       if (restoredPlayer) {
-        if (player.teamlead && !player.eventData.teamReady) playerGame.run('teamReady', {}, player);
+        if (!playerGame.eventData.teamReady) {
+          const teamlead = playerGame.getTeamlead();
+          if (teamlead !== player) {
+            // teamlead еще не подключился, иначе было бы playerGame.eventData.teamReady
+            player.set({ teamlead: true });
+            teamlead.set({ teamlead: null });
+          }
+          playerGame.run('teamReady', {}, player);
+        }
         await this.saveChanges();
         return;
       }

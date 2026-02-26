@@ -218,6 +218,7 @@ export default {
   margin-bottom: 10px;
   transform-origin: 0 0;
   background-size: contain;
+  filter: drop-shadow(0px 0px 24px black);
 
   &:not(.card-plane) {
 

@@ -33,6 +33,8 @@ async (context, { round } = {}) => { // восстановление игры ч
       if (!ready) continue; // игрок вышел из игры (через processPlayerLeave)
 
       const user = lib.store('user').get(userId);
+      if(!user) continue; // игрок закрыл вкладку браузера
+
       user.subscribe(`game-${gameId}`, { rule: 'actions-only' });
 
       await (player.isViewer ?
