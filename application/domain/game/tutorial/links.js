@@ -70,6 +70,15 @@
       active: '[code="Deck[card_active]"] .card-event',
       buttons: [{ text: 'Спасибо', action: 'exit' }],
     },
+    releaseCard: {
+      text: `
+        Ты инициировал событие <b>РЕЛИЗ</b> и за это получаешь карту-событие <a>[[card-title]]</a>.
+      `,
+      // Значение img будет подставлено динамически из обработчика события RELEASE
+      img: '/img/tutorial/release-card-placeholder.png',
+      superPos: true,
+      buttons: [{ text: 'Спасибо', action: 'exit', exit: true }],
+    },
     addExtraBlock: {
       pos: 'top-right',
       text: `

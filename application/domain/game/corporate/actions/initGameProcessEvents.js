@@ -13,10 +13,13 @@
       const playerCardDeck = initPlayer.find('Deck[card]');
 
       if (game.gameConfig === 'competition') {
-
         const gameId = game.id();
-        const planeList = superGame.decks.table.items().filter(p => (p.anchorGameId === gameId || p.mergedGameId === gameId || p.customClass.includes('central')));
-        const bridgeList = superGame.select('Bridge').filter(b => (b.anchorGameId === gameId || b.mergedGameId === gameId));
+        const planeList = superGame.decks.table
+          .items()
+          .filter((p) => p.anchorGameId === gameId || p.mergedGameId === gameId || p.customClass.includes('central'));
+        const bridgeList = superGame
+          .select('Bridge')
+          .filter((b) => b.anchorGameId === gameId || b.mergedGameId === gameId);
 
         let endGame = true;
         for (const releaseItem of [...planeList, ...bridgeList]) {
@@ -25,16 +28,17 @@
         }
         if (endGame) game.run('endGame', { winningPlayer: initPlayer });
 
-        game.run('smartMoveRandomCard', { target: playerCardDeck }); // в competition-режиме нет колоды супер-игры
+        const card = game.run('smartMoveRandomCard', { target: playerCardDeck }); // в competition-режиме нет колоды супер-игры
+        if (card) game.run('showReleaseCardTutorial', { card, player: initPlayer, game });
 
         lib.timers.timerRestart(game, { extraTime: game.settings.timerReleasePremium });
         game.logs({
           msg: `Игрок {{player}} инициировал РЕЛИЗ, за что получает дополнительную карту-события в руку.`,
-          userId: initPlayer.userId
+          userId: initPlayer.userId,
         });
 
         if (!game.merged && game.checkFieldIsReady()) {
-          // при необходимости можно доработать и использовать initGameFieldsPrepareMerge (проблемы с конфликтами интеграции для 4-й команды) 
+          // при необходимости можно доработать и использовать initGameFieldsPrepareMerge (проблемы с конфликтами интеграции для 4-й команды)
           game.run('initGameFieldsMerge');
         }
 
@@ -44,15 +48,17 @@
       if (game.merged) {
         superGame.toggleEventHandlers('RELEASE', {}, initPlayer);
       } else {
-        game.run('smartMoveRandomCard', { target: playerCardDeck });
+        const card = game.run('smartMoveRandomCard', { target: playerCardDeck });
+        if (card) game.run('showReleaseCardTutorial', { card, player: initPlayer, game });
+
         lib.timers.timerRestart(initPlayer.game(), { extraTime: game.settings.timerReleasePremium });
         game.logs({
           msg: `Игрок {{player}} инициировал РЕЛИЗ, за что получает дополнительную карту-события в руку.`,
-          userId: initPlayer.userId
+          userId: initPlayer.userId,
         });
 
         if (game.checkFieldIsReady()) {
-          // при необходимости можно доработать и использовать initGameFieldsPrepareMerge (проблемы с конфликтами интеграции для 4-й команды) 
+          // при необходимости можно доработать и использовать initGameFieldsPrepareMerge (проблемы с конфликтами интеграции для 4-й команды)
           game.run('initGameFieldsMerge');
         }
       }
@@ -61,8 +67,11 @@
     };
   }
 
-  return this.initEvent({
-    name: 'initGameProcessEvents',
-    ...event
-  }, { allowedPlayers });
+  return this.initEvent(
+    {
+      name: 'initGameProcessEvents',
+      ...event,
+    },
+    { allowedPlayers }
+  );
 });

@@ -11,7 +11,8 @@
         if (game.checkFieldIsReady()) return game.run('endGame', { winningPlayer: player });
 
         const playerCardDeck = player.find('Deck[card]');
-        game.run('smartMoveRandomCard', { target: playerCardDeck });
+        const card = game.run('smartMoveRandomCard', { target: playerCardDeck });
+        if (card) game.run('showReleaseCardTutorial', { card, player });
 
         lib.timers.timerRestart(game, { extraTime: game.settings.timerReleasePremium });
         game.logs({
