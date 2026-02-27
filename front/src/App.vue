@@ -8,18 +8,20 @@
     ]"
     :current-route="$root.state.currentRoute"
   >
-    <button v-if="!state.hideFullscreeBtn" @click="toggleFullscreen" class="fullscreen-btn">
-      <span v-if="!state.isFullscreen">
-        <font-awesome-icon icon="fa-solid fa-expand" class="fa-xl" />
-        На весь экран
-      </span>
-      <span v-if="state.isFullscreen">
-        <font-awesome-icon icon="fa-solid fa-compress" class="fa-xl" />
-        Свернуть экран
-      </span>
-    </button>
-    <div v-if="!viewLoaded" class="exit show-with-delay">
-      <button v-on:click="logout">Выйти из лобби</button>
+    <div :class="['fullscreen-btn', 'gui-resizeable', `scale-${state.guiScale}`]">
+      <button v-if="!state.hideFullscreeBtn" @click="toggleFullscreen">
+        <span v-if="!state.isFullscreen">
+          <font-awesome-icon icon="fa-solid fa-expand" class="fa-xl" />
+          На весь экран
+        </span>
+        <span v-if="state.isFullscreen">
+          <font-awesome-icon icon="fa-solid fa-compress" class="fa-xl" />
+          Свернуть экран
+        </span>
+      </button>
+      <div v-if="!viewLoaded" class="exit show-with-delay">
+        <button v-on:click="logout">Выйти из лобби</button>
+      </div>
     </div>
     <router-view />
   </div>
@@ -154,26 +156,27 @@ body {
 .fullscreen-btn {
   position: fixed !important;
   z-index: 1000;
-  font-size: 10px;
   left: 20px;
   top: 10px;
-  width: 110px;
-  color: #f4e205;
-  border-radius: 4px;
-  border: 1px solid #f4e205;
-  padding: 2px 0px;
-  background-color: black;
-  background-size: 50px;
-  background-repeat: no-repeat;
-  background-position: center;
-  margin: auto;
-  cursor: pointer;
-  opacity: 1;
+  button {
+    width: 110px;
+    font-size: 10px;
+    color: #f4e205;
+    border-radius: 4px;
+    border: 1px solid #f4e205;
+    padding: 2px 0px;
+    background-color: black;
+    background-size: 50px;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin: auto;
+    cursor: pointer;
+    opacity: 1;
 
-  svg {
-    padding-right: 4px;
+    svg {
+      padding-right: 4px;
+    }
   }
-
   :hover {
     opacity: 0.7;
   }
@@ -185,7 +188,7 @@ body {
 }
 #app.game-loaded {
   .fullscreen-btn {
-    left: 130px;
+    left: max(10%, 130px);
   }
 }
 

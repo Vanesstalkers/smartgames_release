@@ -361,12 +361,13 @@ export default {
   .card-event {
     position: absolute;
     bottom: 0px;
-    left: 0px;
-    width: 60px;
-    height: 90px;
+    left: auto;
+    right: 0px;
+    width: 40px;
+    height: 60px;
     color: white;
     border: none;
-    font-size: 36px;
+    font-size: 24px;
     display: flex;
     justify-content: center;
     align-content: center;
@@ -451,10 +452,12 @@ export default {
 .viewer-mode {
   .card-worker {
     .card-event {
+      width: 60px;
+      height: 90px;
       cursor: pointer;
 
       &:hover {
-        color: green;
+        opacity: 0.7;
       }
     }
   }

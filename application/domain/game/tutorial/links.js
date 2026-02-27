@@ -6,17 +6,23 @@
         Это твои противники. Ты можешь увидеть сколько у них карт и костяшек домино в руке.
       `,
       active: [
-        '.players .workers', '.players .player-hands',
-        { selector: '#game:not(.portrait-view) .players .hand-dices', css: { boxShadow: '-30px -80px 60px 80px #f4e205' } },
+        '.players .workers',
+        '.players .player-hands',
+        {
+          selector: '#game:not(.portrait-view) .players .hand-dices',
+          css: { boxShadow: '-30px -80px 60px 80px #f4e205' },
+        },
         { selector: '#game.portrait-view .players .hand-dices', css: { boxShadow: '-150px -80px 60px 100px #f4e205' } },
       ],
       prepare: ({ step, user }) => {
         const game = lib.store('game').get(user.gameId);
-        if (game.gameType == 'corporate') step.text = step.text.replace('Это твои противники.', 'Это карточки игроков как из твоей команды, так и из других команд (<a>между командами можно переключаться</a>).');
+        if (game.gameType == 'corporate')
+          step.text = step.text.replace(
+            'Это твои противники.',
+            'Это карточки игроков как из твоей команды, так и из других команд (<a>между командами можно переключаться</a>).'
+          );
       },
-      buttons: [
-        { text: 'Спасибо', action: 'exit' },
-      ],
+      buttons: [{ text: 'Спасибо', action: 'exit' }],
     },
     handDices: {
       pos: 'top-right',
@@ -24,9 +30,7 @@
         Это твои костяшки в руке. <a>Выбери любую, чтобы увидеть какие зоны для ее размещения доступны</a>.
       `,
       active: '.player.iam .hand-dices .domino-dice',
-      buttons: [
-        { text: 'Спасибо', action: 'exit' },
-      ],
+      buttons: [{ text: 'Спасибо', action: 'exit' }],
     },
     handCards: {
       pos: 'top-right',
@@ -34,20 +38,22 @@
         Это твои карты-события. Активируй их, нажимая на кнопку <a>Разыграть</a>.
       `,
       active: '.player.iam .hand-cards-list .card-event',
-      buttons: [
-        { text: 'Спасибо', action: 'exit' },
-      ],
+      buttons: [{ text: 'Спасибо', action: 'exit' }],
+    },
+    iamCardToggle: {
+      pos: 'top-right',
+      text: `
+        Чтобы посмотреть или скрыть список своих карт нажми на колоду в руке.
+      `,
+      active: '.player.iam .iam-card-toggle',
+      buttons: [{ text: 'Спасибо', action: 'exit' }],
     },
     diceControls: {
       text: `
         Размещенные на поле костяшки можно <a>поворачивать</a> и <a>менять на костяшки из руки</a> (костяшку необходимо отметить как удаляемую, нажав на соответствующую иконку). <a>Про ограничения на действия с костяшками можно прочитать в Правилах</a>.
       `,
-      active: [
-        { selector: '#game #gamePlane .plane .domino-dice', onlyFirst: true },
-      ],
-      buttons: [
-        { text: 'Спасибо', action: 'exit' },
-      ],
+      active: [{ selector: '#game #gamePlane .plane .domino-dice', onlyFirst: true }],
+      buttons: [{ text: 'Спасибо', action: 'exit' }],
     },
     fieldZoneDouble: {
       text: `
@@ -55,18 +61,14 @@
       `,
       img: '/img/tutorial/zone-double.png',
       active: { selector: '#game .plane .zone.double', css: { boxShadow: 'inset 0 0 20px 10px #f4e205' } },
-      buttons: [
-        { text: 'Спасибо', action: 'exit' }
-      ],
+      buttons: [{ text: 'Спасибо', action: 'exit' }],
     },
     cardActive: {
       text: `
         Это карты-событий, которые доступных для розыгрыша или уже были разыграны в текущем раунде.
       `,
       active: '[code="Deck[card_active]"] .card-event',
-      buttons: [
-        { text: 'Спасибо', action: 'exit' },
-      ],
+      buttons: [{ text: 'Спасибо', action: 'exit' }],
     },
     addExtraBlock: {
       pos: 'top-right',
@@ -74,27 +76,21 @@
         Это дополнительный блок, который поможет разместить обязательные блоки на поле. <a>Дополнительных блоков можно взять несколько, а разместить только один</a>.
       `,
       active: '.add-block-action',
-      buttons: [
-        { text: 'Спасибо', action: 'exit' },
-      ],
+      buttons: [{ text: 'Спасибо', action: 'exit' }],
     },
     teamsBlock: {
       text: `
         Список с названиями команд позволяет переключиться на <a>просмотр информации об игроках, колодах и игровом поле конкретной команды</a>.
       `,
       active: '.players .games .game-item',
-      buttons: [
-        { text: 'Спасибо', action: 'exit' },
-      ],
+      buttons: [{ text: 'Спасибо', action: 'exit' }],
     },
     teamsReadyBtn: {
       text: `
         Игра начнется после того, как все тимлиды нажмут эту кнопку. Можно дождаться, пока все игроки присоединятся к своим командам.
       `,
       active: '.team-ready-btn',
-      buttons: [
-        { text: 'Спасибо', action: 'exit' },
-      ],
+      buttons: [{ text: 'Спасибо', action: 'exit' }],
     },
     teamLead: {
       showMenu: true,
@@ -106,18 +102,14 @@
         - <a>передать руководство командой</a>
         - <a>принудительно завершить текущий раунд команды</a>
       `,
-      active: [
-        { selector: '.player.iam .card-worker.teamlead >.teamlead-icon', css: { backgroundSize: '16px' } },
-      ],
+      active: [{ selector: '.player.iam .card-worker.teamlead >.teamlead-icon', css: { backgroundSize: '16px' } }],
       actions: {
         before: ({ $root }) => {
           const $guru = $root.querySelector('.helper-guru');
           if ($guru) $guru.click();
         },
       },
-      buttons: [
-        { text: 'Спасибо', action: 'exit' },
-      ],
+      buttons: [{ text: 'Спасибо', action: 'exit' }],
     },
   },
 });

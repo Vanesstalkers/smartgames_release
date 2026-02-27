@@ -42,6 +42,12 @@
     type: 'game',
     pos: { top: true, left: true },
   },
+  iamCardToggle: {
+    selector: '.session-player .player.iam .iam-card-toggle',
+    tutorial: 'game-tutorial-links',
+    type: 'game',
+    pos: { top: true, left: true },
+  },
   fieldZoneDouble: {
     selector: `
       #game:not([type="corporate"]) #gamePlane .plane .zone.double,

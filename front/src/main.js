@@ -55,9 +55,7 @@ const init = async () => {
       if (this.processing || this.queue.length === 0) return;
       this.processing = true;
       const data = this.queue.shift();
-      console.log('process :: ', JSON.stringify(data), 'target=', JSON.stringify(this.getTarget().game?.['699f16e4ddfdb76b6136d74e']?.store?.player));
       mergeDeep({ target: this.getTarget(), source: data });
-      console.info('process :: done', 'target=', JSON.stringify(this.getTarget().game?.['699f16e4ddfdb76b6136d74e']?.store?.player));
       this.processing = false;
       if (this.queue.length > 0) {
         Promise.resolve().then(() => this.process());
@@ -79,7 +77,6 @@ const init = async () => {
     store: {},
     emit: {
       updateStore(data) {
-        console.debug('updateStore :: ', JSON.stringify(data));
         storeQueue.push(data);
       },
       alert(data, config) {

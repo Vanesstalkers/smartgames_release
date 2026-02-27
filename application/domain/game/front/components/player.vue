@@ -52,12 +52,18 @@
         </div>
         <div
           v-if="
-            (iam || (gameState.viewerMode && gameCustom.viewerState.showCards[player._id] === true)) && !hasPlaneInHand
+            ((iam && gameCustom.viewerState.showCards[player._id] !== false && (showCards || !showIamCardToggle)) ||
+              (gameState.viewerMode && gameCustom.viewerState.showCards[player._id] === true)) &&
+            !hasPlaneInHand &&
+            !state.isPortrait
           "
           class="hand-cards-list"
           :style="
             gameState.viewerMode
-              ? { width: handCardsWidth !== 'auto' ? parseInt(handCardsWidth) * 0.5 + 'px' : 'auto' }
+              ? {
+                  width: handCardsWidth !== 'auto' ? parseInt(handCardsWidth) * 0.5 + 'px' : 'auto',
+                  marginRight: '15px',
+                }
               : {}
           "
           ref="scrollbar"
@@ -86,6 +92,9 @@
         </div>
       </div>
 
+      <div v-if="showIamCardToggle" class="iam-card-toggle" :style="cardEventCustomStyle" @click="toggleShowCards">
+        <div>{{ mainCardDeckItemsCount }}</div>
+      </div>
       <div class="workers">
         <card-worker
           :playerId="playerId"
@@ -142,7 +151,7 @@ export default {
     showControls: Boolean,
   },
   data() {
-    return { helperVisible: false, helperChecked: false };
+    return { helperVisible: false, helperChecked: false, showCards: false };
   },
   watch: {
     mainCardDeckItemsCount: function () {
@@ -245,6 +254,32 @@ export default {
 
       return !state.isMobile ? `${columns * cardWidth}px` : this.mainCardDeckItemsCount > 0 ? `${cardWidth}px` : 'auto';
     },
+    gameStatus() {
+      return this.game?.status || this.getSuperGame()?.status;
+    },
+    cardEventCustomStyle() {
+      const serverOrigin = this.state?.serverOrigin;
+      const game = this.game;
+      if (!serverOrigin || !game?.templates?.card) return {};
+      return {
+        backgroundImage: `url(${serverOrigin}/img/cards/${game.templates.card}/back-side.jpg)`,
+      };
+    },
+    handCardsListWidthPx() {
+      if (this.handCardsWidth === 'auto') return 0;
+      return parseInt(this.handCardsWidth, 10) || 0;
+    },
+    showIamCardToggle() {
+      if (state.isMobile) return;
+      if (!this.iam || this.gameStatus === 'WAIT_FOR_PLAYERS') return false;
+      return this.handCardsListWidthPx > window.innerWidth * 0.15;
+    },
+  },
+  methods: {
+    toggleShowCards() {
+      if (!this.iam) return;
+      this.showCards = !this.showCards;
+    },
   },
 };
 </script>
@@ -261,6 +296,31 @@ export default {
       .hand-planes {
         max-width: 1000px;
       }
+    }
+  }
+
+  .player.iam .iam-card-toggle {
+    width: 60px;
+    height: 90px;
+    color: white;
+    font-size: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    border-radius: 10px;
+    margin-right: 5px;
+    flex-shrink: 0;
+
+    > div {
+      z-index: 1;
+    }
+
+    &:hover {
+      opacity: 0.7;
     }
   }
 
@@ -395,6 +455,17 @@ export default {
         z-index: 1;
         transform: scale(0.7);
         transform-origin: bottom left;
+      }
+    }
+
+    .player {
+      &:not(.iam) {
+        .hand-cards-list {
+          width: 130px !important;
+          .hand-cards {
+            scale: 1;
+          }
+        }
       }
     }
   }

@@ -943,61 +943,62 @@ export default {
   }
 }
 
-.player {
-  margin-left: 60px;
-}
+#game[type='corporate'] {
+  .player {
+    margin-left: 60px;
+  }
+  .games {
+    z-index: 1;
+    position: absolute;
+    left: 40px;
+    bottom: 0px;
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+    transform: rotate(-90deg);
+    transform-origin: bottom left;
 
-#game .games {
-  z-index: 1;
-  position: absolute;
-  left: 40px;
-  bottom: 0px;
-  height: 50px;
-  display: flex;
-  flex-direction: row;
-  transform: rotate(-90deg);
-  transform-origin: bottom left;
+    .game-item {
+      background: grey;
+      color: white;
+      font-size: 24px;
+      padding: 4px 10px;
+      margin-top: 4px;
+      border: 1px solid black;
+      border-radius: 4px;
+      margin-right: 20px;
+      width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
 
-  .game-item {
-    background: grey;
-    color: white;
-    font-size: 24px;
-    padding: 4px 10px;
-    margin-top: 4px;
-    border: 1px solid black;
-    border-radius: 4px;
-    margin-right: 20px;
-    width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+      &:hover {
+        cursor: pointer;
+        opacity: 0.7;
+      }
 
-    &:hover {
-      cursor: pointer;
-      opacity: 0.7;
-    }
+      &.selectable {
+        box-shadow: 0 0 20px 8px yellow !important;
+      }
 
-    &.selectable {
-      box-shadow: 0 0 20px 8px yellow !important;
-    }
+      &.selected {
+        box-shadow: 0px 10px 2px 0px green;
+      }
 
-    &.selected {
-      box-shadow: 0px 10px 2px 0px green;
-    }
+      &.super {
+        display: none;
+        background: gold;
+        color: black;
+      }
 
-    &.super {
-      display: none;
-      background: gold;
-      color: black;
-    }
+      &.round-ready {
+        background: green;
+      }
 
-    &.round-ready {
-      background: green;
-    }
-
-    &.my {
-      background: #3f51b5!important;
+      &.my {
+        background: #3f51b5 !important;
+      }
     }
   }
 }
