@@ -243,10 +243,20 @@ export default {
       }
     },
     'player.eventData.availablePorts': function () {
+      const availablePorts = this.player.eventData.availablePorts || [];
       this.$nextTick(() => {
         this.state.gamePlaneNeedUpdate = true;
         this.selectedFakePlanePosition = '';
         this.gameCustom.selectedFakePlanes = {};
+
+        const selectedGameId = availablePorts[0]?.gameId;
+        if (selectedGameId) {
+          this.$set(this.gameCustom, 'selectedGameId', selectedGameId);
+          this.resetPlanePosition();
+          this.$refs.game?.updatePlaneScale?.();
+        } else {
+          this.$set(this.gameCustom, 'selectedGameId', this.sessionPlayerGameId);
+        }
 
         if (this.sessionPlayer().eventData.showNoAvailablePortsBtn && !this.gameFinished()) {
           this.gameState.cardWorkerAction = {
@@ -314,6 +324,7 @@ export default {
       if (this.gameState.viewerMode && !this.gameCustom.selectedGameId) return [];
 
       const game = this.getStore().game[this.gameCustom.selectedGameId || this.playerGameId()];
+      if(!game) return []; // super-game
 
       const ids = Object.keys(game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
       const curPlayerIdx = ids.indexOf(this.gameState.sessionPlayerId);

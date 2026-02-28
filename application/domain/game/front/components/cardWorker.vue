@@ -194,8 +194,8 @@ export default {
         return await api.action
           .call(this.customAction.sendApiData)
           .then(() => {
-            this.controlActionDisabled = false;
             this.gameState.cardWorkerAction = {};
+            setTimeout(() => (this.controlActionDisabled = false), 300); // защита от двойного клика
           })
           .catch(prettyAlert);
       if (this.showEndRoundBtn) return await this.endRound();
