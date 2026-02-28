@@ -72,6 +72,6 @@
       name: 'initGameProcessEvents',
       ...event,
     },
-    { allowedPlayers }
+    { allowedPlayers, publicHandlers: ['RELEASE'] }
   );
 });

@@ -159,7 +159,7 @@
             game.roundReady ? 'round-ready' : '',
             game.teamReady ? 'team-ready' : '',
             game.merged && !allGamesMerged ? 'disable-field' : '',
-            game.selectable ? 'selectable' : '',
+            game.selectable || game.highlight ? 'selectable' : '',
           ]"
           v-on:click="selectGame(game.gameId, { selectable: game.selectable })"
         >
@@ -324,7 +324,7 @@ export default {
       if (this.gameState.viewerMode && !this.gameCustom.selectedGameId) return [];
 
       const game = this.getStore().game[this.gameCustom.selectedGameId || this.playerGameId()];
-      if(!game) return []; // super-game
+      if (!game) return []; // super-game
 
       const ids = Object.keys(game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
       const curPlayerIdx = ids.indexOf(this.gameState.sessionPlayerId);
@@ -401,6 +401,7 @@ export default {
           gameConfig: game.gameConfig,
           gameTimer: game.gameTimer,
           selectable: this.sessionPlayerIsActive() && this.sessionPlayerEventData.game?.[gameId]?.selectable,
+          highlight: this.sessionPlayerIsActive() && this.sessionPlayerEventData.game?.[gameId]?.highlight,
         };
       });
     },

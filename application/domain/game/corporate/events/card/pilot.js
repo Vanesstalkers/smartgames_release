@@ -6,10 +6,7 @@
         if (game.isSuperGame) game = player.game();
 
         if (game.mergeStatus() === 'freezed') {
-            const message = `Карта "${card.title}" не имеет эффекта в текущем статусе игры.`;
-            game.logs(message);
-            player.notifyUser(message);
-            return { resetEvent: true };
+            throw new Error(`Карта <a>${card.title}</a> не имеет эффекта в текущем статусе игры`);
         }
 
         const gameDeck = game.find('Deck[plane]');
