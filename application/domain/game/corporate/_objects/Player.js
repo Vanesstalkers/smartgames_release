@@ -29,7 +29,8 @@
   getHandDominoDeck() {
     const game = this.game();
     const { merged, gameConfig: gameType } = game;
-    const playerHand = merged && gameType === 'cooperative' ? game.find('Deck[domino_common]') : this.find('Deck[domino]');
+    const playerHand =
+      merged && gameType === 'cooperative' ? game.find('Deck[domino_common]') : this.find('Deck[domino]');
     return playerHand;
   }
   checkHandDiceLimit() {
@@ -41,15 +42,17 @@
 
       if (gameCommonDominoDeck.itemsCount() > game.settings.playerHandLimit * game.players().length) {
         // слишком много dice в руке
-        if (this.eventData.disablePlayerHandLimit) {
-          this.set({ eventData: { disablePlayerHandLimit: null } });
-        } else {
-          gameCommonDominoDeck.moveAllItems({ target: game.find('Deck[domino]') });
 
-          game.logs({
-            msg: `У команды <team team="${game.templates.code}">${game.title}</team> превышено максимальное количество костяшек в руке на конец хода. Все костяшки сброшены в колоду.`,
-          });
-        }
+        const disablePlayerHandLimit = this.eventData.disablePlayerHandLimitAtRound == game.round;
+        this.set({ eventData: { disablePlayerHandLimitAtRound: null } });
+
+        if (disablePlayerHandLimit) return;
+
+        gameCommonDominoDeck.moveAllItems({ target: game.find('Deck[domino]') });
+
+        game.logs({
+          msg: `У команды <team team="${game.templates.code}">${game.title}</team> превышено максимальное количество костяшек в руке на конец хода. Все костяшки сброшены в колоду.`,
+        });
       }
     }
   }
