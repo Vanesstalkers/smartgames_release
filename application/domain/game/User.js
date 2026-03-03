@@ -125,4 +125,16 @@
     this.set({ helper: tutorial[endGameStatus] });
     await this.saveChanges();
   }
+
+  getTutorial(formattedPath) {
+    const path = formattedPath.split('-');
+
+    let obj;
+    if (path[0] === 'game') obj = lib.utils.getDeep(domain, ['game', 'corporate', ...path.slice(1)]);
+    if (!obj) obj = lib.utils.getDeep(domain, path) || lib.utils.getDeep(lib, path);
+
+    const tutorial = typeof obj === 'function' ? obj() : obj;
+    if (!tutorial?.steps) throw new Error(`Tutorial "${formattedPath}" not found`);
+    return tutorial;
+  }
 });
