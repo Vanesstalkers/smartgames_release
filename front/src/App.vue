@@ -23,6 +23,16 @@
         <button v-on:click="logout">Выйти из лобби</button>
       </div>
     </div>
+
+    <div
+      v-if="connection && !connection.connected && connection.reconnecting"
+      class="connection-overlay"
+    >
+      <div class="connection-overlay__content">
+        Соединение с сервером разорвано, идет попытка переподключения...
+      </div>
+    </div>
+
     <router-view />
   </div>
 </template>
@@ -47,6 +57,9 @@ export default {
   computed: {
     state() {
       return this.$root.state || {};
+    },
+    connection() {
+      return this.state.connection || null;
     },
     store() {
       return this.state.store || {};
@@ -185,6 +198,27 @@ body {
     box-shadow: 0 0 10px 10px #f4e205;
     z-index: 100000 !important;
   }
+}
+
+.connection-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.connection-overlay__content {
+  color: #ffffff;
+  font-size: 20px;
+  max-width: 800px;
 }
 #app.game-loaded {
   .fullscreen-btn {

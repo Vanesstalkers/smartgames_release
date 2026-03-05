@@ -63,6 +63,40 @@ const init = async () => {
     }
   }
 
+  let reconnectPollTimer = null;
+
+  const startReconnectPolling = () => {
+    if (reconnectPollTimer) return;
+    reconnectPollTimer = setInterval(async () => {
+      if (metacom.connected) {
+        clearInterval(reconnectPollTimer);
+        reconnectPollTimer = null;
+        return;
+      }
+      try {
+        const response = await fetch(`${location.protocol}//${serverHost}`, {
+          method: 'HEAD',
+          cache: 'no-store',
+        });
+        if (response.ok) {
+          try {
+            await metacom.open();
+          } catch (err) {
+            console.log(err);
+          }
+        }
+      } catch (err) {
+        // сервер всё ещё недоступен, просто ждём следующую попытку
+      }
+    }, 5000);
+  };
+
+  const stopReconnectPolling = () => {
+    if (!reconnectPollTimer) return;
+    clearInterval(reconnectPollTimer);
+    reconnectPollTimer = null;
+  };
+
   const state = {
     serverOrigin: `${location.protocol}//${serverHost}`,
     innerWidth: window.innerWidth,
@@ -75,6 +109,14 @@ const init = async () => {
     gamePlaneNeedUpdate: false,
     guiScale: 1,
     store: {},
+    connection: {
+      connected: metacom.connected,
+      reconnecting: false,
+      lastError: null,
+      lastConnectedAt: null,
+      lastDisconnectedAt: null,
+      reconnectAttempts: 0,
+    },
     emit: {
       updateStore(data) {
         storeQueue.push(data);
@@ -93,6 +135,31 @@ const init = async () => {
   };
 
   const storeQueue = new StoreQueue(() => state.store);
+
+  metacom.on('open', () => {
+    state.connection.connected = true;
+    state.connection.reconnecting = false;
+    state.connection.lastConnectedAt = Date.now();
+    // если до этого уже было зафиксировано отключение, значит это восстановление соединения
+    const hadDisconnect = state.connection.lastDisconnectedAt !== null;
+    stopReconnectPolling();
+    if (hadDisconnect) {
+      // полная перезагрузка страницы после восстановления коннекта
+      window.location.reload();
+    }
+  });
+
+  metacom.on('close', () => {
+    state.connection.connected = false;
+    state.connection.reconnecting = true;
+    state.connection.lastDisconnectedAt = Date.now();
+    state.connection.reconnectAttempts += 1;
+    startReconnectPolling();
+  });
+
+  metacom.on('error', (err) => {
+    state.connection.lastError = err && err.message ? err.message : String(err);
+  });
 
   api.action.on('emit', ({ eventName, data, config }) => {
     const event = state.emit[eventName];
