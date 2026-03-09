@@ -1,31 +1,33 @@
-() => {
-    const event = domain.game.events.card.pilot();
+(function event() {
+  const event = domain.game.events.card.pilot();
 
-    event.init = function () {
-        let { game, player, source: card } = this.eventContext();
-        if (game.isSuperGame) game = player.game();
+  event.tutorial.text += '<br><a>Можно применять только игровому полю команды</a>';
 
-        if (game.mergeStatus() === 'freezed') {
-            throw new Error(`Карта <a>${card.title}</a> не имеет эффекта в текущем статусе игры`);
-        }
+  event.init = function () {
+    let { game, player, source: card } = this.eventContext();
+    if (game.isSuperGame) game = player.game();
 
-        const gameDeck = game.find('Deck[plane]');
-        const playerDeck = player.find('Deck[plane]');
+    if (game.mergeStatus() === 'freezed') {
+      throw new Error(`Карта <a>${card.title}</a> не имеет эффекта в текущем статусе игры`);
+    }
 
-        if (!gameDeck.itemsCount()) return { resetEvent: true };
+    const gameDeck = game.find('Deck[plane]');
+    const playerDeck = player.find('Deck[plane]');
 
-        const eventData = { plane: {} };
+    if (!gameDeck.itemsCount()) return { resetEvent: true };
 
-        for (let i = 0; i < game.settings.planesToChoose; i++) {
-            const plane = gameDeck.getRandomItem();
-            if (!plane) continue;
+    const eventData = { plane: {} };
 
-            plane.moveToTarget(playerDeck);
-            eventData.plane[plane.id()] = { oneOfMany: true };
-        }
+    for (let i = 0; i < game.settings.planesToChoose; i++) {
+      const plane = gameDeck.getRandomItem();
+      if (!plane) continue;
 
-        player.set({ eventData });
-    };
+      plane.moveToTarget(playerDeck);
+      eventData.plane[plane.id()] = { oneOfMany: true };
+    }
 
-    return event;
-} 
+    player.set({ eventData });
+  };
+
+  return event;
+});

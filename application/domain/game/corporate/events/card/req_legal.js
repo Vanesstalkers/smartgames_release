@@ -1,6 +1,9 @@
-() => {
+(function event() {
   const event = domain.game.events.card.req_legal();
   const originalInit = event.init;
+
+  event.tutorial.text += '<br><a>Можно применять только игровому полю команды</a>';
+
   event.init = function () {
     const { game, player, source: card } = this.eventContext();
     if (game.mergeStatus() === 'freezed') {
@@ -17,4 +20,4 @@
     }
   };
   return event;
-};
+});

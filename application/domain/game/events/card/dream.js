@@ -1,4 +1,7 @@
 () => ({
+  tutorial: {
+    text: 'Все костяшки из выбранного блока игрового поля возвращаются в колоду',
+  },
   init: function () {
     const { game, player } = this.eventContext();
 

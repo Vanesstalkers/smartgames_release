@@ -1,4 +1,7 @@
 () => ({
+  tutorial: {
+    text: 'Игрок забирает любую костяшку из руки любого соперника',
+  },
   fakeIdMapping: {},
   init: function () {
     const { game, player: activePlayer } = this.eventContext();
@@ -30,7 +33,10 @@
       }
       activePlayer.set({ eventData });
 
-      if (Object.keys(eventData.dice).length === 0) return { resetEvent: true };
+      if (Object.keys(eventData.dice).length === 0) {
+        throw new Error('Действие не сработало (нет доступных костей)');
+        // return { resetEvent: true };
+      }
     }
   },
   handlers: {
@@ -86,5 +92,5 @@
     const { game, player: activePlayer } = this.eventContext();
     const diceId = Object.keys(activePlayer.eventData.dice)[0];
     return game.get(this.fakeIdMapping[diceId] || diceId);
-  }
+  },
 });

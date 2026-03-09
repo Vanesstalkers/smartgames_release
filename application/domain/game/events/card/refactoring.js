@@ -1,4 +1,7 @@
 () => ({
+  tutorial: {
+    text: 'Игрок может забрать любую костяшку с поля. Она остается открытой для всех игроков и её нельзя будет разыграть в текущем раунде.',
+  },
   init: function () {
     const { game, player } = this.eventContext();
 
@@ -56,7 +59,6 @@
       this.emit('DEACTIVATE');
     },
     END_ROUND: function () {
-
       if (!this.targetDice) this.getRandomDice();
 
       if (this.targetDice) {
@@ -74,8 +76,8 @@
 
     if (!this.targetDice) {
       const items = [
-        ...game.decks.table.items().filter(p => p.anchorGameId !== playerGameId),
-        ...game.select('Bridge').filter(b => b.anchorGameId !== playerGameId)
+        ...game.decks.table.items().filter((p) => p.anchorGameId !== playerGameId),
+        ...game.select('Bridge').filter((b) => b.anchorGameId !== playerGameId),
       ];
 
       for (const item of items) {
@@ -85,5 +87,5 @@
         }
       }
     }
-  }
+  },
 });

@@ -1,4 +1,7 @@
 () => ({
+  tutorial: {
+    text: 'Игрок выбирает костяшку и устанавливает одной их её сторон любое значение, которое сохраняется до конца хода',
+  },
   init: function () {
     const { game, player } = this.eventContext();
 
@@ -53,7 +56,9 @@
         const zoneParent = dside.findParent({ className: 'Zone' });
         if (zoneParent) {
           // не пишем в лог сообщение о костяшках в руке, чтобы соперники не узнали об их наличии
-          game.logs(`Костяшка "${dside.getParent().getTitle()}" восстановила свои значения, измененные событием "Костыль".`);
+          game.logs(
+            `Костяшка "${dside.getParent().getTitle()}" восстановила свои значения, измененные событием "Костыль".`
+          );
 
           zoneParent.updateValues();
         }

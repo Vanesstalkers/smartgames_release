@@ -1,4 +1,7 @@
 () => ({
+  tutorial: {
+    text: 'В свой следующий ход выбранный игрок не сможет совершать никаких действий',
+  },
   init: function () {
     const { game, player } = this.eventContext();
 

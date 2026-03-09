@@ -1,4 +1,7 @@
 () => ({
+  tutorial: {
+    text: 'У выбранного игрока все костяшки из руки возвращаются в колоду, а затем он добирает такое же количество костяшек обратно себе в руку',
+  },
   init: function () {
     const { game, player } = this.eventContext();
 
@@ -24,7 +27,7 @@
   handlers: {
     RESET: function () {
       const { game, player } = this.eventContext();
-      player.set({ eventData: { player: null } });
+      player.set({ eventData: { player: null, game: null } });
       this.destroy();
     },
     TRIGGER: function ({ target: targetPlayer }) {

@@ -1,9 +1,12 @@
 () => ({
+  tutorial: {
+    text: (card) => `Все игроки добирают полную руку костяшек (<a>до ${card.game().settings.playerHandLimit} штук</a>)`,
+  },
   init: function () {
     const { game, player } = this.eventContext();
 
     this.fillHandWithDices(game);
-    
+
     return { resetEvent: true };
   },
   fillHandWithDices(game) {
@@ -13,5 +16,5 @@
       const count = hand.itemsCount();
       deck.moveRandomItems({ count: game.settings.playerHandLimit - count, target: hand });
     }
-  }
+  },
 });

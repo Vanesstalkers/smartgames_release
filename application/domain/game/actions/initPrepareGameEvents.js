@@ -135,6 +135,8 @@
         },
         ADD_PLANE_RECURSIVE_ENDED() {
           const { game } = this.eventContext();
+          
+          this.addPlaneRecursiveMode = false;
           if (game.settings.planesNeedToStart > game.decks.table.itemsCount()) return { preventListenerRemove: true };
 
           this.emit('RESET');

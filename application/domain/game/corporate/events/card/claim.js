@@ -1,36 +1,47 @@
 (function event() {
-    const event = domain.game.events.card.claim();
+  const event = domain.game.events.card.claim();
 
-    event.init = function () {
-        const { game, player } = this.eventContext();
-        const superGame = game.hasSuperGame ? game.game() : game;
+  event.tutorial.text += '<br><a>Можно применять к игрокам любой команды</a>';
 
-        const eventData = { player: {} };
-        for (const player of superGame.players()) {
-            eventData.player[player.id()] = { selectable: true };
-        }
-        player.set({ eventData });
-    };
+  event.init = function () {
+    const { game, player } = this.eventContext();
+    const superGame = game.hasSuperGame ? game.game() : game;
 
-    event.handlers['TRIGGER'] = function ({ target: targetPlayer }) {
-        const { game, player } = this.eventContext();
+    const eventData = { player: {}, game: {} };
+    for (const player of superGame.players()) {
+      eventData.player[player.id()] = { selectable: true };
 
-        if (targetPlayer.eventData.dice || targetPlayer.eventData.dside) {
-            player.notifyUser('Игрок не может стать целью, так как у него активировано событие руки.');
-            return { preventListenerRemove: true };
-        }
+      const playerGame = player.game();
+      if (playerGame !== game) eventData.game[playerGame.id()] = { highlight: true };
+    }
+    player.set({ eventData });
+  };
 
-        game.logs({
-            msg: `Игрок {{player}} стал целью события <a>${this.getTitle()}</a>.`,
-            userId: targetPlayer.userId,
-        });
+  event.handlers['RESET'] = function () {
+    const { player: activePlayer } = this.eventContext();
+    activePlayer.set({ eventData: { player: null, game: null } });
+    this.destroy();
+  };
 
-        for (const dice of targetPlayer.getHandDominoDeck().items()) {
-            dice.moveToDeck();
-        }
+  event.handlers['TRIGGER'] = function ({ target: targetPlayer }) {
+    const { game, player } = this.eventContext();
 
-        this.emit('RESET');
+    if (targetPlayer.eventData.dice || targetPlayer.eventData.dside) {
+      player.notifyUser('Игрок не может стать целью, так как у него активировано событие руки.');
+      return { preventListenerRemove: true };
     }
 
-    return event;
-})
+    game.logs({
+      msg: `Игрок {{player}} стал целью события <a>${this.getTitle()}</a>.`,
+      userId: targetPlayer.userId,
+    });
+
+    for (const dice of targetPlayer.getHandDominoDeck().items()) {
+      dice.moveToDeck();
+    }
+
+    this.emit('RESET');
+  };
+
+  return event;
+});

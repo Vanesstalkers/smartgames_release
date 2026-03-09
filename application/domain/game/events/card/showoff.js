@@ -1,4 +1,7 @@
 () => ({
+  tutorial: {
+    text: (card) => `Игрок добирает полную руку костяшек (<a>до ${card.game().settings.playerHandLimit} штук</a>)`,
+  },
   init: function () {
     const { game, player } = this.eventContext();
     const deck = game.find('Deck[domino]');

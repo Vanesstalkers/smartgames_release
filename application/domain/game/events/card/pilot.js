@@ -1,6 +1,10 @@
 () => {
   const event = domain.game.events.common.putPlaneFromHand();
 
+  event.tutorial = {
+    text: 'Игрок добавляет на игровое поле дополнительный блок',
+  };
+
   event.init = function () {
     const { game, player } = this.eventContext();
     const gameDeck = game.find('Deck[plane]');
@@ -27,15 +31,13 @@
     const planeList = playerPlaneDeck.select('Plane');
 
     player.set({
-      eventData: { plane: { [plane.id()]: { selectable: null, oneOfMany: null, mustBePlaced: null, extraPlane: null } } }
+      eventData: {
+        plane: { [plane.id()]: { selectable: null, oneOfMany: null, mustBePlaced: null, extraPlane: null } },
+      },
     });
 
-    const requiredPlanes = planeList.filter((planeItem) =>
-      player.eventData.plane?.[planeItem.id()]?.mustBePlaced
-    );
-    const extraPlanes = planeList.filter((planeItem) =>
-      player.eventData.plane?.[planeItem.id()]?.extraPlane
-    );
+    const requiredPlanes = planeList.filter((planeItem) => player.eventData.plane?.[planeItem.id()]?.mustBePlaced);
+    const extraPlanes = planeList.filter((planeItem) => player.eventData.plane?.[planeItem.id()]?.extraPlane);
 
     const pilotPlanePlaced =
       planeList.length - requiredPlanes.length - extraPlanes.length <= game.settings.planesToChoose - 1;
@@ -53,9 +55,7 @@
 
         if (requiredPlanes.length === 0) return this.emit('RESET');
 
-        const remainPlanes = planeList.filter((planeItem) =>
-          player.eventData.plane?.[planeItem.id()]?.oneOfMany
-        );
+        const remainPlanes = planeList.filter((planeItem) => player.eventData.plane?.[planeItem.id()]?.oneOfMany);
         if (remainPlanes.length > 0) {
           const eventData = { plane: {} };
           for (const remainPlane of remainPlanes) {

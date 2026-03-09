@@ -1,4 +1,7 @@
 () => ({
+  tutorial: {
+    text: 'Выбранный игрок сбрасывает все костяшки из своей руки в колоду',
+  },
   init: function () {
     const { game, player } = this.eventContext();
 

@@ -1,4 +1,7 @@
 () => ({
+  tutorial: {
+    text: 'Костяшки со всех зон интеграций возвращаются в колоду',
+  },
   init: function () {
     const { game, player } = this.eventContext();
 

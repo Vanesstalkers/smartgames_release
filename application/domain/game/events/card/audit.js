@@ -1,4 +1,7 @@
 () => ({
+  tutorial: {
+    text: 'Костяшки выбранного игрока становятся видимыми для всех остальных игроков',
+  },
   init: function () {
     const { game, player } = this.eventContext();
 

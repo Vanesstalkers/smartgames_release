@@ -1,4 +1,7 @@
 () => ({
+  tutorial: {
+    text: 'Игрок берет в руку дополнительную костяшку',
+  },
   init: function () {
     const { game, player } = this.eventContext();
     const deck = game.find('Deck[domino]');

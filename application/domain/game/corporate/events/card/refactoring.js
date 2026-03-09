@@ -1,9 +1,13 @@
-() => {
+(function event() {
   const {
+    tutorial: { text: tutorialText },
     handlers: { RESET, DEACTIVATE, END_ROUND },
   } = domain.game.events.card.refactoring();
 
   return {
+    tutorial: {
+      text: tutorialText + '<br><a>Можно применять к любой фишке на любом блоке игрового поля</a>',
+    },
     init: function () {
       const { game, player } = this.eventContext();
       const isCompetitionGame = game.gameConfig === 'competition';
@@ -12,12 +16,14 @@
       let planes = [];
       let bridges = [];
 
-      const games =
-        isCompetitionGame
-          ? game.game().getAllGames()
-          : game.isSuperGame && game.allGamesMerged()
-            ? [game]
-            : game.game().getAllGames().filter((g) => !g.merged);
+      const games = isCompetitionGame
+        ? game.game().getAllGames()
+        : game.isSuperGame && game.allGamesMerged()
+        ? [game]
+        : game
+            .game()
+            .getAllGames()
+            .filter((g) => !g.merged);
 
       for (const game of games) {
         if (isCooperativeGame && game.fieldIsBlocked()) continue;
@@ -25,12 +31,20 @@
 
         const availablePlanes = isCompetitionGame
           ? game.merged
-            ? game.game().decks.table.items().filter(p => p.anchorGameId === gameId || p.mergedGameId === gameId || p.customClass.includes('central'))
+            ? game
+                .game()
+                .decks.table.items()
+                .filter(
+                  (p) => p.anchorGameId === gameId || p.mergedGameId === gameId || p.customClass.includes('central')
+                )
             : game.decks.table.items()
           : game.decks.table.items();
         const availableBridges = isCompetitionGame
           ? game.merged
-            ? game.game().select('Bridge').filter(b => b.anchorGameId === gameId || b.mergedGameId === gameId)
+            ? game
+                .game()
+                .select('Bridge')
+                .filter((b) => b.anchorGameId === gameId || b.mergedGameId === gameId)
             : game.select('Bridge')
           : game.select('Bridge');
 
@@ -63,7 +77,7 @@
       TRIGGER: function ({ target: dice }) {
         const { game: eventGame, player } = this.eventContext();
         const zone = dice.findParent({ className: 'Zone' });
-        if(!zone) return this.emit('RESET'); // в конце раунда при нескольких активированных refactoring не успевает отработать DICES_DISABLED у второго
+        if (!zone) return this.emit('RESET'); // в конце раунда при нескольких активированных refactoring не успевает отработать DICES_DISABLED у второго
 
         const zoneParent = zone.parent(); // plane или bridge
         const game = zoneParent.game();
@@ -138,11 +152,11 @@
       if (!this.targetDice) {
         const superGame = game.isSuperGame ? game : game.game();
         const ids = Object.keys(player.eventData.dice);
-        const diceId = ids[Math.floor(Math.random() * ids.length)]
+        const diceId = ids[Math.floor(Math.random() * ids.length)];
         const dice = superGame.get(diceId);
 
         if (dice) this.emit('TRIGGER', { target: dice });
       }
-    }
+    },
   };
-};
+});
