@@ -67,6 +67,7 @@
         zoneParent.set({ eventData: { actionsDisabled: null } });
       }
 
+      game.toggleEventHandlers('DICE_REPLACEMENT_EVENT_ENDED', {}, player);
       this.emit('RESET');
     },
     DICE_RESTORE_NOT_AVAILABLE: function ({ msg = '', initPlayer: player }) {
@@ -84,7 +85,10 @@
 
       // уже успели заменить часть из удаленных dice - возвращаем все в руку
       for (const [dice, player] of placedDices.entries()) {
-        dice.moveToTarget(player.find('Deck[domino]'));
+        const parentDeck = dice.eventData.sourceParentId
+          ? game.get(dice.eventData.sourceParentId) || game.find('Deck[domino]') // extraDeck-и уже удалены
+          : player.find('Deck[domino]');
+        dice.moveToTarget(parentDeck);
       }
 
       // восстанавливаем положение повернутых dice

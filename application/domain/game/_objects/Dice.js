@@ -97,7 +97,7 @@
     return this.getSides().map(side => side.value).join('-');
   }
 
-  moveToTarget(target, { markDelete = false } = {}) {
+  moveToTarget(target, { markDelete = false, setData } = {}) {
     const currentParent = this.parent();
     currentParent.removeItem(this); // сначала удаляем, чтобы не помешать размещению на соседней зоне
     const moveResult = target.addItem(this);
@@ -107,6 +107,7 @@
       this.updateParent(target);
 
       if (markDelete) this.markDelete();
+      if (setData) this.set(setData);
     } else {
       currentParent.addItem(this);
     }

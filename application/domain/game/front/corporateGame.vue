@@ -242,7 +242,9 @@ export default {
         this.hideZonesAvailability();
       }
     },
-    'player.eventData.availablePorts': function () {
+    'player.eventData.availablePorts': function (oldValue, newValue) {
+      if(oldValue == newValue) return;
+      
       const availablePorts = this.player.eventData.availablePorts || [];
       this.$nextTick(() => {
         this.state.gamePlaneNeedUpdate = true;

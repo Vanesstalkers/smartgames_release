@@ -33,8 +33,6 @@ export default {
   position: absolute;
   top: -10px;
   right: 10px;
-  box-shadow: 10px 10px 10px 0px black;
-  background: black;
   border-radius: 5px;
   z-index: 2;
 }
@@ -66,7 +64,8 @@ export default {
   }
 }
 .el:hover {
-  opacity: 0.7;
+  box-shadow: inset 0 0 20px 8px yellow;
+  border-radius: 12px;
 }
 .el[value='0'] {
   background-position: -0px;

@@ -26,13 +26,13 @@
       this.game(newParentGame);
     }
   }
-  moveToTarget(target, { anchorGameId } = {}) {
+  moveToTarget(target, { anchorGameId, setData } = {}) {
     if (target.subtype === 'table' && !this.anchorGameId) {
       this.set({ anchorGameId: anchorGameId || this.game().id() });
     }
 
     const currentParent = this.parent();
-    super.moveToTarget(target);
+    super.moveToTarget(target, { setData });
     const newParentGame = target.game();
     if (newParentGame !== currentParent.game()) {
       this.game(newParentGame);

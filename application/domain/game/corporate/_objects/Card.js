@@ -10,7 +10,7 @@
     return lib.store('game').get(this.sourceGameId);
   }
 
-  moveToTarget(target) {
+  moveToTarget(target, { setData } = {}) {
     const sourceGame = this.sourceGame();
     const targetGame = target.game();
     const superGame = sourceGame.isSuperGame ? sourceGame : sourceGame.game();
@@ -45,7 +45,7 @@
       }
     }
 
-    return super.moveToTarget(target);
+    return super.moveToTarget(target, { setData });
   }
   getEvent(eventName) {
     if (!eventName) eventName = this.name;

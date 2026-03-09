@@ -12,7 +12,7 @@
   findAvailableZones() {
     return domain.game.corporate.actions.dice.findAvailableZones.call(this);
   }
-  moveToTarget(target, { markDelete = false } = {}) {
+  moveToTarget(target, { markDelete = false, setData } = {}) {
     const sourceGame = this.sourceGame();
     const targetGame = target.game();
 
@@ -38,6 +38,6 @@
       }
     }
 
-    return super.moveToTarget(target, { markDelete });
+    return super.moveToTarget(target, { markDelete, setData });
   }
 });

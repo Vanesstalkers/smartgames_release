@@ -131,7 +131,7 @@
         };
     }
   }
-  moveToTarget(target) {
+  moveToTarget(target, { setData } = {}) {
     let moveResult = target.beforeAddItem?.(this);
     if (moveResult?.error) return moveResult;
 
@@ -140,6 +140,7 @@
     moveResult = target.addItem(this);
     if (moveResult) {
       this.updateParent(target);
+      if (setData) this.set(setData);
       if (target.afterAddItem) target.afterAddItem(this);
     } else {
       currentParent.addItem(this); // восстанавливаем, если не получилось переместить
