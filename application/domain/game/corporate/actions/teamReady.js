@@ -8,7 +8,7 @@
     if (!game.eventData.teamReady) return;
   }
 
-  if (superGame.restorationMode) return superGame.restart();
+  if (superGame.restorationMode) return;
 
   superGame.run('putStartPlanes');
 

@@ -3,8 +3,13 @@
   const playerId = player.id();
   const superGame = this.game();
 
-  if (!this.getTeamlead()) {
-    player.set({ teamlead: true, active: true });
+  if (this.restorationMode) {
+    if (data.active) player.set({ active: true });
+    if (data.teamlead) player.set({ teamlead: true });
+  } else {
+    if (!this.getTeamlead()) {
+      player.set({ teamlead: true, active: true });
+    }
   }
 
   this.set({ playerMap: { [playerId]: {} } });

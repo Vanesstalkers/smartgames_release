@@ -20,17 +20,12 @@
         </span>
       </button>
       <div v-if="!viewLoaded" class="exit show-with-delay">
-        <button v-on:click="logout">Выйти из лобби</button>
+        <button @click="returnToLobby">Вернуться в лобби</button>
       </div>
     </div>
 
-    <div
-      v-if="connection && !connection.connected && connection.reconnecting"
-      class="connection-overlay"
-    >
-      <div class="connection-overlay__content">
-        Соединение с сервером разорвано, идет попытка переподключения...
-      </div>
+    <div v-if="connection && !connection.connected && connection.reconnecting" class="connection-overlay">
+      <div class="connection-overlay__content">Соединение с сервером разорвано, идет попытка переподключения...</div>
     </div>
 
     <router-view />
@@ -82,8 +77,8 @@ export default {
     },
   },
   methods: {
-    async logout() {
-      await api.action.call({ path: 'lobby.api.logout' }).catch(prettyAlert);
+    async returnToLobby() {
+      this.$router.push({ path: '/' }).catch((err) => console.error(err));
     },
     toggleFullscreen() {
       if (!this.state.isFullscreen) document.documentElement.requestFullscreen();

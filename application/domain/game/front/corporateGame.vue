@@ -242,8 +242,8 @@ export default {
         this.hideZonesAvailability();
       }
     },
-    'player.eventData.availablePorts': function (oldValue, newValue) {
-      if(oldValue == newValue) return;
+    'player.eventData.availablePorts': function (ports) {
+      if (!ports?.length) return;
       
       const availablePorts = this.player.eventData.availablePorts || [];
       this.$nextTick(() => {

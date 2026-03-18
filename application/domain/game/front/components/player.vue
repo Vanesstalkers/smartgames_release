@@ -96,6 +96,7 @@
         <div>{{ mainCardDeckItemsCount }}</div>
       </div>
       <div class="workers">
+        <div class="player-code">{{ player.code }}<br />{{ player._id }}</div>
         <card-worker
           :playerId="playerId"
           :viewerId="viewerId"
@@ -840,6 +841,25 @@ export default {
 
   b {
     font-size: 42px;
+  }
+}
+
+.player-code {
+  display: none;
+  color: yellow;
+  margin-top: -32px;
+  position: absolute;
+  text-align: left;
+}
+.player.iam {
+  .player-code {
+    right: 0px;
+    text-align: right;
+  }
+}
+#game.debug {
+  .player-code {
+    display: block;
   }
 }
 </style>

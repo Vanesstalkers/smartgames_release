@@ -151,30 +151,20 @@
       if (this.status === 'FINISHED') throw new Error('Игра уже завершена');
 
       const restoredPlayer = !!playerId;
-      const player = restoredPlayer ? this.get(playerId) : this.getFreePlayerSlot({ game: this.get(teamId) });
+      const player = restoredPlayer
+        ? this.get(playerId) || this.getFreePlayerSlot({ game: this.get(teamId) })
+        : this.getFreePlayerSlot({ game: this.get(teamId) });
       if (!player) throw new Error('Свободных мест не осталось');
-      const gameId = this.id();
+
       playerId = player.id();
       const playerGame = player.game();
 
       player.set({ ready: true, userId, userName });
       this.logs({ msg: `Игрок {{player}} присоединился к игре.`, userId });
 
-      const user = lib.store('user').get(userId);
-      await user.joinGame({ gameId, playerId });
-
       if (restoredPlayer) {
-        if (!playerGame.eventData.teamReady) {
-          const teamlead = playerGame.getTeamlead();
-          if (teamlead !== player) {
-            // teamlead еще не подключился, иначе было бы playerGame.eventData.teamReady
-            player.set({ teamlead: true });
-            teamlead.set({ teamlead: null });
-          }
-          playerGame.run('teamReady', {}, player);
-        }
         await this.saveChanges();
-        return;
+        return { playerId, teamId: player.gameId };
       }
 
       playerGame.set({ disabled: false, playerMap: { [playerId]: userId } });
@@ -205,12 +195,14 @@
       }
 
       await this.saveChanges();
+
+      return { playerId, teamId: player.gameId };
     } catch (exception) {
       console.error(exception);
       lib.store.broadcaster.publishAction.call(this, `user-${userId}`, 'broadcastToSessions', {
         data: { message: exception.message, stack: exception.stack },
       });
-      lib.store.broadcaster.publishAction.call(this, `user-${userId}`, 'logout'); // инициирует hideGameIframe
+      lib.store.broadcaster.publishAction.call(this, `user-${userId}`, 'returnToLobby'); // инициирует hideGameIframe
     }
   }
   async removeGame(config) {
@@ -224,9 +216,11 @@
       this.logs({ msg: `Игрок {{player}} вышел из игры.`, userId });
       try {
         const player = this.getPlayerByUserId(userId);
-        this.run('processPlayerLeave', {}, player);
+        if (player) {
+          this.run('processPlayerLeave', {}, player);
 
-        await this.saveChanges();
+          await this.saveChanges();
+        }
       } catch (exception) {
         if (exception instanceof lib.game.endGameException) {
           await this.removeGame();

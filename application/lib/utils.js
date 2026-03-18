@@ -317,7 +317,7 @@
           return value;
         }
       : null;
-    return JSON.parse(JSON.stringify(data, replacer));
+    return JSON.parse(JSON.stringify(data, replacer)); // ! при переписывание необходимо учесть, что undefined-значения при клонировании должны удаляться
   },
   keysToNull(obj) {
     return Object.fromEntries(Object.keys(obj).map((key) => [key, null]));

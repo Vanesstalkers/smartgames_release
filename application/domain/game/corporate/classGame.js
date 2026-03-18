@@ -185,7 +185,7 @@
   fieldIsBlocked() {
     const superGame = this.game();
     if (superGame.status === 'RESTORING_GAME') return true;
-    if (this.eventData.activeEvents?.find(e => e.name === 'initGameFieldsMerge')) return true;
+    if (this.eventData.activeEvents?.find((e) => e.name === 'initGameFieldsMerge')) return true;
 
     if (this.gameConfig === 'cooperative') {
       const mergeStatus = this.mergeStatus();
@@ -221,7 +221,7 @@
 
   hasDiceReplacementEvent() {
     const game = this.merged ? this.game() : this;
-    return game.eventData.activeEvents.some(event => event.name === 'diceReplacementEvent');
+    return game.eventData.activeEvents.some((event) => event.name === 'diceReplacementEvent');
   }
 
   logs(data, config = {}) {
@@ -233,7 +233,7 @@
   }
 
   getTeamlead() {
-    return this.players().find(p => p.teamlead);
+    return this.players({ readyOnly: false }).find((p) => p.teamlead);
   }
 
   renameTeam({ title }) {
@@ -249,7 +249,9 @@
       const tablePlanesCount = this.decks.table.itemsCount();
       const expectedZonesCount = tablePlanesCount === 0 ? 4 : tablePlanesCount === 1 ? 3 : 2;
 
-      const planes = this.find('Deck[plane]').items().filter((p) => p.zonesCount() === expectedZonesCount);
+      const planes = this.find('Deck[plane]')
+        .items()
+        .filter((p) => p.zonesCount() === expectedZonesCount);
 
       // вызов с forceSearch делается в putPlaneOnFieldRecursive - если не вернуть вообще никакое поле, то игра завершится с ошибкой (можно повторить, если выставить большой planesToChoose в конфигах игры)
       if (planes.length === 0 && forceSearch) return super.getSmartRandomPlaneFromDeck();
@@ -276,6 +278,25 @@
     const roundActivePlayer = this.roundActivePlayer();
     const newActivePlayer = super.selectNextActivePlayer();
     return newActivePlayer || roundActivePlayer; // в команде могло не остаться игроков после их удаления - возвращаем последнего активного игрока, чтобы отработал END_ROUND
+  }
+
+  ensureActiveAndTeamlead() {
+    const players = this.players({ readyOnly: false });
+    if (!players.length) return;
+
+    let activePlayer = this.roundActivePlayer();
+    if (!activePlayer.ready) {
+      const nextActivePlayer = this.selectNextActivePlayer();
+      activePlayer.deactivate();
+      nextActivePlayer.activate();
+      activePlayer = nextActivePlayer;
+    }
+
+    const teamlead = this.getTeamlead();
+    if (!teamlead.ready) {
+      teamlead.set({ teamlead: null });
+      activePlayer.set({ teamlead: true });
+    }
   }
 
   countDicesInHands() {
