@@ -12,11 +12,9 @@ async () => {
 
   if (application.worker.id === 'W1') {
     console.debug('Connect to redis');
-    await db.redis.handlers.afterStart({
-      redisConnected: async () => {
-        console.info('db.redis.afterStart');
-      },
-    });
+    await db.redis.handlers.afterStart({ redisConnected: async () => {
+      console.info('db.redis.afterStart');
+    } });
   }
 
   db.redis.ready = true;
