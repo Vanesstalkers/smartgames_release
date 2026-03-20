@@ -9,6 +9,7 @@ async () => {
     active: true,
     url: lib.lobby.__devMode ? 'http://localhost:8082' : smartgamesURL,
     serverUrl: lib.lobby.__devMode ? `http://localhost:${config.server.ports[0]}` : `${smartgamesURL}/api`,
+    smartgamesServerUrl: lib.lobby.__devMode ? `http://localhost:8800` : `${smartgamesURL}/api`,
     games: {}, // будет заполнено в lib.lobby.start.fillingLobbyGamesList
   };
   lib.lobby.__tutorialImgPrefix = lib.lobby.__devMode ? '' : `/${code}`;
