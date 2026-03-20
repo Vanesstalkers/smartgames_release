@@ -1,1 +1,1 @@
-(class ReleaseUser extends domain.game.User {});
+(class ReleaseUser extends domain.lobby.User {})

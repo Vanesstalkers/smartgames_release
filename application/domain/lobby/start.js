@@ -1,11 +1,11 @@
 async () => {
-  const code = 'release';
+  const code = config.smartgames.appCode;
   const smartgamesURL = `https://smartgames.studio/${code}`;
 
   lib.lobby.__gameServerConfig = {
     code,
-    title: 'Релиз',
-    icon: ['fas', 'microchip'],
+    title: config.smartgames.appTitle,
+    icon: config.smartgames.appIcon,
     active: true,
     url: lib.lobby.__devMode ? 'http://localhost:8082' : smartgamesURL,
     serverUrl: lib.lobby.__devMode ? `http://localhost:${config.server.ports[0]}` : `${smartgamesURL}/api`,

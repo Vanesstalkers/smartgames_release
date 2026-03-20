@@ -2,7 +2,7 @@
   async gameFinished(data = {}) {
     const {
       corporateGame,
-      gameType,
+      gameCode,
       playerEndGameStatus,
       fullPrice,
       roundCount,
@@ -40,23 +40,23 @@
     const endGameStatus = playerEndGameStatus[this.id()];
 
     const rankings = clone(this.rankings || {});
-    if (!rankings[gameType]) rankings[gameType] = {};
-    const { games = 0, win = 0, money = 0, crutch = 0, penalty = 0, totalTime = 0 } = rankings[gameType];
+    if (!rankings[gameCode]) rankings[gameCode] = {};
+    const { games = 0, win = 0, money = 0, crutch = 0, penalty = 0, totalTime = 0 } = rankings[gameCode];
 
     let income = 0;
     let penaltySum = 0;
     if (endGameStatus === 'win') {
       penaltySum = 100 * crutchCount * 1000;
       income = fullPrice * 1000 - penaltySum;
-      rankings[gameType].money = money + income;
+      rankings[gameCode].money = money + income;
       if (income < 0) income = 0; // в рейтинги отрицательный результата пишем
-      rankings[gameType].penalty = penalty + penaltySum;
-      rankings[gameType].crutch = crutch + crutchCount;
-      rankings[gameType].win = win + 1;
+      rankings[gameCode].penalty = penalty + penaltySum;
+      rankings[gameCode].crutch = crutch + crutchCount;
+      rankings[gameCode].win = win + 1;
     }
-    rankings[gameType].games = games + 1;
-    rankings[gameType].totalTime = totalTime + roundCount;
-    rankings[gameType].avrTime = Math.floor(rankings[gameType].totalTime / rankings[gameType].win);
+    rankings[gameCode].games = games + 1;
+    rankings[gameCode].totalTime = totalTime + roundCount;
+    rankings[gameCode].avrTime = Math.floor(rankings[gameCode].totalTime / rankings[gameCode].win);
 
     const { steps } = getTutorial('game-tutorial-finished');
     const tutorial = clone(steps, { convertFuncToString: true });
