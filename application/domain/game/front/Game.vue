@@ -118,14 +118,6 @@ export default {
         ).length || 0
       );
     },
-
-    fullPrice() {
-      const { gameTimer, gameConfig } = this.game;
-      const baseSum = 1000; // TO_CHANGE (меняем на свою сумму дохода за игру)
-      const timerMod = 30000 / gameTimer;
-      const configMod = { blitz: 0.5, standart: 0.75, hardcore: 1 }[gameConfig];
-      return Math.floor(baseSum * timerMod * configMod);
-    },
     deckList() {
       return Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id]) || [];
     },
