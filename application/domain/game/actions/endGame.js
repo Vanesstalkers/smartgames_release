@@ -6,7 +6,7 @@
     gameId: this.id(),
     gameCode: this.gameCode,
     playerEndGameStatus: this.playerEndGameStatus,
-    fullPrice: this.getFullPrice(),
+    gameAward: this.run('getGameAward'),
     roundCount: this.round,
     crutchCount: this.crutchCount(),
   });

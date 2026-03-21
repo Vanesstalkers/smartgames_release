@@ -70,7 +70,7 @@
       <div :class="['wrapper decks ', allGamesMerged ? 'show-super' : '']">
         <div class="game-status-label">
           Бюджет
-          <span style="color: gold">{{ fullPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}k ₽</span>
+          <span style="color: gold">{{ gameAward.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}k ₽</span>
           {{ superGame.statusLabel }}
           <small v-if="selectedGame.roundReady">{{
             allGamesMerged ? 'Ход другой команды' : 'Ожидание других команд'
@@ -347,8 +347,8 @@ export default {
       return this.sessionPlayer().eventData;
     },
 
-    fullPrice() {
-      let fullPrice = 0;
+    gameAward() {
+      let gameAward = 0;
       for (const game of this.games) {
         const { gameTimer, gameConfig, table } = game;
         const baseSum = Object.keys(table.itemMap)
@@ -356,9 +356,9 @@ export default {
           .reduce((sum, plane) => sum + plane.price, 0);
         const timerMod = 30 / gameTimer;
         const configMod = { blitz: 0.5, standart: 0.75, hardcore: 1 }[gameConfig] || 1; // !!! + corporate
-        fullPrice += Math.floor(baseSum * timerMod * configMod);
+        gameAward += Math.floor(baseSum * timerMod * configMod);
       }
-      return fullPrice;
+      return gameAward;
     },
     deckList() {
       let resultDeckList = Object.keys(this.selectedGame.deckMap).map((id) => this.store.deck?.[id]);

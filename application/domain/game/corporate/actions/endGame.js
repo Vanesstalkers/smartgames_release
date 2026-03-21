@@ -53,7 +53,7 @@
     gameId: superGame.id(),
     gameCode: superGame.gameCode,
     playerEndGameStatus: superGame.playerEndGameStatus,
-    fullPrice: superGame.getFullPrice(),
+    gameAward: superGame.run('getGameAward'),
     roundCount: superGame.round,
     crutchCount: superGame.crutchCount(),
     msg,

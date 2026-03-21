@@ -40,7 +40,7 @@
       <div class="wrapper">
         <div class="game-status-label">
           Бюджет
-          <span style="color: gold">{{ fullPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}k ₽</span>
+          <span style="color: gold">{{ gameAward.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') }}k ₽</span>
           {{ game.statusLabel }}
           <small v-if="game.status === 'RESTORING_GAME'">{{ subStatusLabel }}</small>
         </div>
@@ -225,7 +225,7 @@ export default {
       );
     },
 
-    fullPrice() {
+    gameAward() {
       const { gameTimer, gameConfig } = this.game;
       const baseSum = Object.keys(this.tablePlanes.itemMap)
         .map((planeId) => this.store.plane?.[planeId] || {})

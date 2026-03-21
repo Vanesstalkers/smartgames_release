@@ -4,7 +4,7 @@
       corporateGame,
       gameCode,
       playerEndGameStatus,
-      fullPrice,
+      gameAward,
       roundCount,
       crutchCount,
       msg = {},
@@ -47,7 +47,7 @@
     let penaltySum = 0;
     if (endGameStatus === 'win') {
       penaltySum = 100 * crutchCount * 1000;
-      income = fullPrice * 1000 - penaltySum;
+      income = gameAward * 1000 - penaltySum;
       rankings[gameCode].money = money + income;
       if (income < 0) income = 0; // в рейтинги отрицательный результата пишем
       rankings[gameCode].penalty = penalty + penaltySum;
@@ -73,7 +73,7 @@
   }
   async corporateGameFinished({
     playerEndGameStatus,
-    fullPrice,
+    gameAward,
     crutchCount,
     msg = {},
     preventCalcStats = false,
@@ -108,7 +108,7 @@
     let penaltySum = 0;
     if (endGameStatus === 'win') {
       penaltySum = 100 * crutchCount * 1000;
-      income = fullPrice * 1000 - penaltySum;
+      income = gameAward * 1000 - penaltySum;
       if (income < 0) income = 0; // в рейтинги отрицательный результата пишем
     }
 

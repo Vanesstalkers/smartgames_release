@@ -130,10 +130,6 @@
     const clone = lib.utils.structuredClone(this);
     this.game().dumpChild(clone);
   }
-  addPlayer(data) {
-    const { Player } = this.defaultClasses();
-    return new Player(data, { parent: this });
-  }
 
   getFreePlayerSlot() {
     const slot = super.getFreePlayerSlot();
