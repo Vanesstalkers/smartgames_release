@@ -1,6 +1,8 @@
 <template>
-  <game :defaultScaleMinVisibleWidth="1000" :planeScaleMin="1" :planeScaleMax="5">
-    <template #helper-guru="{ menuWrapper, menuButtonsMap } = {}" />
+  <game :debug="false">
+    <template #helper-guru="{ menuWrapper, menuButtonsMap } = {}">
+      <tutorial :game="game" class="scroll-off" :customMenu="customMenu({ menuWrapper, menuButtonsMap })" />
+    </template>
 
     <template #gameplane="{
       /* game = {}, gamePlaneScale */
@@ -10,7 +12,8 @@
     <template #gameinfo="{} = {}">
       <div class="wrapper">
         <div class="game-status-label">
-          {{ statusLabel }}
+          {{ game.statusLabel }}
+          <small v-if="game.status === 'RESTORING_GAME'">{{ subStatusLabel }}</small>
         </div>
         <div class="deck-list">
           <div
@@ -91,11 +94,13 @@ export default {
     showPlayerControls() {
       return this.game.status === 'IN_PROCESS' || this.game.status === 'PREPARE_START';
     },
+
     restoringGameState() {
       return this.game.status === 'RESTORING_GAME';
     },
-    statusLabel() {
-      return this.restoringGameState ? 'Восстановление игры' : this.game.statusLabel;
+    subStatusLabel() {
+      const players = Object.values(this.store.player || {});
+      return `Подключилось ${players.filter((player) => player.ready).length} из ${players.length} игроков`;
     },
     playerIds() {
       const ids = Object.keys(this.game.playerMap || {}).sort((id1, id2) => (id1 > id2 ? 1 : -1));
@@ -125,7 +130,23 @@ export default {
       return Object.keys(this.game.deckMap).map((id) => this.store.deck?.[id]) || [];
     },
   },
-  methods: {},
+  methods: {
+    customMenu({ menuWrapper, menuButtonsMap } = {}) {
+      if (!menuButtonsMap) return [];
+
+      const { cancel, restore, tutorials, helperLinks, leave } = menuButtonsMap();
+      const fillTutorials = tutorials({
+        showList: [
+          { title: 'Стартовое приветствие игры', action: { tutorial: 'game-tutorial-start' } },
+          { title: 'Управление игровым полем', action: { tutorial: 'game-tutorial-gamePlane' } },
+        ],
+      });
+
+      return menuWrapper({
+        buttons: [cancel(), restore(), fillTutorials, helperLinks({ inGame: true }), leave()],
+      });
+    },
+  },
 };
 </script>
 <style lang="scss">

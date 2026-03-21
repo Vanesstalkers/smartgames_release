@@ -39,6 +39,64 @@ const init = async () => {
 
   await metacom.load('action');
 
+  class StoreQueue {
+    constructor(getTarget) {
+      this.queue = [];
+      this.processing = false;
+      this.getTarget = getTarget;
+    }
+
+    push(data) {
+      this.queue.push(data);
+      this.process();
+    }
+
+    process() {
+      if (this.processing || this.queue.length === 0) return;
+      this.processing = true;
+      const data = this.queue.shift();
+      mergeDeep({ target: this.getTarget(), source: data });
+      this.processing = false;
+      if (this.queue.length > 0) {
+        Promise.resolve().then(() => this.process());
+      }
+    }
+  }
+
+  let reconnectPollTimer = null;
+
+  const startReconnectPolling = () => {
+    if (reconnectPollTimer) return;
+    reconnectPollTimer = setInterval(async () => {
+      if (metacom.connected) {
+        clearInterval(reconnectPollTimer);
+        reconnectPollTimer = null;
+        return;
+      }
+      try {
+        const response = await fetch(`${location.protocol}//${serverHost}`, {
+          method: 'HEAD',
+          cache: 'no-store',
+        });
+        if (response.ok) {
+          try {
+            await metacom.open();
+          } catch (err) {
+            console.log(err);
+          }
+        }
+      } catch (err) {
+        // сервер всё ещё недоступен, просто ждём следующую попытку
+      }
+    }, 5000);
+  };
+
+  const stopReconnectPolling = () => {
+    if (!reconnectPollTimer) return;
+    clearInterval(reconnectPollTimer);
+    reconnectPollTimer = null;
+  };
+
   const state = {
     serverOrigin: `${location.protocol}//${serverHost}`,
     innerWidth: window.innerWidth,
@@ -51,22 +109,53 @@ const init = async () => {
     gamePlaneNeedUpdate: false,
     guiScale: 1,
     store: {},
+    connection: {
+      connected: metacom.connected,
+      reconnecting: false,
+      lastError: null,
+      lastConnectedAt: null,
+      lastDisconnectedAt: null,
+      reconnectAttempts: 0,
+    },
     emit: {
       updateStore(data) {
-        mergeDeep({ target: state.store, source: data });
+        storeQueue.push(data);
       },
       alert(data, config) {
         window.prettyAlert(data, config);
       },
-      logout() {
-        window.app.$set(window.app.$root.state, 'currentUser', '');
-        localStorage.removeItem(window.tokenName);
-        router.push({ path: '/' }).catch((err) => {
-          console.log(err);
-        });
+      returnToLobby() {
+        router.push({ path: '/' }).catch((err) => console.error(err));
       },
     },
   };
+
+  const storeQueue = new StoreQueue(() => state.store);
+
+  metacom.on('open', () => {
+    state.connection.connected = true;
+    state.connection.reconnecting = false;
+    state.connection.lastConnectedAt = Date.now();
+    // если до этого уже было зафиксировано отключение, значит это восстановление соединения
+    const hadDisconnect = state.connection.lastDisconnectedAt !== null;
+    stopReconnectPolling();
+    if (hadDisconnect) {
+      // полная перезагрузка страницы после восстановления коннекта
+      window.location.reload();
+    }
+  });
+
+  metacom.on('close', () => {
+    state.connection.connected = false;
+    state.connection.reconnecting = true;
+    state.connection.lastDisconnectedAt = Date.now();
+    state.connection.reconnectAttempts += 1;
+    startReconnectPolling();
+  });
+
+  metacom.on('error', (err) => {
+    state.connection.lastError = err && err.message ? err.message : String(err);
+  });
 
   api.action.on('emit', ({ eventName, data, config }) => {
     const event = state.emit[eventName];
@@ -79,6 +168,9 @@ const init = async () => {
     if (path && args) {
       const result = await api.action.call({ path, args }).catch((err) => window.prettyAlert(err));
 
+      if (result?.returnToLobby === true) {
+        return router.push({ path: '/' }).catch((err) => location.reload());
+      }
       if (result?.logout === true) {
         return await api.action.call({ path: 'lobby.api.logout' }).catch(window.prettyAlert);
       }
@@ -106,43 +198,9 @@ const init = async () => {
     return next();
   });
 
-  const mixin = {
-    methods: {
-      async initSession(config, handlers) {
-        if (arguments.length < 2) {
-          handlers = config;
-          config = {};
-        }
-        const { success: onSuccess, error: onError } = handlers;
-
-        const token = localStorage.getItem(window.tokenName);
-        const session =
-          (await api.action
-            .public({
-              path: 'user.api.initSession',
-              args: [{ token, windowTabId: window.name, ...config }],
-            })
-            .catch(async (err) => {
-              if (typeof onError === 'function') await onError(err);
-            })) || {};
-
-        const { token: sessionToken, userId } = session;
-
-        this.$set(this.$root.state, 'currentToken', sessionToken);
-        if (sessionToken && sessionToken !== token) localStorage.setItem(window.tokenName, sessionToken);
-        if (userId) {
-          this.$set(this.$root.state, 'currentUser', userId);
-          if (typeof onSuccess === 'function') await onSuccess(session);
-        }
-
-        return session;
-      },
-    },
-  };
   window.state = state;
   window.app = new Vue({
     router,
-    mixins: [mixin],
     data: { state },
     render(h) {
       return h(App);

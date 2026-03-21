@@ -110,7 +110,7 @@
       // без этого рекурсия не дойдет до нужного keyPath в проверке выше
       if (reset.includes([...keyPath, key].join('.')) && source[key] === null) source[key] = {};
 
-      if (masterObj[key] === null) {
+      if (masterObj[key] == null) {
         if (source[key] !== null) {
           if (typeof source[key] === 'object' && !Array.isArray(source[key])) {
             if (!target[key]) target[key] = {};
@@ -317,7 +317,7 @@
           return value;
         }
       : null;
-    return JSON.parse(JSON.stringify(data, replacer));
+    return JSON.parse(JSON.stringify(data, replacer)); // ! при переписывание необходимо учесть, что undefined-значения при клонировании должны удаляться
   },
   keysToNull(obj) {
     return Object.fromEntries(Object.keys(obj).map((key) => [key, null]));

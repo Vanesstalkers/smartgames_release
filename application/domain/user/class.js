@@ -1,1 +1,1 @@
-(class TO_CHANGE extends domain.game.User {});
+(class DomainUser extends domain.lobby.User {});
