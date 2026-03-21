@@ -1,4 +1,4 @@
-(class ReleaseGameUser extends lib.game.User() {
+(class DomainGameUser extends lib.game.User() {
   async gameFinished(data = {}) {
     const {
       corporateGame,

@@ -1,4 +1,4 @@
-(class ReleaseLobbyUser extends domain.game.User {
+(class DomainLobbyUser extends domain.game.User {
   async enterLobby({ sessionId, lobbyId }) {
     const smartgamesLobby = await db.redis.get('smartgamesPortalLobby', { json: true });
 
