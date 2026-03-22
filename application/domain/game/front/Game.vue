@@ -1,5 +1,9 @@
 <template>
-  <game :debug="false">
+  <game
+    :debug="false"
+    :gamePlaneFillWidth="[0.4, 0.4, 0.4, 0.4, 0.4][state.guiScale - 1]"
+    :planeScaleMax="[1.5, 2, 3, 4, 6][state.guiScale - 1]"
+  >
     <template #helper-guru="{ menuWrapper, menuButtonsMap } = {}">
       <tutorial :game="game" class="scroll-off" :customMenu="customMenu({ menuWrapper, menuButtonsMap })" />
     </template>
@@ -69,7 +73,7 @@ export default {
   },
   props: {},
   setup() {
-    const gameGlobals = prepareGameGlobals();
+    const gameGlobals = prepareGameGlobals({ defaultDeviceOffset: 500 });
     provide('gameGlobals', gameGlobals);
     return gameGlobals;
   },
