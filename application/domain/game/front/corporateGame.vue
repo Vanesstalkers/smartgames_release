@@ -212,6 +212,7 @@ export default {
   },
   setup() {
     const gameGlobals = prepareGameGlobals({
+      // defaultDeviceOffset: 200, // ??? не дает эффекта
       gameCustomArgs: {
         ...gameCustomArgs,
         gamePlaneRotations: {},

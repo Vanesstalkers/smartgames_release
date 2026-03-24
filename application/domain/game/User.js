@@ -3,7 +3,7 @@
     const {
       corporateGame,
       gameCode,
-      playerEndGameStatus,
+      userEndGameStatusMap,
       gameAward,
       roundCount,
       crutchCount,
@@ -37,7 +37,7 @@
 
     if (preventCalcStats) return;
 
-    const endGameStatus = playerEndGameStatus[this.id()];
+    const endGameStatus = userEndGameStatusMap[this.id()];
 
     const rankings = clone(this.rankings || {});
     if (!rankings[gameCode]) rankings[gameCode] = {};
@@ -72,7 +72,7 @@
     await this.saveChanges();
   }
   async corporateGameFinished({
-    playerEndGameStatus,
+    userEndGameStatusMap,
     gameAward,
     crutchCount,
     msg = {},
@@ -102,7 +102,7 @@
 
     if (preventCalcStats) return;
 
-    const endGameStatus = playerEndGameStatus[this.id()];
+    const endGameStatus = userEndGameStatusMap[this.id()];
 
     let income = 0;
     let penaltySum = 0;

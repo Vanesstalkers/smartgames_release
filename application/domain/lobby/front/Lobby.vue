@@ -3,7 +3,7 @@
     <template v-if="lobby.__gameServerConfig" #menu-item-game>
       <games class="menu-item-content" :gamesMap="gamesMap" :defaultGameCode="defaultGameCode">
         <template #tutorial-games="{ showTeams, showTeam }">
-          <tutorial-games class="tutorial-games" :show-teams="showTeams" @show-team="showTeam" />
+          <tutorial-games class="tutorial-games" :show-teams="showTeams" :show-team="showTeam" />
         </template>
       </games>
     </template>
@@ -45,7 +45,12 @@ export default {
   },
   methods: {},
   created() {},
-  mounted() {},
+  mounted() {
+    if(this.lobby.code) {
+      // дублирует логику из App.vue на случай, если страница была перезагружена в процессе игры
+      this.$root.state.viewLoaded = true;
+    }
+  },
   async beforeDestroy() {},
 };
 </script>

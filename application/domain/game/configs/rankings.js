@@ -6,7 +6,7 @@
       sortFunc: (a, b) => ((a.money || -1) > (b.money || -1) ? -1 : 1),
       headers: [
         { code: 'games', title: 'Написано проектов' },
-        { code: 'money', title: 'Заработано денег' },
+        { code: 'money', title: 'Заработано денег', format: 'money' },
       ],
     },
     topPlayers: {
@@ -23,7 +23,7 @@
       headers: [
         { code: 'games', title: 'Написано проектов' },
         { code: 'crutch', title: 'Костылей' },
-        { code: 'penalty', title: 'Штрафов' },
+        { code: 'penalty', title: 'Штрафов', format: 'money' },
       ],
     },
     bestT2M: {

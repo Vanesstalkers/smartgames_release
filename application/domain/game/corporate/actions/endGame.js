@@ -29,7 +29,7 @@
     superGame.logs(`Команда <team team="${winningTeam.templates.code}">${winningTeam.title}</team> победила в игре.`);
   }
 
-  const playerEndGameStatus = {};
+  const userEndGameStatusMap = {};
   for (const player of superGame.players({ readyOnly: false })) {
     const { userId } = player;
     const endGameStatus = canceledByUser
@@ -42,17 +42,17 @@
         : 'lose'
       : 'lose'; // игра закончилась автоматически
     player.set({ endGameStatus });
-    playerEndGameStatus[userId] = endGameStatus;
+    userEndGameStatusMap[userId] = endGameStatus;
   }
 
-  superGame.set({ playerEndGameStatus });
+  superGame.set({ userEndGameStatusMap });
 
   superGame.checkCrutches();
   superGame.broadcastAction('gameFinished', {
     corporateGame: true,
     gameId: superGame.id(),
     gameCode: superGame.gameCode,
-    playerEndGameStatus: superGame.playerEndGameStatus,
+    userEndGameStatusMap: superGame.userEndGameStatusMap,
     gameAward: superGame.run('getGameAward'),
     roundCount: superGame.round,
     crutchCount: superGame.crutchCount(),

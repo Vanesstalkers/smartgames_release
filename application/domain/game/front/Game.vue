@@ -123,7 +123,7 @@ export default {
     };
   },
   setup() {
-    const gameGlobals = prepareGameGlobals({ gameCustomArgs: { ...gameCustomArgs } });
+    const gameGlobals = prepareGameGlobals({ defaultDeviceOffset: 200, gameCustomArgs: { ...gameCustomArgs } });
     Object.assign(gameGlobals, releaseGameGlobals);
     provide('gameGlobals', gameGlobals);
     return gameGlobals;
