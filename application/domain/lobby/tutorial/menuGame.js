@@ -32,7 +32,7 @@
     init: {
       initialStep: true,
       text: `
-        Колода бизнес-карт АВТОБИЗНЕС позволяет проводить <a>симуляции процессов продажи автомобилей в салонах автодилеров</a>. Доступны несколько типов игр, включая одиночный и командный.
+        Колода бизнес-карт АВТОБИЗНЕС позволяет проводить <a>симуляции процессов продажи автомобилей в салонах автодилеров</a>.
       `,
       actions: { before: async (data) => await data.utils.showGamesBlock(data) },
       buttons: [
@@ -46,7 +46,6 @@
         
         АВТО-ПРОДАЖИ - самая простая игра <a>друг против друга или&nbsp;против&nbsp;AI</a>
         АВТО-АУКЦИОН - более сложная <a>игра для двоих</a>
-        <span style="color: white; font-weight: bold;">БИЗНЕС-ПОКЕР - <a>формат корпоративной игры</a></span>
       `,
       actions: { before: async (data) => await data.utils.showGamesBlock(data) },
       active: '.game-block .select-btn:not(.disabled)',
