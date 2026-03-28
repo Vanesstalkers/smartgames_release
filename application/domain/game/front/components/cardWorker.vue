@@ -125,14 +125,8 @@ export default {
         return style;
       }
 
-      let avatarCode = `_default/${gender}_empty`;
-      if (this.player.ready && this.player.avatarsMap?.[gender]) {
-        avatarCode = this.player.avatarsMap[gender];
-      }
-      if (this.player.userId === this.state.currentUser && this.userData.avatarCode) {
-        avatarCode = this.userData.avatarCode;
-      }
-      if (this.player.avatarCode) avatarCode = this.player.avatarCode;
+      const defaultImage = `_default/${gender}_empty`;
+      const avatarCode = this.userData.avatarCode || this.player.avatarsMap?.[gender] || defaultImage;
 
       style.backgroundImage = `url(${this.state.serverOrigin}/img/workers/${avatarCode}.png)`;
 
