@@ -120,6 +120,11 @@ export default {
       const style = {};
       const gender = this.userData.gender;
 
+      if(this.player.avatarUrl) {
+        style.backgroundImage = `url(${this.player.avatarUrl}.png)`;
+        return style;
+      }
+
       let avatarCode = `_default/${gender}_empty`;
       if (this.player.ready && this.player.avatarsMap?.[gender]) {
         avatarCode = this.player.avatarsMap[gender];
@@ -129,7 +134,7 @@ export default {
       }
       if (this.player.avatarCode) avatarCode = this.player.avatarCode;
 
-      style.backgroundImage = `url(${this.state.lobbyOrigin}/img/workers/${avatarCode}.png)`;
+      style.backgroundImage = `url(${this.state.serverOrigin}/img/workers/${avatarCode}.png)`;
 
       return style;
     },
