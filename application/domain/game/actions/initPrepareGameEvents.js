@@ -10,7 +10,7 @@
     },
   } = domain.game.events.common.putPlaneFromHand();
 
-  const event = this.initEvent(
+  this.initEvent(
     {
       name: 'initPrepareGameEvents',
       data,

@@ -1,4 +1,4 @@
-(class CorporateSuperGame extends domain.game.class {
+(class CorporateSuperGame extends domain.game.Class {
   isSuperGame = true;
   gamesMap = {};
   roundPool = new lib.utils.circularArray();

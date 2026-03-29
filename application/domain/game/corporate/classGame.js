@@ -1,4 +1,4 @@
-(class CorporateGame extends domain.game.class {
+(class CorporateGame extends domain.game.Class {
   hasSuperGame = true;
   #relatedEvents = new Set();
 
