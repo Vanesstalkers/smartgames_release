@@ -9,7 +9,7 @@ async ({ gameType, gameId, lobbyId, round }) => {
           const gamesMap = {};
           for (const gameId of Object.keys(loadedData.gamesMap)) {
             const gameData = loadedData.store.game[gameId];
-            const game = await new domain.game.corporate.classGame(
+            const game = await new domain.game.corporate.ClassGame(
               { id: gameData._id, _code: gameData.code }, // data
               { parent: corporateGame } // config
             ).load({ fromData: gameData }, { initStore: true });
@@ -42,7 +42,7 @@ async ({ gameType, gameId, lobbyId, round }) => {
   const query = { _id: gameId };
   if (round) query.round = round;
 
-  const gameClassGetter = domain.game[gameType]?.class || domain.game.class;
+  const gameClassGetter = domain.game[gameType]?.Class || domain.game.Class;
   return await new gameClassGetter({ id: gameId })
     .load({ fromDB: { id: gameId, query, processData, fromDump: true } })
     .then(async (game) => {

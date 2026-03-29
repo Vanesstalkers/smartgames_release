@@ -59,7 +59,7 @@
 
     for (let _code = 1; _code <= this.teamsCount; _code++) {
       usedTemplates.unshift(domain.game.configs.cardTemplates.random({ exclude: usedTemplates }));
-      const game = await new domain.game.corporate.classGame(
+      const game = await new domain.game.corporate.ClassGame(
         { _code }, // storeData
         { parent: this } // gameObjectData
       ).create(
